@@ -25,3 +25,5 @@ jobs:
         run: node scripts/continuity-smoke.cjs
       - if: runner.os == 'Windows'
         run: node scripts/mcp-smoke.cjs
+      - if: runner.os == 'Windows'
+        run: node scripts/evidence-smoke.cjs

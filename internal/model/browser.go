@@ -40,6 +40,18 @@ type BrowserOperation struct {
 }
 
 func (s *State) Normalize() {
+	if s.Evaluators == nil {
+		s.Evaluators = map[string]Evaluator{}
+	}
+	if s.EvaluatorHeads == nil {
+		s.EvaluatorHeads = map[string]string{}
+	}
+	if s.Evidence == nil {
+		s.Evidence = map[string]Evidence{}
+	}
+	if s.EvidenceInvalidations == nil {
+		s.EvidenceInvalidations = map[string]EvidenceInvalidation{}
+	}
 	if s.Grants == nil {
 		s.Grants = map[string]Grant{}
 	}

@@ -47,12 +47,13 @@ type Result struct {
 	Data     any    `json:"data"`
 }
 type Engine struct {
-	mu        sync.Mutex
-	Store     *store.Store
-	Dir       string
-	Catalog   model.Catalog
-	viewHash  string
-	viewError string
+	ValidateEvidence func(context.Context, model.State, string) error
+	mu               sync.Mutex
+	Store            *store.Store
+	Dir              string
+	Catalog          model.Catalog
+	viewHash         string
+	viewError        string
 }
 
 func Open(dir string) (*Engine, error) {
@@ -217,7 +218,7 @@ func (e *Engine) execute(ctx context.Context, c Command, actor string, now time.
 		if c.ExpectedRevision != nil && *c.ExpectedRevision != st.Revision {
 			return store.Change{}, store.ErrConflict
 		}
-		b := builder{state: model.Clone(st), now: now.UTC(), cmdID: c.ID, catalog: e.Catalog, events: []store.Pending{}}
+		b := builder{state: model.Clone(st), now: now.UTC(), cmdID: c.ID, catalog: e.Catalog, events: []store.Pending{}, ctx: ctx, validateEvidence: e.ValidateEvidence}
 		data, err := b.run(c)
 		if err != nil {
 			return store.Change{}, err
@@ -323,11 +324,13 @@ func (e *Engine) Replay(ctx context.Context) (model.State, error) {
 }
 
 type builder struct {
-	state   model.State
-	now     time.Time
-	cmdID   string
-	catalog model.Catalog
-	events  []store.Pending
+	ctx              context.Context
+	validateEvidence func(context.Context, model.State, string) error
+	state            model.State
+	now              time.Time
+	cmdID            string
+	catalog          model.Catalog
+	events           []store.Pending
 }
 
 func (b *builder) emit(subject, verb, id string, payload any) error {

@@ -130,21 +130,25 @@ type Timer struct {
 	Outcome string    `json:"outcome,omitempty"`
 }
 type State struct {
-	Grants            map[string]Grant            `json:"grants"`
-	Revision          int64                       `json:"revision"`
-	LastEventID       int64                       `json:"last_event_id"`
-	Tasks             map[string]TaskRecord       `json:"tasks"`
-	Captures          map[string]Capture          `json:"captures"`
-	Proposals         map[string]Proposal         `json:"proposals"`
-	Timers            map[string]Timer            `json:"timers"`
-	Browsers          map[string]BrowserProfile   `json:"browsers"`
-	BrowserOperations map[string]BrowserOperation `json:"browser_operations"`
-	Contracts         map[string]Contract         `json:"contracts"`
-	ContractHeads     map[string]string           `json:"contract_heads"`
-	Decisions         map[string]Decision         `json:"decisions"`
-	Resources         map[string]Resource         `json:"resources"`
-	Checkpoints       map[string]Checkpoint       `json:"checkpoints"`
-	CheckpointHeads   map[string]string           `json:"checkpoint_heads"`
+	Evaluators            map[string]Evaluator            `json:"evaluators"`
+	EvaluatorHeads        map[string]string               `json:"evaluator_heads"`
+	Evidence              map[string]Evidence             `json:"evidence"`
+	EvidenceInvalidations map[string]EvidenceInvalidation `json:"evidence_invalidations"`
+	Grants                map[string]Grant                `json:"grants"`
+	Revision              int64                           `json:"revision"`
+	LastEventID           int64                           `json:"last_event_id"`
+	Tasks                 map[string]TaskRecord           `json:"tasks"`
+	Captures              map[string]Capture              `json:"captures"`
+	Proposals             map[string]Proposal             `json:"proposals"`
+	Timers                map[string]Timer                `json:"timers"`
+	Browsers              map[string]BrowserProfile       `json:"browsers"`
+	BrowserOperations     map[string]BrowserOperation     `json:"browser_operations"`
+	Contracts             map[string]Contract             `json:"contracts"`
+	ContractHeads         map[string]string               `json:"contract_heads"`
+	Decisions             map[string]Decision             `json:"decisions"`
+	Resources             map[string]Resource             `json:"resources"`
+	Checkpoints           map[string]Checkpoint           `json:"checkpoints"`
+	CheckpointHeads       map[string]string               `json:"checkpoint_heads"`
 }
 
 func Empty() State {
@@ -413,6 +417,9 @@ func validateDone(d Done, t Task) error {
 		}
 		seen[c.ID] = c
 		allowed := map[string]string{"manual": "", "children_done": "", "subtasks_done": "", "silence": "days after response_check", "mail.sent": "account to to_domain since after correlation", "mail.received": "account from from_domain since after correlation", "agent.released": "session", "repo.commit": "repo ref", "gh.pr_merged": "url"}
+		for _, kind := range []string{"artifact.exists", "artifact.digest", "repo.state", "test.exit"} {
+			allowed[kind] = ""
+		}
 		fields, ok := allowed[c.Kind]
 		if !ok {
 			return fmt.Errorf("unknown check kind %q", c.Kind)

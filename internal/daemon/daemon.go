@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"heimdall/internal/checks"
 	"heimdall/internal/core"
 	"heimdall/internal/model"
 	"heimdall/internal/store"
@@ -18,6 +19,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"sync"
 	"time"
 )
 
@@ -31,10 +33,12 @@ type Request struct {
 	Now     string       `json:"now,omitempty"`
 }
 type Server struct {
-	Engine       *core.Engine
-	Token, Host  string
-	BrowserToken string
-	Clock        func() time.Time
+	EvaluationContext context.Context
+	evaluations       sync.WaitGroup
+	Engine            *core.Engine
+	Token, Host       string
+	BrowserToken      string
+	Clock             func() time.Time
 }
 
 func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(Endpoint)) error {
@@ -43,8 +47,12 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 		return err
 	}
 	defer e.Close()
+	e.ValidateEvidence = checks.ValidateTarget
 	if clock == nil {
 		clock = time.Now
+	}
+	if err := (checks.Service{Store: e.Store}).Recover(ctx, clock().UTC()); err != nil {
+		return err
 	}
 	_ = e.ReconcileFile(ctx, clock())
 	listener, err := net.Listen("tcp4", "127.0.0.1:0")
@@ -87,6 +95,7 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	server := &http.Server{Handler: service, ReadHeaderTimeout: 2 * time.Second, ReadTimeout: 5 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: 30 * time.Second, MaxHeaderBytes: 8192}
 	localCtx, cancel := context.WithCancel(ctx)
 	defer cancel()
+	service.EvaluationContext = localCtx
 	watchDone := make(chan struct{})
 	go func() { defer close(watchDone); watch(localCtx, e, clock) }()
 	stopped := make(chan struct{})
@@ -106,6 +115,7 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	cancel()
 	<-watchDone
 	<-stopped
+	service.evaluations.Wait()
 	if errors.Is(err, http.ErrServerClosed) {
 		return nil
 	}
@@ -165,6 +175,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.continuityHTTP(w, r)
 		return
 	}
+	if strings.HasPrefix(r.URL.Path, "/evidence/") {
+		s.evidenceHTTP(w, r)
+		return
+	}
 	if r.URL.Path == "/grants" || strings.HasPrefix(r.URL.Path, "/grants/") {
 		s.grantHTTP(w, r)
 		return
@@ -172,7 +186,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		switch r.URL.Path {
 		case "/health":
-			writeJSON(w, map[string]any{"status": "running", "task_file_error": s.Engine.ViewError(), "capabilities": []string{"core", "capture", "manual_completion", "aggregate_proposals", "review_timers", "replay", "browser_metadata", "browser_commands", "continuity_cli_v1", "database_backup", "scoped_client_reads_v1", "scoped_checkpoint_writes_v1", "mcp_stdio_v1"}})
+			writeJSON(w, map[string]any{"status": "running", "task_file_error": s.Engine.ViewError(), "capabilities": []string{"core", "capture", "manual_completion", "aggregate_proposals", "review_timers", "replay", "browser_metadata", "browser_commands", "continuity_cli_v1", "database_backup", "scoped_client_reads_v1", "scoped_checkpoint_writes_v1", "mcp_stdio_v1", "evidence_cli_v1", "evidence_revalidation_v1"}})
 		case "/state":
 			st, err := s.Engine.Store.State(r.Context())
 			if err != nil {

@@ -17,14 +17,24 @@ type CheckResult struct {
 }
 
 func Evaluate(st model.State, id string) []CheckResult {
-	r, ok := st.Tasks[id]
-	if !ok {
+	r, step, err := model.ResolveTarget(st, id)
+	if err != nil {
 		return nil
 	}
+	done := r.Task.Done
+	if step != nil {
+		done = step.Done
+	}
 	out := []CheckResult{}
-	for _, c := range r.Task.Done.Checks {
+	for _, c := range done.Checks {
 		cr := CheckResult{ID: c.ID, Kind: c.Kind, Status: "unsupported", Evidence: []string{}}
 		switch c.Kind {
+		case "artifact.exists", "artifact.digest", "repo.state", "test.exit":
+			cr.Status = "unknown"
+			if evidence, current := model.LatestEvidence(st, id, c.ID); current {
+				cr.Status = evidence.Outcome
+				cr.Evidence = []string{evidence.ID}
+			}
 		case "manual":
 			cr.Status = "not_matched"
 		case "silence":
@@ -71,9 +81,13 @@ func Evaluate(st model.State, id string) []CheckResult {
 	return out
 }
 func proposalFor(st model.State, id string, now time.Time) (model.Proposal, bool) {
-	r := st.Tasks[id]
-	if terminal(r) {
+	r, step, err := model.ResolveTarget(st, id)
+	if err != nil || terminal(r) || (step != nil && (step.Status == "done" || step.Status == "dropped")) {
 		return model.Proposal{}, false
+	}
+	done := r.Task.Done
+	if step != nil {
+		done = step.Done
 	}
 	results := Evaluate(st, id)
 	if len(results) == 0 {
@@ -87,7 +101,7 @@ func proposalFor(st model.State, id string, now time.Time) (model.Proposal, bool
 			evidence = append(evidence, x.ID+":"+strings.Join(x.Evidence, ","))
 		}
 	}
-	if matched == 0 || (r.Task.Done.Mode == "all" && matched != len(results)) {
+	if matched == 0 || (done.Mode == "all" && matched != len(results)) {
 		return model.Proposal{}, false
 	}
 	sort.Strings(evidence)
@@ -109,6 +123,25 @@ func (b *builder) ratify(c Command) error {
 	verb := "rejected"
 	p.Status = "rejected"
 	if c.Action == "accept" {
+		task, step, err := model.ResolveTarget(b.state, p.Target)
+		if err != nil {
+			return err
+		}
+		done := task.Task.Done
+		if step != nil {
+			done = step.Done
+		}
+		for _, check := range done.Checks {
+			if evidence, current := model.LatestEvidence(b.state, p.Target, check.ID); current && evidence.Outcome == "matched" {
+				if b.validateEvidence == nil {
+					return fmt.Errorf("live evidence verifier unavailable")
+				}
+				if err := b.validateEvidence(b.ctx, b.state, p.Target); err != nil {
+					return fmt.Errorf("completion evidence changed: %w", err)
+				}
+				break
+			}
+		}
 		verb = "accepted"
 		p.Status = "accepted"
 	}
@@ -125,6 +158,11 @@ func (b *builder) reconcile() error {
 	for _, id := range sortedKeys(b.state.Tasks) {
 		if p, ok := proposalFor(b.state, id, b.now); ok {
 			candidates[p.ID] = p
+		}
+		for _, step := range b.state.Tasks[id].Task.Subtasks {
+			if p, ok := proposalFor(b.state, id+"#"+step.ID, b.now); ok {
+				candidates[p.ID] = p
+			}
 		}
 	}
 	for _, id := range sortedKeys(b.state.Proposals) {

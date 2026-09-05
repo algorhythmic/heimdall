@@ -111,10 +111,13 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 		return err
 	}
 	if len(o.args) == 0 {
-		return fmt.Errorf("usage: heimdall init|start|doctor|ls|state|add|update|import-tasks|capture|assign|complete|reopen|drop|ratify|checks|tick|sync|fmt|events|replay|browser|contract|decision|resource|checkpoint|context|backup|grant|client|mcp [--data-dir PATH] [--json]")
+		return fmt.Errorf("usage: heimdall init|start|doctor|ls|state|add|update|import-tasks|capture|assign|complete|reopen|drop|ratify|checks|tick|sync|fmt|events|replay|browser|contract|decision|resource|checkpoint|context|backup|grant|client|mcp|evidence [--data-dir PATH] [--json]")
 	}
 	verb := o.args[0]
 	rest := o.args[1:]
+	if verb == "evidence" {
+		return evidenceCLI(ctx, o, rest, out)
+	}
 	if verb == "mcp" {
 		return mcpCLI(ctx, rest)
 	}
@@ -200,10 +203,10 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 		return enc.Encode(state.Document())
 	case "checks":
 		if len(rest) != 1 {
-			return fmt.Errorf("checks requires task id")
+			return fmt.Errorf("checks requires task or task#step")
 		}
-		if _, ok := state.Tasks[rest[0]]; !ok {
-			return fmt.Errorf("unknown task")
+		if _, _, err := model.ResolveTarget(state, rest[0]); err != nil {
+			return err
 		}
 		return enc.Encode(core.Evaluate(state, rest[0]))
 	case "export-tasks":

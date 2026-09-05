@@ -1,0 +1,35 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Heimdall evaluator configuration or evaluation request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "target", "expected_task_revision"],
+  "properties": {
+    "version": {"const": 1},
+    "id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "target": {"type": "string", "minLength": 1},
+    "expected_task_revision": {"type": "integer", "minimum": 1},
+    "check_id": {"type": "string", "minLength": 1},
+    "contract_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "previous": {"type": "string", "pattern": "^(none|[a-f0-9]{32})$"},
+    "evaluator_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "spec": {
+      "type": "object", "additionalProperties": false,
+      "required": ["kind", "resource_id"],
+      "properties": {
+        "kind": {"enum": ["artifact.exists", "artifact.digest", "repo.state", "test.exit"]},
+        "resource_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+        "expected_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+        "expected_commit": {"type": "string", "pattern": "^([a-f0-9]{40}|[a-f0-9]{64})$"},
+        "require_clean": {"type": "boolean"},
+        "argv": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"type": "string", "maxLength": 4096}},
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 300}
+      },
+      "description": "The daemon additionally enforces kind-specific parameters, an absolute test executable, exact target/contract/resource scope, and current revisions."
+    }
+  },
+  "oneOf": [
+    {"required": ["check_id", "contract_id", "previous", "spec"], "not": {"required": ["evaluator_id"]}},
+    {"required": ["evaluator_id"], "not": {"anyOf": [{"required": ["spec"]}, {"required": ["check_id"]}, {"required": ["contract_id"]}, {"required": ["previous"]}]}}
+  ]
+}

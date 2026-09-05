@@ -2,6 +2,12 @@
 
 Verified 2026-09-04 on Windows/amd64 with Go 1.27.1 and the pinned module graph.
 
+## GitHub publication checks
+
+The [first GitHub Actions run](https://github.com/algorhythmic/heimdall/actions/runs/33949655377) passed on Windows and Ubuntu for commit `222a4957bd8d608a9ca823f35d54e085a23cadad` (2026-09-04 Pacific / 2026-09-05 UTC). Both jobs ran Go tests, vet, build and all seven extension unit tests. Windows also built the executable and passed compiled continuity and MCP smoke checks from a fresh checkout. This establishes Linux CI test execution, not Linux desktop/native-host deployment acceptance.
+
+The publication review checked the updated documentation links and Git whitespace, preserved original design-source hashes and dependency notices, and excluded generated binaries, scratch directories, databases and credential files. The initial import consists of an implementation commit and a documentation/progress commit; a subsequent documentation-only update records this CI result.
+
 ## MCP and checkpoint-write verification in 0.5.0
 
 - Final checks passed: full Go suite, vet, Windows CGO-disabled build, Linux/amd64 cross-build, core compiled smoke and native-host smoke. The final stdio MCP scratch directory is `.tools/mcp-test-jSmjxP`. An actual 0.4.0 database with contracts/checkpoints and a read credential upgraded and restored successfully in `.tools/continuity-test-KWdkGe`; its existing credential still refused checkpoint writes after upgrade. All test processes exited.
@@ -10,7 +16,7 @@ Verified 2026-09-04 on Windows/amd64 with Go 1.27.1 and the pinned module graph.
 - Store tests verify authorization before cached receipt lookup and rollback when authority is lost before commit. Domain tests verify expired/revoked/cross-grant retries, unauthorized contract acceptance and unchanged command bodies. Golden events include v1/v2 grants and CLI/client checkpoints, with unknown payload versions rejected.
 - The adapter bounds stdio lines at 128 KiB and tool inputs at 64 KiB; daemon responses retain the 512 KiB cap. Explicit zero limits are not silently replaced with defaults. The daemon alone reads/writes its database, and replay never calls MCP or observes resources.
 
-User-host registration, Linux execution, race-detector and remote CI acceptance remain unverified. Progress summaries remain claims; evidence evaluation, Braid, the task GUI and automatic execution are not claimed.
+User-host registration, Linux desktop/native-host deployment and race-detector acceptance remain unverified. Remote CI results are recorded above. Progress summaries remain claims; evidence evaluation, Braid, the task GUI and automatic execution are not claimed.
 
 ## Scoped-read verification in 0.4.0
 
@@ -63,8 +69,8 @@ The following checks were performed for 0.2.0; core/native regressions noted abo
 
 The compiled-binary smoke used the synthetic fixture in a fresh temporary directory and left no daemon running afterward. Reproduce with `scripts/smoke.ps1`; it preserves its scratch directory for inspection.
 
-Native-host registration in a normal Chrome/Edge profile, Web Store packaging/signing, Linux runtime, Hyprland, herdr, conversation content, mail, agent hooks, inference, Braid consumer integration, remote CI, and the race detector remain unverified. The Linux artifact is a cross-build, not a deployment acceptance result. See [STATUS.md](STATUS.md) before treating any target-spec capability as implemented.
+Native-host registration in a normal Chrome/Edge profile, Web Store packaging/signing, Linux desktop deployment, Hyprland, herdr, conversation content, mail, agent hooks, inference, Braid consumer integration, and the race detector remain unverified. The Linux artifact is a cross-build, not a deployment acceptance result. See [STATUS.md](STATUS.md) before treating any target-spec capability as implemented.
 
 Browser checks use Node 24.14.0 and isolated Playwright Chromium 151.0.7922.34. They do not register a native host or load the extension in the user's normal profile. Test processes close in `finally`; scratch directories remain available for inspection. Reproduce `node --test extension/test/*.test.js`, `node scripts/native-smoke.cjs`, `node scripts/browser-smoke.cjs`, and `node scripts/worker-smoke.cjs` from the project root. The last two require Playwright and its Chromium runtime available in the development environment. Native/worker smoke scripts target the Windows build. `scripts/package-extension.ps1` emits the unpacked-extension ZIP without test files.
 
-Build SHA-256 hashes are recorded in [build-checksums.txt](build-checksums.txt). CI mirrors the existing project's Windows/Linux test/vet/build setup but has not been run remotely.
+Build SHA-256 hashes for the local development artifacts are recorded in [build-checksums.txt](build-checksums.txt). Remote CI success is recorded above; CI builds are not published release artifacts and are not covered by those local hashes.

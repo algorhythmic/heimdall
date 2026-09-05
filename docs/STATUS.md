@@ -41,7 +41,7 @@
 | Check evaluation | Manual commands and task-level aggregate checks work. Mail/repo/agent/GitHub kinds validate but report unsupported; silence is unknown without coverage. Arbitrary automatic checks attached to subtasks are not evaluated yet. |
 | Capture kind `task` | Recorded safely; next-action/subtask proposal synthesis is future work. It cannot mutate a task unattended. |
 | User interfaces | `ls` currently returns tasks in stable ID order. Ranked planning, live watch/SSE, radiator, bar and launcher are not implemented. |
-| Portability | Windows daemon/native helper and isolated Chromium APIs tested; Linux CGO-disabled cross-build supplied. No Linux runtime or Hyprland deployment claim. |
+| Portability | Windows daemon/native helper and isolated Chromium APIs tested; Ubuntu CI passes Go tests/vet/build and extension unit tests. Linux CGO-disabled cross-build supplied. Linux desktop/native-host installation and Hyprland deployment remain unverified. |
 
 These boundaries keep the first slice inspectable. They do not silently redefine the final specification's completion criteria.
 

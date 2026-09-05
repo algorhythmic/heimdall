@@ -46,7 +46,7 @@ Linux/macOS build command:
 go build -trimpath -o bin/heimdall ./cmd/heimdall
 ```
 
-Windows is the locally tested runtime. Linux has been cross-built; Linux desktop and macOS runtime acceptance remain open. For the examples below, use `./bin/heimdall` on Unix.
+Windows is the locally tested runtime. Ubuntu CI also passes Go tests, vet, build and extension unit tests; Linux desktop/native-browser and macOS runtime acceptance remain open. For the examples below, use `./bin/heimdall` on Unix.
 
 Built executables do not require Go at runtime. The local `bin/heimdall-linux-amd64` artifact is a CGO-disabled cross-build, not a Linux-tested release.
 

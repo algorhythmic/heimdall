@@ -18,6 +18,11 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
+      - run: npm ci --ignore-scripts --no-audit --no-fund
+        working-directory: web
+      - run: npm run build
+        working-directory: web
+      - run: git diff --exit-code -- internal/webui/assets/app.js
       - run: node --test extension/test/*.test.js
       - if: runner.os == 'Windows'
         run: go build -trimpath -o bin/heimdall.exe ./cmd/heimdall
@@ -27,3 +32,8 @@ jobs:
         run: node scripts/mcp-smoke.cjs
       - if: runner.os == 'Windows'
         run: node scripts/evidence-smoke.cjs
+      - if: runner.os == 'Windows'
+        run: npx playwright install chromium
+        working-directory: web
+      - if: runner.os == 'Windows'
+        run: node scripts/gui-smoke.cjs

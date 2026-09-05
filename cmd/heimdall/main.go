@@ -115,6 +115,9 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	}
 	verb := o.args[0]
 	rest := o.args[1:]
+	if verb == "ui" {
+		return uiCLI(ctx, o, rest, out)
+	}
 	if verb == "evidence" {
 		return evidenceCLI(ctx, o, rest, out)
 	}

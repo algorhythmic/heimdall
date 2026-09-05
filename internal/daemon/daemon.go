@@ -33,6 +33,9 @@ type Request struct {
 	Now     string       `json:"now,omitempty"`
 }
 type Server struct {
+	uiMu              sync.Mutex
+	uiCodes           map[string]uiBootstrap
+	uiSessions        map[string]uiSession
 	EvaluationContext context.Context
 	evaluations       sync.WaitGroup
 	Engine            *core.Engine
@@ -150,6 +153,10 @@ func watch(ctx context.Context, e *core.Engine, clock func() time.Time) {
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
+	if isUIPath(r.URL.Path) {
+		s.uiHTTP(w, r)
+		return
+	}
 	token := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
 	if r.Host != s.Host || r.Header.Get("Origin") != "" || !strings.HasPrefix(r.Header.Get("Authorization"), "Bearer ") {
 		writeError(w, 401, fmt.Errorf("unauthorized local client"))
@@ -177,6 +184,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if strings.HasPrefix(r.URL.Path, "/evidence/") {
 		s.evidenceHTTP(w, r)
+		return
+	}
+	if r.URL.Path == "/ui-bootstrap" {
+		s.uiBootstrapHTTP(w, r)
 		return
 	}
 	if r.URL.Path == "/grants" || strings.HasPrefix(r.URL.Path, "/grants/") {

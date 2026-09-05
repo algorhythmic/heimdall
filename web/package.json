@@ -1,0 +1,1 @@
+{"name":"heimdall-ui","private":true,"version":"0.7.0","scripts":{"build":"tsc -p tsconfig.json","check":"tsc -p tsconfig.json --noEmit"},"devDependencies":{"playwright":"1.62.1","typescript":"7.0.2"}}

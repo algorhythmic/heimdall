@@ -199,22 +199,31 @@ func replaceView(path string, out []byte, expected string, afterDetach func()) e
 }
 func (e *Engine) ViewError() string { e.mu.Lock(); defer e.mu.Unlock(); return e.viewError }
 func (e *Engine) Execute(ctx context.Context, c Command, actor string, now time.Time) (json.RawMessage, error) {
+	return e.ExecuteChecked(ctx, c, actor, now, nil)
+}
+
+// ExecuteChecked evaluates caller authority inside the writer transaction,
+// before cached receipts are exposed and again before fresh events commit.
+func (e *Engine) ExecuteChecked(ctx context.Context, c Command, actor string, now time.Time, authorize func(model.State) error) (json.RawMessage, error) {
 	e.mu.Lock()
 	defer e.mu.Unlock()
-	r, err := e.execute(ctx, c, actor, now)
+	r, err := e.executeChecked(ctx, c, actor, now, authorize)
 	if err == nil {
 		e.publish(ctx)
 	}
 	return r, err
 }
 func (e *Engine) execute(ctx context.Context, c Command, actor string, now time.Time) (json.RawMessage, error) {
+	return e.executeChecked(ctx, c, actor, now, nil)
+}
+func (e *Engine) executeChecked(ctx context.Context, c Command, actor string, now time.Time, authorize func(model.State) error) (json.RawMessage, error) {
 	if c.ID == "" {
 		return nil, fmt.Errorf("command id required")
 	}
 	intent := c
 	intent.ExpectedRevision = nil
 	request, _ := json.Marshal(intent)
-	return e.Store.Transact(ctx, c.ID, actor, request, now, func(st model.State) (store.Change, error) {
+	return e.Store.TransactChecked(ctx, c.ID, actor, request, now, authorize, func(st model.State) (store.Change, error) {
 		if c.ExpectedRevision != nil && *c.ExpectedRevision != st.Revision {
 			return store.Change{}, store.ErrConflict
 		}

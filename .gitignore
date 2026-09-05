@@ -3,6 +3,7 @@
 /demo-data/
 /heimdall
 /heimdall.exe
+node_modules/
 *.db
 *.db-wal
 *.db-shm

@@ -1,0 +1,46 @@
+# Templates are materialized into task.created; later edits do not change old tasks.
+version: 1
+revision: 0
+types:
+  project:
+    version: 1
+    statuses: [backlog, active, blocked, review, done, dropped]
+    initial_status: backlog
+    success_statuses: [done]
+    dropped_statuses: [dropped]
+  application:
+    version: 1
+    statuses: [researching, drafting, submitted, followed_up, replied, closed, dropped]
+    initial_status: researching
+    success_statuses: [replied, closed]
+    dropped_statuses: [dropped]
+    subtasks:
+      - id: research
+        title: Research the opportunity
+        estimate_minutes: 30
+        done: {text: Research reviewed, checks: [{id: reviewed, kind: manual}]}
+      - id: draft
+        title: Prepare the application
+        after: [research]
+        estimate_minutes: 30
+        done: {text: Draft reviewed, checks: [{id: reviewed, kind: manual}]}
+      - id: send
+        title: Send the application
+        after: [draft]
+        estimate_minutes: 5
+        done: {text: Send confirmed, checks: [{id: sent, kind: manual}]}
+    proposed_status_mappings:
+      - {after_subtask: draft, status: drafting}
+      - {after_subtask: send, status: submitted}
+  research:
+    version: 1
+    statuses: [open, summarized, filed, dropped]
+    initial_status: open
+    success_statuses: [filed]
+    dropped_statuses: [dropped]
+  study:
+    version: 1
+    statuses: [open, summarized, filed, dropped]
+    initial_status: open
+    success_statuses: [filed]
+    dropped_statuses: [dropped]

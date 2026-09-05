@@ -1,0 +1,8 @@
+version: 1
+revision: 0
+weights: {importance: 0.35, urgency: 0.30, impact: 0.35}
+capacities: {income: 0.4, skill: 0.2, portfolio: 0.3, relationships: 0.1}
+urgency_horizon_days: 14
+staleness_days: 5
+daily_budget_minutes: 240
+default_estimate_minutes: 30

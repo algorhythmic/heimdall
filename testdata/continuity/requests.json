@@ -1,0 +1,7 @@
+[
+  {"version":1,"id":"11111111111111111111111111111111","op":"contract.accept","target":"fixture","expected_task_revision":1,"contract":{"previous":"none","objective":"Finish synthetic work","constraints":["Preserve user edits"]}},
+  {"version":1,"id":"22222222222222222222222222222222","op":"decision.accept","target":"fixture","expected_task_revision":1,"decision":{"text":"Use Go for daemon state"}},
+  {"version":1,"id":"33333333333333333333333333333333","op":"resource.bind","target":"fixture","expected_task_revision":1,"resource":{"kind":"tree","root":"C:\\synthetic-work","path":".","exclude":["node_modules"]}},
+  {"version":1,"id":"44444444444444444444444444444444","op":"checkpoint.record","target":"fixture","expected_task_revision":1,"checkpoint":{"previous":"none","contract_id":"11111111111111111111111111111111","summary":"Initial work saved","next_action":"Run checks","blockers":[]}},
+  {"version":1,"id":"55555555555555555555555555555555","op":"resource.unbind","target":"fixture","expected_task_revision":1,"resource_id":"33333333333333333333333333333333"}
+]

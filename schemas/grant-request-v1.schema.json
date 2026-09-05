@@ -1,0 +1,27 @@
+{
+ "$schema":"https://json-schema.org/draft/2020-12/schema",
+ "title":"Heimdall scoped grant command v1",
+ "description":"CLI-authorized administration only. Runtime checks target existence, resource scope, unique sorted IDs, SHA-256 credential verifier uniqueness, and an expiry within 30 days. The checkpoint_write option creates a version-2 grant; omitted/false preserves a read-only version-1 grant.",
+ "type":"object","additionalProperties":false,
+ "required":["version","id","op"],
+ "properties":{
+  "version":{"const":1},"id":{"$ref":"#/$defs/id"},
+  "op":{"enum":["grant.issue","grant.revoke"]},
+  "grant_id":{"$ref":"#/$defs/id"},
+  "grant":{
+   "type":"object","additionalProperties":false,"required":["name","target","token_hash","expires_at"],
+   "properties":{
+    "name":{"type":"string","pattern":"\\S","maxLength":128},
+    "target":{"type":"string","minLength":3},"subtree":{"type":"boolean"},"checkpoint_write":{"type":"boolean"},
+    "resource_ids":{"type":["array","null"],"maxItems":16,"uniqueItems":true,"items":{"$ref":"#/$defs/id"}},
+    "token_hash":{"type":"string","pattern":"^[a-f0-9]{64}$"},
+    "expires_at":{"type":"string","format":"date-time"}
+   }
+  }
+ },
+ "oneOf":[
+  {"properties":{"op":{"const":"grant.issue"}},"required":["grant"],"not":{"required":["grant_id"]}},
+  {"properties":{"op":{"const":"grant.revoke"}},"required":["grant_id"],"not":{"required":["grant"]}}
+ ],
+ "$defs":{"id":{"type":"string","pattern":"^[a-f0-9]{32}$"}}
+}

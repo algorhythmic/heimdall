@@ -1,0 +1,352 @@
+[
+  {
+    "id": 1,
+    "event_version": 1,
+    "ts": "2026-09-04T20:00:00Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "fixture",
+    "command_id": "fixture-task",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "fixture",
+          "title": "Golden fixture",
+          "type": "project",
+          "status": "active",
+          "done": {}
+        },
+        "revision": 1
+      },
+      "fields": []
+    }
+  },
+  {
+    "id": 2,
+    "event_version": 1,
+    "ts": "2026-09-04T20:00:00Z",
+    "subject": "resource",
+    "verb": "bound",
+    "actor": "cli",
+    "entity_id": "33333333333333333333333333333333",
+    "command_id": "fixture-resource",
+    "payload": {
+      "version": 1,
+      "id": "33333333333333333333333333333333",
+      "target": "fixture",
+      "kind": "file",
+      "root": "/synthetic-golden-root",
+      "path": "work.txt",
+      "exclude": [],
+      "active": true,
+      "initial": {
+        "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "files": 1,
+        "bytes": 7
+      },
+      "actor": "cli",
+      "at": "2026-09-04T20:00:00Z"
+    }
+  },
+  {
+    "id": 3,
+    "event_version": 1,
+    "ts": "2026-09-04T20:00:00Z",
+    "subject": "contract",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "11111111111111111111111111111111",
+    "command_id": "fixture-contract-legacy",
+    "payload": {
+      "version": 1,
+      "id": "11111111111111111111111111111111",
+      "target": "fixture",
+      "task_revision": 1,
+      "previous": "",
+      "objective": "Preserve legacy continuity",
+      "constraints": [],
+      "acceptance": {},
+      "actor": "cli",
+      "at": "2026-09-04T20:00:00Z"
+    }
+  },
+  {
+    "id": 4,
+    "event_version": 1,
+    "ts": "2026-09-04T20:00:00Z",
+    "subject": "decision",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "22222222222222222222222222222222",
+    "command_id": "fixture-decision",
+    "payload": {
+      "version": 1,
+      "id": "22222222222222222222222222222222",
+      "target": "fixture",
+      "task_revision": 1,
+      "text": "Keep event replay pure",
+      "actor": "cli",
+      "at": "2026-09-04T20:00:00Z"
+    }
+  },
+  {
+    "id": 5,
+    "event_version": 1,
+    "ts": "2026-09-04T20:00:00Z",
+    "subject": "checkpoint",
+    "verb": "recorded",
+    "actor": "cli",
+    "entity_id": "44444444444444444444444444444444",
+    "command_id": "fixture-checkpoint-legacy",
+    "payload": {
+      "version": 1,
+      "id": "44444444444444444444444444444444",
+      "target": "fixture",
+      "task_revision": 1,
+      "contract_id": "11111111111111111111111111111111",
+      "previous": "",
+      "source_event": 4,
+      "summary": "Legacy progress",
+      "next_action": "Review scope",
+      "blockers": [],
+      "resources": [
+        {
+          "id": "33333333333333333333333333333333",
+          "snapshot": {
+            "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "files": 1,
+            "bytes": 7
+          }
+        }
+      ],
+      "context": [
+        {
+          "target": "fixture",
+          "task_revision": 1,
+          "contract_id": "11111111111111111111111111111111"
+        }
+      ],
+      "decisions": [
+        "22222222222222222222222222222222"
+      ],
+      "actor": "cli",
+      "at": "2026-09-04T20:00:00Z"
+    }
+  },
+  {
+    "id": 6,
+    "event_version": 1,
+    "ts": "2026-09-04T20:00:00Z",
+    "subject": "contract",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "66666666666666666666666666666666",
+    "command_id": "fixture-contract-scoped",
+    "payload": {
+      "version": 2,
+      "id": "66666666666666666666666666666666",
+      "target": "fixture",
+      "task_revision": 1,
+      "previous": "11111111111111111111111111111111",
+      "objective": "Continue with reviewed scope",
+      "constraints": [],
+      "acceptance": {},
+      "resource_ids": [
+        "33333333333333333333333333333333"
+      ],
+      "actor": "cli",
+      "at": "2026-09-04T20:00:00Z"
+    }
+  },
+  {
+    "id": 7,
+    "event_version": 1,
+    "ts": "2026-09-04T20:00:00Z",
+    "subject": "checkpoint",
+    "verb": "recorded",
+    "actor": "cli",
+    "entity_id": "77777777777777777777777777777777",
+    "command_id": "fixture-checkpoint-scoped",
+    "payload": {
+      "version": 1,
+      "id": "77777777777777777777777777777777",
+      "target": "fixture",
+      "task_revision": 1,
+      "contract_id": "66666666666666666666666666666666",
+      "previous": "44444444444444444444444444444444",
+      "source_event": 6,
+      "summary": "Reviewed scope saved",
+      "next_action": "Verify working files",
+      "blockers": [],
+      "resources": [
+        {
+          "id": "33333333333333333333333333333333",
+          "snapshot": {
+            "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "files": 1,
+            "bytes": 7
+          }
+        }
+      ],
+      "context": [
+        {
+          "target": "fixture",
+          "task_revision": 1,
+          "contract_id": "66666666666666666666666666666666"
+        }
+      ],
+      "decisions": [
+        "22222222222222222222222222222222"
+      ],
+      "actor": "cli",
+      "at": "2026-09-04T20:00:00Z"
+    }
+  },
+  {
+    "id": 8,
+    "event_version": 1,
+    "ts": "2026-09-04T20:00:00Z",
+    "subject": "grant",
+    "verb": "issued",
+    "actor": "cli",
+    "entity_id": "88888888888888888888888888888888",
+    "command_id": "fixture-grant",
+    "payload": {
+      "version": 1,
+      "id": "88888888888888888888888888888888",
+      "name": "Golden reader",
+      "target": "fixture",
+      "subtree": false,
+      "resource_ids": [
+        "33333333333333333333333333333333"
+      ],
+      "token_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "expires_at": "2026-09-05T20:00:00Z",
+      "at": "2026-09-04T20:00:00Z",
+      "actor": "cli"
+    }
+  },
+  {
+    "id": 9,
+    "event_version": 1,
+    "ts": "2026-09-04T21:00:00Z",
+    "subject": "grant",
+    "verb": "revoked",
+    "actor": "cli",
+    "entity_id": "88888888888888888888888888888888",
+    "command_id": "fixture-revoke",
+    "payload": {
+      "version": 1,
+      "id": "88888888888888888888888888888888",
+      "name": "Golden reader",
+      "target": "fixture",
+      "subtree": false,
+      "resource_ids": [
+        "33333333333333333333333333333333"
+      ],
+      "token_hash": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+      "expires_at": "2026-09-05T20:00:00Z",
+      "at": "2026-09-04T20:00:00Z",
+      "revoked_at": "2026-09-04T21:00:00Z",
+      "actor": "cli"
+    }
+  },
+  {
+    "id": 10,
+    "event_version": 1,
+    "ts": "2026-09-04T21:05:00Z",
+    "subject": "grant",
+    "verb": "issued",
+    "actor": "cli",
+    "entity_id": "99999999999999999999999999999999",
+    "command_id": "fixture-write-grant",
+    "payload": {
+      "version": 2,
+      "id": "99999999999999999999999999999999",
+      "name": "Golden writer",
+      "target": "fixture",
+      "subtree": false,
+      "resource_ids": [
+        "33333333333333333333333333333333"
+      ],
+      "token_hash": "cccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccccc",
+      "expires_at": "2026-09-05T20:00:00Z",
+      "at": "2026-09-04T21:05:00Z",
+      "actor": "cli",
+      "checkpoint_write": true
+    }
+  },
+  {
+    "id": 11,
+    "event_version": 1,
+    "ts": "2026-09-04T21:06:00Z",
+    "subject": "checkpoint",
+    "verb": "recorded",
+    "actor": "client:99999999999999999999999999999999",
+    "entity_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "command_id": "fixture-client-checkpoint",
+    "payload": {
+      "version": 2,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "target": "fixture",
+      "task_revision": 1,
+      "contract_id": "66666666666666666666666666666666",
+      "previous": "77777777777777777777777777777777",
+      "source_event": 10,
+      "summary": "Reviewed scope saved",
+      "next_action": "Verify working files",
+      "blockers": [],
+      "resources": [
+        {
+          "id": "33333333333333333333333333333333",
+          "snapshot": {
+            "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "files": 1,
+            "bytes": 7
+          }
+        }
+      ],
+      "context": [
+        {
+          "target": "fixture",
+          "task_revision": 1,
+          "contract_id": "66666666666666666666666666666666"
+        }
+      ],
+      "decisions": [
+        "22222222222222222222222222222222"
+      ],
+      "actor": "client:99999999999999999999999999999999",
+      "at": "2026-09-04T21:06:00Z",
+      "grant_id": "99999999999999999999999999999999"
+    }
+  },
+  {
+    "id": 12,
+    "event_version": 1,
+    "ts": "2026-09-04T22:00:00Z",
+    "subject": "resource",
+    "verb": "unbound",
+    "actor": "cli",
+    "entity_id": "33333333333333333333333333333333",
+    "command_id": "fixture-unbind",
+    "payload": {
+      "version": 1,
+      "id": "33333333333333333333333333333333",
+      "target": "fixture",
+      "kind": "file",
+      "root": "/synthetic-golden-root",
+      "path": "work.txt",
+      "exclude": [],
+      "active": false,
+      "initial": {
+        "digest": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "files": 1,
+        "bytes": 7
+      },
+      "actor": "cli",
+      "at": "2026-09-04T20:00:00Z"
+    }
+  }
+]

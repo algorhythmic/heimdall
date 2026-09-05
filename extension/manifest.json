@@ -1,0 +1,21 @@
+{
+  "manifest_version": 3,
+  "name": "Heimdall Browser Bridge",
+  "version": "0.2.0",
+  "description": "Paired local browser metadata and managed-tab controls for Heimdall.",
+  "key": "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAyqPK60V8zppBD/sMJYVt07ceHtCBHWTEE9o/IudJWEpalJkIB8LFXQIXQL3Vs90wbc/IxVmmXh3ZY3fh/DoSrnLn9rcMrfmlvuOdy1gQJnt/bnIMVlJJN2whTi7jfGIS9Mi0kjojkATI72dwyPV8SMa04+JsPConNsJtvuCVueUFoYeBMPKTGujKYxGdhTu9tZPeGYHwPqe2q0fCZ8CJOwIpf5stJ348noB7djkMuNaSnv890nRlR6kuWMb3DfTBgIn+awrzr8+btK3syB+BDu+pmC0TTL5zDH9lOXiIXnlySXn1m9c7p6BN1ZEkeY+Gi5sWLuJZRt/x5yof2JMS3wIDAQAB",
+  "permissions": [
+    "nativeMessaging",
+    "tabs",
+    "storage",
+    "alarms"
+  ],
+  "incognito": "not_allowed",
+  "background": {
+    "service_worker": "worker.js",
+    "type": "module"
+  },
+  "action": {
+    "default_popup": "popup.html"
+  }
+}

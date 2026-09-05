@@ -1,0 +1,3 @@
+const $=id=>document.getElementById(id);
+async function render(){const {status={},profile,paused=false,gap}=await chrome.storage.local.get(['status','profile','paused','gap']);$('connection').textContent=status.detail??'Waiting for native bridge';$('profile').textContent=profile??'Initializing';$('paused').checked=paused;$('pair').textContent=status.paired?'Paired with local Heimdall':`Pair locally: heimdall browser pair ${profile??'PROFILE'}`;$('gap').textContent=gap??'';}
+$('paused').addEventListener('change',()=>chrome.storage.local.set({paused:$('paused').checked}));chrome.storage.onChanged.addListener(render);render();

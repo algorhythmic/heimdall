@@ -1,0 +1,13 @@
+/.tools/
+/bin/
+/demo-data/
+/heimdall
+/heimdall.exe
+*.db
+*.db-wal
+*.db-shm
+endpoint.json
+browser-endpoint.json
+client-endpoint.json
+*.credential.json
+host-config.json

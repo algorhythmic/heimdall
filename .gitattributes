@@ -1,0 +1,6 @@
+* text=auto eol=lf
+
+# Preserve the supplied source documents and dependency notices byte for byte.
+docs/design/sources/** -text
+docs/licenses/** -text
+docs/licenses/INDEX.txt text eol=lf

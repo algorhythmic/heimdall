@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Heimdall continuity command v1",
+  "description": "Transport shape. Runtime additionally enforces UTF-8 byte limits, unique keys, target existence, filesystem confinement and revision/head preconditions.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "op", "target", "expected_task_revision"],
+  "properties": {
+    "version": {"const": 1},
+    "id": {"$ref": "#/$defs/id"},
+    "op": {"enum": ["contract.accept", "decision.accept", "resource.bind", "resource.unbind", "checkpoint.record"]},
+    "target": {"type": "string", "minLength": 1},
+    "expected_task_revision": {"type": "integer", "minimum": 1},
+    "contract": {"$ref": "#/$defs/contract"},
+    "decision": {"$ref": "#/$defs/decision"},
+    "resource": {"$ref": "#/$defs/resource"},
+    "checkpoint": {"$ref": "#/$defs/checkpoint"},
+    "resource_id": {"$ref": "#/$defs/id"}
+  },
+  "oneOf": [
+    {"properties": {"op": {"const": "contract.accept"}}, "required": ["contract"], "not": {"anyOf": [{"required": ["decision"]}, {"required": ["resource"]}, {"required": ["resource_id"]}, {"required": ["checkpoint"]}]}},
+    {"properties": {"op": {"const": "decision.accept"}}, "required": ["decision"], "not": {"anyOf": [{"required": ["contract"]}, {"required": ["resource"]}, {"required": ["resource_id"]}, {"required": ["checkpoint"]}]}},
+    {"properties": {"op": {"const": "resource.bind"}}, "required": ["resource"], "not": {"anyOf": [{"required": ["decision"]}, {"required": ["contract"]}, {"required": ["resource_id"]}, {"required": ["checkpoint"]}]}},
+    {"properties": {"op": {"const": "resource.unbind"}}, "required": ["resource_id"], "not": {"anyOf": [{"required": ["decision"]}, {"required": ["resource"]}, {"required": ["contract"]}, {"required": ["checkpoint"]}]}},
+    {"properties": {"op": {"const": "checkpoint.record"}}, "required": ["checkpoint"], "not": {"anyOf": [{"required": ["decision"]}, {"required": ["resource"]}, {"required": ["resource_id"]}, {"required": ["contract"]}]}}
+  ],
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "head": {"oneOf": [{"const": "none"}, {"$ref": "#/$defs/id"}]},
+    "lines": {"type": ["array", "null"], "maxItems": 128, "items": {"type": "string", "pattern": "\\S", "maxLength": 4096}},
+    "contract": {
+      "type": "object", "additionalProperties": false, "required": ["previous", "objective"],
+      "properties": {"previous": {"$ref": "#/$defs/head"}, "objective": {"type": "string", "pattern": "\\S", "maxLength": 8192}, "constraints": {"$ref": "#/$defs/lines"}, "resource_ids": {"type": ["array", "null"], "maxItems": 16, "uniqueItems": true, "items": {"$ref": "#/$defs/id"}}}
+    },
+    "decision": {
+      "type": "object", "additionalProperties": false, "required": ["text"],
+      "properties": {"text": {"type": "string", "pattern": "\\S", "maxLength": 8192}, "supersedes": {"oneOf": [{"const": ""}, {"$ref": "#/$defs/id"}]}}
+    },
+    "resource": {
+      "type": "object", "additionalProperties": false, "required": ["kind", "root"],
+      "properties": {"kind": {"enum": ["file", "tree"]}, "root": {"type": "string", "minLength": 1}, "path": {"type": "string"}, "exclude": {"type": ["array", "null"], "items": {"type": "string"}}}
+    },
+    "checkpoint": {
+      "type": "object", "additionalProperties": false, "required": ["previous", "contract_id", "summary", "next_action"],
+      "properties": {"previous": {"$ref": "#/$defs/head"}, "contract_id": {"$ref": "#/$defs/id"}, "summary": {"type": "string", "pattern": "\\S", "maxLength": 16384}, "current_step": {"type": "string"}, "next_action": {"type": "string", "pattern": "\\S", "maxLength": 8192}, "blockers": {"$ref": "#/$defs/lines"}}
+    }
+  }
+}

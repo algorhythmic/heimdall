@@ -1,0 +1,84 @@
+# Illustrative schema fixture. Synthetic data; not operator labels.
+version: 1
+revision: 0
+tasks:
+  - id: job-search
+    title: Find the next role
+    type: project
+    status: active
+    importance: 4
+    done:
+      text: Finish the scoped application work
+      checks:
+        - id: applications-complete
+          kind: children_done
+
+  - id: jobapp-sensemesh
+    parent: job-search
+    title: SenseMesh follow-up
+    type: application
+    status: drafting
+    importance: 4
+    resume_by: "2026-09-04"
+    impact: {income: 4, skill: 1, portfolio: 1, relationships: 2}
+    done:
+      text: A matching reply arrives, or 14 covered days pass without one
+      mode: any
+      checks:
+        - id: reply
+          kind: mail.received
+          account: work
+          from_domain: sensemesh.example
+          after: "jobapp-sensemesh#send"
+          correlation: reply_to_anchor
+        - id: no-reply
+          kind: silence
+          days: 14
+          after: "jobapp-sensemesh#send"
+          response_check: reply
+    subtasks:
+      - id: draft
+        title: Draft the follow-up email
+        status: done
+        estimate_minutes: 15
+        done:
+          text: Review the draft
+          checks: [{id: approved-draft, kind: manual}]
+      - id: send
+        title: Send the follow-up email
+        status: open
+        after: [draft]
+        estimate_minutes: 5
+        done:
+          text: The configured mailbox records the send
+          checks:
+            - id: sent
+              kind: mail.sent
+              account: work
+              to_domain: sensemesh.example
+              since: step_opened
+
+  - id: heimdall-core
+    title: Implement Heimdall core
+    type: project
+    status: active
+    importance: 3
+    done:
+      text: Complete the core acceptance gates
+      checks: [{id: core-steps, kind: subtasks_done}]
+    subtasks:
+      - id: store
+        title: Implement atomic event append and replay
+        status: open
+        estimate_minutes: 60
+        done:
+          text: Core replay acceptance is reviewed
+          checks: [{id: replay-reviewed, kind: manual}]
+      - id: tasks
+        title: Implement revision-checked task editing
+        status: open
+        after: [store]
+        estimate_minutes: 45
+        done:
+          text: Concurrent editor regression cases are reviewed
+          checks: [{id: edit-reviewed, kind: manual}]

@@ -1,4 +1,4 @@
-# MCP and scoped progress writes — 0.5.0
+# MCP and scoped progress writes — 0.6.0
 
 The daemon now supports explicitly granted checkpoint writes, and the Go MCP adapter exposes task, context, history and checkpoint tools over stdio. The daemon stays running as the sole database writer. Each MCP adapter is a separate lightweight process using a scoped credential and the daemon's loopback API; it does not start a daemon, open the database or move runtime state into the extension.
 
@@ -82,7 +82,7 @@ Tool arguments and daemon checkpoint requests are limited to 64 KiB; stdio input
 
 Authorization runs under the writer transaction before cached-result lookup and again before committing new events. Revocation is serialized with those checks; expiry is evaluated against the daemon clock. A transaction that loses authorization before commit rolls back its events and receipt. Already-released response bytes cannot be recalled.
 
-Database schema 5 adds version-2 write grants and client checkpoints. Old read grants, CLI checkpoints and contract versions remain replayable. Startup creates a consistent `pre-schema-5-*.db` backup before upgrading markers 1–4. As with earlier releases, restoring an old snapshot restores its old revocation state: review/revoke restored grants before reconnecting clients. No raw client tokens are stored in the database.
+Database schema 5 introduced version-2 write grants and client checkpoints; the current schema 6 adds evaluator/evidence records without broadening MCP authority. Old read grants, CLI checkpoints and contract versions remain replayable. Startup creates a consistent `pre-schema-6-*.db` backup before upgrading markers 1–5. As with earlier releases, restoring an old snapshot restores its old revocation state: review/revoke restored grants before reconnecting clients. No raw client tokens are stored in the database.
 
 ## Compatibility and verification
 

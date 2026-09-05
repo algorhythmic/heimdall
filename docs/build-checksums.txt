@@ -1,3 +1,3 @@
-66a3b604d9dcfd38c67e32c79c7c2fbb59cd96dbc31f3888d0f73350fc34d9eb  bin/heimdall.exe
-aff727dd1fa25de32e8fe56d6c56fde591b9564249ff594a2773932cb65030df  bin/heimdall-linux-amd64
+32a22c609d8f59eea267be0a19d2fd173de2a22b20595a552630e511ce3fc60a  bin/heimdall.exe
+2710857eb47a603d51bb69a8dc1a482a6b5160a65adbc9a7f244fe641dbc1089  bin/heimdall-linux-amd64
 cacacca39524952c7eeb65e4af176a5aa40b8f77a814a783564db197617ffa6a  bin/heimdall-extension-0.2.0.zip

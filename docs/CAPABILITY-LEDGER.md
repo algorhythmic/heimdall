@@ -1,6 +1,6 @@
 # Capability and authority ledger
 
-2026-09-04, daemon build 0.5.0. Scoped reads and explicit checkpoint writes are exposed through the API and MCP adapter.
+2026-09-05, daemon build 0.6.0. Scoped reads and explicit checkpoint writes remain exposed through MCP; evaluator configuration and execution are CLI-only.
 
 | Surface / identity | Implemented authority | Evidence / limit |
 |---|---|---|
@@ -8,6 +8,7 @@
 | Browser-ingress bearer | Paired browser protocol ingress only | Separate credential. Cannot read task/context state, accept contracts, write checkpoints or request backups. Existing route tests plus continuity route negatives pass. |
 | Browser profile | Inventory/transport identity after explicit pairing | Profile IDs are not daemon principals and cannot grant task or filesystem access. Browser content cannot authorize a command. |
 | Scheduler | Existing timer/proposal transitions only | Cannot emit CLI-only continuity events. Replay never performs external effects. |
+| Evidence evaluator | Finish a previously committed CLI-authorized evaluation and invalidate its evidence | Daemon-derived provenance; cannot author contracts or ratify completion. Direct argv tests have bounded execution/output and declared input coverage; they are not sandboxed. Browser/scoped credentials cannot reach evaluator routes. |
 | Scoped reader | Task/subtree record and history reads; context only with all mandatory lineage/resource permissions | Separate hashed credential verifier, expiry/revocation, bounded pages, cursor-scope checks and restart rediscovery. No mutation authority. See [SCOPED-ACCESS.md](SCOPED-ACCESS.md). |
 | MCP client | Task/context/history tools; checkpoint tool requires a write grant | Official SDK stdio adapter; authenticated grant provenance, authorization before dedupe/commit, structured errors and restart tests. No contract, decision, resource or completion authority. |
 | GUI session | Unavailable for task UI | Extension popup remains available; no new task dashboard or browser-accessible continuity route. |

@@ -1,6 +1,14 @@
-# Verification — MCP daemon 0.5.0, extension 0.2.0
+# Verification — evidence daemon 0.6.0, extension 0.2.0
 
-Verified 2026-09-04 on Windows/amd64 with Go 1.27.1 and the pinned module graph.
+Verified on Windows/amd64 with Go 1.27.1 and the pinned module graph. Historical results below retain their original milestone scope.
+
+## Evidence verification in 0.6.0 — 2026-09-05
+
+- The full Go suite and vet pass; Windows and Linux/amd64 CGO-disabled builds succeed. The compiled core and native-host regression smokes also pass. Focused tests cover live stale-file denial, partial coverage, forged results, wrong resources, contract changes, exact Git-root/commit identity, test pass/failure/mutating-input/output-cap/timeout outcomes, uncertain recovery, step ratification and replay equality. CLI/browser/scoped credential boundaries remain intact.
+- The compiled evidence smoke passed in `.tools/evidence-test-SNpYn3`: configure a real Node test, record observer/executable/output provenance, retry without another invocation, refuse stale completion, invalidate/supersede, replay/restart, explicitly reevaluate and ratify.
+- The actual archived 0.5.0 executable created a schema-5 continuity/read-grant fixture. The current binary upgraded it to schema 6, retained read-only permissions, backed up/restored it and rolled back from the pre-upgrade snapshot in `.tools/continuity-test-AUQj1v`.
+- The compiled MCP regression smoke passed in `.tools/mcp-test-rxlPmp`. CI now includes the compiled evidence smoke on Windows as well as the existing Windows/Ubuntu checks. A new remote CI result must be checked for this commit; the older publication run below is not evidence for new code.
+- No GUI implementation is included in this checkpoint. Native browser installation, runner integration, general checkpoint Git identity, raw-output retention and the other remaining acceptance gaps are not claimed.
 
 ## GitHub publication checks
 

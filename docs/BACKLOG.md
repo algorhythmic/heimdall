@@ -1,21 +1,23 @@
 # Continuity implementation backlog
 
-Date: 2026-09-04. **Development build 0.5.0 delivers scoped checkpoint writes and the MCP stdio adapter.** The controlling design is [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md). Dependencies describe build order, not authorization to run agents or install integrations.
+Date: 2026-09-05. **Development build 0.6.0 delivers initial CLI evidence evaluation and completion revalidation.** The controlling design is [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md). GUI work is paused for the requested commit-and-push checkpoint; no GUI changes are included.
 
 ## Current progress
 
 | Items | State | Delivered / remaining |
 |---|---|---|
-| C01 | Initial slice complete | Request schemas/fixtures, golden events for old/new contracts, decisions, resources, CLI/client checkpoints and read/write grants; schema-5 migration, replay and actual 0.4.0 upgrade/backup/restore pass without elevating read credentials. Future record types need their own fixtures. |
+| C01 | Initial slice complete | Request schemas/fixtures, golden events for old/new contracts, decisions, resources, CLI/client checkpoints and read/write grants; schema-6 migration, replay and actual 0.5.0 upgrade/backup/restore pass without elevating read credentials. Future record types need their own fixtures. |
 | C02 | Policy documented | [Capability ledger](CAPABILITY-LEDGER.md) ties CLI/browser boundaries to tests and defines required principal/grant policy. Actual scoped credentials and grants belong to C06. |
 | C03 | Partial | Accepted contracts/decisions, supersession, revision checks, canonical file/tree registration and bounded observations work. Version-2 contracts freeze explicitly supplied, reviewed resource IDs; changed scope requires reacceptance. Proposed/rejected decision workflow and Git/source identity remain open. |
 | C04 | Initial slice complete | Immutable append/list/get-by-ID, explicit previous head, retry, competing-write, restart and replay checks pass. Run/evidence links will arrive with their consuming slices. |
 | C05 | Initial slice complete | CLI context includes mandatory task/ancestor contracts, decisions, checkpoint and resource drift without retrieval; small budget fails explicitly. Estimate is UTF-8 bytes/4; Git identity and exact tokenizer accounting are not claimed. |
 | C06 | Initial slice complete | Scoped reads plus explicit checkpoint-write grants. Authority is checked inside the writer transaction before dedupe and commit; records carry authenticated grant/author provenance. Tests cover read-only denial, cross-target/cross-grant denial, expiry, revoked retries, conflict, rollback and replay. Broader machine mutations are not delegated. |
-| C07 | Initial slice complete | Official Go SDK v1.7.0 stdio adapter; task/context/history/checkpoint tools, structured errors, stable request IDs and daemon restart rediscovery. Official SDK client uses 2026-07-28; compiled stdio smoke uses 2025-11-25. User-host registration and Linux runtime acceptance remain open. |
-| C08–C21 | Planned | Evidence, GUI, verified actions, retrieval and execution-host slices remain unimplemented. |
+| C07 | Initial slice complete | Official Go SDK v1.7.0 stdio adapter; task/context/history/checkpoint tools, structured errors, stable request IDs and daemon restart rediscovery. Official SDK client uses 2026-07-28; compiled stdio smoke uses 2025-11-25. User-host registration and Linux desktop deployment remain open. |
+| C08 | Initial CLI slice complete | Artifact existence/digest, exact-root repository predicates and configured test execution; accepted definitions, durable attempts, complete declared resource observations, lineage/decision binding, bounded output/executable/environment digests, retry/restart/replay and malformed/forged/partial/stale negatives. Raw-output retention, broader evidence tools and stronger external-input/process-tree coverage remain open. |
+| C09 | Initial CLI slice complete | Explicit invalidation, task/step proposals and live revalidation before ratification. Contract/resource/repository changes block stale completion; accepted task history remains. Continuous invalidation and dedicated post-completion review notices remain open. |
+| C10–C21 | Planned | Task GUI, verified actions, retrieval and execution-host slices remain unimplemented in the committed build. |
 
-Next patch series: C08/C09 evidence and completion revalidation, with the remaining C03 decision/Git identity work. Current usage is in [MCP-SETUP.md](MCP-SETUP.md), [SCOPED-ACCESS.md](SCOPED-ACCESS.md) and [CONTINUITY-SETUP.md](CONTINUITY-SETUP.md).
+Next patch series after the commit checkpoint: remaining C03/evidence details, then C10/C11 GUI. Evidence observations include Git identity; general checkpoint Git identity remains open. Current usage is in [EVIDENCE-SETUP.md](EVIDENCE-SETUP.md), [MCP-SETUP.md](MCP-SETUP.md), [SCOPED-ACCESS.md](SCOPED-ACCESS.md) and [CONTINUITY-SETUP.md](CONTINUITY-SETUP.md).
 
 ## Ordered deliverables
 

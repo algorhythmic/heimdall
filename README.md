@@ -2,16 +2,16 @@
 
 Heimdall is a local task and continuity system for work shared between people and assistants. It records changes as events, preserves accepted decisions and progress checkpoints, and supplies scoped resume context. Retrieval belongs to the separate Braid project.
 
-**Current build: MCP and scoped checkpoint writes (0.5.0).** The daemon and CLI provide accepted contracts/decisions, reviewed resource scopes, checkpoints, resume context, backups and expiring task/subtree credentials. The MCP stdio adapter adds scoped reads and explicitly granted progress checkpoints. The extension remains at 0.2.0. Evidence evaluators, the task GUI, Braid integration and automatic execution remain future work. Start with [MCP setup](docs/MCP-SETUP.md); see [STATUS.md](docs/STATUS.md) for boundaries.
+**Current build: version-bound completion evidence (0.6.0).** The daemon and CLI provide contracts/decisions, reviewed resource scopes, checkpoints, resume context, scoped MCP and independently observed artifact/repository/test evidence. Completion proposals recheck current inputs before explicit ratification. The extension remains at 0.2.0. The task GUI, Braid integration and automatic continuation remain future work. Start with [evidence setup](docs/EVIDENCE-SETUP.md) or [MCP setup](docs/MCP-SETUP.md); see [STATUS.md](docs/STATUS.md) for boundaries.
 
 ## Progress
 
-| Improvement | Status in 0.5.0 |
+| Improvement | Status in 0.6.0 |
 |---|---|
 | Durable checkpoints and context | Initial implementation delivered: immutable checkpoints, contracts, decisions, resource drift and resume context. Decision review, Git identity and evidence/run links remain open. |
 | Assistant access through MCP | Initial implementation delivered: four tools, scoped credentials and explicitly delegated checkpoint writes. Host registration remains a deployment step. |
 | Verified computer actions | Planned. Browser tab controls exist; API success does not yet verify the intended outcome. |
-| Evidence-based completion | Planned. Manual completion and explicitly ratified aggregate proposals work; artifact/repo/test evaluators remain open. |
+| Evidence-based completion | Initial CLI implementation delivered: artifact/repo/test evaluators, durable attempts, invalidation and live revalidation of task/step proposals. Raw-output retention, broader machine tools and review notices remain open. |
 | Persistent task continuation | Planned. Saved context supports resuming work; dispatch, leases, recovery and an execution-host adapter remain open. |
 | Project-aware Braid memory | Planned; Braid is not integrated. Current mandatory context works without retrieval. |
 | Task GUI | Planned. The extension has a connection/pause popup; task, evidence and run screens remain open. |
@@ -108,6 +108,9 @@ All commands accept `--data-dir PATH`, `--json`, and `--now RFC3339`. JSON is th
 | `grant issue ... --checkpoint-write` | Explicitly delegate checkpoint progress writes; old/read grants stay read-only |
 | `client checkpoint TARGET --credential FILE --file FILE --expected-task-revision N --request-id ID` | Grant-authorized checkpoint with explicit retry identity and preconditions |
 | `mcp --credential FILE` | Official-SDK stdio adapter; daemon must already be running |
+| `evidence configure TARGET --file FILE --expected-task-revision N` | Accept a version-bound evaluator definition through the CLI |
+| `evidence evaluate TARGET --evaluator ID --expected-task-revision N` | Commit an evaluation attempt, then run the configured observer/test asynchronously; use `--request-id` for exact retries |
+| `evidence list TARGET` / `evidence refresh TARGET` | Inspect bounded result history; record invalidations for changed evidence inputs |
 | `browser status` / `browser pair PROFILE` / `browser unpair PROFILE` | Inspect browser state; explicitly authorize/revoke a connected profile |
 | `browser setup --extension-id ID --output DIR` | Prepare native host, exact-origin manifest and registration files in a new final installation directory |
 | `browser open\|navigate\|focus\|move\|close --profile ID --epoch ID ...` | Queue a guarded operation; inspect its eventual result with `browser status` |
@@ -149,9 +152,10 @@ After building `bin/heimdall.exe`, Windows integration checks exercise the compi
 node scripts/native-smoke.cjs
 node scripts/continuity-smoke.cjs
 node scripts/mcp-smoke.cjs
+node scripts/evidence-smoke.cjs
 ```
 
-CI runs Go tests/vet/build and extension unit tests on Windows and Ubuntu, plus compiled continuity/MCP checks on Windows. Real Chromium checks require a separate Playwright installation; see [verification notes](docs/VERIFICATION.md) for their limits and historical results.
+CI runs Go tests/vet/build and extension unit tests on Windows and Ubuntu, plus compiled continuity/MCP/evidence checks on Windows. Real Chromium checks require a separate Playwright installation; see [verification notes](docs/VERIFICATION.md) for their limits and historical results.
 
 On this Windows workspace, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools/go`, or the already-installed sibling Braid toolchain. This is a development convenience, not a runtime dependency or import from Braid.
 
@@ -163,4 +167,4 @@ On this Windows workspace, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, 
 
 [Implementation specification](docs/design/HANDOFF-heimdall-v1.1.md) · [Browser runtime design](docs/design/BROWSER-EXTENSION.md) · [Verification](docs/VERIFICATION.md).
 
-Next implementation work is C08/C09: evidence records, artifact/repo/test evaluators, and completion proposal revalidation, alongside the remaining C03 decision/Git identity work. See the [seven-improvement implementation plan](docs/IMPLEMENTATION-PLAN.md) and [dependency-ordered backlog](docs/BACKLOG.md).
+C08/C09 now have an initial CLI implementation. Next are the remaining evidence/decision details and C10/C11 task GUI. GUI work is paused at the requested commit checkpoint. See the [seven-improvement implementation plan](docs/IMPLEMENTATION-PLAN.md) and [dependency-ordered backlog](docs/BACKLOG.md).

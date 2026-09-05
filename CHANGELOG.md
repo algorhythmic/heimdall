@@ -1,6 +1,14 @@
 # Development milestones
 
-This records the implementation milestones reached by 2026-09-04. Versions describe local development builds; they do not imply published releases or completed deployment acceptance. The initial Git import captures the current 0.5.0 implementation together, rather than reconstructing historical source commits.
+This records the implementation milestones reached by 2026-09-05. Versions describe local development builds; they do not imply published releases or completed deployment acceptance. The initial Git import captured the 0.5.0 implementation together, rather than reconstructing historical source commits.
+
+## 0.6.0 — Completion evidence and revalidation
+
+- CLI-configured artifact existence/digest, repository-state and test-exit evaluators tied to accepted contracts and registered resource scopes.
+- Durable asynchronous attempts, independent observer provenance, bounded test output digests and unknown interrupted outcomes. Exact retries never launch another command.
+- Task/step completion proposals, explicit evidence invalidation and live input/repository/executable/environment revalidation before ratification.
+- Schema marker 6 with verified actual 0.5.0 upgrade and backup/restore. Existing read-grant permissions remain unchanged.
+- New focused failure tests and compiled evidence smoke coverage. GUI implementation is excluded from this checkpoint.
 
 ## 0.5.0 — MCP and scoped checkpoint writes
 
@@ -34,4 +42,4 @@ This records the implementation milestones reached by 2026-09-04. Versions descr
 
 ## Next
 
-C08/C09 add evidence evaluators and completion revalidation. Remaining C03 decision/Git identity work, task GUI, verified browser outcomes, Braid retrieval and execution-host coordination remain open. See the [backlog](docs/BACKLOG.md) for dependencies and acceptance criteria, and [verification](docs/VERIFICATION.md) for what was actually tested.
+C08/C09 have an initial CLI implementation; output retention, broader evidence tools and review notices remain open. Remaining C03 decision/Git identity work, task GUI, verified browser outcomes, Braid retrieval and execution-host coordination also remain open. See the [backlog](docs/BACKLOG.md) for dependencies and acceptance criteria, and [verification](docs/VERIFICATION.md) for what was actually tested.

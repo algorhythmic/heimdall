@@ -1,4 +1,4 @@
-# Contracts, checkpoints and resume context — 0.5.0
+# Contracts, checkpoints and resume context — 0.6.0
 
 The first continuity slice is usable through the CLI. It stores an accepted objective, constraints, decisions, resource bindings and immutable checkpoints separately from `tasks.yaml`. Checkpoint traffic does not change the task document revision. The MCP adapter and explicitly granted client checkpoints are described in MCP-SETUP.md. Automatic execution, evidence evaluators, Braid and the task GUI remain open.
 
@@ -67,13 +67,13 @@ Mutation requests require the observed task revision, even for unbinding. A stal
 
 ## Backup, upgrade and restore
 
-Database markers 1–4 upgrade to 5. While holding the sole-writer lock, startup first publishes `backups/pre-schema-5-<id>.db`; a failed snapshot aborts the upgrade. Event envelopes remain version 1; new contracts are version 2, and CLI checkpoints remain v1; client checkpoints and write grants are v2 with authenticated grant provenance. Old contracts replay unchanged but need explicit scope review before new checkpoints. Replay never reads resources or executes actions. Old 0.2.0/0.3.0/0.4.0 executables refuse a marker-5 database.
+Database markers 1–5 upgrade to 6. While holding the sole-writer lock, startup first publishes `backups/pre-schema-6-<id>.db`; a failed snapshot aborts the upgrade. Event envelopes remain version 1; new contracts are version 2, and CLI checkpoints remain v1; client checkpoints and write grants are v2 with authenticated grant provenance. Marker 6 adds evaluator/evidence records. Old contracts replay unchanged but need explicit scope review before new checkpoints. Replay never reads resources or executes actions. Executables from 0.5.0 and earlier refuse a marker-6 database.
 
 `backup --output FILE` uses SQLite `VACUUM INTO` for a consistent live database snapshot, with exclusive hard-link publication to avoid overwriting a concurrent destination. Its parent directory must exist and support hard links. This uses SQLite's documented snapshot behavior. [SQLite VACUUM INTO](https://www.sqlite.org/lang_vacuum.html#vacuum_with_an_into_clause)
 
 This is a **database-only backup**. Preserve the matching `types.yaml` separately, and preserve any unaccepted task-file edits before recovery. The database includes user-entered content and absolute resource paths; it is not redacted. Endpoint credentials, browser-host configuration, external working files and browser storage are not included.
 
-To recover, stop the relevant daemon and create a fresh recovery directory. Copy the snapshot there as `heimdall.db` and copy its matching `types.yaml`. Do not copy old WAL/SHM files, endpoints or a newer `tasks.yaml`. Start the compatible binary against that directory: it regenerates the task edit view and endpoint credentials. Verify `state`, `replay`, `doctor` and `context` before adopting it. Retain the original directory for inspection. For rollback, use the pre-schema-5 snapshot with the binary compatible with its original marker; post-upgrade events cannot be retained by that old binary. Snapshots retain grant verifier/revocation state; review and revoke restored grants before reconnecting clients, since an older snapshot can precede a later revocation.
+To recover, stop the relevant daemon and create a fresh recovery directory. Copy the snapshot there as `heimdall.db` and copy its matching `types.yaml`. Do not copy old WAL/SHM files, endpoints or a newer `tasks.yaml`. Start the compatible binary against that directory: it regenerates the task edit view and endpoint credentials. Verify `state`, `replay`, `doctor` and `context` before adopting it. Retain the original directory for inspection. For rollback, use the pre-schema-6 snapshot with the binary compatible with its original marker; post-upgrade events cannot be retained by that old binary. Snapshots retain grant verifier/revocation state; review and revoke restored grants before reconnecting clients, since an older snapshot can precede a later revocation.
 
 ## Interfaces and remaining work
 

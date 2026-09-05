@@ -1,6 +1,6 @@
 # Capability and authority ledger
 
-2026-09-05, daemon build 0.6.0. Scoped reads and explicit checkpoint writes remain exposed through MCP; evaluator configuration and execution are CLI-only.
+2026-09-05, daemon build 0.7.0. Scoped reads and explicit checkpoint writes remain exposed through MCP; evaluator configuration and execution are CLI-only. GUI sessions add scoped inspection and explicit completion review.
 
 | Surface / identity | Implemented authority | Evidence / limit |
 |---|---|---|
@@ -11,7 +11,7 @@
 | Evidence evaluator | Finish a previously committed CLI-authorized evaluation and invalidate its evidence | Daemon-derived provenance; cannot author contracts or ratify completion. Direct argv tests have bounded execution/output and declared input coverage; they are not sandboxed. Browser/scoped credentials cannot reach evaluator routes. |
 | Scoped reader | Task/subtree record and history reads; context only with all mandatory lineage/resource permissions | Separate hashed credential verifier, expiry/revocation, bounded pages, cursor-scope checks and restart rediscovery. No mutation authority. See [SCOPED-ACCESS.md](SCOPED-ACCESS.md). |
 | MCP client | Task/context/history tools; checkpoint tool requires a write grant | Official SDK stdio adapter; authenticated grant provenance, authorization before dedupe/commit, structured errors and restart tests. No contract, decision, resource or completion authority. |
-| GUI session | Unavailable for task UI | Extension popup remains available; no new task dashboard or browser-accessible continuity route. |
+| GUI session | Root-task subtree inspection and accept/reject of existing completion proposals | CLI-issued five-minute single-use code; one-hour HttpOnly SameSite=Strict session with frozen active binding IDs. Scope/expiry checked during reads and before cached command receipts and commit. Exact Origin/Host, CSRF, cursor isolation and logout/revoked retry tests pass. No task editing, evaluator execution, grant issuance or contract/decision acceptance. See [GUI-SETUP.md](GUI-SETUP.md). |
 | Execution host | Unknown / unavailable | No verified launch, attach, reconcile, status, cancellation or wake adapter; no automatic run resumes. |
 | Braid | Not integrated | No Heimdall index publication or retrieval path. Separate repository/toolchain convenience conveys no authority. |
 

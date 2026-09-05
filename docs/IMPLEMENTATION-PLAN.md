@@ -1,6 +1,6 @@
 # Implementation plan: work continuity and verified progress
 
-Updated 2026-09-05. Status: development build 0.6.0 adds initial CLI evidence evaluation and completion revalidation to continuity and scoped MCP. The design below began from build 0.2.0 and retains later milestone requirements. See [BACKLOG.md](BACKLOG.md) for remaining gaps, [EVIDENCE-SETUP.md](EVIDENCE-SETUP.md) for the new commands, and [STATUS.md](STATUS.md) for runtime capabilities. GUI work is paused at the requested commit checkpoint. No integrations or agent runs are installed by this plan.
+Updated 2026-09-05. Status: development build 0.7.0 adds scoped GUI inspection and completion review to continuity, scoped MCP and CLI evidence evaluation/revalidation. The design below began from build 0.2.0 and retains later milestone requirements. See [BACKLOG.md](BACKLOG.md) for remaining gaps, [GUI-SETUP.md](GUI-SETUP.md) and [EVIDENCE-SETUP.md](EVIDENCE-SETUP.md) for usage, and [STATUS.md](STATUS.md) for runtime capabilities. Development is stopped at the requested documentation/commit/push checkpoint. No integrations or agent runs are installed by this plan.
 
 ## 1. Outcome and scope
 

@@ -2,11 +2,11 @@
 
 Heimdall is a local task and continuity system for work shared between people and assistants. It records changes as events, preserves accepted decisions and progress checkpoints, and supplies scoped resume context. Retrieval belongs to the separate Braid project.
 
-**Current build: version-bound completion evidence (0.6.0).** The daemon and CLI provide contracts/decisions, reviewed resource scopes, checkpoints, resume context, scoped MCP and independently observed artifact/repository/test evidence. Completion proposals recheck current inputs before explicit ratification. The extension remains at 0.2.0. The task GUI, Braid integration and automatic continuation remain future work. Start with [evidence setup](docs/EVIDENCE-SETUP.md) or [MCP setup](docs/MCP-SETUP.md); see [STATUS.md](docs/STATUS.md) for boundaries.
+**Current build: local task and evidence GUI (0.7.0).** The daemon and CLI provide contracts/decisions, reviewed resource scopes, checkpoints, resume context, scoped MCP and independently observed artifact/repository/test evidence. The browser GUI shows scoped tasks, saved progress and evidence, and lets you explicitly review completion proposals with live revalidation. The extension remains at 0.2.0; Braid integration and automatic continuation remain future work. Start with [GUI setup](docs/GUI-SETUP.md), [evidence setup](docs/EVIDENCE-SETUP.md) or [MCP setup](docs/MCP-SETUP.md); see [STATUS.md](docs/STATUS.md) for boundaries.
 
 ## Progress
 
-| Improvement | Status in 0.6.0 |
+| Improvement | Status in 0.7.0 |
 |---|---|
 | Durable checkpoints and context | Initial implementation delivered: immutable checkpoints, contracts, decisions, resource drift and resume context. Decision review, Git identity and evidence/run links remain open. |
 | Assistant access through MCP | Initial implementation delivered: four tools, scoped credentials and explicitly delegated checkpoint writes. Host registration remains a deployment step. |
@@ -14,18 +14,19 @@ Heimdall is a local task and continuity system for work shared between people an
 | Evidence-based completion | Initial CLI implementation delivered: artifact/repo/test evaluators, durable attempts, invalidation and live revalidation of task/step proposals. Raw-output retention, broader machine tools and review notices remain open. |
 | Persistent task continuation | Planned. Saved context supports resuming work; dispatch, leases, recovery and an execution-host adapter remain open. |
 | Project-aware Braid memory | Planned; Braid is not integrated. Current mandatory context works without retrieval. |
-| Task GUI | Planned. The extension has a connection/pause popup; task, evidence and run screens remain open. |
+| Task GUI | Initial implementation delivered: scoped task/step navigation, checkpoints, accepted direction, evidence and explicit completion review. Task editing, decision review and run controls remain open. |
 
 See [implementation status](docs/STATUS.md), the [ordered backlog](docs/BACKLOG.md), and [development milestones](CHANGELOG.md). These are development milestones, not a complete v1 release.
 
 ## Runtime
 
-The Go daemon owns the database, task state and authorization. CLI commands and each MCP stdio adapter connect to it over authenticated loopback HTTP. The browser extension runs alongside the daemon and communicates through a browser-launched native helper. The extension does not contain the daemon or database.
+The Go daemon owns the database, task state and authorization, and serves the embedded TypeScript GUI. CLI commands and each MCP stdio adapter connect to it over authenticated loopback HTTP. The GUI uses a separate scoped browser session. The browser extension runs alongside the daemon and communicates through a browser-launched native helper. The extension does not contain the daemon or database; the GUI works without the extension.
 
 ```text
 CLI ----------------------------> Go daemon ------> SQLite event log
 Assistant host --> MCP adapter ->     ^
 Browser extension --> native helper --+
+Browser GUI --> scoped UI session ----+
 ```
 
 Braid will remain a separate retrieval component when its adapter is implemented. No model runner or automatic task dispatcher is included yet.
@@ -108,6 +109,7 @@ All commands accept `--data-dir PATH`, `--json`, and `--now RFC3339`. JSON is th
 | `grant issue ... --checkpoint-write` | Explicitly delegate checkpoint progress writes; old/read grants stay read-only |
 | `client checkpoint TARGET --credential FILE --file FILE --expected-task-revision N --request-id ID` | Grant-authorized checkpoint with explicit retry identity and preconditions |
 | `mcp --credential FILE` | Official-SDK stdio adapter; daemon must already be running |
+| `ui ROOT_TASK` | Print a token-free local GUI URL and single-use sign-in code for a root task's subtree; daemon must already be running |
 | `evidence configure TARGET --file FILE --expected-task-revision N` | Accept a version-bound evaluator definition through the CLI |
 | `evidence evaluate TARGET --evaluator ID --expected-task-revision N` | Commit an evaluation attempt, then run the configured observer/test asynchronously; use `--request-id` for exact retries |
 | `evidence list TARGET` / `evidence refresh TARGET` | Inspect bounded result history; record invalidations for changed evidence inputs |
@@ -153,9 +155,12 @@ node scripts/native-smoke.cjs
 node scripts/continuity-smoke.cjs
 node scripts/mcp-smoke.cjs
 node scripts/evidence-smoke.cjs
+node scripts/gui-smoke.cjs
 ```
 
-CI runs Go tests/vet/build and extension unit tests on Windows and Ubuntu, plus compiled continuity/MCP/evidence checks on Windows. Real Chromium checks require a separate Playwright installation; see [verification notes](docs/VERIFICATION.md) for their limits and historical results.
+GUI development uses `npm ci --ignore-scripts --no-audit --no-fund` and `npm run build` in `web/`. Commit the generated `internal/webui/assets/app.js`; a fresh Go-only build embeds it without requiring Node at runtime. Install the test browser with `npx playwright install chromium` in `web/` before running the GUI smoke.
+
+CI runs Go tests/vet/build, TypeScript build/generated-file checks and extension unit tests on Windows and Ubuntu, plus compiled continuity/MCP/evidence and Chromium GUI checks on Windows. See [verification notes](docs/VERIFICATION.md) for their limits and historical results.
 
 On this Windows workspace, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools/go`, or the already-installed sibling Braid toolchain. This is a development convenience, not a runtime dependency or import from Braid.
 
@@ -167,4 +172,4 @@ On this Windows workspace, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, 
 
 [Implementation specification](docs/design/HANDOFF-heimdall-v1.1.md) · [Browser runtime design](docs/design/BROWSER-EXTENSION.md) · [Verification](docs/VERIFICATION.md).
 
-C08/C09 now have an initial CLI implementation. Next are the remaining evidence/decision details and C10/C11 task GUI. GUI work is paused at the requested commit checkpoint. See the [seven-improvement implementation plan](docs/IMPLEMENTATION-PLAN.md) and [dependency-ordered backlog](docs/BACKLOG.md).
+C08/C09 and C10/C11 now have initial evidence and GUI implementations. Development is stopped at the requested documentation/commit/push checkpoint. Remaining work is recorded in the [seven-improvement implementation plan](docs/IMPLEMENTATION-PLAN.md) and [dependency-ordered backlog](docs/BACKLOG.md).

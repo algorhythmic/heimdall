@@ -1,9 +1,11 @@
 # Implementation status
 
-2026-09-05 — Version-bound completion evidence (0.6.0 daemon; 0.2.0 extension). This is a development build, not the complete Heimdall v1 release. GUI work is paused and excluded from this checkpoint.
+2026-09-05 — Local task and evidence GUI (0.7.0 daemon; 0.2.0 extension; schema 6). This is a development build, not the complete Heimdall v1 release. Development is stopped at the requested documentation/commit/push checkpoint.
 
 ## Implemented and tested
 
+- Embedded TypeScript GUI with scoped task/step search and navigation, accepted direction, checkpoints, blockers, resource drift and evidence provenance. Single-use CLI bootstrap, expiring HttpOnly sessions, frozen binding permissions, Origin/Host/CSRF guards and bounded polling feed. See [GUI-SETUP.md](GUI-SETUP.md).
+- Explicit GUI completion accept/reject uses transaction-bound authorization and live evidence revalidation. Go tests cover session/cursor boundaries, revoked retries and continuity-only feed changes; compiled Chromium checks cover task isolation, literal untrusted text, keyboard search, desktop/mobile layout, completion review and logout. Task editing, proposed decision review and run controls remain open.
 - CLI-configured artifact/repo/test evaluators, durable attempts, observed execution provenance and bounded output digests. Unknown interrupted requests never relaunch on retry or replay. Definitions/results are tied to contracts, reviewed resource scope, task/ancestor versions and accepted decisions. See [EVIDENCE-SETUP.md](EVIDENCE-SETUP.md).
 - Task/step completion proposals from observed evidence, explicit invalidation, supersession and live input/repository/executable/environment revalidation inside the writer transaction before ratification. Existing completed history is preserved; raw-output retention and richer review notices remain open.
 
@@ -43,14 +45,14 @@
 | Idempotency | Request IDs identify logical commands; automatically refreshed revision preconditions are excluded from the intent hash. The first execution validates its precondition; retries return the recorded result. |
 | Check evaluation | Manual and aggregate checks plus configured artifact/repo.state/test.exit evidence work for task/step proposals. Legacy mail/repo.commit/agent/GitHub kinds still report unsupported; silence is unknown without coverage. Test outcomes cover declared inputs and recorded executable/environment, not arbitrary external services or detached subprocesses. |
 | Capture kind `task` | Recorded safely; next-action/subtask proposal synthesis is future work. It cannot mutate a task unattended. |
-| User interfaces | `ls` currently returns tasks in stable ID order. Ranked planning, live watch/SSE, radiator, bar and launcher are not implemented. |
+| User interfaces | Embedded GUI supports scoped inspection and completion review, with bounded five-second polling while visible and manual refresh for filesystem-only drift. `ls` and GUI tasks use stable ID order. Ranked planning, SSE, radiator, bar and launcher remain open. |
 | Portability | Windows daemon/native helper and isolated Chromium APIs tested; Ubuntu CI passes Go tests/vet/build and extension unit tests. Linux CGO-disabled cross-build supplied. Linux desktop/native-host installation and Hyprland deployment remain unverified. |
 
 These boundaries keep the first slice inspectable. They do not silently redefine the final specification's completion criteria.
 
 ## Next work
 
-The seven-improvement sequence is in [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md), with precise progress in [BACKLOG.md](BACKLOG.md). Continuity, scoped MCP and initial evidence/revalidation now work. Remaining decision/Git identity details, output retention/review notices, the task GUI, verified browser actions, Braid and optional execution-host coordination remain open. GUI work is paused for the requested commit-and-push checkpoint.
+The seven-improvement sequence is in [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md), with precise progress in [BACKLOG.md](BACKLOG.md). Continuity, scoped MCP, initial evidence/revalidation and GUI inspection/review now work. Remaining decision/Git identity details, output retention/review notices, broader GUI controls, verified browser actions, Braid and optional execution-host coordination remain open. No further development is scheduled by this checkpoint.
 
 1. Finish remaining M1a configuration/catalog lifecycle and per-subtask check evaluation; specify and test workflow status proposals. Add transactional export/import with secret exclusion.
 2. Complete native-registration acceptance in the user's intended Chrome/Edge installation, then Linux/Hyprland window pairing, multi-profile deployment and graceful-close acceptance. See [BROWSER-SETUP.md](BROWSER-SETUP.md).

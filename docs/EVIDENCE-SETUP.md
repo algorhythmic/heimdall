@@ -1,6 +1,6 @@
-# Completion evidence — development build 0.6.0
+# Completion evidence — development build 0.7.0
 
-The daemon can observe registered artifacts, inspect repository state, and execute an explicitly configured test. Results are evidence for a task or step, not automatic completion. The existing `ratify` command remains the acceptance gate. The task GUI is not included in this build.
+The daemon can observe registered artifacts, inspect repository state, and execute an explicitly configured test. Results are evidence for a task or step, not automatic completion. Review proposals with the `ratify` command or the [task GUI](GUI-SETUP.md); both paths revalidate evidence before accepting completion.
 
 ## Configure an evaluator
 
@@ -72,7 +72,7 @@ Task and step evidence can produce proposals. Step prerequisites are checked at 
 - Definitions and requests are bounded to 64 KiB. Up to four evaluations can be in progress. Test deadlines are 1–300 seconds; combined stdout/stderr is capped at 1 MiB and retained as a digest, not raw output. The list returns at most 50 definitions and 50 results, with an explicit truncation flag and a 512 KiB response cap.
 - Resource coverage inherits the continuity limits: at most 16 bindings in a contract, 4,096 files and 64 MiB per binding. File reads use two passes and `os.Root`; they are observations, not filesystem locks. A timeout is not a hard deadline on every possible operating-system filesystem call.
 - Input completeness depends on the explicitly registered workspace and exclusions. External services, excluded files, toolchain dependencies outside the recorded executable, and detached child processes are not comprehensively certified. A timed-out process tree is not claimed to have stopped; reconcile possible remaining work before explicitly rerunning it. Commands run with the daemon user's permissions, not in a sandbox.
-- Raw-output retention, broader machine evidence tools, automatic continuous invalidation, richer post-completion review notices and the GUI remain later work. Unknown/unavailable evidence cannot establish completion.
+- The [GUI](GUI-SETUP.md) supports evidence inspection and explicit completion review. Configuration and evaluation remain CLI-only. Raw-output retention, broader machine evidence tools, automatic continuous invalidation and richer post-completion review notices remain later work. Unknown/unavailable evidence cannot establish completion.
 - Database schema marker 6 creates a consistent `backups/pre-schema-6-*.db` snapshot before upgrading markers 1–5. Restore into a fresh directory for rollback; old binaries refuse marker 6. Backups retain user data and credential verifiers, so review grants after restoration.
 
 Reproduce the compiled acceptance test with `node scripts/evidence-smoke.cjs` after building `bin/heimdall.exe`.

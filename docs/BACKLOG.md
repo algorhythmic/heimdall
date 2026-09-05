@@ -1,6 +1,6 @@
 # Continuity implementation backlog
 
-Date: 2026-09-05. **Development build 0.6.0 delivers initial CLI evidence evaluation and completion revalidation.** The controlling design is [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md). GUI work is paused for the requested commit-and-push checkpoint; no GUI changes are included.
+Date: 2026-09-05. **Development build 0.7.0 adds scoped GUI inspection and completion review to the evidence backend.** The controlling design is [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md). Development is stopped at the requested documentation/commit/push checkpoint, including the GUI.
 
 ## Current progress
 
@@ -15,9 +15,11 @@ Date: 2026-09-05. **Development build 0.6.0 delivers initial CLI evidence evalua
 | C07 | Initial slice complete | Official Go SDK v1.7.0 stdio adapter; task/context/history/checkpoint tools, structured errors, stable request IDs and daemon restart rediscovery. Official SDK client uses 2026-07-28; compiled stdio smoke uses 2025-11-25. User-host registration and Linux desktop deployment remain open. |
 | C08 | Initial CLI slice complete | Artifact existence/digest, exact-root repository predicates and configured test execution; accepted definitions, durable attempts, complete declared resource observations, lineage/decision binding, bounded output/executable/environment digests, retry/restart/replay and malformed/forged/partial/stale negatives. Raw-output retention, broader evidence tools and stronger external-input/process-tree coverage remain open. |
 | C09 | Initial CLI slice complete | Explicit invalidation, task/step proposals and live revalidation before ratification. Contract/resource/repository changes block stale completion; accepted task history remains. Continuous invalidation and dedicated post-completion review notices remain open. |
-| C10–C21 | Planned | Task GUI, verified actions, retrieval and execution-host slices remain unimplemented in the committed build. |
+| C10 | Initial slice complete | CLI-issued single-use codes, root-subtree sessions, frozen binding permissions, HttpOnly cookies, CSRF/Origin/Host guards and bounded polling feed. Cursor/session isolation, expiry and continuity-only refresh tests pass. SSE is not implemented. |
+| C11 | Initial slice complete | Responsive task/step, checkpoint, accepted direction, drift and evidence inspection; explicit completion accept/reject with live revalidation. Compiled Chromium keyboard, desktop/mobile, isolation and logout tests pass. Task editing, proposed decision review and run controls remain open. |
+| C12–C21 | Planned | Verified actions, retrieval, execution-host slices and broader GUI run controls remain unimplemented. |
 
-Next patch series after the commit checkpoint: remaining C03/evidence details, then C10/C11 GUI. Evidence observations include Git identity; general checkpoint Git identity remains open. Current usage is in [EVIDENCE-SETUP.md](EVIDENCE-SETUP.md), [MCP-SETUP.md](MCP-SETUP.md), [SCOPED-ACCESS.md](SCOPED-ACCESS.md) and [CONTINUITY-SETUP.md](CONTINUITY-SETUP.md).
+Remaining development starts with C03/evidence acceptance gaps and C12 onward when resumed. Evidence observations include Git identity; general checkpoint Git identity remains open. Current usage is in [GUI-SETUP.md](GUI-SETUP.md), [EVIDENCE-SETUP.md](EVIDENCE-SETUP.md), [MCP-SETUP.md](MCP-SETUP.md), [SCOPED-ACCESS.md](SCOPED-ACCESS.md) and [CONTINUITY-SETUP.md](CONTINUITY-SETUP.md).
 
 ## Ordered deliverables
 

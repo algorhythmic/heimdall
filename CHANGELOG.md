@@ -2,6 +2,15 @@
 
 This records the implementation milestones reached by 2026-09-05. Versions describe local development builds; they do not imply published releases or completed deployment acceptance. The initial Git import captured the 0.5.0 implementation together, rather than reconstructing historical source commits.
 
+## 0.7.0 — Local task and evidence GUI
+
+- Daemon-embedded TypeScript interface for scoped task/step navigation, accepted direction, checkpoints, blockers, resource drift and evidence provenance.
+- CLI-issued single-use sign-in codes, expiring HttpOnly sessions, frozen resource permissions, same-origin/CSRF guards and scoped polling cursors. Credentials stay out of URLs.
+- Explicit completion accept/reject through the existing transaction and live evidence revalidation path, including authorization before retries and commit.
+- Continuity/evidence changes refresh the feed even without a task document revision change. Bounded views disclose truncation.
+- Go authorization/feed regression tests and compiled Chromium desktop/mobile, keyboard, isolation, injection, review and logout checks. TypeScript generation and GUI smoke are included in CI.
+- Database schema remains 6; extension remains 0.2.0. Braid, verified browser outcomes and automatic continuation remain unimplemented. Development stops at this requested publication checkpoint.
+
 ## 0.6.0 — Completion evidence and revalidation
 
 - CLI-configured artifact existence/digest, repository-state and test-exit evaluators tied to accepted contracts and registered resource scopes.

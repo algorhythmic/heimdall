@@ -1,6 +1,14 @@
-# Verification — evidence daemon 0.6.0, extension 0.2.0
+# Verification — GUI daemon 0.7.0, extension 0.2.0
 
 Verified on Windows/amd64 with Go 1.27.1 and the pinned module graph. Historical results below retain their original milestone scope.
+
+## GUI verification in 0.7.0 — 2026-09-05
+
+- Full Go tests, `go vet ./...`, TypeScript compilation, and Windows/Linux-amd64 CGO-disabled builds pass. Database schema remains 6. No race-detector or Linux desktop acceptance is claimed.
+- Go GUI tests cover single-use bootstrap, HttpOnly/Strict cookies, unauthenticated/cross-origin/missing-CSRF refusal, subtree isolation, cursor scope/expiry, exact completion retries, logout/revoked retries, and checkpoint/evidence feed changes without a document revision change.
+- The final compiled Chromium smoke passed in `.tools/gui-test-FbiGpx`: real artifact evidence and accepted continuity context, isolated task scope, literal untrusted title, keyboard search, desktop 1440px/mobile 390px layouts, explicit completion review, logout and code replay denial. Both screenshots were visually inspected; the synthetic desktop capture is retained in [GUI setup](GUI-SETUP.md). All test processes closed.
+- The final compiled evidence regression also passed in `.tools/evidence-test-c9HwxK`, including live stale-input denial, exact retry without test reexecution, invalidation/supersession, replay/restart and explicit reevaluation/ratification.
+- CI now builds TypeScript and checks generated JavaScript on both platforms and runs the compiled Chromium GUI smoke on Windows. Remote results for this GUI checkpoint must be checked separately; the evidence-only run below does not certify GUI changes.
 
 ## Evidence verification in 0.6.0 — 2026-09-05
 
@@ -11,6 +19,8 @@ Verified on Windows/amd64 with Go 1.27.1 and the pinned module graph. Historical
 - No GUI implementation is included in this checkpoint. Native browser installation, runner integration, general checkpoint Git identity, raw-output retention and the other remaining acceptance gaps are not claimed.
 
 ## GitHub publication checks
+
+The [0.6.0 evidence checkpoint](https://github.com/algorhythmic/heimdall/actions/runs/33952148968) passed on Windows and Ubuntu for commit `1fb006785506674095e756e8e5efa9dcb27313e7`. Windows included the compiled evidence smoke alongside continuity and MCP checks.
 
 The [first GitHub Actions run](https://github.com/algorhythmic/heimdall/actions/runs/33949655377) passed on Windows and Ubuntu for commit `222a4957bd8d608a9ca823f35d54e085a23cadad` (2026-09-04 Pacific / 2026-09-05 UTC). Both jobs ran Go tests, vet, build and all seven extension unit tests. Windows also built the executable and passed compiled continuity and MCP smoke checks from a fresh checkout. This establishes Linux CI test execution, not Linux desktop/native-host deployment acceptance.
 

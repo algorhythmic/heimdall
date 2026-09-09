@@ -91,7 +91,7 @@ func TestScopedClientsAndRevocation(t *testing.T) {
 	if w := call(token, "GET", "/client/context?target=child-one", ""); w.Code != 200 {
 		t.Fatal("in-scope ancestor failed", w.Code, w.Body.String())
 	}
-	for _, path := range []string{"/state", "/events", "/grants", "/continuity/state?target=project-one", "/continuity/command", "/continuity/backup", "/workspace/state?target=project-one", "/workspace/manifest", "/workspace/session", "/workspace/command", "/workspace/herdr/bind", "/workspace/herdr/refresh", "/workspace/herdr/publish", "/artifact/record", "/artifact/list", "/artifact/show", "/artifact/check", "/grants/command", "/browser/message"} {
+	for _, path := range []string{"/state", "/events", "/grants", "/continuity/state?target=project-one", "/continuity/command", "/continuity/backup", "/workspace/state?target=project-one", "/workspace/manifest", "/workspace/session", "/workspace/command", "/workspace/herdr/bind", "/workspace/herdr/refresh", "/workspace/herdr/publish", "/artifact/record", "/artifact/list", "/artifact/show", "/artifact/check", "/progress/list", "/progress/show", "/progress/command", "/grants/command", "/browser/message"} {
 		if w := call(token, "POST", path, `{"actor":"cli"}`); w.Code != 401 {
 			t.Fatal("client reached privileged route", path, w.Code)
 		}

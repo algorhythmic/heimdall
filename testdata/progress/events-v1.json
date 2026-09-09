@@ -1,0 +1,1067 @@
+[
+  {
+    "id": 1,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.599401992Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "299ff51e68a87701fa6669655e8eba27",
+    "command_id": "299ff51e68a87701fa6669655e8eba27",
+    "payload": {
+      "request_hash": "0bf28641e9f2ce33c05cbc98928c5ba437c685ec0cd11f6026b9c3dda11a7222",
+      "revision": 1,
+      "result": {
+        "id": "299ff51e68a87701fa6669655e8eba27",
+        "revision": 1,
+        "data": {
+          "task_id": "alpha"
+        }
+      }
+    }
+  },
+  {
+    "id": 2,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.599401992Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "alpha",
+    "command_id": "299ff51e68a87701fa6669655e8eba27",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "alpha",
+          "title": "Planning alpha",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T05:15:37.599401992Z",
+        "updated_at": "2026-09-09T05:15:37.599401992Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.609675263Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "e1f0d5c5ee04086ac596fb8993763e65",
+    "command_id": "e1f0d5c5ee04086ac596fb8993763e65",
+    "payload": {
+      "request_hash": "f0257488f680b592f40056608245a59275f924487b62e883a1a510392b1518ce",
+      "revision": 2,
+      "result": {
+        "id": "e1f0d5c5ee04086ac596fb8993763e65",
+        "revision": 2,
+        "data": {
+          "task_id": "beta"
+        }
+      }
+    }
+  },
+  {
+    "id": 4,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.609675263Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "beta",
+    "command_id": "e1f0d5c5ee04086ac596fb8993763e65",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "beta",
+          "title": "Planning beta",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T05:15:37.609675263Z",
+        "updated_at": "2026-09-09T05:15:37.609675263Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 5,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.618564995Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-fc1ddd7f1221c25d64d3ea3223fa08cd",
+    "command_id": "continuity-fc1ddd7f1221c25d64d3ea3223fa08cd",
+    "payload": {
+      "request_hash": "3509b2274689398bd68939f8f87279ebca9fa082cde9b9a9d570ed6f2688f52f",
+      "revision": 2,
+      "result": {
+        "version": 2,
+        "id": "fc1ddd7f1221c25d64d3ea3223fa08cd",
+        "target": "alpha",
+        "task_revision": 1,
+        "previous": "",
+        "objective": "Review planning progress",
+        "constraints": [],
+        "acceptance": {
+          "text": ""
+        },
+        "actor": "cli",
+        "at": "2026-09-09T05:15:37.618564995Z"
+      }
+    }
+  },
+  {
+    "id": 6,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.618564995Z",
+    "subject": "contract",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "fc1ddd7f1221c25d64d3ea3223fa08cd",
+    "command_id": "continuity-fc1ddd7f1221c25d64d3ea3223fa08cd",
+    "payload": {
+      "version": 2,
+      "id": "fc1ddd7f1221c25d64d3ea3223fa08cd",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "objective": "Review planning progress",
+      "constraints": [],
+      "acceptance": {
+        "text": ""
+      },
+      "actor": "cli",
+      "at": "2026-09-09T05:15:37.618564995Z"
+    }
+  },
+  {
+    "id": 7,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.625677272Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "progress-f5142de8948463f904039c6dd46982fd",
+    "command_id": "progress-f5142de8948463f904039c6dd46982fd",
+    "payload": {
+      "request_hash": "2b093f76ff7a4e11053b705ea3efe9315da5d2f13ddadc52e00104c4e731c67e",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "f5142de8948463f904039c6dd46982fd",
+        "target": "alpha",
+        "task_revision": 1,
+        "kind": "decision",
+        "text": "Use explicit ownership\nPreserve user edits.",
+        "contract_id": "fc1ddd7f1221c25d64d3ea3223fa08cd",
+        "context": [
+          {
+            "target": "alpha",
+            "task_revision": 1,
+            "contract_id": "fc1ddd7f1221c25d64d3ea3223fa08cd"
+          }
+        ],
+        "decision_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "artifacts": [],
+        "digest": "9d03b587a438196b830a35811a13fa0cc66e8808faab3fbf0b16aa68aa429bd4",
+        "actor": "cli",
+        "at": "2026-09-09T05:15:37.625677272Z"
+      }
+    }
+  },
+  {
+    "id": 8,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.625677272Z",
+    "subject": "progress",
+    "verb": "proposed",
+    "actor": "cli",
+    "entity_id": "f5142de8948463f904039c6dd46982fd",
+    "command_id": "progress-f5142de8948463f904039c6dd46982fd",
+    "payload": {
+      "version": 1,
+      "id": "f5142de8948463f904039c6dd46982fd",
+      "target": "alpha",
+      "task_revision": 1,
+      "kind": "decision",
+      "text": "Use explicit ownership\nPreserve user edits.",
+      "contract_id": "fc1ddd7f1221c25d64d3ea3223fa08cd",
+      "context": [
+        {
+          "target": "alpha",
+          "task_revision": 1,
+          "contract_id": "fc1ddd7f1221c25d64d3ea3223fa08cd"
+        }
+      ],
+      "decision_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "artifacts": [],
+      "digest": "9d03b587a438196b830a35811a13fa0cc66e8808faab3fbf0b16aa68aa429bd4",
+      "actor": "cli",
+      "at": "2026-09-09T05:15:37.625677272Z"
+    }
+  },
+  {
+    "id": 9,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.664339196Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "progress-73022d27c89b8c35496a1e6c35292098",
+    "command_id": "progress-73022d27c89b8c35496a1e6c35292098",
+    "payload": {
+      "request_hash": "6f335ed08a3ebd627adc4d422f096af81a6244d8535372218b9b7589571e99a6",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "73022d27c89b8c35496a1e6c35292098",
+        "target": "alpha",
+        "task_revision": 1,
+        "proposal_id": "f5142de8948463f904039c6dd46982fd",
+        "digest": "9d03b587a438196b830a35811a13fa0cc66e8808faab3fbf0b16aa68aa429bd4",
+        "previous": "",
+        "status": "reviewed",
+        "note": "Explicit review of frozen content",
+        "actor": "cli",
+        "at": "2026-09-09T05:15:37.664339196Z"
+      }
+    }
+  },
+  {
+    "id": 10,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.664339196Z",
+    "subject": "progress",
+    "verb": "reviewed",
+    "actor": "cli",
+    "entity_id": "73022d27c89b8c35496a1e6c35292098",
+    "command_id": "progress-73022d27c89b8c35496a1e6c35292098",
+    "payload": {
+      "version": 1,
+      "id": "73022d27c89b8c35496a1e6c35292098",
+      "target": "alpha",
+      "task_revision": 1,
+      "proposal_id": "f5142de8948463f904039c6dd46982fd",
+      "digest": "9d03b587a438196b830a35811a13fa0cc66e8808faab3fbf0b16aa68aa429bd4",
+      "previous": "",
+      "status": "reviewed",
+      "note": "Explicit review of frozen content",
+      "actor": "cli",
+      "at": "2026-09-09T05:15:37.664339196Z"
+    }
+  },
+  {
+    "id": 11,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.92727818Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "progress-65b1fbe21e66775123760958591cbb32",
+    "command_id": "progress-65b1fbe21e66775123760958591cbb32",
+    "payload": {
+      "request_hash": "424cf83f77d7daf7f871d80f41644a7e6babe1dda852dfa8e069e9241a0860e2",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "65b1fbe21e66775123760958591cbb32",
+        "target": "alpha",
+        "task_revision": 1,
+        "proposal_id": "f5142de8948463f904039c6dd46982fd",
+        "digest": "9d03b587a438196b830a35811a13fa0cc66e8808faab3fbf0b16aa68aa429bd4",
+        "previous": "73022d27c89b8c35496a1e6c35292098",
+        "status": "accepted",
+        "note": "Explicit review of frozen content",
+        "actor": "cli",
+        "at": "2026-09-09T05:15:37.92727818Z"
+      }
+    }
+  },
+  {
+    "id": 12,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.92727818Z",
+    "subject": "progress",
+    "verb": "reviewed",
+    "actor": "cli",
+    "entity_id": "65b1fbe21e66775123760958591cbb32",
+    "command_id": "progress-65b1fbe21e66775123760958591cbb32",
+    "payload": {
+      "version": 1,
+      "id": "65b1fbe21e66775123760958591cbb32",
+      "target": "alpha",
+      "task_revision": 1,
+      "proposal_id": "f5142de8948463f904039c6dd46982fd",
+      "digest": "9d03b587a438196b830a35811a13fa0cc66e8808faab3fbf0b16aa68aa429bd4",
+      "previous": "73022d27c89b8c35496a1e6c35292098",
+      "status": "accepted",
+      "note": "Explicit review of frozen content",
+      "actor": "cli",
+      "at": "2026-09-09T05:15:37.92727818Z"
+    }
+  },
+  {
+    "id": 13,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.98089136Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "progress-eec120f1f26132f2803b6e84119b44ca",
+    "command_id": "progress-eec120f1f26132f2803b6e84119b44ca",
+    "payload": {
+      "request_hash": "a083c0e4d90ec07774be132179ba0a82542d6f6266dc30c72f4606f46a2e5db0",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "eec120f1f26132f2803b6e84119b44ca",
+        "target": "alpha",
+        "task_revision": 1,
+        "kind": "decision",
+        "text": "Unresolved planning choice",
+        "contract_id": "fc1ddd7f1221c25d64d3ea3223fa08cd",
+        "context": [
+          {
+            "target": "alpha",
+            "task_revision": 1,
+            "contract_id": "fc1ddd7f1221c25d64d3ea3223fa08cd"
+          }
+        ],
+        "decision_digest": "c73413d73c61fc022a96408314268228969390de86fc0d37def4cfc8148e80ce",
+        "artifacts": [],
+        "digest": "dd2bdf887048eed295c9cf6fd2aba11f8d46e077b679e9ef1acd2ed03c537b67",
+        "actor": "cli",
+        "at": "2026-09-09T05:15:37.98089136Z"
+      }
+    }
+  },
+  {
+    "id": 14,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:37.98089136Z",
+    "subject": "progress",
+    "verb": "proposed",
+    "actor": "cli",
+    "entity_id": "eec120f1f26132f2803b6e84119b44ca",
+    "command_id": "progress-eec120f1f26132f2803b6e84119b44ca",
+    "payload": {
+      "version": 1,
+      "id": "eec120f1f26132f2803b6e84119b44ca",
+      "target": "alpha",
+      "task_revision": 1,
+      "kind": "decision",
+      "text": "Unresolved planning choice",
+      "contract_id": "fc1ddd7f1221c25d64d3ea3223fa08cd",
+      "context": [
+        {
+          "target": "alpha",
+          "task_revision": 1,
+          "contract_id": "fc1ddd7f1221c25d64d3ea3223fa08cd"
+        }
+      ],
+      "decision_digest": "c73413d73c61fc022a96408314268228969390de86fc0d37def4cfc8148e80ce",
+      "artifacts": [],
+      "digest": "dd2bdf887048eed295c9cf6fd2aba11f8d46e077b679e9ef1acd2ed03c537b67",
+      "actor": "cli",
+      "at": "2026-09-09T05:15:37.98089136Z"
+    }
+  },
+  {
+    "id": 15,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.086040728Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "progress-94bbbeb68b53ca3abe289765666d4e41",
+    "command_id": "progress-94bbbeb68b53ca3abe289765666d4e41",
+    "payload": {
+      "request_hash": "0bc4f41502b79c22c11cfae5a775bb8e4d1cb8f4a782f3b7a42988ad75e01300",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "94bbbeb68b53ca3abe289765666d4e41",
+        "target": "alpha",
+        "task_revision": 1,
+        "kind": "decision",
+        "text": "Use task and environment ownership",
+        "contract_id": "fc1ddd7f1221c25d64d3ea3223fa08cd",
+        "context": [
+          {
+            "target": "alpha",
+            "task_revision": 1,
+            "contract_id": "fc1ddd7f1221c25d64d3ea3223fa08cd"
+          }
+        ],
+        "decision_digest": "c73413d73c61fc022a96408314268228969390de86fc0d37def4cfc8148e80ce",
+        "artifacts": [],
+        "supersedes": "65b1fbe21e66775123760958591cbb32",
+        "digest": "ef2e7dea27556fd80440d77ad0ad219c550a295e2a44bab2ccbe4655fb9e3251",
+        "actor": "cli",
+        "at": "2026-09-09T05:15:38.086040728Z"
+      }
+    }
+  },
+  {
+    "id": 16,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.086040728Z",
+    "subject": "progress",
+    "verb": "proposed",
+    "actor": "cli",
+    "entity_id": "94bbbeb68b53ca3abe289765666d4e41",
+    "command_id": "progress-94bbbeb68b53ca3abe289765666d4e41",
+    "payload": {
+      "version": 1,
+      "id": "94bbbeb68b53ca3abe289765666d4e41",
+      "target": "alpha",
+      "task_revision": 1,
+      "kind": "decision",
+      "text": "Use task and environment ownership",
+      "contract_id": "fc1ddd7f1221c25d64d3ea3223fa08cd",
+      "context": [
+        {
+          "target": "alpha",
+          "task_revision": 1,
+          "contract_id": "fc1ddd7f1221c25d64d3ea3223fa08cd"
+        }
+      ],
+      "decision_digest": "c73413d73c61fc022a96408314268228969390de86fc0d37def4cfc8148e80ce",
+      "artifacts": [],
+      "supersedes": "65b1fbe21e66775123760958591cbb32",
+      "digest": "ef2e7dea27556fd80440d77ad0ad219c550a295e2a44bab2ccbe4655fb9e3251",
+      "actor": "cli",
+      "at": "2026-09-09T05:15:38.086040728Z"
+    }
+  },
+  {
+    "id": 17,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.093552474Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "progress-4b0ddf94fd8c9d2fa46d2674985817f9",
+    "command_id": "progress-4b0ddf94fd8c9d2fa46d2674985817f9",
+    "payload": {
+      "request_hash": "791f8f56a56f9e9cd6a10a217c1805eb1c23143c3f041cc241574eb1c852700c",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "4b0ddf94fd8c9d2fa46d2674985817f9",
+        "target": "alpha",
+        "task_revision": 1,
+        "proposal_id": "94bbbeb68b53ca3abe289765666d4e41",
+        "digest": "ef2e7dea27556fd80440d77ad0ad219c550a295e2a44bab2ccbe4655fb9e3251",
+        "previous": "",
+        "status": "accepted",
+        "note": "Explicit review of frozen content",
+        "actor": "cli",
+        "at": "2026-09-09T05:15:38.093552474Z"
+      }
+    }
+  },
+  {
+    "id": 18,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.093552474Z",
+    "subject": "progress",
+    "verb": "reviewed",
+    "actor": "cli",
+    "entity_id": "4b0ddf94fd8c9d2fa46d2674985817f9",
+    "command_id": "progress-4b0ddf94fd8c9d2fa46d2674985817f9",
+    "payload": {
+      "version": 1,
+      "id": "4b0ddf94fd8c9d2fa46d2674985817f9",
+      "target": "alpha",
+      "task_revision": 1,
+      "proposal_id": "94bbbeb68b53ca3abe289765666d4e41",
+      "digest": "ef2e7dea27556fd80440d77ad0ad219c550a295e2a44bab2ccbe4655fb9e3251",
+      "previous": "",
+      "status": "accepted",
+      "note": "Explicit review of frozen content",
+      "actor": "cli",
+      "at": "2026-09-09T05:15:38.093552474Z"
+    }
+  },
+  {
+    "id": 19,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.107477112Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "progress-b2343e5fd0d490adda52b7020341b71f",
+    "command_id": "progress-b2343e5fd0d490adda52b7020341b71f",
+    "payload": {
+      "request_hash": "cd2464756976d32344eb93e2f926cddbf5c620334b3f8b77654880f7d0f742ed",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "b2343e5fd0d490adda52b7020341b71f",
+        "target": "alpha",
+        "task_revision": 1,
+        "proposal_id": "eec120f1f26132f2803b6e84119b44ca",
+        "digest": "dd2bdf887048eed295c9cf6fd2aba11f8d46e077b679e9ef1acd2ed03c537b67",
+        "previous": "",
+        "status": "rejected",
+        "note": "Explicit review of frozen content",
+        "actor": "cli",
+        "at": "2026-09-09T05:15:38.107477112Z"
+      }
+    }
+  },
+  {
+    "id": 20,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.107477112Z",
+    "subject": "progress",
+    "verb": "reviewed",
+    "actor": "cli",
+    "entity_id": "b2343e5fd0d490adda52b7020341b71f",
+    "command_id": "progress-b2343e5fd0d490adda52b7020341b71f",
+    "payload": {
+      "version": 1,
+      "id": "b2343e5fd0d490adda52b7020341b71f",
+      "target": "alpha",
+      "task_revision": 1,
+      "proposal_id": "eec120f1f26132f2803b6e84119b44ca",
+      "digest": "dd2bdf887048eed295c9cf6fd2aba11f8d46e077b679e9ef1acd2ed03c537b67",
+      "previous": "",
+      "status": "rejected",
+      "note": "Explicit review of frozen content",
+      "actor": "cli",
+      "at": "2026-09-09T05:15:38.107477112Z"
+    }
+  },
+  {
+    "id": 21,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.121200836Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-e364eeb78b8685426797661f6d11eae3",
+    "command_id": "continuity-e364eeb78b8685426797661f6d11eae3",
+    "payload": {
+      "request_hash": "16f933c98b2f59a8fa25702591e2b33a4fe9e62e71afadb2d56e817cc5d81f00",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "e364eeb78b8685426797661f6d11eae3",
+        "target": "alpha",
+        "kind": "tree",
+        "root": "/home/david/Projects/heimdall/.tools/progress-test-DK2bCb/work",
+        "path": ".",
+        "exclude": [
+          ".git"
+        ],
+        "active": true,
+        "initial": {
+          "digest": "7d2c574d2ae2fed91084ab3e8aafef50caf7c4c6b5c5344c8502e07edabf2b32",
+          "files": 1,
+          "bytes": 29
+        },
+        "actor": "cli",
+        "at": "2026-09-09T05:15:38.121200836Z"
+      }
+    }
+  },
+  {
+    "id": 22,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.121200836Z",
+    "subject": "resource",
+    "verb": "bound",
+    "actor": "cli",
+    "entity_id": "e364eeb78b8685426797661f6d11eae3",
+    "command_id": "continuity-e364eeb78b8685426797661f6d11eae3",
+    "payload": {
+      "version": 1,
+      "id": "e364eeb78b8685426797661f6d11eae3",
+      "target": "alpha",
+      "kind": "tree",
+      "root": "/home/david/Projects/heimdall/.tools/progress-test-DK2bCb/work",
+      "path": ".",
+      "exclude": [
+        ".git"
+      ],
+      "active": true,
+      "initial": {
+        "digest": "7d2c574d2ae2fed91084ab3e8aafef50caf7c4c6b5c5344c8502e07edabf2b32",
+        "files": 1,
+        "bytes": 29
+      },
+      "actor": "cli",
+      "at": "2026-09-09T05:15:38.121200836Z"
+    }
+  },
+  {
+    "id": 23,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.128446376Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-ed877e7e78ddb00a742785a8c2709e5b",
+    "command_id": "continuity-ed877e7e78ddb00a742785a8c2709e5b",
+    "payload": {
+      "request_hash": "d24f03f5765dca0c4ddbaf07f0904b3a33ce38fcb963ec926c993ddd0c32709d",
+      "revision": 2,
+      "result": {
+        "version": 2,
+        "id": "ed877e7e78ddb00a742785a8c2709e5b",
+        "target": "alpha",
+        "task_revision": 1,
+        "previous": "fc1ddd7f1221c25d64d3ea3223fa08cd",
+        "objective": "Review exact planning artifact",
+        "constraints": [],
+        "acceptance": {
+          "text": ""
+        },
+        "resource_ids": [
+          "e364eeb78b8685426797661f6d11eae3"
+        ],
+        "actor": "cli",
+        "at": "2026-09-09T05:15:38.128446376Z"
+      }
+    }
+  },
+  {
+    "id": 24,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.128446376Z",
+    "subject": "contract",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "ed877e7e78ddb00a742785a8c2709e5b",
+    "command_id": "continuity-ed877e7e78ddb00a742785a8c2709e5b",
+    "payload": {
+      "version": 2,
+      "id": "ed877e7e78ddb00a742785a8c2709e5b",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "fc1ddd7f1221c25d64d3ea3223fa08cd",
+      "objective": "Review exact planning artifact",
+      "constraints": [],
+      "acceptance": {
+        "text": ""
+      },
+      "resource_ids": [
+        "e364eeb78b8685426797661f6d11eae3"
+      ],
+      "actor": "cli",
+      "at": "2026-09-09T05:15:38.128446376Z"
+    }
+  },
+  {
+    "id": 25,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.135842277Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "artifact-99de06e10d41f70044a0bee3f89f1141",
+    "command_id": "artifact-99de06e10d41f70044a0bee3f89f1141",
+    "payload": {
+      "request_hash": "c2092f64acf8be26eeb9db2b6bcb7a501d0fb2b1cdd12bf5ba71115dc4d1fd8c",
+      "revision": 2,
+      "result": {
+        "artifact": {
+          "version": 1,
+          "id": "99de06e10d41f70044a0bee3f89f1141",
+          "target": "alpha",
+          "name": "Design notes",
+          "environment": "local-test",
+          "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+          "platform": "linux",
+          "actor": "cli",
+          "at": "2026-09-09T05:15:38.135842277Z"
+        },
+        "head": "99de06e10d41f70044a0bee3f89f1141",
+        "lifecycle": "draft",
+        "record": {
+          "version": 1,
+          "id": "99de06e10d41f70044a0bee3f89f1141",
+          "artifact_id": "99de06e10d41f70044a0bee3f89f1141",
+          "target": "alpha",
+          "task_revision": 1,
+          "previous": "",
+          "resource_id": "e364eeb78b8685426797661f6d11eae3",
+          "path": "notes.md",
+          "observation": {
+            "digest": "f993fda7fa2ad1a2337165e72b8d9459bfc5fe4d2826837031c094dd3098a470",
+            "bytes": 29,
+            "mode": 384
+          },
+          "actor": "cli",
+          "at": "2026-09-09T05:15:38.135842277Z"
+        }
+      }
+    }
+  },
+  {
+    "id": 26,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.135842277Z",
+    "subject": "artifact",
+    "verb": "registered",
+    "actor": "cli",
+    "entity_id": "99de06e10d41f70044a0bee3f89f1141",
+    "command_id": "artifact-99de06e10d41f70044a0bee3f89f1141",
+    "payload": {
+      "version": 1,
+      "id": "99de06e10d41f70044a0bee3f89f1141",
+      "target": "alpha",
+      "name": "Design notes",
+      "environment": "local-test",
+      "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+      "platform": "linux",
+      "actor": "cli",
+      "at": "2026-09-09T05:15:38.135842277Z"
+    }
+  },
+  {
+    "id": 27,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.135842277Z",
+    "subject": "artifact",
+    "verb": "versioned",
+    "actor": "cli",
+    "entity_id": "99de06e10d41f70044a0bee3f89f1141",
+    "command_id": "artifact-99de06e10d41f70044a0bee3f89f1141",
+    "payload": {
+      "version": 1,
+      "id": "99de06e10d41f70044a0bee3f89f1141",
+      "artifact_id": "99de06e10d41f70044a0bee3f89f1141",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "resource_id": "e364eeb78b8685426797661f6d11eae3",
+      "path": "notes.md",
+      "observation": {
+        "digest": "f993fda7fa2ad1a2337165e72b8d9459bfc5fe4d2826837031c094dd3098a470",
+        "bytes": 29,
+        "mode": 384
+      },
+      "actor": "cli",
+      "at": "2026-09-09T05:15:38.135842277Z"
+    }
+  },
+  {
+    "id": 28,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.14378746Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "progress-edd37b412365946bc1de72f4eb8210da",
+    "command_id": "progress-edd37b412365946bc1de72f4eb8210da",
+    "payload": {
+      "request_hash": "7fcba4db1bdc3a829c322506d2d0c2d5f2c9b772599c64d1d5dd183ba5d814ce",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "edd37b412365946bc1de72f4eb8210da",
+        "target": "alpha",
+        "task_revision": 1,
+        "kind": "artifact",
+        "text": "Review design notes",
+        "contract_id": "ed877e7e78ddb00a742785a8c2709e5b",
+        "context": [
+          {
+            "target": "alpha",
+            "task_revision": 1,
+            "contract_id": "ed877e7e78ddb00a742785a8c2709e5b"
+          }
+        ],
+        "decision_digest": "09453492c802bbbbd75e0a01219ff0cafe7aa32342d540c18db991543d3609bb",
+        "artifacts": [
+          {
+            "artifact_id": "99de06e10d41f70044a0bee3f89f1141",
+            "version_id": "99de06e10d41f70044a0bee3f89f1141",
+            "observation": {
+              "digest": "f993fda7fa2ad1a2337165e72b8d9459bfc5fe4d2826837031c094dd3098a470",
+              "bytes": 29,
+              "mode": 384
+            }
+          }
+        ],
+        "digest": "8dfb3f6c20f414ab57b7f998b7a94f0ec3f64d6f9c1a24ba7f11d20e99d68528",
+        "actor": "cli",
+        "at": "2026-09-09T05:15:38.14378746Z"
+      }
+    }
+  },
+  {
+    "id": 29,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.14378746Z",
+    "subject": "progress",
+    "verb": "proposed",
+    "actor": "cli",
+    "entity_id": "edd37b412365946bc1de72f4eb8210da",
+    "command_id": "progress-edd37b412365946bc1de72f4eb8210da",
+    "payload": {
+      "version": 1,
+      "id": "edd37b412365946bc1de72f4eb8210da",
+      "target": "alpha",
+      "task_revision": 1,
+      "kind": "artifact",
+      "text": "Review design notes",
+      "contract_id": "ed877e7e78ddb00a742785a8c2709e5b",
+      "context": [
+        {
+          "target": "alpha",
+          "task_revision": 1,
+          "contract_id": "ed877e7e78ddb00a742785a8c2709e5b"
+        }
+      ],
+      "decision_digest": "09453492c802bbbbd75e0a01219ff0cafe7aa32342d540c18db991543d3609bb",
+      "artifacts": [
+        {
+          "artifact_id": "99de06e10d41f70044a0bee3f89f1141",
+          "version_id": "99de06e10d41f70044a0bee3f89f1141",
+          "observation": {
+            "digest": "f993fda7fa2ad1a2337165e72b8d9459bfc5fe4d2826837031c094dd3098a470",
+            "bytes": 29,
+            "mode": 384
+          }
+        }
+      ],
+      "digest": "8dfb3f6c20f414ab57b7f998b7a94f0ec3f64d6f9c1a24ba7f11d20e99d68528",
+      "actor": "cli",
+      "at": "2026-09-09T05:15:38.14378746Z"
+    }
+  },
+  {
+    "id": 30,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.151781327Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "progress-760da0392e16686bf241f3281e1b20ff",
+    "command_id": "progress-760da0392e16686bf241f3281e1b20ff",
+    "payload": {
+      "request_hash": "8f7e226d7148eabdae1e9133cd26bc4eb628052229e4f58b684383d50ea60ac6",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "760da0392e16686bf241f3281e1b20ff",
+        "target": "alpha",
+        "task_revision": 1,
+        "proposal_id": "edd37b412365946bc1de72f4eb8210da",
+        "digest": "8dfb3f6c20f414ab57b7f998b7a94f0ec3f64d6f9c1a24ba7f11d20e99d68528",
+        "previous": "",
+        "status": "reviewed",
+        "note": "Explicit review of frozen content",
+        "actor": "cli",
+        "at": "2026-09-09T05:15:38.151781327Z"
+      }
+    }
+  },
+  {
+    "id": 31,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.151781327Z",
+    "subject": "progress",
+    "verb": "reviewed",
+    "actor": "cli",
+    "entity_id": "760da0392e16686bf241f3281e1b20ff",
+    "command_id": "progress-760da0392e16686bf241f3281e1b20ff",
+    "payload": {
+      "version": 1,
+      "id": "760da0392e16686bf241f3281e1b20ff",
+      "target": "alpha",
+      "task_revision": 1,
+      "proposal_id": "edd37b412365946bc1de72f4eb8210da",
+      "digest": "8dfb3f6c20f414ab57b7f998b7a94f0ec3f64d6f9c1a24ba7f11d20e99d68528",
+      "previous": "",
+      "status": "reviewed",
+      "note": "Explicit review of frozen content",
+      "actor": "cli",
+      "at": "2026-09-09T05:15:38.151781327Z"
+    }
+  },
+  {
+    "id": 32,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.17639008Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "progress-9a0c871bca72df748a8561e07f90539c",
+    "command_id": "progress-9a0c871bca72df748a8561e07f90539c",
+    "payload": {
+      "request_hash": "a3ef0f0d40be9db24a7e4062767d2472097dcd42dcb7ca7e413ad44a3d21573e",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "9a0c871bca72df748a8561e07f90539c",
+        "target": "alpha",
+        "task_revision": 1,
+        "proposal_id": "edd37b412365946bc1de72f4eb8210da",
+        "digest": "8dfb3f6c20f414ab57b7f998b7a94f0ec3f64d6f9c1a24ba7f11d20e99d68528",
+        "previous": "760da0392e16686bf241f3281e1b20ff",
+        "status": "accepted",
+        "note": "Explicit review of frozen content",
+        "actor": "cli",
+        "at": "2026-09-09T05:15:38.17639008Z"
+      }
+    }
+  },
+  {
+    "id": 33,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.17639008Z",
+    "subject": "progress",
+    "verb": "reviewed",
+    "actor": "cli",
+    "entity_id": "9a0c871bca72df748a8561e07f90539c",
+    "command_id": "progress-9a0c871bca72df748a8561e07f90539c",
+    "payload": {
+      "version": 1,
+      "id": "9a0c871bca72df748a8561e07f90539c",
+      "target": "alpha",
+      "task_revision": 1,
+      "proposal_id": "edd37b412365946bc1de72f4eb8210da",
+      "digest": "8dfb3f6c20f414ab57b7f998b7a94f0ec3f64d6f9c1a24ba7f11d20e99d68528",
+      "previous": "760da0392e16686bf241f3281e1b20ff",
+      "status": "accepted",
+      "note": "Explicit review of frozen content",
+      "actor": "cli",
+      "at": "2026-09-09T05:15:38.17639008Z"
+    }
+  },
+  {
+    "id": 34,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.387886177Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "artifact-2d857babc37550ba63684187d25879b0",
+    "command_id": "artifact-2d857babc37550ba63684187d25879b0",
+    "payload": {
+      "request_hash": "63a72095c2fabcf069f230a850c48d978a5969a42e7158f7437fa22626753b8c",
+      "revision": 2,
+      "result": {
+        "artifact": {
+          "version": 1,
+          "id": "99de06e10d41f70044a0bee3f89f1141",
+          "target": "alpha",
+          "name": "Design notes",
+          "environment": "local-test",
+          "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+          "platform": "linux",
+          "actor": "cli",
+          "at": "2026-09-09T05:15:38.135842277Z"
+        },
+        "head": "2d857babc37550ba63684187d25879b0",
+        "lifecycle": "draft",
+        "record": {
+          "version": 1,
+          "id": "2d857babc37550ba63684187d25879b0",
+          "artifact_id": "99de06e10d41f70044a0bee3f89f1141",
+          "target": "alpha",
+          "task_revision": 1,
+          "previous": "99de06e10d41f70044a0bee3f89f1141",
+          "resource_id": "e364eeb78b8685426797661f6d11eae3",
+          "path": "notes.md",
+          "observation": {
+            "digest": "f993fda7fa2ad1a2337165e72b8d9459bfc5fe4d2826837031c094dd3098a470",
+            "bytes": 29,
+            "mode": 384
+          },
+          "actor": "cli",
+          "at": "2026-09-09T05:15:38.387886177Z"
+        }
+      }
+    }
+  },
+  {
+    "id": 35,
+    "event_version": 1,
+    "ts": "2026-09-09T05:15:38.387886177Z",
+    "subject": "artifact",
+    "verb": "versioned",
+    "actor": "cli",
+    "entity_id": "2d857babc37550ba63684187d25879b0",
+    "command_id": "artifact-2d857babc37550ba63684187d25879b0",
+    "payload": {
+      "version": 1,
+      "id": "2d857babc37550ba63684187d25879b0",
+      "artifact_id": "99de06e10d41f70044a0bee3f89f1141",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "99de06e10d41f70044a0bee3f89f1141",
+      "resource_id": "e364eeb78b8685426797661f6d11eae3",
+      "path": "notes.md",
+      "observation": {
+        "digest": "f993fda7fa2ad1a2337165e72b8d9459bfc5fe4d2826837031c094dd3098a470",
+        "bytes": 29,
+        "mode": 384
+      },
+      "actor": "cli",
+      "at": "2026-09-09T05:15:38.387886177Z"
+    }
+  }
+]

@@ -19,6 +19,14 @@ func TestStoppedSchemaEightFixtureUpgrade(t *testing.T) {
 	testStoppedWorkspaceFixture(t, "../../testdata/artifacts/schema8.sql", 8)
 }
 
+func TestStoppedSchemaNineFixtureUpgrade(t *testing.T) {
+	testStoppedWorkspaceFixture(t, "../../testdata/progress/schema9.sql", 9)
+}
+
+func TestStoppedSchemaTenFixtureUpgrade(t *testing.T) {
+	testStoppedWorkspaceFixture(t, "../../testdata/progress/schema10.sql", 10)
+}
+
 func testStoppedWorkspaceFixture(t *testing.T, path string, marker int) {
 	t.Helper()
 	dir := t.TempDir()
@@ -43,7 +51,7 @@ func testStoppedWorkspaceFixture(t *testing.T, path string, marker int) {
 		t.Fatal(err)
 	}
 	expected.Normalize()
-	if len(expected.WorkspaceManifests) == 0 || len(expected.SessionBindings) == 0 {
+	if marker < 9 && (len(expected.WorkspaceManifests) == 0 || len(expected.SessionBindings) == 0) {
 		t.Fatal("fixture has no W01 state")
 	}
 	s, err := Open(dir)

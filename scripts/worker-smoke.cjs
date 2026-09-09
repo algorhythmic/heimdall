@@ -1,6 +1,6 @@
 // Whole worker/daemon test with real Chromium APIs and compiled native framing.
 // Only Chrome's OS registry discovery/launch is replaced by an in-memory native-port shim.
-const {chromium}=require(require.resolve('playwright',{paths:[require('node:path').resolve(__dirname,'../web')]}));
+const {chromium}=require(require.resolve('playwright',{paths:[require('node:path').resolve(__dirname,'./browser-test')]}));
 const {spawn,execFileSync}=require('node:child_process');
 const {mkdtempSync,mkdirSync,readFileSync}=require('node:fs');
 const {join,resolve}=require('node:path');

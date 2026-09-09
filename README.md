@@ -2,37 +2,37 @@
 
 Heimdall is a local task and continuity system for work shared between people and assistants. It records changes as events, preserves accepted decisions and progress checkpoints, and supplies scoped resume context. Retrieval belongs to the separate Braid project.
 
-**Current development: terminal/editor continuity, Herdr bindings and Linux artifact versions, extending 0.7.0 with database schema 9.** Resume an explicit task with its accepted direction, saved progress, blockers and file drift. Save progress through editable checkpoint drafts that preserve their original task, revision and retry identity.
+**Current development: terminal/editor continuity, Herdr bindings, artifact versions and CLI/TUI progress review, extending 0.7.0 with database schema 11.** Resume an explicit task with its accepted direction, saved progress, blockers and file drift. Save progress through editable checkpoint drafts that preserve their original task, revision and retry identity.
 
 The [Neovim integration](docs/NEOVIM-SETUP.md) brings that workflow into the editor. [Workspace/session records](docs/WORKSPACE-SETUP.md) keep tasks distinct even when they share a repository. The [Linux Herdr adapter](docs/HERDR-SETUP.md) verifies selected panes and publishes expiring task metadata. [Artifact versions](docs/ARTIFACT-SETUP.md) pin exact file identity, with optional Git metadata, to checkpoints; they detect changed or missing files and explicitly recorded relocations. They retain metadata and digests, not file contents.
 
-Scoped MCP clients can read context and, with an explicit write grant, save progress. The browser GUI shows tasks, checkpoints and independently observed evidence for explicit completion review. Start with [terminal setup](docs/CONTINUITY-SETUP.md), [GUI setup](docs/GUI-SETUP.md), [evidence setup](docs/EVIDENCE-SETUP.md) or [MCP setup](docs/MCP-SETUP.md). The extension remains at 0.2.0. P02 progress/decision review is next; file preservation, workspace restoration, Braid integration and automatic continuation remain planned. See [STATUS.md](docs/STATUS.md) for the supported boundaries.
+Scoped MCP clients can read context and, with an explicit write grant, save progress. The terminal interface shows needs-you, workstreams, saved context and explicit review dialogs. Start with [terminal setup](docs/CONTINUITY-SETUP.md), [TUI setup](docs/TUI-SETUP.md), [evidence setup](docs/EVIDENCE-SETUP.md) or [MCP setup](docs/MCP-SETUP.md). The extension remains at 0.2.0. Initial [P02 progress/decision review](docs/PROGRESS-SETUP.md) is available through the CLI and the terminal interface, with Neovim inspection and terminal handoff; file preservation, workspace restoration, Braid integration and automatic continuation remain planned. See [STATUS.md](docs/STATUS.md) for the supported boundaries.
 
 ## Progress
 
 | Improvement | Current development status |
 |---|---|
-| Durable checkpoints and context | Delivered: immutable checkpoints, contracts, decisions, resource drift, readable resume and draft/submit helpers. [Linux artifact/version pins](docs/ARTIFACT-SETUP.md) include optional Git identity. Decision review and evidence/run links remain open. |
+| Durable checkpoints and context | Delivered: immutable checkpoints, contracts, decisions, resource drift, readable resume and draft/submit helpers. [Linux artifact/version pins](docs/ARTIFACT-SETUP.md) include optional Git identity. [CLI/TUI progress and decision review](docs/PROGRESS-SETUP.md) is delivered; evidence/run links remain open. |
 | Workspace/session identity | Initial W01/T02 delivered: explicit manifests, generic declarations and verified local Herdr bindings with refresh/metadata. Schema-9 migration/replay tested. Automatic refresh and workspace recovery remain open. |
-| Editor continuity | Initial T03 delivered: [Neovim commands and LazyVim example](docs/NEOVIM-SETUP.md) for task selection, resume, checkpoint drafts, artifacts, session checks and GUI review. Isolated Linux acceptance; no global configuration installed. |
+| Editor continuity | Initial T03 delivered: [Neovim commands and LazyVim example](docs/NEOVIM-SETUP.md) for task selection, resume, checkpoint drafts, artifacts, session checks and TUI review. Isolated Linux acceptance; no global configuration installed. |
 | Assistant access through MCP | Initial implementation delivered: four tools, scoped credentials and explicitly delegated checkpoint writes. Host registration remains a deployment step. |
 | Verified computer actions | Planned. Browser tab controls exist; API success does not yet verify the intended outcome. |
 | Evidence-based completion | Initial CLI implementation delivered: artifact/repo/test evaluators, durable attempts, invalidation and live revalidation of task/step proposals. Raw-output retention, broader machine tools and review notices remain open. |
 | Persistent task continuation | Planned. Saved context supports resuming work; dispatch, leases, recovery and an execution-host adapter remain open. |
 | Project-aware Braid memory | Planned; Braid is not integrated. Current mandatory context works without retrieval. |
-| Task GUI | Initial implementation delivered: scoped task/step navigation, checkpoints, accepted direction, evidence and explicit completion review. Task editing, decision review and run controls remain open. |
+| Task interface | Delivered: [terminal dashboard and review dialogs](docs/TUI-SETUP.md), replacing the browser GUI. Needs-you, expandable workstreams, retained progress drafts, file checks and workspace preview. |
 
 See [implementation status](docs/STATUS.md), the [ordered backlog](docs/BACKLOG.md), and [development milestones](CHANGELOG.md). These are development milestones, not a complete v1 release.
 
 ## Runtime
 
-The Go daemon owns the database, task state and authorization, and serves the embedded TypeScript GUI. CLI commands and each MCP stdio adapter connect to it over authenticated loopback HTTP. The GUI uses a separate scoped browser session. The browser extension runs alongside the daemon and communicates through a browser-launched native helper. The extension does not contain the daemon or database; the GUI works without the extension.
+The Go daemon owns the database, task state and authorization. The TUI, CLI commands and each MCP stdio adapter connect to it over authenticated loopback HTTP. The TUI uses local CLI authority. The optional browser extension communicates through a browser-launched native helper; it does not contain the daemon or database.
 
 ```text
 CLI ----------------------------> Go daemon ------> SQLite event log
 Assistant host --> MCP adapter ->     ^
 Browser extension --> native helper --+
-Browser GUI --> scoped UI session ----+
+Terminal UI --> local CLI client -----+
 ```
 
 Braid will remain a separate retrieval component when its adapter is implemented. No model runner or automatic task dispatcher is included yet.
@@ -53,7 +53,7 @@ Linux/macOS build command:
 go build -trimpath -o bin/heimdall ./cmd/heimdall
 ```
 
-Windows has historical acceptance; Linux core, continuity, MCP, evidence, GUI and isolated browser/native-worker checks now pass locally. WCU also inspected terminal rendering on Hyprland. Actual native-host installation, workspace recovery and macOS acceptance remain open. Use `./bin/heimdall` on Unix.
+Windows has historical acceptance; Linux core, continuity, MCP, evidence, TUI and isolated browser/native-worker checks pass locally. WCU also inspected terminal rendering on Hyprland. Actual native-host installation, workspace recovery and macOS acceptance remain open. Use `./bin/heimdall` on Unix.
 
 Built executables do not require Go at runtime. `bin/heimdall` is the locally tested Linux build; generated binaries are ignored by Git.
 
@@ -89,6 +89,12 @@ Leave `start` running. The following PowerShell example uses the Windows executa
 The task fixture imports only at document revision 0 into a fresh store. For later imports, start with `export-tasks` and retain its current revision. Do not reset a document's revision just to bypass a conflict; merge against the current view.
 
 Stop with Ctrl+C. No hooks, browser extension, system service, remote provider, or Braid process is installed or started by this build. Running the example uses synthetic tasks only.
+
+## Terminal interface
+
+Run `./bin/heimdall tui --data-dir ./demo-data` with the daemon running. Use
+`node scripts/tui-demo.cjs` for an isolated working example of the new design.
+[Controls and recovery](docs/TUI-SETUP.md) cover review, drafts and exact retries.
 
 ## Commands
 
@@ -128,7 +134,7 @@ All commands accept `--data-dir PATH`, `--json`, and `--now RFC3339`. JSON is th
 | `grant issue ... --checkpoint-write` | Explicitly delegate checkpoint progress writes; old/read grants stay read-only |
 | `client checkpoint TARGET --credential FILE --file FILE --expected-task-revision N --request-id ID` | Grant-authorized checkpoint with explicit retry identity and preconditions |
 | `mcp --credential FILE` | Official-SDK stdio adapter; daemon must already be running |
-| `ui ROOT_TASK` | Print a token-free local GUI URL and single-use sign-in code for a root task's subtree; daemon must already be running |
+| `tui [TARGET]` / `ui [TARGET]` | Open the terminal dashboard, optionally selecting/filtering a task or step; `--snapshot` prints it once |
 | `evidence configure TARGET --file FILE --expected-task-revision N` | Accept a version-bound evaluator definition through the CLI |
 | `evidence evaluate TARGET --evaluator ID --expected-task-revision N` | Commit an evaluation attempt, then run the configured observer/test asynchronously; use `--request-id` for exact retries |
 | `evidence list TARGET` / `evidence refresh TARGET` | Inspect bounded result history; record invalidations for changed evidence inputs |
@@ -150,7 +156,7 @@ If a command races with an editor save, the command's event remains durable whil
 
 The prototype keeps `tasks.yaml`, `types.yaml`, SQLite and endpoint metadata together under `--data-dir`. It defaults to `$XDG_DATA_HOME/heimdall`, otherwise `~/.local/share/heimdall`. The full XDG config/state split and `config.toml` are future work. On Windows, access control follows the chosen directory's ACL; Unix file mode bits are not a substitute for Windows ACL hardening.
 
-The current binary upgrades database markers 1–8 to **9**, publishing a consistent `backups/pre-schema-9-*.db` before migration. Older binaries refuse marker 9. Database backups preserve recorded state and receipts; external working files require separate preservation. Follow [backup, upgrade and restore](docs/CONTINUITY-SETUP.md#backup-upgrade-and-restore) for fresh-directory recovery or rollback.
+The current binary upgrades database markers 1–10 to **11**, publishing a consistent `backups/pre-schema-11-*.db` before migration. Older binaries refuse marker 11. Database backups preserve recorded state and receipts; external working files require separate preservation. Follow [backup, upgrade and restore](docs/CONTINUITY-SETUP.md#backup-upgrade-and-restore) for fresh-directory recovery or rollback.
 
 ## Develop
 
@@ -178,7 +184,7 @@ node scripts/resume-smoke.cjs
 node scripts/workspace-smoke.cjs
 node scripts/mcp-smoke.cjs
 node scripts/evidence-smoke.cjs
-node scripts/gui-smoke.cjs
+node scripts/tui-smoke.cjs
 ```
 
 Additional Linux gates cover artifact observations and installed integrations:
@@ -193,9 +199,9 @@ The installed targets tested locally are Herdr **0.8.2 / protocol 20** and Neovi
 
 Set `HEIMDALL_BIN` to an explicit executable and `HEIMDALL_TEST_TMP` to a scratch parent when needed. The harness closes child stdin and bounds shutdown on Unix; test data remains for inspection. The old PowerShell core smoke remains available.
 
-GUI development uses `npm ci --ignore-scripts --no-audit --no-fund` and `npm run build` in `web/`. Commit the generated `internal/webui/assets/app.js`; a fresh Go-only build embeds it without requiring Node at runtime. Install the test browser with `npx playwright install chromium` in `web/` before running the GUI smoke.
+TUI development uses Go and tcell v2. Run `go test ./internal/tui` and `node scripts/tui-smoke.cjs`; Linux runs the compiled interface in a real PTY. Browser-extension test dependencies live separately under `scripts/browser-test/`; the task interface has no frontend build.
 
-CI runs Go tests/vet/build, TypeScript build/generated-file checks and extension unit tests on Windows and Ubuntu, plus compiled core/native/continuity/resume/workspace/MCP/evidence and Chromium GUI checks on both platforms. Artifact observation runs on Linux only; installed Herdr and Neovim gates remain separate. See [verification notes](docs/VERIFICATION.md) for local results and historical remote CI evidence, and [GitHub Actions](https://github.com/algorhythmic/heimdall/actions) for current runs.
+CI runs Go tests/vet/build, extension checks and compiled core/native/continuity/resume/workspace/progress/MCP/evidence/TUI checks on Windows and Ubuntu. Linux additionally runs artifact and real-PTY checks. See [verification notes](docs/VERIFICATION.md) for local and historical acceptance.
 
 On Windows, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools/go`, or the already-installed sibling Braid toolchain. This is a development convenience, not a runtime dependency or import from Braid.
 
@@ -207,4 +213,4 @@ On Windows, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools
 
 [Implementation specification](docs/design/HANDOFF-heimdall-v1.1.md) · [Browser runtime design](docs/design/BROWSER-EXTENSION.md) · [Verification](docs/VERIFICATION.md).
 
-C08/C09 and C10/C11 now have initial evidence and GUI implementations. R0 technical validation, T01 resume/checkpoint helpers, initial W01/T02 bindings and T03 Neovim commands are implemented. The September 8 [revised roadmap implementation plan](docs/REVISED-ROADMAP-IMPLEMENTATION-PLAN.md) now includes initial Linux artifact versions and continues with progress/decision review and verified workspace recovery. See the [backlog](docs/BACKLOG.md) for dependencies and completion status, and the [earlier continuity plan](docs/IMPLEMENTATION-PLAN.md) for the retained seven-improvement architecture.
+C08/C09 and C10/C11 now have initial evidence and terminal-interface implementations. R0 technical validation, T01 resume/checkpoint helpers, initial W01/T02 bindings and T03 Neovim commands are implemented. The September 8 [revised roadmap implementation plan](docs/REVISED-ROADMAP-IMPLEMENTATION-PLAN.md) now includes initial Linux artifact versions and CLI/TUI progress review, and continues with optional file preservation and verified workspace recovery. See the [backlog](docs/BACKLOG.md) for dependencies and completion status, and the [earlier continuity plan](docs/IMPLEMENTATION-PLAN.md) for the retained seven-improvement architecture.

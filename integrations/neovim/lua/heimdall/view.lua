@@ -58,6 +58,16 @@ function M.resume(v)
   for _, d in ipairs(v.decisions or {}) do
     add('  Decision: ', d.text)
   end
+  if #(v.progress or {}) > 0 then
+    lines[#lines + 1] = ''
+    lines[#lines + 1] = 'Planning review'
+    for _, p in ipairs(v.progress) do
+      add('  ', p.kind .. ' | ' .. p.status .. ' | ' .. p.freshness .. ' | ' .. p.target)
+      add('    ', p.text)
+      add('    Proposal: ', p.id)
+    end
+    add('  ', ':HeimdallProgress inspects a proposal; :HeimdallProgressReview opens GUI review.')
+  end
   lines[#lines + 1] = ''
   lines[#lines + 1] = 'Saved progress'
   if v.checkpoint then
@@ -116,6 +126,37 @@ function M.resume(v)
     '',
     'Saved progress and recorded evidence are not completion approval. Run :HeimdallResume to check again.'
   )
+  return lines
+end
+
+function M.progress(v)
+  local p = v.proposal
+  local lines = {
+    'Task: ' .. M.text(p.target),
+    'Proposal: ' .. M.text(p.id),
+    'Kind: ' .. M.text(p.kind),
+    'Review: ' .. M.text(v.status) .. ' | Freshness: ' .. M.text(v.freshness),
+    '',
+    M.text(p.text),
+    '',
+    'Contract: ' .. M.text(p.contract_id),
+    'Proposal digest: ' .. M.text(p.digest),
+  }
+  for _, a in ipairs(p.artifacts or {}) do
+    lines[#lines + 1] = 'Artifact: ' .. M.text(a.artifact_id)
+    lines[#lines + 1] = '  Version: ' .. M.text(a.version_id)
+    lines[#lines + 1] = '  SHA-256: ' .. M.text(a.observation.digest)
+  end
+  for _, a in ipairs(v.artifacts or {}) do
+    lines[#lines + 1] = 'Checked: ' .. M.text(a.artifact.name .. ' | ' .. a.status)
+  end
+  if v.review then
+    lines[#lines + 1] = 'Last review: ' .. M.text(v.review.status .. ' | ' .. v.review.actor)
+    lines[#lines + 1] = '  ' .. M.text(v.review.note)
+  end
+  lines[#lines + 1] = ''
+  lines[#lines + 1] = ':HeimdallProgressReview opens the scoped GUI review controls.'
+  lines[#lines + 1] = 'This inspection does not accept a proposal or complete work.'
   return lines
 end
 

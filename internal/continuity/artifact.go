@@ -57,9 +57,11 @@ func DecodeArtifact(body []byte) (ArtifactRequest, error) {
 }
 
 type ArtifactView struct {
-	Artifact model.Artifact        `json:"artifact"`
-	Head     string                `json:"head"`
-	Record   model.ArtifactVersion `json:"record"`
+	Artifact   model.Artifact        `json:"artifact"`
+	Head       string                `json:"head"`
+	Lifecycle  string                `json:"lifecycle"`
+	ProgressID string                `json:"progress_id,omitempty"`
+	Record     model.ArtifactVersion `json:"record"`
 }
 type ArtifactCheck struct {
 	Artifact  model.Artifact        `json:"artifact"`
@@ -120,7 +122,7 @@ func (s Service) RecordArtifact(ctx context.Context, r ArtifactRequest, actor st
 			return c, err
 		}
 		c.Events = append(c.Events, store.Pending{Subject: "artifact", Verb: "versioned", EntityID: v.ID, Payload: v})
-		c.Result = ArtifactView{a, v.ID, v}
+		c.Result = ArtifactView{Artifact: a, Head: v.ID, Record: v, Lifecycle: "draft"}
 		return c, nil
 	})
 }
@@ -136,7 +138,8 @@ func artifactSelection(st model.State, target, id, version string) (ArtifactView
 	if !ok || v.ArtifactID != id || v.Target != target {
 		return ArtifactView{}, fmt.Errorf("artifact version not found for target")
 	}
-	return ArtifactView{a, st.ArtifactHeads[id], v}, nil
+	status, progress := artifactProgress(st, id, v.ID)
+	return ArtifactView{Artifact: a, Head: st.ArtifactHeads[id], Record: v, Lifecycle: status, ProgressID: progress}, nil
 }
 func (s Service) ArtifactView(ctx context.Context, target, id, version string) (ArtifactView, error) {
 	st, err := s.Store.State(ctx)
@@ -147,8 +150,10 @@ func (s Service) ArtifactView(ctx context.Context, target, id, version string) (
 }
 
 type ArtifactListItem struct {
-	Artifact model.Artifact `json:"artifact"`
-	Head     string         `json:"head"`
+	Artifact   model.Artifact `json:"artifact"`
+	Head       string         `json:"head"`
+	Lifecycle  string         `json:"lifecycle"`
+	ProgressID string         `json:"progress_id,omitempty"`
 }
 
 func (s Service) ArtifactList(ctx context.Context, target string) ([]ArtifactListItem, error) {
@@ -162,7 +167,8 @@ func (s Service) ArtifactList(ctx context.Context, target string) ([]ArtifactLis
 	items := []ArtifactListItem{}
 	for _, a := range st.Artifacts {
 		if a.Target == target {
-			items = append(items, ArtifactListItem{a, st.ArtifactHeads[a.ID]})
+			status, progress := artifactProgress(st, a.ID, st.ArtifactHeads[a.ID])
+			items = append(items, ArtifactListItem{a, st.ArtifactHeads[a.ID], status, progress})
 		}
 	}
 	sort.Slice(items, func(i, j int) bool { return items[i].Artifact.ID < items[j].Artifact.ID })
@@ -249,4 +255,20 @@ func validateLiveArtifactRefs(ctx context.Context, st model.State, target string
 		}
 	}
 	return nil
+}
+
+// A new artifact version always starts in draft, independent of task status.
+func artifactProgress(st model.State, id, version string) (string, string) {
+	p, ok := st.ProgressProposals[st.ArtifactProgressHeads[id]]
+	if st.ArtifactHeads[id] != version {
+		return "superseded", ""
+	}
+	if !ok || p.Artifacts[0].VersionID != version {
+		return "draft", ""
+	}
+	status := model.ProgressStatus(st, p)
+	if status == "rejected" {
+		status = "draft"
+	}
+	return status, p.ID
 }

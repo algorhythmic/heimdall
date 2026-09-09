@@ -143,9 +143,9 @@ The CLI-only routes are `POST /workspace/herdr/bind`,
 caller-supplied observations and authority fields. Browser, scoped client, MCP and
 GUI credentials gain no access to these routes.
 
-Database marker **9** retains declarations/observed bindings and adds [P01 artifact identity](ARTIFACT-SETUP.md). A
-consistent `backups/pre-schema-9-*.db` is required before upgrading markers 1–8.
-Older binaries refuse marker 9. Roll back from the pre-upgrade backup into a fresh
+Database marker **11** retains declarations/observed bindings and [P01 artifact identity](ARTIFACT-SETUP.md), and adds [P02 progress review](PROGRESS-SETUP.md). A
+consistent `backups/pre-schema-11-*.db` is required before upgrading markers 1–10.
+Older binaries refuse marker 11. Roll back from the pre-upgrade backup into a fresh
 directory using the procedure in [workspace setup](WORKSPACE-SETUP.md); changes
 after that backup are absent. Schema-6 and actual W01 schema-7 fixtures remain in
 the repository. Endpoint credentials and external files are not part of a database

@@ -12,6 +12,9 @@ return {
     'HeimdallArtifact',
     'HeimdallSessionCheck',
     'HeimdallReview',
+    'HeimdallTUI',
+    'HeimdallProgress',
+    'HeimdallProgressReview',
   },
   opts = {
     executable = '/path/to/heimdall/bin/heimdall',

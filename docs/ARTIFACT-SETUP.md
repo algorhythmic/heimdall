@@ -152,9 +152,9 @@ to write their legacy checkpoint format and cannot submit artifact references.
 
 ## Migration and verification
 
-Database markers 1–8 upgrade to **9**, after a consistent
-`backups/pre-schema-9-*.db` is published under the writer lock. A failed backup
-aborts migration. Older binaries refuse marker 9. Roll back by stopping the
+Database markers 1–10 upgrade to **11**, after a consistent
+`backups/pre-schema-11-*.db` is published under the writer lock. A failed backup
+aborts migration. Older binaries refuse marker 11. Roll back by stopping the
 daemon and opening the pre-upgrade snapshot with its original compatible binary
 in a fresh directory with matching `types.yaml`. Post-upgrade events are absent
 from that snapshot. See [backup instructions](CONTINUITY-SETUP.md#backup-upgrade-and-restore).
@@ -168,3 +168,5 @@ the actual schema-8 binary upgrade/rollback and editor/regression results.
 
 Content preservation, remote/multi-host observations, decision review and
 workspace recovery remain separate roadmap work.
+
+Artifact `show`/`list` now expose P02 `lifecycle` and `progress_id`. Review of an exact version uses the [progress CLI](PROGRESS-SETUP.md); a new version starts in draft and review does not complete its task. Current daemon schema is **11**; historical P01 payloads remain unchanged.

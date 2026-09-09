@@ -40,6 +40,18 @@ type BrowserOperation struct {
 }
 
 func (s *State) Normalize() {
+	if s.ProgressProposals == nil {
+		s.ProgressProposals = map[string]ProgressProposal{}
+	}
+	if s.ProgressReviews == nil {
+		s.ProgressReviews = map[string]ProgressReview{}
+	}
+	if s.ProgressReviewHeads == nil {
+		s.ProgressReviewHeads = map[string]string{}
+	}
+	if s.ArtifactProgressHeads == nil {
+		s.ArtifactProgressHeads = map[string]string{}
+	}
 	if s.Artifacts == nil {
 		s.Artifacts = map[string]Artifact{}
 	}

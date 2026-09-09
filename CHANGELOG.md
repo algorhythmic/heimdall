@@ -2,7 +2,15 @@
 
 This records implementation milestones and current development work. Versions describe local development builds; they do not imply published releases or completed deployment acceptance. The initial Git import captured the 0.5.0 implementation together, rather than reconstructing historical source commits.
 
-## Unreleased — Terminal/editor continuity, Herdr bindings and Linux artifact versions (2026-09-08)
+## Unreleased — Terminal interface replacement (2026-09-08)
+
+- Replaced the browser frontend and sign-in/session routes with a Go TUI based on the supplied dashboard and dialog designs. `tui` opens it; `ui` remains an alias.
+- Needs-you queue, sorted/expandable workstreams, selected context, find, compact layout, explicit completion/planning review, files and Herdr workspace/binding dialogs.
+- Progress drafts persist edits and original request identity; mutations retain private exact-retry files across terminal or daemon interruption. No automatic retry or file repinning.
+- Neovim review now opens an argv-only terminal tab. The TypeScript frontend and its browser tests are removed; extension test tooling is retained separately.
+- Schema remains 11 and historical UI-v2 event provenance still replays. Native desktop bars, agent telemetry and application recovery remain roadmap work.
+
+## Unreleased — Terminal/editor continuity, Herdr bindings, artifacts and progress review (2026-09-08)
 
 - Readable `resume TARGET` with JSON available explicitly, accepted direction, checkpoint age/next action, resource drift, blockers and recorded review needs. Existing context JSON remains compatible; terminal controls are escaped.
 - `checkpoint draft` and `checkpoint submit` preserve original revisions, heads and retry identity through explicit editing, conflicts and daemon restarts. Draft files are retained and never overwritten during creation.
@@ -17,7 +25,14 @@ This records implementation milestones and current development work. Versions de
 - Initial T03 Neovim plugin: explicit task/step selection, resume, checkpoint drafts/reopen/submission, bound artifact opening, session checks and GUI completion-review handoff. Local argv/JSON integration retains task/request identity through conflict and restart; renamed or externally changed drafts are refused. Isolated Neovim and lazy.nvim loader tests pass; WCU verified rendering. An example spec is provided without modifying global editor configuration. Schema and existing authority remain unchanged; automatic refresh and workspace recovery remain open.
 
 - Initial P01 local Linux artifact IDs and immutable file versions, owned by explicit task/environment/host, with byte/permission identity and opt-in Git worktree/ref/index/HEAD metadata. CLI record/list/show/check distinguishes changed bytes, missing originals and declared relocation; file contents are not retained.
-- Schema 9 and CLI artifact checkpoint request-v2/persisted-v3 pins. Legacy records and grant limits survive schema-6/7/8 fixture upgrades; the actual schema-8 binary passes upgrade/refusal/rollback. CLI/Neovim drafts retain exact pins; scoped context shows references and requires CLI checks without expanding filesystem/Git authority. Compiled restart/replay/backup restore, Git/confinement/race and editor tests pass. Progress/decision review and content preservation remain open.
+- Schema 9 and CLI artifact checkpoint request-v2/persisted-v3 pins. Legacy records and grant limits survive schema-6/7/8 fixture upgrades; the actual schema-8 binary passes upgrade/refusal/rollback. CLI/Neovim drafts retain exact pins; scoped context shows references and requires CLI checks without expanding filesystem/Git authority. Compiled restart/replay/backup restore, Git/confinement/race and editor tests pass. Content preservation remains open; initial P02 review follows below.
+
+- Initial P02 CLI decision/artifact proposals and reviewed/accepted/rejected outcomes. Exact digest, contract, lineage, accepted-decision and live artifact checks refuse stale review. Artifact lifecycle stays separate from task/step completion; accepted decisions remain mandatory context and unresolved proposals appear separately in resume.
+- Schema 10 preserves legacy payloads and grants, with schema-6/7/8/9 fixtures, strict event replay, exact retry receipts and compiled restart/restore/old-binary rollback checks. GUI/editor review controls and scoped agent proposal grants remain open.
+
+- P02 GUI planning review: explicit `ui ROOT --progress-review` sessions inspect proposal/contract/artifact identity and record reviewed/accepted/rejected outcomes with notes. Original preconditions survive polling and uncertain-response retries; task completion remains separate. Ordinary sessions and MCP grants gain no new authority.
+- Schema 11 adds UI review v2 with frozen non-secret session scope/lifetime and UI-attributed accepted decisions. Authority is checked before receipt lookup and before commit; replay never recreates sessions or observes files. Actual stopped schema-10 and v2 event fixtures retain the prior CLI slice.
+- Neovim `HeimdallProgress` adds read-only inspection and late-response protection; `HeimdallProgressReview` provides the explicitly enabled GUI handoff. Bootstrap codes stay out of editor buffers/history. GUI proposal authoring and native editor review forms remain open.
 
 ## 0.7.0 — Local task and evidence GUI
 
@@ -68,4 +83,4 @@ This records implementation milestones and current development work. Versions de
 
 ## Next
 
-Initial W01 workspace/session identity, T02 Herdr binding and T03 Neovim integration now build on the R0/T01 foundation. Initial P01 adds stable local Linux artifact versions and optional Git identity. Remaining C03 decision review, evidence output retention, broader GUI controls, verified browser outcomes, Braid and execution-host coordination stay open. See the [backlog](docs/BACKLOG.md) for dependencies and acceptance criteria, and [verification](docs/VERIFICATION.md) for what was actually tested.
+Initial W01 workspace/session identity, T02 Herdr binding and T03 Neovim integration now build on the R0/T01 foundation. Initial P01 adds stable local Linux artifact versions and optional Git identity. Remaining review interface controls, evidence output retention, broader GUI controls, verified browser outcomes, Braid and execution-host coordination stay open. See the [backlog](docs/BACKLOG.md) for dependencies and acceptance criteria, and [verification](docs/VERIFICATION.md) for what was actually tested.

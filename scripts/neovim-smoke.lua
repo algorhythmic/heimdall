@@ -27,24 +27,17 @@ else
   vim.opt.runtimepath:prepend(fixture.root .. '/integrations/neovim')
 end
 local h, client = require('heimdall'), require('heimdall.client')
-local messages, handoff, opened = {}, nil, nil
+local messages, terminal = {}, nil
 vim.notify = function(message)
   messages[#messages + 1] = message
 end
-local real_has, clipboard_available = vim.fn.has, true
-vim.fn.has = function(feature)
-  if feature == 'clipboard' then
-    return clipboard_available and 1 or 0
+local real_jobstart = vim.fn.jobstart
+vim.fn.jobstart = function(argv, options)
+  if options and options.term then
+    terminal = { argv = argv, options = options }
+    return 1
   end
-  return real_has(feature)
-end
-vim.fn.setreg = function(register, text, kind)
-  handoff = { register = register, code = text, kind = kind }
-  return 0
-end
-vim.ui.open = function(url)
-  opened = url
-  return {}
+  return real_jobstart(argv, options)
 end
 local function wait(predicate)
   assert(vim.wait(15000, predicate, 10), 'timed out: ' .. table.concat(messages, '\n'))
@@ -153,6 +146,35 @@ local function run()
   end)
   assert(vim.deep_equal(before, cli({ 'events' })), 'selection/resume wrote events')
   assert(buffers():find('Pinned artifacts', 1, true) and buffers():find('Beta artifact', 1, true))
+  assert(
+    buffers():find('Planning review', 1, true) and buffers():find('beta planning review', 1, true)
+  )
+  h.progress(fixture.proposals.beta)
+  wait(function()
+    return current_text():find('Proposal digest:', 1, true) ~= nil
+  end)
+  assert(
+    current_text():find(fixture.proposals.beta, 1, true) and current_text():find('\\u202e', 1, true)
+  )
+  assert(vim.deep_equal(before, cli({ 'events' })), 'progress inspection wrote events')
+  expect_message(function()
+    h.progress('invalid')
+  end, 'proposal ID is required')
+  -- Pending inspection must not replace the view after a task switch.
+  local original_request, delayed = client.request, nil
+  client.request = function(config, args, done)
+    if args[1] == 'progress' then
+      delayed = done
+      return
+    end
+    return original_request(config, args, done)
+  end
+  h.progress(fixture.proposals.beta)
+  choose('alpha')
+  delayed(nil, { proposal = { id = fixture.proposals.beta, target = 'beta' } })
+  client.request = original_request
+  assert(not current_text():find('Proposal digest:', 1, true))
+  choose('beta')
   local beta_buf, beta_path = draft('Reviewed pinned beta artifact')
   local beta_original = read(beta_path)
   local beta_draft = vim.json.decode(beta_original)
@@ -244,21 +266,21 @@ local function run()
     vim.split(read(winning_path), '\n', { plain = true })
   )
   vim.bo[winning].modified = false
-  -- Review a child through its root; the opener receives only a credential-free URL.
+  -- Review opens the selected target in an argv-only terminal buffer.
   choose('child-task')
-  clipboard_available = false
-  expect_message(h.review, 'clipboard provider is required')
-  clipboard_available = true
   h.review()
-  wait(function()
-    return handoff ~= nil
-  end)
-  assert(opened:match('^http://127%.0%.0%.1:%d+/ui/$'))
-  local code = handoff.code
-  assert(code:match('^%x+$') and #code == 32 and handoff.register == '+' and handoff.kind == 'v')
-  assert(table.concat(messages):find('Review for alpha:', 1, true))
-  assert(not buffers():find(code, 1, true) and not table.concat(messages):find(code, 1, true))
-  assert(not api.nvim_exec2('messages', { output = true }).output:find(code, 1, true))
+  assert(terminal and terminal.options.term == true)
+  assert(vim.deep_equal(terminal.argv, {
+    fixture.exe,
+    'tui',
+    'child-task',
+    '--data-dir',
+    fixture.data,
+  }))
+  terminal = nil
+  h.progress_review()
+  assert(terminal and terminal.argv[2] == 'tui')
+  assert(vim.fn.exists(':HeimdallTUI') == 2)
   assert(cli({ 'state', 'alpha' }).task.status == 'active')
   choose('alpha')
   api.nvim_set_current_buf(winning)

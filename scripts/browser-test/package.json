@@ -1,0 +1,8 @@
+{
+  "name": "heimdall-browser-tests",
+  "private": true,
+  "version": "0.7.0",
+  "devDependencies": {
+    "playwright": "1.62.1"
+  }
+}

@@ -1,7 +1,7 @@
 local M = {}
 local api, uv = vim.api, vim.uv
 local client, view = require('heimdall.client'), require('heimdall.view')
-local config, selected, generation, resume_request = nil, nil, 0, 0
+local config, selected, generation, resume_request, progress_request = nil, nil, 0, 0, 0
 local drafts, busy, resume_buffer = {}, {}, nil
 
 local function tell(text, level)
@@ -95,6 +95,7 @@ function M.resume()
   if not target then
     return
   end
+  progress_request = progress_request + 1
   resume_request = resume_request + 1
   local sequence = resume_request
   resume_data(target, function(err, v)
@@ -441,65 +442,88 @@ function M.session_check(surface)
   end)
 end
 
-function M.review()
+function M.progress(id)
   local target, epoch = selection()
   if not target then
     return
   end
-  if vim.fn.has('clipboard') ~= 1 then
-    tell(
-      'A clipboard provider is required for review. Run heimdall ui ROOT_TASK for a terminal handoff.',
-      vim.log.levels.ERROR
-    )
-    return
+  resume_request = resume_request + 1
+  progress_request = progress_request + 1
+  local sequence = progress_request
+  local function active()
+    return current(target, epoch) and sequence == progress_request
   end
-  resume_data(target, function(err, data)
-    if err or not current(target, epoch) then
+  local function inspect(proposal)
+    if not proposal or not active() then
       return
     end
-    local root = data.task.task.id
-    for _, ancestor in ipairs(data.ancestors or {}) do
-      if not ancestor.task.parent then
-        root = ancestor.task.id
-      end
-    end
-    request({ 'ui', root }, function(problem, result)
-      if problem or not current(target, epoch) then
+    request({ 'progress', 'show', proposal.target, '--id', proposal.id }, function(err, result)
+      if err or not active() then
         return
       end
       if
-        type(result.url) ~= 'string'
-        or not result.url:match('^http://127%.0%.0%.1:%d+/ui/?$')
-        or type(result.code) ~= 'string'
-        or not result.code:match('^[A-Za-z0-9%-]+$')
+        type(result.proposal) ~= 'table'
+        or result.proposal.id ~= proposal.id
+        or result.proposal.target ~= proposal.target
       then
-        tell('Unexpected review handoff response.', vim.log.levels.ERROR)
+        tell('Unexpected progress response.', vim.log.levels.ERROR)
         return
       end
-      -- The explicit review action transfers only a five-minute, single-use GUI
-      -- code through the clipboard. No command-line echo: UI plugins can retain
-      -- even non-history echoes in editor buffers.
-      local copied, copy_result = pcall(vim.fn.setreg, '+', result.code, 'v')
-      if not copied or copy_result ~= 0 then
-        tell(
-          'Could not copy the review code. Run heimdall ui for a terminal handoff.',
-          vim.log.levels.ERROR
-        )
+      local ok, lines = pcall(view.progress, result)
+      if not ok then
+        tell('Unsupported progress fields.', vim.log.levels.ERROR)
         return
       end
-      local _, open_error = vim.ui.open(result.url)
-      if open_error then
-        tell('Browser could not open. Run heimdall ui for a fresh handoff.', vim.log.levels.ERROR)
-        return
-      end
-      tell(
-        'Review for '
-          .. root
-          .. ': sign-in code copied. Paste it in the browser; it expires in five minutes.'
-      )
+      show('progress/' .. proposal.target, lines)
     end)
+  end
+  if id and id ~= '' then
+    if #id ~= 32 or not id:match('^[a-f0-9]+$') then
+      tell('An explicit 32-character proposal ID is required.', vim.log.levels.ERROR)
+      return
+    end
+    inspect({ target = target, id = id })
+    return
+  end
+  resume_data(target, function(err, data)
+    if err or not active() then
+      return
+    end
+    local choices = data.progress or {}
+    if #choices == 0 then
+      tell('No planning proposals in the selected context.')
+      return
+    end
+    vim.ui.select(choices, {
+      prompt = 'Inspect planning proposal',
+      format_item = function(p)
+        return view.text(p.kind .. ' | ' .. p.status .. ' | ' .. p.target .. ': ' .. p.text)
+      end,
+    }, inspect)
   end)
 end
+
+-- A terminal buffer uses argv directly; no shell, browser bootstrap or clipboard.
+function M.review()
+  local target = selection()
+  if not target then
+    return
+  end
+  api.nvim_cmd({ cmd = 'tabnew', mods = { noautocmd = true } }, {})
+  local buf = api.nvim_get_current_buf()
+  vim.bo[buf].modeline = false
+  vim.bo[buf].swapfile = false
+  local argv = { config.executable or 'heimdall', 'tui', target, '--data-dir', config.data_dir }
+  local job = vim.fn.jobstart(argv, { term = true })
+  if job <= 0 then
+    tell('Could not open the Heimdall TUI. Check the configured executable.', vim.log.levels.ERROR)
+    return
+  end
+  api.nvim_cmd({ cmd = 'startinsert' }, {})
+end
+
+M.tui = M.review
+M.progress_review = M.review
 
 function M.selected()
   return selected
@@ -537,6 +561,7 @@ function M.setup(opts)
       { nargs = '?' },
     },
     HeimdallResume = { M.resume, {} },
+    HeimdallTUI = { M.review, {} },
     HeimdallCheckpointDraft = { M.checkpoint_draft, {} },
     HeimdallCheckpointOpen = {
       function(c)
@@ -557,7 +582,19 @@ function M.setup(opts)
       end,
       { nargs = 1 },
     },
-    HeimdallReview = { M.review, {} },
+    HeimdallReview = {
+      function()
+        M.review()
+      end,
+      {},
+    },
+    HeimdallProgress = {
+      function(c)
+        M.progress(c.args)
+      end,
+      { nargs = '?' },
+    },
+    HeimdallProgressReview = { M.progress_review, {} },
   }
   for name, command in pairs(commands) do
     api.nvim_create_user_command(name, command[1], command[2])

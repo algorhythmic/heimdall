@@ -172,6 +172,52 @@ func TestStepEvidenceRequiresRatification(t *testing.T) {
 		t.Fatal("ratification target changed")
 	}
 }
+
+func TestProgressAcceptanceInvalidatesExistingCompletionEvidence(t *testing.T) {
+	f := setup(t, "artifact.exists", true)
+	d := f.define(model.EvaluatorSpec{Kind: "artifact.exists"})
+	e, _ := f.start(d)
+	if err := f.service.Execute(f.ctx, e.ID); err != nil {
+		t.Fatal(err)
+	}
+	f.tick()
+	before := f.state()
+	var completion string
+	for id, p := range before.Proposals {
+		if p.Target == f.target {
+			completion = id
+		}
+	}
+	if completion == "" {
+		t.Fatal("missing completion proposal")
+	}
+	s := continuity.Service{Store: f.engine.Store}
+	raw, err := s.Progress(f.ctx, continuity.ProgressRequest{Version: 1, ID: model.NewID(), Target: f.target, ExpectedTaskRevision: f.rev, Proposal: &continuity.ProgressInput{Kind: "decision", Text: "Require review under the revised design choice", ContractID: f.contract}}, "cli", time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	var p model.ProgressProposal
+	if err = json.Unmarshal(raw, &p); err != nil {
+		t.Fatal(err)
+	}
+	if !model.EvidenceCurrent(f.state(), before.Evidence[e.ID]) {
+		t.Fatal("unaccepted proposal changed completion authority")
+	}
+	_, err = s.Progress(f.ctx, continuity.ProgressRequest{Version: 1, ID: model.NewID(), Target: f.target, ExpectedTaskRevision: f.rev, Review: &continuity.ProgressReviewInput{ProposalID: p.ID, Digest: p.Digest, Previous: "none", Status: "accepted", Note: "Explicitly reviewed the new decision"}}, "cli", time.Now())
+	if err != nil {
+		t.Fatal(err)
+	}
+	if model.EvidenceCurrent(f.state(), before.Evidence[e.ID]) {
+		t.Fatal("accepted decision did not invalidate evidence")
+	}
+	if _, err := f.engine.Execute(f.ctx, core.Command{ID: model.NewID(), Op: "ratify", Target: completion, Action: "accept"}, "cli", time.Now()); err == nil {
+		t.Fatal("stale completion ratified after decision acceptance")
+	}
+	after := f.state()
+	if after.Tasks["evidence-task"].Task.Status != "active" || after.Tasks["evidence-task"].Task.Subtasks[0].Status != "open" {
+		t.Fatal("progress acceptance completed task or step")
+	}
+}
 func TestDefinitionScopeAndForgedEvidence(t *testing.T) {
 	f := setup(t, "artifact.exists", false)
 	d := f.define(model.EvaluatorSpec{Kind: "artifact.exists"})
@@ -212,7 +258,14 @@ func TestObservedTestOutcomes(t *testing.T) {
 		t.Run(mode, func(t *testing.T) {
 			f := setup(t, "test.exit", false)
 			exe, _ := os.Executable()
-			d := f.define(model.EvaluatorSpec{Kind: "test.exit", Argv: []string{exe, "-test.run=TestEvaluatorProcess", "--", "heimdall-evaluator", mode}, TimeoutSeconds: 1})
+			// The race-instrumented child sleeps on successful exit; the
+			// evaluator deliberately does not inherit GORACE. Only the sleep
+			// scenario should be judged against a one-second deadline.
+			timeout := 5
+			if mode == "sleep" {
+				timeout = 1
+			}
+			d := f.define(model.EvaluatorSpec{Kind: "test.exit", Argv: []string{exe, "-test.run=TestEvaluatorProcess", "--", "heimdall-evaluator", mode}, TimeoutSeconds: timeout})
 			e, _ := f.start(d)
 			if err := f.service.Execute(f.ctx, e.ID); err != nil {
 				t.Fatal(err)

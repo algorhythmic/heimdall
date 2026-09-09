@@ -18,21 +18,15 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
-      - run: npm ci --ignore-scripts --no-audit --no-fund
-        working-directory: web
-      - run: npm run build
-        working-directory: web
-      - run: git diff --exit-code -- internal/webui/assets/app.js
       - run: node --test extension/test/*.test.js
       - run: node scripts/core-smoke.cjs
       - run: node scripts/native-smoke.cjs
       - run: node scripts/continuity-smoke.cjs
       - run: node scripts/resume-smoke.cjs
       - run: node scripts/workspace-smoke.cjs
+      - run: node scripts/progress-smoke.cjs
       - run: node scripts/artifact-smoke.cjs
         if: runner.os == 'Linux'
       - run: node scripts/mcp-smoke.cjs
       - run: node scripts/evidence-smoke.cjs
-      - run: npx playwright install chromium
-        working-directory: web
-      - run: node scripts/gui-smoke.cjs
+      - run: node scripts/tui-smoke.cjs

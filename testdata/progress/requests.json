@@ -1,0 +1,44 @@
+[
+  {
+    "version": 1,
+    "id": "11111111111111111111111111111111",
+    "target": "planning",
+    "expected_task_revision": 1,
+    "proposal": {
+      "kind": "decision",
+      "text": "Use the reviewed design\nPreserve its assumptions.",
+      "contract_id": "22222222222222222222222222222222"
+    }
+  },
+  {
+    "version": 1,
+    "id": "11111111111111111111111111111111",
+    "target": "planning",
+    "expected_task_revision": 1,
+    "proposal": {
+      "kind": "artifact",
+      "text": "Design ready for review",
+      "contract_id": "22222222222222222222222222222222",
+      "previous": "none",
+      "artifacts": [
+        {
+          "artifact_id": "33333333333333333333333333333333",
+          "version_id": "44444444444444444444444444444444"
+        }
+      ]
+    }
+  },
+  {
+    "version": 1,
+    "id": "11111111111111111111111111111111",
+    "target": "planning",
+    "expected_task_revision": 1,
+    "review": {
+      "proposal_id": "55555555555555555555555555555555",
+      "digest": "6666666666666666666666666666666666666666666666666666666666666666",
+      "previous": "none",
+      "status": "accepted",
+      "note": "Reviewed the exact design and applicable contract"
+    }
+  }
+]

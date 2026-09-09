@@ -3,7 +3,7 @@
 T03 provides a small repository-owned Lua plugin using Heimdall's existing CLI.
 Select a task or step, read current resume context, edit and submit checkpoint
 drafts, open bound artifacts, check a Herdr binding, and launch completion review.
-The editor uses the configured CLI and adds no credential class. Current daemon schema is **9**; [P01 artifact pins](ARTIFACT-SETUP.md) extend its original schema-8 workflow.
+The editor uses the configured CLI and adds no credential class. Current daemon schema is **11**; [P01 artifact pins](ARTIFACT-SETUP.md) extend its original schema-8 workflow.
 
 The installed acceptance target is Linux with Neovim **0.12.5**. The plugin uses
 Neovim 0.11+ APIs; older supported API versions and other platforms have not been
@@ -51,7 +51,7 @@ implementation tests do not modify your global editor configuration.
 | `:HeimdallCheckpointSubmit` | Submit the current saved draft with its original request ID and preconditions. |
 | `:HeimdallArtifact` | Choose an active resource; for a tree, enter a relative file path. |
 | `:HeimdallSessionCheck surface-id` | Check an explicitly selected logical surface through T02; display current/stale/disconnected status and issues. |
-| `:HeimdallReview` | Copy a short-lived sign-in code to the clipboard and open the GUI for the selected target's root task. |
+| `:HeimdallReview` / `:HeimdallTUI` | Open the selected task or step in a new terminal tab running the TUI. |
 
 Resume is a read-only scratch view showing accepted direction, saved progress,
 blockers, resources, pinned artifact versions/checks, drift and recorded evidence/review counts. Its timestamp is
@@ -86,23 +86,16 @@ publish metadata or block ordinary resume/checkpoint operations. Use the
 
 ## Completion review and authority
 
-Review copies a single-use five-minute sign-in code to the system clipboard and
-launches the existing credential-free loopback GUI URL. Paste the code into the
-browser. This explicit command replaces the current clipboard contents; the code
-becomes useless after successful sign-in or expiry. A clipboard provider is
-required. For a terminal handoff, use `heimdall ui ROOT_TASK` instead.
+Review opens the configured executable as an argv array in a new Neovim terminal
+tab: `heimdall tui SELECTED_TARGET --data-dir DATA`. The selected task or step is
+preserved. There is no browser, clipboard handoff, sign-in code or shell command.
+`:HeimdallProgressReview` and `:HeimdallTUI` open the same terminal interface.
 
-The code is never echoed in the editor, put in a URL/buffer/notification, or retained
-in plugin state. This also avoids exposing it through UI plugins that retain
-command-line messages. If the code is lost or expires, request a fresh handoff.
-
-The selected child or step is resolved to its root workstream for GUI access;
-the notification names that root. Review uses the GUI's existing scoped
-session and explicit accept/reject controls. The editor never ratifies completion,
-launches an agent, interprets task text as commands, or supplies a credential to a
-task buffer. It invokes the configured CLI as an argv array and lets the CLI read
-its own endpoint credentials. This is a local human CLI integration, not a new
-scoped machine-client credential.
+The TUI reads its own local CLI endpoint and offers explicit completion and
+planning review controls. It is a local human CLI integration, not a new scoped
+machine-client credential. Closing the terminal does not alter the selected task
+or other editor buffers. Use the usual Neovim terminal-mode escape to return to
+editor navigation. See [TUI setup](TUI-SETUP.md) for controls and retained drafts.
 
 Requests run asynchronously with a configurable 10-second default timeout and
 a combined 1 MiB stdout/stderr limit. Invalid responses and command failures are
@@ -123,12 +116,27 @@ scratch parent and editor executable. The gate creates isolated config/state/cac
 synthetic tasks sharing a repository and an owned protocol-fixture socket; it
 stops that socket to test disconnected Herdr display. The real installed Herdr
 gate remains separate. It also checks task switching, stale responses, draft
-conflicts and restart retries, artifact path handling, GUI handoff, output bounds
-and unchanged task completion. Clipboard writes and the browser opener are intercepted for this editor
-gate; actual GUI acceptance is covered by `scripts/gui-smoke.cjs`.
+conflicts and restart retries, artifact path handling, TUI handoff, output bounds
+and unchanged task completion. The terminal job launcher is intercepted for this editor
+gate; actual terminal acceptance is covered by `scripts/tui-smoke.cjs`.
 
 The optional loader gate disables installs, updates and project-local specs. It
 tests the lazy.nvim example, not every LazyVim distribution plugin or user override.
 The installed editor gate is separate from portable CI; no editor is downloaded
 by the test workflow. See [verification](VERIFICATION.md) for the visual WCU check
 and exact tested revisions. Workflow timing measurements, file-content preservation, automatic refresh and workspace recovery remain open.
+
+## P02 planning review
+
+- `:HeimdallResume` separates planning proposals from accepted direction.
+- `:HeimdallProgress` opens a proposal picker for the selected context. An optional
+  `PROPOSAL_ID` inspects a proposal owned by the selected task/step, including
+  historical accepted/rejected records. The view includes its frozen text,
+  contract/digest, exact artifact versions, freshness and review provenance.
+- `:HeimdallProgressReview` opens the selected target in the TUI. Choose its
+  proposal and review it explicitly there.
+
+Inspection is read-only, and late responses are discarded after another view or
+selection. Opening the terminal does not itself accept or reject a proposal.
+Proposal authoring remains a CLI workflow; native review controls are in the TUI.
+See [progress setup](PROGRESS-SETUP.md).

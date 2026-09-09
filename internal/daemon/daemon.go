@@ -33,9 +33,6 @@ type Request struct {
 	Now     string       `json:"now,omitempty"`
 }
 type Server struct {
-	uiMu              sync.Mutex
-	uiCodes           map[string]uiBootstrap
-	uiSessions        map[string]uiSession
 	EvaluationContext context.Context
 	evaluations       sync.WaitGroup
 	Engine            *core.Engine
@@ -153,10 +150,6 @@ func watch(ctx context.Context, e *core.Engine, clock func() time.Time) {
 func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.Header().Set("Cache-Control", "no-store")
-	if isUIPath(r.URL.Path) {
-		s.uiHTTP(w, r)
-		return
-	}
 	token := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
 	if r.Host != s.Host || r.Header.Get("Origin") != "" || !strings.HasPrefix(r.Header.Get("Authorization"), "Bearer ") {
 		writeError(w, 401, fmt.Errorf("unauthorized local client"))
@@ -182,6 +175,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.continuityHTTP(w, r)
 		return
 	}
+	if strings.HasPrefix(r.URL.Path, "/progress/") {
+		s.progressHTTP(w, r)
+		return
+	}
 	if strings.HasPrefix(r.URL.Path, "/artifact/") {
 		s.artifactHTTP(w, r)
 		return
@@ -194,10 +191,6 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.evidenceHTTP(w, r)
 		return
 	}
-	if r.URL.Path == "/ui-bootstrap" {
-		s.uiBootstrapHTTP(w, r)
-		return
-	}
 	if r.URL.Path == "/grants" || strings.HasPrefix(r.URL.Path, "/grants/") {
 		s.grantHTTP(w, r)
 		return
@@ -205,7 +198,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		switch r.URL.Path {
 		case "/health":
-			writeJSON(w, map[string]any{"status": "running", "task_file_error": s.Engine.ViewError(), "capabilities": []string{"core", "capture", "manual_completion", "aggregate_proposals", "review_timers", "replay", "browser_metadata", "browser_commands", "continuity_cli_v1", "workspace_declarations_cli_v1", "herdr_bindings_linux_v1", "database_backup", "scoped_client_reads_v1", "scoped_checkpoint_writes_v1", "mcp_stdio_v1", "evidence_cli_v1", "evidence_revalidation_v1"}})
+			writeJSON(w, map[string]any{"status": "running", "task_file_error": s.Engine.ViewError(), "capabilities": []string{"core", "capture", "manual_completion", "aggregate_proposals", "review_timers", "replay", "browser_metadata", "browser_commands", "continuity_cli_v1", "progress_cli_v1", "workspace_declarations_cli_v1", "herdr_bindings_linux_v1", "database_backup", "scoped_client_reads_v1", "scoped_checkpoint_writes_v1", "mcp_stdio_v1", "evidence_cli_v1", "evidence_revalidation_v1"}})
 		case "/state":
 			st, err := s.Engine.Store.State(r.Context())
 			if err != nil {

@@ -1,0 +1,191 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Heimdall progress proposal/review request v1",
+  "description": "CLI-only. Exactly one frozen proposal or review payload. Runtime checks UTF-8 byte bounds, duplicate keys, sorted unique artifact refs, current contract/lineage/decisions, version identity and exact heads. Live artifact observations and authority cannot be submitted. Neither proposal nor review completes tasks.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "id",
+    "target",
+    "expected_task_revision"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "$ref": "#/$defs/id"
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_task_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "proposal": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "kind",
+        "text",
+        "contract_id"
+      ],
+      "properties": {
+        "kind": {
+          "enum": [
+            "decision",
+            "artifact"
+          ]
+        },
+        "text": {
+          "type": "string",
+          "pattern": "\\S",
+          "maxLength": 8192
+        },
+        "contract_id": {
+          "$ref": "#/$defs/id"
+        },
+        "artifacts": {
+          "type": "array",
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "artifact_id",
+              "version_id"
+            ],
+            "properties": {
+              "artifact_id": {
+                "$ref": "#/$defs/id"
+              },
+              "version_id": {
+                "$ref": "#/$defs/id"
+              }
+            }
+          }
+        },
+        "supersedes": {
+          "$ref": "#/$defs/id"
+        },
+        "previous": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "const": "none"
+            }
+          ]
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "kind": {
+              "const": "decision"
+            }
+          },
+          "not": {
+            "required": [
+              "previous"
+            ]
+          }
+        },
+        {
+          "properties": {
+            "kind": {
+              "const": "artifact"
+            },
+            "artifacts": {
+              "minItems": 1,
+              "maxItems": 1
+            }
+          },
+          "required": [
+            "artifacts",
+            "previous"
+          ],
+          "not": {
+            "required": [
+              "supersedes"
+            ]
+          }
+        }
+      ]
+    },
+    "review": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "proposal_id",
+        "digest",
+        "previous",
+        "status",
+        "note"
+      ],
+      "properties": {
+        "proposal_id": {
+          "$ref": "#/$defs/id"
+        },
+        "digest": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "previous": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/id"
+            },
+            {
+              "const": "none"
+            }
+          ]
+        },
+        "status": {
+          "enum": [
+            "reviewed",
+            "accepted",
+            "rejected"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "pattern": "\\S",
+          "maxLength": 4096
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "proposal"
+      ],
+      "not": {
+        "required": [
+          "review"
+        ]
+      }
+    },
+    {
+      "required": [
+        "review"
+      ],
+      "not": {
+        "required": [
+          "proposal"
+        ]
+      }
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    }
+  }
+}

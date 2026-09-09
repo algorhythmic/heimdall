@@ -42,11 +42,12 @@ async function editor(fixture) {
     fs.writeFileSync(join(work,filename),'Planning artifact\nvim: set modeline:\n');
     fs.writeFileSync(join(dir,'outside.md'),'Outside resource');
     cli('init');await start();
-    const resources={};
+    const resources={},proposals={};
     for(const target of ['alpha','beta']) {
       cli('add',target==='alpha'?'Alpha $(touch SHOULD_NOT_EXIST)\u202e':'Beta planning','--id',target,'--status','active','--next-action','Review '+target+' direction');
       const resource=cli('resource','bind',target,'--expected-task-revision','1','--file',input(target+'-resource',{kind:'tree',root:work,path:'.'}));resources[target]=resource.id;
       const contract=cli('contract','accept',target,'--expected-task-revision','1','--file',input(target+'-contract',{previous:'none',objective:'Continue '+target,resource_ids:[resource.id]}));
+      proposals[target]=cli('progress','propose',target,'--expected-task-revision','1','--file',input(target+'-proposal',{kind:'decision',text:target+' planning review <literal> \u202e',contract_id:contract.id})).id;
       if(target==='beta') {
         const artifact=cli('artifact','record',target,'--expected-task-revision','1','--file',input('beta-artifact',{artifact_id:'new',previous:'none',name:'Beta artifact',environment:'editor-test',resource_id:resource.id,path:filename,git:true}));
         cli('checkpoint','create',target,'--expected-task-revision','1','--file',input('beta-checkpoint',{previous:'none',contract_id:contract.id,summary:'Pinned beta notes',next_action:'Review beta notes',artifacts:[{artifact_id:artifact.artifact.id,version_id:artifact.record.id}]}));
@@ -74,7 +75,7 @@ async function editor(fixture) {
     await promisify(execFile)(exe,['session','bind-herdr','alpha','--surface',surface,'--manifest',manifest.id,'--previous','none','--expected-task-revision','1','--socket',socket,'--pane',pane.pane_id,'--data-dir',data]);
     await new Promise(resolve=>server.close(resolve));server=null;
     assert.equal(cli('session','refresh','alpha','--surface',surface).status,'disconnected');
-    const fixture={root,exe,data,work,drafts,filename,resource:resources.alpha,surface,daemon_pid:daemon.pid,mode:'main',result:join(dir,'editor-result.json')};
+    const fixture={root,exe,data,work,drafts,filename,proposals,resource:resources.alpha,surface,daemon_pid:daemon.pid,mode:'main',result:join(dir,'editor-result.json')};
     await editor(fixture);
     const saved=JSON.parse(fs.readFileSync(fixture.result,'utf8'));
     assert(!fs.existsSync(join(work,'SHOULD_NOT_EXIST')));
@@ -84,7 +85,7 @@ async function editor(fixture) {
     assert.equal(cli('checkpoint','list','alpha').length,1);
     assert.equal(cli('state','alpha').task.status,'active');
     const state=cli('state');cli('replay');assert.deepEqual(cli('state'),state);
-    console.log(JSON.stringify({status:'passed',neovim:execFileSync(nvim,['--version'],{encoding:'utf8'}).split('\n')[0],checks:['explicit task picker and same-repository switching','late response discarded after task switch','read-only resume and missing daemon display','editable private drafts, conflicts and original-target checks','retained draft and exact retry after daemon/editor restart','literal artifact path, traversal/symlink refusal and disabled modelines','disconnected Herdr status from stopped synthetic protocol socket','root-scoped GUI handoff with no credential in buffers/history','bounded subprocess output, invalid JSON and timeout','pure replay and task completion unchanged'],data:dir},null,2));
+    console.log(JSON.stringify({status:'passed',neovim:execFileSync(nvim,['--version'],{encoding:'utf8'}).split('\n')[0],checks:['explicit task picker and same-repository switching','late response discarded after task switch','read-only resume and missing daemon display','editable private drafts, conflicts and original-target checks','retained draft and exact retry after daemon/editor restart','literal artifact path, traversal/symlink refusal and disabled modelines','disconnected Herdr status from stopped synthetic protocol socket','selected-target TUI handoff using argv and no clipboard credentials','bounded subprocess output, invalid JSON and timeout','pure replay and task completion unchanged'],data:dir},null,2));
   } finally {
     await stopProcess(daemon);
     if(server)await new Promise(resolve=>server.close(resolve));

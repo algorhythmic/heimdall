@@ -1,5 +1,5 @@
 // Isolated real Chromium API test. Does not register a native host in any user browser.
-const {chromium}=require(require.resolve('playwright',{paths:[require('node:path').resolve(__dirname,'../web')]}));
+const {chromium}=require(require.resolve('playwright',{paths:[require('node:path').resolve(__dirname,'./browser-test')]}));
 const {mkdtempSync,readFileSync,mkdirSync}=require('node:fs');
 const {join,resolve}=require('node:path');
 const http=require('node:http');

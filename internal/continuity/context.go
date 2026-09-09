@@ -24,6 +24,7 @@ type ResourceCheck struct {
 	Detail   string          `json:"detail,omitempty"`
 }
 type Bundle struct {
+	Progress        []ProgressSummary  `json:"progress,omitempty"`
 	Artifacts       []ArtifactCheck    `json:"artifacts,omitempty"`
 	Version         int                `json:"version"`
 	SourceEvent     int64              `json:"source_event"`
@@ -108,6 +109,17 @@ func buildContextArtifacts(ctx context.Context, st model.State, target string, b
 	ids := decisionIDs(st, targets)
 	for _, id := range ids {
 		out.Decisions = append(out.Decisions, st.Decisions[id])
+	}
+	out.Progress = progressContext(st, targets)
+	for _, p := range out.Progress {
+		if p.Status == "draft" || p.Status == "reviewed" {
+			issue("unresolved_progress", p.Target, "Unresolved "+p.Kind+" proposal "+p.ID+" ("+p.Freshness+")")
+		} else if p.Status == "accepted" && p.Freshness == "stale" {
+			issue("accepted_progress_stale", p.Target, "Accepted "+p.Kind+" proposal "+p.ID+" has changed inputs; review again")
+		}
+	}
+	if len(out.Progress) > 0 {
+		out.Coverage["progress"] = "recorded review state; progress show performs CLI artifact checks; review does not complete tasks"
 	}
 	expected := map[string]model.Snapshot{}
 	if cp, ok := st.Checkpoints[st.CheckpointHeads[target]]; ok {

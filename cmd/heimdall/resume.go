@@ -119,6 +119,13 @@ func renderResume(out io.Writer, v continuity.ResumeView, now time.Time) error {
 	for _, d := range v.Decisions {
 		line("  Decision: ", d.Text)
 	}
+	if len(v.Progress) > 0 {
+		b.WriteString("\nProgress review (separate from task completion)\n")
+		for _, p := range v.Progress {
+			line("  ", p.Kind+" "+p.ID+": "+p.Status+" ("+p.Freshness+")")
+			line("    ", p.Text)
+		}
+	}
 	b.WriteString("\nSaved progress\n")
 	if cp := v.Checkpoint; cp != nil {
 		line("  Checkpoint: ", cp.At.UTC().Format(time.RFC3339)+" ("+checkpointAge(cp.At, now)+")")

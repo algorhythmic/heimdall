@@ -99,7 +99,27 @@ func (s *ViewportService) Execute(ctx context.Context, r ViewportRequest, actor 
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	raw, _ := json.Marshal(r)
+
+	// Return old receipts before any IPC, then observe outside the task writer.
+	// Other task commands remain responsive while a compositor is unavailable.
+	if receipt, found, err := s.Store.CommandReceipt(ctx, "viewport-"+r.ID, raw); err != nil || found {
+		return receipt, err
+	}
+	var observed hyprland.Status
+	var err error
+	if r.Op == "select" {
+		observed, err = hyprland.Probe(ctx, r.Source.SocketDir, s.Observer.Connector)
+	}
+	if r.Op == "bind" {
+		observed, err = s.Observer.Read(ctx, true)
+	}
+	if err != nil {
+		return nil, err
+	}
 	checkedSnapshot := ""
+	if r.Op == "bind" {
+		checkedSnapshot = r.Binding.SnapshotID
+	}
 	check := func(model.State) error {
 		if checkedSnapshot != "" {
 			if err := s.Observer.Check(checkedSnapshot); err != nil {
@@ -118,10 +138,6 @@ func (s *ViewportService) Execute(ctx context.Context, r ViewportRequest, actor 
 			}
 			v := model.DesktopSource{Version: 1, ID: r.ID, Previous: previous(r.Previous), Active: r.Op == "select", Actor: actor, At: now.UTC()}
 			if v.Active {
-				observed, err := hyprland.Probe(ctx, r.Source.SocketDir, s.Observer.Connector)
-				if err != nil {
-					return change, err
-				}
 				snapshot := observed.Snapshot
 				if snapshot.SourceEpoch != r.Source.Epoch || snapshot.Host != r.Source.Host {
 					return change, fmt.Errorf("source changed since probe: %w", store.ErrConflict)
@@ -140,10 +156,6 @@ func (s *ViewportService) Execute(ctx context.Context, r ViewportRequest, actor 
 			if v.Active {
 				if st.DesktopSourceHead != v.SourceID {
 					return change, fmt.Errorf("source selection: %w", store.ErrConflict)
-				}
-				observed, err := s.Observer.Read(ctx, true)
-				if err != nil {
-					return change, err
 				}
 				if !observed.Fresh || observed.Snapshot.ID != v.SnapshotID {
 					return change, fmt.Errorf("snapshot changed; inspect fresh inventory: %w", store.ErrConflict)

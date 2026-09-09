@@ -3,7 +3,7 @@
 W02 supports local Linux Hyprland **0.56.2**, using its command and event sockets.
 It records explicit source selections and task/surface window bindings. Live
 inventories stay in bounded daemon memory. They are observations, not saved
-restoration points. W03 adds durable snapshots; W04 adds recovery previews.
+restoration points. [W03 durable snapshots](SNAPSHOT-SETUP.md) now consume these observations; W04 recovery previews follow.
 
 Build and start the daemon using [terminal setup](CONTINUITY-SETUP.md). Commands
 below use `./bin/heimdall`; add `--data-dir DIR` when using a separate store.
@@ -147,9 +147,9 @@ The [official IPC contract](https://wiki.hypr.land/IPC/) describes the event soc
 
 ## Persistence and validation
 
-Schema 14 adds immutable source selections and viewport bindings. It preserves
+Source selections and viewport bindings were introduced in schema 14; the current schema 15 adds durable snapshots. It preserves
 old grants, receipts and task completion authority. Upgrade first publishes a
-consistent `backups/pre-schema-14-*.db`; schema-13 binaries refuse migrated data.
+consistent `backups/pre-schema-15-*.db`; schema-14 binaries refuse migrated data.
 Replay does not connect to a compositor. Restore the pre-upgrade backup into a
 fresh stopped directory for rollback; see [backup instructions](CONTINUITY-SETUP.md#backup-upgrade-and-restore).
 

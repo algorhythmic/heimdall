@@ -1,0 +1,60 @@
+[
+  {
+    "version": 1,
+    "id": "4f509586fa4a91476f6e8967d0059f09",
+    "op": "capture",
+    "target": "alpha",
+    "previous": "none",
+    "expected_task_revision": 1,
+    "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+    "source_id": "4a600887668307ee20f343a0a27bf1c5",
+    "input_digest": "ef84c9b4d77eace26b8e7e7a74bb09984587d9901fa50c9600b5b3d2a54b5580"
+  },
+  {
+    "version": 1,
+    "id": "1ccb08e6b1d1813c15112bb22309b547",
+    "op": "policy",
+    "target": "alpha",
+    "previous": "none",
+    "expected_task_revision": 1,
+    "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+    "source_id": "4a600887668307ee20f343a0a27bf1c5",
+    "policy": {
+      "enabled": true,
+      "debounce_seconds": 1,
+      "max_dirty_seconds": 5,
+      "retain_count": 2
+    }
+  },
+  {
+    "version": 1,
+    "id": "0b582ffb573687cddb2b3c3496df3b2c",
+    "op": "unpin",
+    "target": "alpha",
+    "previous": "4f509586fa4a91476f6e8967d0059f09",
+    "snapshot_id": "4f509586fa4a91476f6e8967d0059f09",
+    "reason": "Release manual point"
+  },
+  {
+    "version": 1,
+    "id": "17ee6ce192198cbba980336ab5afec9f",
+    "op": "prune",
+    "target": "alpha",
+    "previous": "none",
+    "snapshot_ids": [
+      "4f509586fa4a91476f6e8967d0059f09"
+    ],
+    "reason": "Explicit payload retention"
+  },
+  {
+    "version": 1,
+    "id": "8748062b56b0c5416334cba6bfa1000b",
+    "op": "capture",
+    "target": "alpha",
+    "previous": "7674d30100ec7699564d6489b13b1de0",
+    "expected_task_revision": 1,
+    "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+    "source_id": "4a600887668307ee20f343a0a27bf1c5",
+    "input_digest": "ef84c9b4d77eace26b8e7e7a74bb09984587d9901fa50c9600b5b3d2a54b5580"
+  }
+]

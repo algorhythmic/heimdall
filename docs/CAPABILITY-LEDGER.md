@@ -1,5 +1,7 @@
 # Capability and authority ledger
 
+W03 adds CLI-only `/workspace/snapshot/*` capture/policy/pin/unpin/prune/status/list/show. Automatic capture runs only under a current explicitly accepted task/manifest/source policy. It stores owned surface observations, never dispatches application actions, and cannot complete tasks. All mutations revalidate current heads and references; source I/O is outside the task writer. Payload retention protects current heads and active pins and records historical unavailability. Schema 15 preserves earlier grants; scoped/MCP/browser clients acquire no snapshot access.
+
 W02 adds local CLI-only `/workspace/viewport/*` probe, source selection, inventory, explicit bind/unbind and task views. Selection authorizes read-only background observation of one pinned compositor source. No scoped/MCP/browser credential gains desktop reads or actions. Window ownership requires exact source/stable identity and a current task/surface manifest; title/class/PID similarity grants nothing. Browser surfaces require the later C13 handshake. Schema 14 preserves previous authority; replay never opens IPC sockets.
 
 P04 adds CLI-only dependency add/remove/history and read-only summaries. Existing scoped clients can read summaries and currently visible prerequisite relations; invisible prerequisites collapse to an opaque placeholder. Scope, expiry and cursor identity are checked on every request. No file observation, completion or dispatch authority is added. Schema 13 preserves earlier credentials and events.

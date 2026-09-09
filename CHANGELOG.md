@@ -1,5 +1,13 @@
 # Development milestones
 
+## Unreleased — W03 durable workspace snapshots (2026-09-09)
+
+- Immutable scoped snapshot payloads, indexed history, atomic event/receipt/head publication and complete/partial capture boundaries under schema 15.
+- Manual points are pinned; explicit task/source/manifest policies enable debounced autosave with a configurable maximum dirty interval. Unchanged content adds no events; unavailable or partial observations retain the last complete head.
+- Bounded payload retention, protected heads/pins, explicit pruned history, pagination, replay and backup restoration. Large payloads never enter the task projection.
+- Compositor reads move outside the task writer while exact retries remain inert and concurrent revision changes are refused at publication.
+- Local Btrfs process-kill, failed-write/allocation and daily-volume gates pass. Controlled VM power loss and workspace recovery actions remain later acceptance work.
+
 ## Unreleased — W02 read-only Hyprland observation (2026-09-09)
 
 - Explicit source probe/select/stop, buffered bootstrap, periodic reconciliation, known event-gap and freshness diagnostics for local Hyprland 0.56.2.

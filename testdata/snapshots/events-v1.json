@@ -1,0 +1,854 @@
+[
+  {
+    "id": 1,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.548329534Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "1e6821f139542a111b6e87b6d5931099",
+    "command_id": "1e6821f139542a111b6e87b6d5931099",
+    "payload": {
+      "request_hash": "7ebde4fea34a7a1e8061c2626b14f342bc5c7d41aa4de797001e248b8d2ed4e1",
+      "revision": 1,
+      "result": {
+        "id": "1e6821f139542a111b6e87b6d5931099",
+        "revision": 1,
+        "data": {
+          "task_id": "alpha"
+        }
+      }
+    }
+  },
+  {
+    "id": 2,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.548329534Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "alpha",
+    "command_id": "1e6821f139542a111b6e87b6d5931099",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "alpha",
+          "title": "Snapshot task",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T08:41:38.548329534Z",
+        "updated_at": "2026-09-09T08:41:38.548329534Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.55848519Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "4a93e100671cf8f4fd4b99625222e415",
+    "command_id": "4a93e100671cf8f4fd4b99625222e415",
+    "payload": {
+      "request_hash": "08b52fea4496fd61c92f4166b22ef24edcac95d101943dbb72144f253c40fab0",
+      "revision": 2,
+      "result": {
+        "id": "4a93e100671cf8f4fd4b99625222e415",
+        "revision": 2,
+        "data": {
+          "task_id": "beta"
+        }
+      }
+    }
+  },
+  {
+    "id": 4,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.55848519Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "beta",
+    "command_id": "4a93e100671cf8f4fd4b99625222e415",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "beta",
+          "title": "Other task",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T08:41:38.55848519Z",
+        "updated_at": "2026-09-09T08:41:38.55848519Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 5,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.59595673Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "workspace-994edc7367191be5e91d87d0ba8d47ea",
+    "command_id": "workspace-994edc7367191be5e91d87d0ba8d47ea",
+    "payload": {
+      "request_hash": "1e90d44007d0af4adad85718501aafb17fd000ea93d687b6d579e20e83bf7408",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "994edc7367191be5e91d87d0ba8d47ea",
+        "target": "alpha",
+        "task_revision": 1,
+        "previous": "",
+        "name": "Planning",
+        "surfaces": [
+          {
+            "id": "1327f31abe4c2a7d64f5b8b27f7914ff",
+            "kind": "terminal",
+            "label": "Shell",
+            "required": true,
+            "restore_policy": "manual"
+          }
+        ],
+        "actor": "cli",
+        "at": "2026-09-09T08:41:38.59595673Z"
+      }
+    }
+  },
+  {
+    "id": 6,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.59595673Z",
+    "subject": "workspace",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "994edc7367191be5e91d87d0ba8d47ea",
+    "command_id": "workspace-994edc7367191be5e91d87d0ba8d47ea",
+    "payload": {
+      "version": 1,
+      "id": "994edc7367191be5e91d87d0ba8d47ea",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "name": "Planning",
+      "surfaces": [
+        {
+          "id": "1327f31abe4c2a7d64f5b8b27f7914ff",
+          "kind": "terminal",
+          "label": "Shell",
+          "required": true,
+          "restore_policy": "manual"
+        }
+      ],
+      "actor": "cli",
+      "at": "2026-09-09T08:41:38.59595673Z"
+    }
+  },
+  {
+    "id": 7,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.611775631Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "viewport-4a600887668307ee20f343a0a27bf1c5",
+    "command_id": "viewport-4a600887668307ee20f343a0a27bf1c5",
+    "payload": {
+      "request_hash": "dbcaff53562a80b158ad7ea55f4c20287d5fb9d79bd3980b23d2a3afb2106ce0",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "4a600887668307ee20f343a0a27bf1c5",
+        "previous": "",
+        "active": true,
+        "socket_dir": "/tmp/heimdall-hypr-BSqJqu",
+        "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+        "epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+        "compositor_version": "0.56.2",
+        "actor": "cli",
+        "at": "2026-09-09T08:41:38.611775631Z"
+      }
+    }
+  },
+  {
+    "id": 8,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.611775631Z",
+    "subject": "desktop",
+    "verb": "selected",
+    "actor": "cli",
+    "entity_id": "4a600887668307ee20f343a0a27bf1c5",
+    "command_id": "viewport-4a600887668307ee20f343a0a27bf1c5",
+    "payload": {
+      "version": 1,
+      "id": "4a600887668307ee20f343a0a27bf1c5",
+      "previous": "",
+      "active": true,
+      "socket_dir": "/tmp/heimdall-hypr-BSqJqu",
+      "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+      "epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+      "compositor_version": "0.56.2",
+      "actor": "cli",
+      "at": "2026-09-09T08:41:38.611775631Z"
+    }
+  },
+  {
+    "id": 9,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.630212039Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "viewport-9a3b7b9988d7adf630d97bb94241a9f7",
+    "command_id": "viewport-9a3b7b9988d7adf630d97bb94241a9f7",
+    "payload": {
+      "request_hash": "06c536f81e484de7228c632f72ec883ca3538cbd222adb1aa96e451f0f824fc0",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "9a3b7b9988d7adf630d97bb94241a9f7",
+        "target": "alpha",
+        "task_revision": 1,
+        "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+        "surface_id": "1327f31abe4c2a7d64f5b8b27f7914ff",
+        "previous": "",
+        "active": true,
+        "source_id": "4a600887668307ee20f343a0a27bf1c5",
+        "snapshot_id": "b439fda0445a46c6bfef0e7ca4d30e512f317b80d05d4f74492cd133051dc0c5",
+        "window": {
+          "source_epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+          "stable_id": "18000001"
+        },
+        "actor": "cli",
+        "at": "2026-09-09T08:41:38.630212039Z"
+      }
+    }
+  },
+  {
+    "id": 10,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.630212039Z",
+    "subject": "viewport",
+    "verb": "bound",
+    "actor": "cli",
+    "entity_id": "9a3b7b9988d7adf630d97bb94241a9f7",
+    "command_id": "viewport-9a3b7b9988d7adf630d97bb94241a9f7",
+    "payload": {
+      "version": 1,
+      "id": "9a3b7b9988d7adf630d97bb94241a9f7",
+      "target": "alpha",
+      "task_revision": 1,
+      "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+      "surface_id": "1327f31abe4c2a7d64f5b8b27f7914ff",
+      "previous": "",
+      "active": true,
+      "source_id": "4a600887668307ee20f343a0a27bf1c5",
+      "snapshot_id": "b439fda0445a46c6bfef0e7ca4d30e512f317b80d05d4f74492cd133051dc0c5",
+      "window": {
+        "source_epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+        "stable_id": "18000001"
+      },
+      "actor": "cli",
+      "at": "2026-09-09T08:41:38.630212039Z"
+    }
+  },
+  {
+    "id": 11,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.644462869Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "snapshot-4f509586fa4a91476f6e8967d0059f09",
+    "command_id": "snapshot-4f509586fa4a91476f6e8967d0059f09",
+    "payload": {
+      "request_hash": "d85954515a09011d884a2a39098eeef35876aeadd3e005c337ef64352749d0a6",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "4f509586fa4a91476f6e8967d0059f09",
+        "target": "alpha",
+        "task_revision": 1,
+        "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+        "source_id": "4a600887668307ee20f343a0a27bf1c5",
+        "source_epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+        "previous_head": "",
+        "input_digest": "ef84c9b4d77eace26b8e7e7a74bb09984587d9901fa50c9600b5b3d2a54b5580",
+        "content_digest": "3bd7d293bc387277c6fbae76d0eb6f9e4f49a029a6c24ac8b598c5bd4ad538e2",
+        "payload_digest": "7ca9a1c182f19ec677f1b5ddcb9d47334d14d7921e83d2a44162ce743aab0bef",
+        "payload_bytes": 1139,
+        "kind": "manual",
+        "coverage": "complete",
+        "published": true,
+        "observed_at": "2026-09-09T08:41:38.646280528Z",
+        "actor": "cli",
+        "at": "2026-09-09T08:41:38.644462869Z"
+      }
+    }
+  },
+  {
+    "id": 12,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.644462869Z",
+    "subject": "snapshot",
+    "verb": "captured",
+    "actor": "cli",
+    "entity_id": "4f509586fa4a91476f6e8967d0059f09",
+    "command_id": "snapshot-4f509586fa4a91476f6e8967d0059f09",
+    "payload": {
+      "version": 1,
+      "id": "4f509586fa4a91476f6e8967d0059f09",
+      "target": "alpha",
+      "task_revision": 1,
+      "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+      "source_id": "4a600887668307ee20f343a0a27bf1c5",
+      "source_epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+      "previous_head": "",
+      "input_digest": "ef84c9b4d77eace26b8e7e7a74bb09984587d9901fa50c9600b5b3d2a54b5580",
+      "content_digest": "3bd7d293bc387277c6fbae76d0eb6f9e4f49a029a6c24ac8b598c5bd4ad538e2",
+      "payload_digest": "7ca9a1c182f19ec677f1b5ddcb9d47334d14d7921e83d2a44162ce743aab0bef",
+      "payload_bytes": 1139,
+      "kind": "manual",
+      "coverage": "complete",
+      "published": true,
+      "observed_at": "2026-09-09T08:41:38.646280528Z",
+      "actor": "cli",
+      "at": "2026-09-09T08:41:38.644462869Z"
+    }
+  },
+  {
+    "id": 13,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.682466185Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "snapshot-1ccb08e6b1d1813c15112bb22309b547",
+    "command_id": "snapshot-1ccb08e6b1d1813c15112bb22309b547",
+    "payload": {
+      "request_hash": "8483ec5bab3d0d63a678c74fb435772d4e19af6142b49ca4f306fb4360dcd746",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "1ccb08e6b1d1813c15112bb22309b547",
+        "target": "alpha",
+        "previous": "",
+        "enabled": true,
+        "task_revision": 1,
+        "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+        "source_id": "4a600887668307ee20f343a0a27bf1c5",
+        "debounce_seconds": 1,
+        "max_dirty_seconds": 5,
+        "retain_count": 2,
+        "actor": "cli",
+        "at": "2026-09-09T08:41:38.682466185Z"
+      }
+    }
+  },
+  {
+    "id": 14,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:38.682466185Z",
+    "subject": "snapshot",
+    "verb": "policy",
+    "actor": "cli",
+    "entity_id": "1ccb08e6b1d1813c15112bb22309b547",
+    "command_id": "snapshot-1ccb08e6b1d1813c15112bb22309b547",
+    "payload": {
+      "version": 1,
+      "id": "1ccb08e6b1d1813c15112bb22309b547",
+      "target": "alpha",
+      "previous": "",
+      "enabled": true,
+      "task_revision": 1,
+      "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+      "source_id": "4a600887668307ee20f343a0a27bf1c5",
+      "debounce_seconds": 1,
+      "max_dirty_seconds": 5,
+      "retain_count": 2,
+      "actor": "cli",
+      "at": "2026-09-09T08:41:38.682466185Z"
+    }
+  },
+  {
+    "id": 15,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:42.542694668Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "snapshotter",
+    "entity_id": "snapshot-72dd5ee3a8e7a7ac33c0728946da8a66",
+    "command_id": "snapshot-72dd5ee3a8e7a7ac33c0728946da8a66",
+    "payload": {
+      "request_hash": "56cc63abec514e1e94e1073dfa04aa1af4ac9c7123caec740dde882d7d2f3638",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "72dd5ee3a8e7a7ac33c0728946da8a66",
+        "target": "alpha",
+        "task_revision": 1,
+        "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+        "source_id": "4a600887668307ee20f343a0a27bf1c5",
+        "source_epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+        "previous_head": "4f509586fa4a91476f6e8967d0059f09",
+        "input_digest": "ef84c9b4d77eace26b8e7e7a74bb09984587d9901fa50c9600b5b3d2a54b5580",
+        "content_digest": "3bdd564eeb904944337d6a4cdc45bedfc6c3bf70d8f1de650e6b58cd48ddefec",
+        "payload_digest": "a4407f85021ed3cb811674960c3cee4265e6de962696b13af34fb510a063be89",
+        "payload_bytes": 1139,
+        "kind": "automatic",
+        "policy_id": "1ccb08e6b1d1813c15112bb22309b547",
+        "coverage": "complete",
+        "published": true,
+        "observed_at": "2026-09-09T08:41:39.744733799Z",
+        "actor": "snapshotter",
+        "at": "2026-09-09T08:41:42.542694668Z"
+      }
+    }
+  },
+  {
+    "id": 16,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:42.542694668Z",
+    "subject": "snapshot",
+    "verb": "captured",
+    "actor": "snapshotter",
+    "entity_id": "72dd5ee3a8e7a7ac33c0728946da8a66",
+    "command_id": "snapshot-72dd5ee3a8e7a7ac33c0728946da8a66",
+    "payload": {
+      "version": 1,
+      "id": "72dd5ee3a8e7a7ac33c0728946da8a66",
+      "target": "alpha",
+      "task_revision": 1,
+      "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+      "source_id": "4a600887668307ee20f343a0a27bf1c5",
+      "source_epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+      "previous_head": "4f509586fa4a91476f6e8967d0059f09",
+      "input_digest": "ef84c9b4d77eace26b8e7e7a74bb09984587d9901fa50c9600b5b3d2a54b5580",
+      "content_digest": "3bdd564eeb904944337d6a4cdc45bedfc6c3bf70d8f1de650e6b58cd48ddefec",
+      "payload_digest": "a4407f85021ed3cb811674960c3cee4265e6de962696b13af34fb510a063be89",
+      "payload_bytes": 1139,
+      "kind": "automatic",
+      "policy_id": "1ccb08e6b1d1813c15112bb22309b547",
+      "coverage": "complete",
+      "published": true,
+      "observed_at": "2026-09-09T08:41:39.744733799Z",
+      "actor": "snapshotter",
+      "at": "2026-09-09T08:41:42.542694668Z"
+    }
+  },
+  {
+    "id": 17,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:45.542321328Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "snapshotter",
+    "entity_id": "snapshot-3d92cd1c0c4149226da24f14905d84f1",
+    "command_id": "snapshot-3d92cd1c0c4149226da24f14905d84f1",
+    "payload": {
+      "request_hash": "03723839c306cc6fe957e2c2950a8b0a7004c0e842e740343c99c690c913f686",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "3d92cd1c0c4149226da24f14905d84f1",
+        "target": "alpha",
+        "task_revision": 1,
+        "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+        "source_id": "4a600887668307ee20f343a0a27bf1c5",
+        "source_epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+        "previous_head": "72dd5ee3a8e7a7ac33c0728946da8a66",
+        "input_digest": "ef84c9b4d77eace26b8e7e7a74bb09984587d9901fa50c9600b5b3d2a54b5580",
+        "content_digest": "a9ce56e22d27d19ae17683bf6dec95c57eeea170014ccc2eae385c485911ec07",
+        "payload_digest": "d5303b50371871bf8b3790b35acfff5b598b91d4c01b9f717e9ff780c89701b5",
+        "payload_bytes": 1139,
+        "kind": "automatic",
+        "policy_id": "1ccb08e6b1d1813c15112bb22309b547",
+        "coverage": "complete",
+        "published": true,
+        "observed_at": "2026-09-09T08:41:42.844225202Z",
+        "actor": "snapshotter",
+        "at": "2026-09-09T08:41:45.542321328Z"
+      }
+    }
+  },
+  {
+    "id": 18,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:45.542321328Z",
+    "subject": "snapshot",
+    "verb": "captured",
+    "actor": "snapshotter",
+    "entity_id": "3d92cd1c0c4149226da24f14905d84f1",
+    "command_id": "snapshot-3d92cd1c0c4149226da24f14905d84f1",
+    "payload": {
+      "version": 1,
+      "id": "3d92cd1c0c4149226da24f14905d84f1",
+      "target": "alpha",
+      "task_revision": 1,
+      "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+      "source_id": "4a600887668307ee20f343a0a27bf1c5",
+      "source_epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+      "previous_head": "72dd5ee3a8e7a7ac33c0728946da8a66",
+      "input_digest": "ef84c9b4d77eace26b8e7e7a74bb09984587d9901fa50c9600b5b3d2a54b5580",
+      "content_digest": "a9ce56e22d27d19ae17683bf6dec95c57eeea170014ccc2eae385c485911ec07",
+      "payload_digest": "d5303b50371871bf8b3790b35acfff5b598b91d4c01b9f717e9ff780c89701b5",
+      "payload_bytes": 1139,
+      "kind": "automatic",
+      "policy_id": "1ccb08e6b1d1813c15112bb22309b547",
+      "coverage": "complete",
+      "published": true,
+      "observed_at": "2026-09-09T08:41:42.844225202Z",
+      "actor": "snapshotter",
+      "at": "2026-09-09T08:41:45.542321328Z"
+    }
+  },
+  {
+    "id": 19,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:48.542953736Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "snapshotter",
+    "entity_id": "snapshot-7674d30100ec7699564d6489b13b1de0",
+    "command_id": "snapshot-7674d30100ec7699564d6489b13b1de0",
+    "payload": {
+      "request_hash": "dff9cd4e0d3492b9f219817b40b1e37a9e4584c6470c136e4cbf744aff764988",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "7674d30100ec7699564d6489b13b1de0",
+        "target": "alpha",
+        "task_revision": 1,
+        "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+        "source_id": "4a600887668307ee20f343a0a27bf1c5",
+        "source_epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+        "previous_head": "3d92cd1c0c4149226da24f14905d84f1",
+        "input_digest": "ef84c9b4d77eace26b8e7e7a74bb09984587d9901fa50c9600b5b3d2a54b5580",
+        "content_digest": "d9aebefcd6f5db6013eb017c6cebbfcb91ad25b2df308bb86697c59c4bfbf5fc",
+        "payload_digest": "1ae5570d5a581acd5d30d0acf2a678a5f0fdd892c57d243b5c066f0e4ebf8dbe",
+        "payload_bytes": 1139,
+        "kind": "automatic",
+        "policy_id": "1ccb08e6b1d1813c15112bb22309b547",
+        "coverage": "complete",
+        "published": true,
+        "observed_at": "2026-09-09T08:41:45.744774359Z",
+        "actor": "snapshotter",
+        "at": "2026-09-09T08:41:48.542953736Z"
+      }
+    }
+  },
+  {
+    "id": 20,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:48.542953736Z",
+    "subject": "snapshot",
+    "verb": "captured",
+    "actor": "snapshotter",
+    "entity_id": "7674d30100ec7699564d6489b13b1de0",
+    "command_id": "snapshot-7674d30100ec7699564d6489b13b1de0",
+    "payload": {
+      "version": 1,
+      "id": "7674d30100ec7699564d6489b13b1de0",
+      "target": "alpha",
+      "task_revision": 1,
+      "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+      "source_id": "4a600887668307ee20f343a0a27bf1c5",
+      "source_epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+      "previous_head": "3d92cd1c0c4149226da24f14905d84f1",
+      "input_digest": "ef84c9b4d77eace26b8e7e7a74bb09984587d9901fa50c9600b5b3d2a54b5580",
+      "content_digest": "d9aebefcd6f5db6013eb017c6cebbfcb91ad25b2df308bb86697c59c4bfbf5fc",
+      "payload_digest": "1ae5570d5a581acd5d30d0acf2a678a5f0fdd892c57d243b5c066f0e4ebf8dbe",
+      "payload_bytes": 1139,
+      "kind": "automatic",
+      "policy_id": "1ccb08e6b1d1813c15112bb22309b547",
+      "coverage": "complete",
+      "published": true,
+      "observed_at": "2026-09-09T08:41:45.744774359Z",
+      "actor": "snapshotter",
+      "at": "2026-09-09T08:41:48.542953736Z"
+    }
+  },
+  {
+    "id": 21,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:48.542953736Z",
+    "subject": "snapshot",
+    "verb": "pruned",
+    "actor": "snapshotter",
+    "entity_id": "7674d30100ec7699564d6489b13b1de0",
+    "command_id": "snapshot-7674d30100ec7699564d6489b13b1de0",
+    "payload": {
+      "version": 1,
+      "id": "7674d30100ec7699564d6489b13b1de0",
+      "target": "alpha",
+      "snapshot_ids": [
+        "72dd5ee3a8e7a7ac33c0728946da8a66"
+      ],
+      "reason": "bounded workspace payload retention",
+      "actor": "snapshotter",
+      "at": "2026-09-09T08:41:48.542953736Z"
+    }
+  },
+  {
+    "id": 22,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:48.691129013Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "snapshot-0b582ffb573687cddb2b3c3496df3b2c",
+    "command_id": "snapshot-0b582ffb573687cddb2b3c3496df3b2c",
+    "payload": {
+      "request_hash": "5fcdd7789495676b72e47e9b61d8d36addfce6fafe2f2913c426f0cdbe82a262",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "0b582ffb573687cddb2b3c3496df3b2c",
+        "target": "alpha",
+        "snapshot_id": "4f509586fa4a91476f6e8967d0059f09",
+        "previous": "4f509586fa4a91476f6e8967d0059f09",
+        "active": false,
+        "reason": "Release manual point",
+        "actor": "cli",
+        "at": "2026-09-09T08:41:48.691129013Z"
+      }
+    }
+  },
+  {
+    "id": 23,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:48.691129013Z",
+    "subject": "snapshot",
+    "verb": "pin",
+    "actor": "cli",
+    "entity_id": "0b582ffb573687cddb2b3c3496df3b2c",
+    "command_id": "snapshot-0b582ffb573687cddb2b3c3496df3b2c",
+    "payload": {
+      "version": 1,
+      "id": "0b582ffb573687cddb2b3c3496df3b2c",
+      "target": "alpha",
+      "snapshot_id": "4f509586fa4a91476f6e8967d0059f09",
+      "previous": "4f509586fa4a91476f6e8967d0059f09",
+      "active": false,
+      "reason": "Release manual point",
+      "actor": "cli",
+      "at": "2026-09-09T08:41:48.691129013Z"
+    }
+  },
+  {
+    "id": 24,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:48.705023695Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "snapshot-17ee6ce192198cbba980336ab5afec9f",
+    "command_id": "snapshot-17ee6ce192198cbba980336ab5afec9f",
+    "payload": {
+      "request_hash": "2cc8e7518ad5b61d18fe6c70573ffad661ec5823cfe014de2208d9f3bbeefd01",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "17ee6ce192198cbba980336ab5afec9f",
+        "target": "alpha",
+        "snapshot_ids": [
+          "4f509586fa4a91476f6e8967d0059f09"
+        ],
+        "reason": "Explicit payload retention",
+        "actor": "cli",
+        "at": "2026-09-09T08:41:48.705023695Z"
+      }
+    }
+  },
+  {
+    "id": 25,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:48.705023695Z",
+    "subject": "snapshot",
+    "verb": "pruned",
+    "actor": "cli",
+    "entity_id": "17ee6ce192198cbba980336ab5afec9f",
+    "command_id": "snapshot-17ee6ce192198cbba980336ab5afec9f",
+    "payload": {
+      "version": 1,
+      "id": "17ee6ce192198cbba980336ab5afec9f",
+      "target": "alpha",
+      "snapshot_ids": [
+        "4f509586fa4a91476f6e8967d0059f09"
+      ],
+      "reason": "Explicit payload retention",
+      "actor": "cli",
+      "at": "2026-09-09T08:41:48.705023695Z"
+    }
+  },
+  {
+    "id": 26,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:48.798794785Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "grant-3ebd70fcf9804fc97ed0932d4c3400ab",
+    "command_id": "grant-3ebd70fcf9804fc97ed0932d4c3400ab",
+    "payload": {
+      "request_hash": "5b42e95057b571c2dde7a5b82c7782f5fd5f9ec6923a707c4931d7b4935b0d38",
+      "revision": 2,
+      "result": {
+        "id": "3ebd70fcf9804fc97ed0932d4c3400ab",
+        "name": "No snapshot authority",
+        "target": "alpha",
+        "subtree": false,
+        "resource_ids": [],
+        "expires_at": "2026-09-09T09:41:48.728Z",
+        "capabilities": [
+          "task.read",
+          "history.read",
+          "context.read"
+        ]
+      }
+    }
+  },
+  {
+    "id": 27,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:48.798794785Z",
+    "subject": "grant",
+    "verb": "issued",
+    "actor": "cli",
+    "entity_id": "3ebd70fcf9804fc97ed0932d4c3400ab",
+    "command_id": "grant-3ebd70fcf9804fc97ed0932d4c3400ab",
+    "payload": {
+      "version": 1,
+      "id": "3ebd70fcf9804fc97ed0932d4c3400ab",
+      "name": "No snapshot authority",
+      "target": "alpha",
+      "subtree": false,
+      "resource_ids": [],
+      "token_hash": "dc3ef1c2e66bd06ab9f7b65ac66a5523727c027d914f6c1439002b8d99ab7c12",
+      "expires_at": "2026-09-09T09:41:48.728Z",
+      "at": "2026-09-09T08:41:48.798794785Z",
+      "actor": "cli"
+    }
+  },
+  {
+    "id": 28,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:48.877719821Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "snapshot-8748062b56b0c5416334cba6bfa1000b",
+    "command_id": "snapshot-8748062b56b0c5416334cba6bfa1000b",
+    "payload": {
+      "request_hash": "54cfd8792e209ffc462a4f8ca18444a43ade1672b09b3f7f4712751066b49792",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "8748062b56b0c5416334cba6bfa1000b",
+        "target": "alpha",
+        "task_revision": 1,
+        "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+        "source_id": "4a600887668307ee20f343a0a27bf1c5",
+        "source_epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+        "previous_head": "7674d30100ec7699564d6489b13b1de0",
+        "input_digest": "ef84c9b4d77eace26b8e7e7a74bb09984587d9901fa50c9600b5b3d2a54b5580",
+        "content_digest": "2ceb11b2eceb41843a736be8d864f4f41d1a31944c998d089fa1385d96ab3cf4",
+        "payload_digest": "e308ffcdc3ecd797abc4c371402044374cb72949ee9615d07caaed1e9cc334eb",
+        "payload_bytes": 739,
+        "kind": "manual",
+        "coverage": "partial",
+        "published": false,
+        "observed_at": "2026-09-09T08:41:48.879376059Z",
+        "actor": "cli",
+        "at": "2026-09-09T08:41:48.877719821Z"
+      }
+    }
+  },
+  {
+    "id": 29,
+    "event_version": 1,
+    "ts": "2026-09-09T08:41:48.877719821Z",
+    "subject": "snapshot",
+    "verb": "captured",
+    "actor": "cli",
+    "entity_id": "8748062b56b0c5416334cba6bfa1000b",
+    "command_id": "snapshot-8748062b56b0c5416334cba6bfa1000b",
+    "payload": {
+      "version": 1,
+      "id": "8748062b56b0c5416334cba6bfa1000b",
+      "target": "alpha",
+      "task_revision": 1,
+      "manifest_id": "994edc7367191be5e91d87d0ba8d47ea",
+      "source_id": "4a600887668307ee20f343a0a27bf1c5",
+      "source_epoch": "ab8044b924bf546fc28813c29de5b16e3da145be2bf962ca98ae720ea55e50ae",
+      "previous_head": "7674d30100ec7699564d6489b13b1de0",
+      "input_digest": "ef84c9b4d77eace26b8e7e7a74bb09984587d9901fa50c9600b5b3d2a54b5580",
+      "content_digest": "2ceb11b2eceb41843a736be8d864f4f41d1a31944c998d089fa1385d96ab3cf4",
+      "payload_digest": "e308ffcdc3ecd797abc4c371402044374cb72949ee9615d07caaed1e9cc334eb",
+      "payload_bytes": 739,
+      "kind": "manual",
+      "coverage": "partial",
+      "published": false,
+      "observed_at": "2026-09-09T08:41:48.879376059Z",
+      "actor": "cli",
+      "at": "2026-09-09T08:41:48.877719821Z"
+    }
+  }
+]

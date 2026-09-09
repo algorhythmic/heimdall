@@ -40,6 +40,15 @@ type BrowserOperation struct {
 }
 
 func (s *State) Normalize() {
+	if s.SnapshotHeads == nil {
+		s.SnapshotHeads = map[string]WorkspacePoint{}
+	}
+	if s.SnapshotPolicies == nil {
+		s.SnapshotPolicies = map[string]SnapshotPolicy{}
+	}
+	if s.SnapshotPins == nil {
+		s.SnapshotPins = map[string]SnapshotPin{}
+	}
 	if s.DesktopSources == nil {
 		s.DesktopSources = map[string]DesktopSource{}
 	}

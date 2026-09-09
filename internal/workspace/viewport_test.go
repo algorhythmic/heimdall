@@ -3,6 +3,7 @@ package workspace
 import (
 	"encoding/json"
 	"heimdall/internal/adapters/hyprland"
+	"heimdall/internal/core"
 	"heimdall/internal/model"
 	"heimdall/internal/testdesktop"
 	"os"
@@ -196,5 +197,36 @@ func TestViewportRequestStrictness(t *testing.T) {
 		if _, err := DecodeViewport([]byte(raw)); err == nil {
 			t.Fatal("bad envelope accepted")
 		}
+	}
+}
+
+func TestViewportObservesOutsideWriterAndRechecksRevision(t *testing.T) {
+	f, s, fake, source := viewportSetup(t)
+	_, m := f.manifest("alpha")
+	r := viewportRequest(t, f, s, m, source.ID)
+	changed := false
+	fake.Hook = func(command string) {
+		if changed || command != "clients" {
+			return
+		}
+		changed = true
+		// A compositor read callback can complete a task write. Holding the store
+		// mutex around observation would deadlock here.
+		st, err := f.e.Store.State(f.ctx)
+		if err != nil {
+			t.Fatal(err)
+		}
+		task := st.Tasks["alpha"].Task
+		task.Title = "Changed while compositor read was pending"
+		if _, err = f.e.Execute(f.ctx, core.Command{ID: model.NewID(), Op: "update", Task: &task}, "cli", f.now); err != nil {
+			t.Fatal(err)
+		}
+	}
+	if _, err := s.Execute(f.ctx, r, "cli", f.now); err == nil {
+		t.Fatal("observation authorized a stale task revision")
+	}
+	st, _ := f.e.Store.State(f.ctx)
+	if len(st.ViewportBindings) != 0 || !changed {
+		t.Fatal("binding crossed concurrent edit")
 	}
 }

@@ -190,6 +190,7 @@ func (o *Observer) capture(ctx context.Context) (captureErr error) {
 		return err
 	}
 	for attempt := 0; attempt < 3; attempt++ {
+		startedAt := time.Now().UTC()
 		o.mu.Lock()
 		seq, c := o.sequence, o.conn
 		o.mu.Unlock()
@@ -204,6 +205,7 @@ func (o *Observer) capture(ctx context.Context) (captureErr error) {
 		o.mu.Lock()
 		valid := !o.broken && seq == o.sequence && first.ID == second.ID
 		if valid {
+			second.StartedAt = startedAt
 			second.CapturedAt = time.Now().UTC()
 			o.status.Snapshot = &second
 			o.status.Fresh = true

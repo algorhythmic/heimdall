@@ -35,6 +35,7 @@ type Request struct {
 	Now     string       `json:"now,omitempty"`
 }
 type Server struct {
+	Snapshots         *workspace.SnapshotService
 	Viewport          *workspace.ViewportService
 	EvaluationContext context.Context
 	evaluations       sync.WaitGroup
@@ -103,6 +104,9 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	if err := service.Viewport.Restore(localCtx); err != nil {
 		return err
 	}
+	service.Snapshots = &workspace.SnapshotService{Store: e.Store, Observer: service.Viewport.Observer}
+	snapshotDone := make(chan struct{})
+	go func() { defer close(snapshotDone); service.Snapshots.Run(localCtx, clock) }()
 	viewportDone := make(chan struct{})
 	go func() { defer close(viewportDone); service.Viewport.Observer.Run(localCtx) }()
 	watchDone := make(chan struct{})
@@ -122,6 +126,7 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	}
 	err = server.Serve(listener)
 	cancel()
+	<-snapshotDone
 	<-viewportDone
 	<-watchDone
 	<-stopped
@@ -216,7 +221,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		switch r.URL.Path {
 		case "/health":
-			writeJSON(w, map[string]any{"status": "running", "task_file_error": s.Engine.ViewError(), "capabilities": []string{"core", "capture", "manual_completion", "aggregate_proposals", "review_timers", "replay", "browser_metadata", "browser_commands", "continuity_cli_v1", "progress_cli_v1", "task_dependencies_cli_v1", "scoped_progress_summary_v1", "preservation_manual_cli_v1", "workspace_declarations_cli_v1", "herdr_bindings_linux_v1", "hyprland_observation_cli_v1", "database_backup", "scoped_client_reads_v1", "scoped_checkpoint_writes_v1", "mcp_stdio_v1", "evidence_cli_v1", "evidence_revalidation_v1"}})
+			writeJSON(w, map[string]any{"status": "running", "task_file_error": s.Engine.ViewError(), "capabilities": []string{"core", "capture", "manual_completion", "aggregate_proposals", "review_timers", "replay", "browser_metadata", "browser_commands", "continuity_cli_v1", "progress_cli_v1", "task_dependencies_cli_v1", "scoped_progress_summary_v1", "preservation_manual_cli_v1", "workspace_declarations_cli_v1", "herdr_bindings_linux_v1", "hyprland_observation_cli_v1", "workspace_snapshots_cli_v1", "workspace_autosnapshot_policy_v1", "database_backup", "scoped_client_reads_v1", "scoped_checkpoint_writes_v1", "mcp_stdio_v1", "evidence_cli_v1", "evidence_revalidation_v1"}})
 		case "/state":
 			st, err := s.Engine.Store.State(r.Context())
 			if err != nil {

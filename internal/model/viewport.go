@@ -125,6 +125,7 @@ type DesktopWindow struct {
 // Coordinates are Hyprland global logical window coordinates. Monitor width and
 // height are physical pixels with scale/transform separately recorded.
 type DesktopSnapshot struct {
+	StartedAt         time.Time          `json:"started_at"`
 	Version           int                `json:"version"`
 	ID                string             `json:"id"`
 	SourceEpoch       string             `json:"source_epoch"`

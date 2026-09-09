@@ -19,7 +19,7 @@ import (
 
 var ErrConflict = errors.New("revision or idempotency conflict")
 
-const SchemaVersion = 14
+const SchemaVersion = 15
 
 type Event struct {
 	ID        int64           `json:"id"`
@@ -37,9 +37,10 @@ type Pending struct {
 	Payload                 any
 }
 type Change struct {
-	Revision int64
-	Events   []Pending
-	Result   any
+	SnapshotPayloads map[string]json.RawMessage
+	Revision         int64
+	Events           []Pending
+	Result           any
 }
 type Acceptance struct {
 	Hash     string          `json:"request_hash"`
@@ -51,9 +52,10 @@ type TaskChange struct {
 	Fields []string         `json:"fields"`
 }
 type Store struct {
-	mu   sync.Mutex
-	db   *sql.DB
-	lock *os.File
+	testSnapshotHook func(string)
+	mu               sync.Mutex
+	db               *sql.DB
+	lock             *os.File
 }
 
 func Open(dir string) (*Store, error) {
@@ -111,7 +113,7 @@ func Open(dir string) (*Store, error) {
  CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,event_version INTEGER NOT NULL,ts TEXT NOT NULL,subject TEXT NOT NULL,verb TEXT NOT NULL,actor TEXT NOT NULL,entity_id TEXT NOT NULL,command_id TEXT NOT NULL,payload TEXT NOT NULL CHECK(json_valid(payload)),idempotency_key TEXT NOT NULL UNIQUE);
  CREATE TABLE IF NOT EXISTS projection_state(id INTEGER PRIMARY KEY CHECK(id=1),body TEXT NOT NULL CHECK(json_valid(body)));
  CREATE TABLE IF NOT EXISTS commands(id TEXT PRIMARY KEY,request_hash TEXT NOT NULL,result TEXT NOT NULL);
- PRAGMA user_version=14;`)
+ ` + snapshotTables + `PRAGMA user_version=15;`)
 	if err != nil {
 		s.Close()
 		return nil, err
@@ -213,6 +215,28 @@ func (s *Store) TransactChecked(ctx context.Context, id, actor string, request [
 		if err = Apply(&st, e); err != nil {
 			return nil, err
 		}
+		if err = applySnapshotSQL(ctx, tx, st, e, change.SnapshotPayloads, false); err != nil {
+			return nil, err
+		}
+		if e.Subject == "snapshot" && e.Verb == "captured" && s.testSnapshotHook != nil {
+			s.testSnapshotHook("payload")
+		}
+	}
+	if len(change.SnapshotPayloads) > 0 {
+		for id := range change.SnapshotPayloads {
+			found := false
+			for _, event := range change.Events {
+				if event.Subject == "snapshot" && event.Verb == "captured" && event.EntityID == id {
+					found = true
+				}
+			}
+			if !found {
+				return nil, fmt.Errorf("unreferenced snapshot publication payload")
+			}
+		}
+		if err = snapshotCapacity(ctx, tx); err != nil {
+			return nil, err
+		}
 	}
 	// Validate after the complete atomic command: a multi-task reparent may
 	// have a transient intermediate graph that never becomes observable.
@@ -234,8 +258,14 @@ func (s *Store) TransactChecked(ctx context.Context, id, actor string, request [
 			return nil, err
 		}
 	}
+	if len(change.SnapshotPayloads) > 0 && s.testSnapshotHook != nil {
+		s.testSnapshotHook("before_commit")
+	}
 	if err = tx.Commit(); err != nil {
 		return nil, err
+	}
+	if len(change.SnapshotPayloads) > 0 && s.testSnapshotHook != nil {
+		s.testSnapshotHook("after_commit")
 	}
 	return result, nil
 }
@@ -257,6 +287,10 @@ func Apply(st *model.State, e Event) error {
 		return fmt.Errorf("unsupported event version %d at %d", e.Version, e.ID)
 	}
 	switch e.Subject + "." + e.Verb {
+	case "snapshot.captured", "snapshot.policy", "snapshot.pin", "snapshot.pruned":
+		if err := applySnapshot(st, e); err != nil {
+			return err
+		}
 	case "desktop.selected", "viewport.bound", "viewport.unbound":
 		if err := applyViewport(st, e); err != nil {
 			return err
@@ -401,6 +435,9 @@ func (s *Store) Replay(ctx context.Context) (model.State, error) {
 	if err != nil {
 		return empty, err
 	}
+	if _, err = tx.ExecContext(ctx, "DELETE FROM workspace_snapshots"); err != nil {
+		return empty, err
+	}
 	st := model.Empty()
 	// Validate/reduce entirely before replacing either projection.
 	for _, e := range events {
@@ -412,8 +449,14 @@ func (s *Store) Replay(ctx context.Context) (model.State, error) {
 		if err = Apply(&st, e); err != nil {
 			return empty, err
 		}
+		if err = applySnapshotSQL(ctx, tx, st, e, nil, true); err != nil {
+			return empty, err
+		}
 	}
 	if err = model.ValidateDependencyGraph(st); err != nil {
+		return empty, err
+	}
+	if err = validateSnapshotStorage(ctx, tx); err != nil {
 		return empty, err
 	}
 	if _, err = tx.ExecContext(ctx, "DELETE FROM commands"); err != nil {

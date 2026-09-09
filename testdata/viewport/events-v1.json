@@ -1,0 +1,361 @@
+[
+  {
+    "id": 1,
+    "event_version": 1,
+    "ts": "2026-09-09T07:52:23.912625328Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "109a7c9a38d4b2b882d483010912c7dc",
+    "command_id": "109a7c9a38d4b2b882d483010912c7dc",
+    "payload": {
+      "request_hash": "ef34e023ebac53cdec31d89c0815d7fd3e6006488417d115ad826d65915fb800",
+      "revision": 1,
+      "result": {
+        "id": "109a7c9a38d4b2b882d483010912c7dc",
+        "revision": 1,
+        "data": {
+          "task_id": "alpha"
+        }
+      }
+    }
+  },
+  {
+    "id": 2,
+    "event_version": 1,
+    "ts": "2026-09-09T07:52:23.912625328Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "alpha",
+    "command_id": "109a7c9a38d4b2b882d483010912c7dc",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "alpha",
+          "title": "Viewport task",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T07:52:23.912625328Z",
+        "updated_at": "2026-09-09T07:52:23.912625328Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "event_version": 1,
+    "ts": "2026-09-09T07:52:23.926927589Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "0c99fd2d92a760b14b55b96b16ee8083",
+    "command_id": "0c99fd2d92a760b14b55b96b16ee8083",
+    "payload": {
+      "request_hash": "ca8751cde91045afaf64d4450181d2cb048a07047034d7fd60cc9e86f9d63ce8",
+      "revision": 2,
+      "result": {
+        "id": "0c99fd2d92a760b14b55b96b16ee8083",
+        "revision": 2,
+        "data": {
+          "task_id": "beta"
+        }
+      }
+    }
+  },
+  {
+    "id": 4,
+    "event_version": 1,
+    "ts": "2026-09-09T07:52:23.926927589Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "beta",
+    "command_id": "0c99fd2d92a760b14b55b96b16ee8083",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "beta",
+          "title": "Other task",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T07:52:23.926927589Z",
+        "updated_at": "2026-09-09T07:52:23.926927589Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 5,
+    "event_version": 1,
+    "ts": "2026-09-09T07:52:23.935776052Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "workspace-ddbcf77474b693fc05153ab77a85f7d6",
+    "command_id": "workspace-ddbcf77474b693fc05153ab77a85f7d6",
+    "payload": {
+      "request_hash": "82ee19ea7f3a54fb96d3cbe1553cb2c039eccc308a2bfd6f92ed57282cb91ad1",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "ddbcf77474b693fc05153ab77a85f7d6",
+        "target": "alpha",
+        "task_revision": 1,
+        "previous": "",
+        "name": "Planning",
+        "surfaces": [
+          {
+            "id": "298f9f5baa3f7cce64ef518df1db2df0",
+            "kind": "terminal",
+            "label": "Shell",
+            "required": true,
+            "restore_policy": "manual"
+          }
+        ],
+        "actor": "cli",
+        "at": "2026-09-09T07:52:23.935776052Z"
+      }
+    }
+  },
+  {
+    "id": 6,
+    "event_version": 1,
+    "ts": "2026-09-09T07:52:23.935776052Z",
+    "subject": "workspace",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "ddbcf77474b693fc05153ab77a85f7d6",
+    "command_id": "workspace-ddbcf77474b693fc05153ab77a85f7d6",
+    "payload": {
+      "version": 1,
+      "id": "ddbcf77474b693fc05153ab77a85f7d6",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "name": "Planning",
+      "surfaces": [
+        {
+          "id": "298f9f5baa3f7cce64ef518df1db2df0",
+          "kind": "terminal",
+          "label": "Shell",
+          "required": true,
+          "restore_policy": "manual"
+        }
+      ],
+      "actor": "cli",
+      "at": "2026-09-09T07:52:23.935776052Z"
+    }
+  },
+  {
+    "id": 7,
+    "event_version": 1,
+    "ts": "2026-09-09T07:52:23.950465794Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "viewport-082e995509eeac5e3af46e97a73034a9",
+    "command_id": "viewport-082e995509eeac5e3af46e97a73034a9",
+    "payload": {
+      "request_hash": "33540f208aa5352937535c7535315280de9b234c25ed5db1d5b1e3ccb2097f05",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "082e995509eeac5e3af46e97a73034a9",
+        "previous": "",
+        "active": true,
+        "socket_dir": "/tmp/heimdall-hypr-pci4cN",
+        "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+        "epoch": "3caf9d1339f5d8cf63f1db9186af870b251eab8c2db21a7d7cd59885f002edaf",
+        "compositor_version": "0.56.2",
+        "actor": "cli",
+        "at": "2026-09-09T07:52:23.950465794Z"
+      }
+    }
+  },
+  {
+    "id": 8,
+    "event_version": 1,
+    "ts": "2026-09-09T07:52:23.950465794Z",
+    "subject": "desktop",
+    "verb": "selected",
+    "actor": "cli",
+    "entity_id": "082e995509eeac5e3af46e97a73034a9",
+    "command_id": "viewport-082e995509eeac5e3af46e97a73034a9",
+    "payload": {
+      "version": 1,
+      "id": "082e995509eeac5e3af46e97a73034a9",
+      "previous": "",
+      "active": true,
+      "socket_dir": "/tmp/heimdall-hypr-pci4cN",
+      "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+      "epoch": "3caf9d1339f5d8cf63f1db9186af870b251eab8c2db21a7d7cd59885f002edaf",
+      "compositor_version": "0.56.2",
+      "actor": "cli",
+      "at": "2026-09-09T07:52:23.950465794Z"
+    }
+  },
+  {
+    "id": 9,
+    "event_version": 1,
+    "ts": "2026-09-09T07:52:23.967895882Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "viewport-3ae623119034d8f4771b66e1cf11d9f1",
+    "command_id": "viewport-3ae623119034d8f4771b66e1cf11d9f1",
+    "payload": {
+      "request_hash": "1dbfd61064bf29be7ac71dea2f679b9bb25e4dcfc9b173678bd3059696afd0d8",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "3ae623119034d8f4771b66e1cf11d9f1",
+        "target": "alpha",
+        "task_revision": 1,
+        "manifest_id": "ddbcf77474b693fc05153ab77a85f7d6",
+        "surface_id": "298f9f5baa3f7cce64ef518df1db2df0",
+        "previous": "",
+        "active": true,
+        "source_id": "082e995509eeac5e3af46e97a73034a9",
+        "snapshot_id": "e1fc4a3674b9410da5dd32e0180ca636a00ba88d615a9979237c79d0e80133de",
+        "window": {
+          "source_epoch": "3caf9d1339f5d8cf63f1db9186af870b251eab8c2db21a7d7cd59885f002edaf",
+          "stable_id": "18000001"
+        },
+        "actor": "cli",
+        "at": "2026-09-09T07:52:23.967895882Z"
+      }
+    }
+  },
+  {
+    "id": 10,
+    "event_version": 1,
+    "ts": "2026-09-09T07:52:23.967895882Z",
+    "subject": "viewport",
+    "verb": "bound",
+    "actor": "cli",
+    "entity_id": "3ae623119034d8f4771b66e1cf11d9f1",
+    "command_id": "viewport-3ae623119034d8f4771b66e1cf11d9f1",
+    "payload": {
+      "version": 1,
+      "id": "3ae623119034d8f4771b66e1cf11d9f1",
+      "target": "alpha",
+      "task_revision": 1,
+      "manifest_id": "ddbcf77474b693fc05153ab77a85f7d6",
+      "surface_id": "298f9f5baa3f7cce64ef518df1db2df0",
+      "previous": "",
+      "active": true,
+      "source_id": "082e995509eeac5e3af46e97a73034a9",
+      "snapshot_id": "e1fc4a3674b9410da5dd32e0180ca636a00ba88d615a9979237c79d0e80133de",
+      "window": {
+        "source_epoch": "3caf9d1339f5d8cf63f1db9186af870b251eab8c2db21a7d7cd59885f002edaf",
+        "stable_id": "18000001"
+      },
+      "actor": "cli",
+      "at": "2026-09-09T07:52:23.967895882Z"
+    }
+  },
+  {
+    "id": 11,
+    "event_version": 1,
+    "ts": "2026-09-09T07:52:24.109149564Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "grant-5fd241196a0bc397131026e439f063ca",
+    "command_id": "grant-5fd241196a0bc397131026e439f063ca",
+    "payload": {
+      "request_hash": "03a3fe2781879dae5975f7dc5b48a9f38065597686ac38fedf8d7afa2c4fa069",
+      "revision": 2,
+      "result": {
+        "id": "5fd241196a0bc397131026e439f063ca",
+        "name": "No desktop authority",
+        "target": "alpha",
+        "subtree": false,
+        "resource_ids": [],
+        "expires_at": "2026-09-09T08:52:24.099Z",
+        "capabilities": [
+          "task.read",
+          "history.read",
+          "context.read"
+        ]
+      }
+    }
+  },
+  {
+    "id": 12,
+    "event_version": 1,
+    "ts": "2026-09-09T07:52:24.109149564Z",
+    "subject": "grant",
+    "verb": "issued",
+    "actor": "cli",
+    "entity_id": "5fd241196a0bc397131026e439f063ca",
+    "command_id": "grant-5fd241196a0bc397131026e439f063ca",
+    "payload": {
+      "version": 1,
+      "id": "5fd241196a0bc397131026e439f063ca",
+      "name": "No desktop authority",
+      "target": "alpha",
+      "subtree": false,
+      "resource_ids": [],
+      "token_hash": "6443570abdbda9e99ab09f8624aff685c941e1d4a93555125a5346130f5be271",
+      "expires_at": "2026-09-09T08:52:24.099Z",
+      "at": "2026-09-09T07:52:24.109149564Z",
+      "actor": "cli"
+    }
+  }
+]

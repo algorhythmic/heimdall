@@ -16,6 +16,8 @@ func (s *Server) workspaceHTTP(w http.ResponseWriter, r *http.Request) {
 	var err error
 	q := r.URL.Query()
 	switch {
+	case strings.HasPrefix(r.URL.Path, "/workspace/viewport/"):
+		result, err = s.viewportHTTP(w, r)
 	case strings.HasPrefix(r.URL.Path, "/workspace/herdr/"):
 		result, err = s.herdrHTTP(w, r)
 	case r.Method == "GET" && r.URL.Path == "/workspace/state":

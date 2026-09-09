@@ -37,6 +37,12 @@ func applyWorkspace(st *model.State, e Event) error {
 			}
 			present[surface.ID] = true
 		}
+		for id, head := range st.ViewportHeads {
+			b := st.ViewportBindings[head]
+			if b.Target == v.Target && b.Active && !present[id] {
+				return fmt.Errorf("unbind viewport before removing its desired surface")
+			}
+		}
 		for id, head := range st.SessionHeads {
 			b := st.SessionBindings[head]
 			if b.Target == v.Target && b.Active && !present[id] {

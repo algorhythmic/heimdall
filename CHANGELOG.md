@@ -1,5 +1,12 @@
 # Development milestones
 
+## Unreleased — W02 read-only Hyprland observation (2026-09-09)
+
+- Explicit source probe/select/stop, buffered bootstrap, periodic reconciliation, known event-gap and freshness diagnostics for local Hyprland 0.56.2.
+- Immutable task/surface viewport bindings use a compositor process/socket epoch plus native stable window ID; duplicate titles, moved windows and reused addresses never infer ownership.
+- Task views expose only explicitly bound windows. Session joins remain declarations with unverified pane attachment; browser profile pairing awaits C13.
+- Schema 14 preserves old records, grants and exact retries with stopped schema-13 upgrade/refusal/rollback. Inventories remain bounded memory; no desktop action or durable restoration point is added.
+
 ## P04 task dependencies and scoped summaries — 2026-09-09
 
 - Add immutable task dependency add/remove records with both endpoint revisions, exact prior heads and cycle checks across dependencies and hierarchy. Task edits/imports validate the final atomic graph; replay preserves the same boundary.

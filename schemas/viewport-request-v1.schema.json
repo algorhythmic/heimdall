@@ -1,0 +1,278 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heimdall.local/schemas/viewport-request-v1.schema.json",
+  "title": "W02 source selection and explicit viewport binding request",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "id",
+    "op",
+    "previous"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{32}$"
+    },
+    "op": {
+      "enum": [
+        "select",
+        "stop",
+        "bind",
+        "unbind"
+      ]
+    },
+    "previous": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        {
+          "const": "none"
+        }
+      ]
+    },
+    "target": {
+      "type": "string"
+    },
+    "expected_task_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "socket_dir",
+        "host",
+        "epoch"
+      ],
+      "properties": {
+        "socket_dir": {
+          "type": "string",
+          "pattern": "^/",
+          "maxLength": 4096
+        },
+        "host": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "epoch": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    },
+    "binding": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "manifest_id",
+        "surface_id"
+      ],
+      "properties": {
+        "manifest_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "surface_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "source_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        },
+        "snapshot_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "window": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "source_epoch",
+            "stable_id"
+          ],
+          "properties": {
+            "source_epoch": {
+              "type": "string",
+              "pattern": "^[0-9a-f]{64}$"
+            },
+            "stable_id": {
+              "type": "string",
+              "pattern": "^[1-9a-f][0-9a-f]{0,15}$"
+            }
+          }
+        },
+        "session_binding_id": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{32}$"
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "op": {
+            "const": "select"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "source"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "target"
+              ]
+            },
+            {
+              "required": [
+                "expected_task_revision"
+              ]
+            },
+            {
+              "required": [
+                "binding"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "op": {
+            "const": "stop"
+          }
+        }
+      },
+      "then": {
+        "required": [],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "target"
+              ]
+            },
+            {
+              "required": [
+                "expected_task_revision"
+              ]
+            },
+            {
+              "required": [
+                "binding"
+              ]
+            },
+            {
+              "required": [
+                "source"
+              ]
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "op": {
+            "const": "bind"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "target",
+          "expected_task_revision",
+          "binding"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "source"
+              ]
+            }
+          ]
+        },
+        "properties": {
+          "binding": {
+            "required": [
+              "source_id",
+              "snapshot_id",
+              "window"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "op": {
+            "const": "unbind"
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "target",
+          "expected_task_revision",
+          "binding"
+        ],
+        "not": {
+          "anyOf": [
+            {
+              "required": [
+                "source"
+              ]
+            }
+          ]
+        },
+        "properties": {
+          "binding": {
+            "not": {
+              "anyOf": [
+                {
+                  "required": [
+                    "source_id"
+                  ]
+                },
+                {
+                  "required": [
+                    "snapshot_id"
+                  ]
+                },
+                {
+                  "required": [
+                    "window"
+                  ]
+                },
+                {
+                  "required": [
+                    "session_binding_id"
+                  ]
+                }
+              ]
+            }
+          }
+        }
+      }
+    }
+  ]
+}

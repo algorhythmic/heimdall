@@ -130,6 +130,10 @@ type Timer struct {
 	Outcome string    `json:"outcome,omitempty"`
 }
 type State struct {
+	DesktopSources        map[string]DesktopSource        `json:"desktop_sources"`
+	DesktopSourceHead     string                          `json:"desktop_source_head"`
+	ViewportBindings      map[string]ViewportBinding      `json:"viewport_bindings"`
+	ViewportHeads         map[string]string               `json:"viewport_heads"`
 	Dependencies          map[string]TaskDependency       `json:"dependencies"`
 	DependencyHeads       map[string]string               `json:"dependency_heads"`
 	PreservationPlans     map[string]PreservationPlan     `json:"preservation_plans"`

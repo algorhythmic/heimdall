@@ -1,5 +1,7 @@
 # Capability and authority ledger
 
+W02 adds local CLI-only `/workspace/viewport/*` probe, source selection, inventory, explicit bind/unbind and task views. Selection authorizes read-only background observation of one pinned compositor source. No scoped/MCP/browser credential gains desktop reads or actions. Window ownership requires exact source/stable identity and a current task/surface manifest; title/class/PID similarity grants nothing. Browser surfaces require the later C13 handshake. Schema 14 preserves previous authority; replay never opens IPC sockets.
+
 P04 adds CLI-only dependency add/remove/history and read-only summaries. Existing scoped clients can read summaries and currently visible prerequisite relations; invisible prerequisites collapse to an opaque placeholder. Scope, expiry and cursor identity are checked on every request. No file observation, completion or dispatch authority is added. Schema 13 preserves earlier credentials and events.
 
 P03 adds local CLI-only preservation preview/request/observe/show/list/export. Browser and scoped MCP/client credentials acquire no access. Stored observations and operator reports confer no completion or dispatch authority. Remote checks are explicit, read-only, bounded and pinned to the plan destination. No private clone is automatically bound or modified. Schema 12 retains all earlier event versions.

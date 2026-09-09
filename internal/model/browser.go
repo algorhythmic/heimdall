@@ -40,6 +40,15 @@ type BrowserOperation struct {
 }
 
 func (s *State) Normalize() {
+	if s.DesktopSources == nil {
+		s.DesktopSources = map[string]DesktopSource{}
+	}
+	if s.ViewportBindings == nil {
+		s.ViewportBindings = map[string]ViewportBinding{}
+	}
+	if s.ViewportHeads == nil {
+		s.ViewportHeads = map[string]string{}
+	}
 	if s.Dependencies == nil {
 		s.Dependencies = map[string]TaskDependency{}
 	}

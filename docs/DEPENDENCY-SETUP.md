@@ -114,7 +114,7 @@ Clients cannot request all-project scope or reach CLI dependency mutation/histor
 routes. Browser credentials gain no dependency or summary access. No resource
 observation or execution permission is added to a read grant.
 
-Schema 13 preserves previous event families and exact receipts; startup publishes
-`backups/pre-schema-13-*.db` before upgrading older data. Rollback uses the stopped
+Dependencies were introduced in schema 13. The current schema 14 preserves previous event families and exact receipts; startup publishes
+`backups/pre-schema-14-*.db` before upgrading older data. Rollback uses the stopped
 pre-upgrade snapshot and its matching old binary. See [request schema](../schemas/dependency-request-v1.schema.json),
 [verification](VERIFICATION.md) and [roadmap](REVISED-ROADMAP-IMPLEMENTATION-PLAN.md).

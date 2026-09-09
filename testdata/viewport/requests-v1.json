@@ -1,0 +1,49 @@
+[
+  {
+    "version": 1,
+    "id": "cbdcc8a1df3552736f3610e37a37743a",
+    "op": "select",
+    "previous": "none",
+    "source": {
+      "socket_dir": "/tmp/heimdall-hypr-hIN4lp",
+      "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+      "epoch": "578e17d69d0edaecc0d915f66ce569ef9ddaf9996b714fa1629d6efb058d9844"
+    }
+  },
+  {
+    "version": 1,
+    "id": "db66d798b909334ef10215f0431c1ebd",
+    "op": "bind",
+    "previous": "none",
+    "target": "alpha",
+    "expected_task_revision": 1,
+    "binding": {
+      "manifest_id": "c4bdc7a865a04edc21ebd67858043c3e",
+      "surface_id": "276e6379d52b3fa51a66d90a3cc6df49",
+      "source_id": "cbdcc8a1df3552736f3610e37a37743a",
+      "snapshot_id": "68c4c6af4ab0c2386472e253de9143059e7b812fff08fb1222f9c37c2432d062",
+      "window": {
+        "source_epoch": "578e17d69d0edaecc0d915f66ce569ef9ddaf9996b714fa1629d6efb058d9844",
+        "stable_id": "18000001"
+      }
+    }
+  },
+  {
+    "version": 1,
+    "id": "d5dc6de72f8987107497c4bd67230fce",
+    "op": "unbind",
+    "previous": "db66d798b909334ef10215f0431c1ebd",
+    "target": "alpha",
+    "expected_task_revision": 1,
+    "binding": {
+      "manifest_id": "c4bdc7a865a04edc21ebd67858043c3e",
+      "surface_id": "276e6379d52b3fa51a66d90a3cc6df49"
+    }
+  },
+  {
+    "version": 1,
+    "id": "72391c2f74fa5cf395160c4a6407e6a7",
+    "op": "stop",
+    "previous": "cbdcc8a1df3552736f3610e37a37743a"
+  }
+]

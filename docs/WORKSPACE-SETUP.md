@@ -129,9 +129,9 @@ stale task/head preconditions are rejected, and input files are retained.
   Requests and records are limited to 64 KiB; scoped current/individual reads to
   512 KiB. There is no unbounded history endpoint. Unknown fields, versions,
   control characters and launch policies are rejected.
-- Database marker 13 retains workspace/session, observed Herdr records and [P01 artifacts](ARTIFACT-SETUP.md), and adds [P02 progress review](PROGRESS-SETUP.md). Before upgrading an
+- Database marker 14 retains workspace/session, observed Herdr records and [P01 artifacts](ARTIFACT-SETUP.md), and adds [P02 progress review](PROGRESS-SETUP.md). Before upgrading an
   existing marker 1–8 database, Heimdall creates a consistent
-  `backups/pre-schema-13-*.db`. Older binaries refuse marker 13. To roll back, stop
+  `backups/pre-schema-14-*.db`. Older binaries refuse marker 14. To roll back, stop
   Heimdall, preserve the current data directory, and copy the pre-upgrade database
   as `heimdall.db` into a **fresh** data directory with the compatible `types.yaml`.
   Start the old binary against that directory. Post-backup changes are absent;

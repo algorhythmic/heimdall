@@ -96,6 +96,17 @@ func (s *Server) clientHTTP(w http.ResponseWriter, r *http.Request, token string
 		}
 		var result any
 		switch r.URL.Path {
+		case "/client/summary":
+			var options continuity.SummaryOptions
+			options, err = summaryOptions(r.URL.Query())
+			if err == nil {
+				result, err = continuity.ScopedProgressOverview(st, g, options)
+			}
+		case "/client/dependencies":
+			if !model.ValidID(target) {
+				return fmt.Errorf("dependencies require a task target")
+			}
+			result = continuity.DependencyViews(st, target, func(on string) bool { return g.Contains(st, on) })
 		case "/client/task":
 			result, _, err = model.ResolveTarget(st, target)
 		case "/client/context":

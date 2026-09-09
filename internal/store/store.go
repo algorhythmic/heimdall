@@ -19,7 +19,7 @@ import (
 
 var ErrConflict = errors.New("revision or idempotency conflict")
 
-const SchemaVersion = 12
+const SchemaVersion = 13
 
 type Event struct {
 	ID        int64           `json:"id"`
@@ -111,7 +111,7 @@ func Open(dir string) (*Store, error) {
  CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,event_version INTEGER NOT NULL,ts TEXT NOT NULL,subject TEXT NOT NULL,verb TEXT NOT NULL,actor TEXT NOT NULL,entity_id TEXT NOT NULL,command_id TEXT NOT NULL,payload TEXT NOT NULL CHECK(json_valid(payload)),idempotency_key TEXT NOT NULL UNIQUE);
  CREATE TABLE IF NOT EXISTS projection_state(id INTEGER PRIMARY KEY CHECK(id=1),body TEXT NOT NULL CHECK(json_valid(body)));
  CREATE TABLE IF NOT EXISTS commands(id TEXT PRIMARY KEY,request_hash TEXT NOT NULL,result TEXT NOT NULL);
- PRAGMA user_version=12;`)
+ PRAGMA user_version=13;`)
 	if err != nil {
 		s.Close()
 		return nil, err
@@ -214,6 +214,11 @@ func (s *Store) TransactChecked(ctx context.Context, id, actor string, request [
 			return nil, err
 		}
 	}
+	// Validate after the complete atomic command: a multi-task reparent may
+	// have a transient intermediate graph that never becomes observable.
+	if err = model.ValidateDependencyGraph(st); err != nil {
+		return nil, err
+	}
 	b, err := json.Marshal(st)
 	if err != nil {
 		return nil, err
@@ -252,6 +257,10 @@ func Apply(st *model.State, e Event) error {
 		return fmt.Errorf("unsupported event version %d at %d", e.Version, e.ID)
 	}
 	switch e.Subject + "." + e.Verb {
+	case "dependency.recorded":
+		if err := applyDependency(st, e); err != nil {
+			return err
+		}
 	case "preservation.requested", "preservation.observed":
 		if err := applyPreservation(st, e); err != nil {
 			return err
@@ -391,9 +400,17 @@ func (s *Store) Replay(ctx context.Context) (model.State, error) {
 	st := model.Empty()
 	// Validate/reduce entirely before replacing either projection.
 	for _, e := range events {
+		if e.Subject == "command" {
+			if err = model.ValidateDependencyGraph(st); err != nil {
+				return empty, err
+			}
+		}
 		if err = Apply(&st, e); err != nil {
 			return empty, err
 		}
+	}
+	if err = model.ValidateDependencyGraph(st); err != nil {
+		return empty, err
 	}
 	if _, err = tx.ExecContext(ctx, "DELETE FROM commands"); err != nil {
 		return empty, err

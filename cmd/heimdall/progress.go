@@ -13,6 +13,9 @@ import (
 )
 
 func progressCLI(ctx context.Context, o options, args []string, out io.Writer) error {
+	if len(args) > 0 && args[0] == "summary" {
+		return summaryCLI(ctx, o, args[1:], out)
+	}
 	if len(args) < 2 {
 		return fmt.Errorf("progress propose|review|list|show TARGET requires explicit target")
 	}

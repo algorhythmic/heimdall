@@ -351,3 +351,23 @@ func TestDraftSuccessAndPasteNeverInvokesActions(t *testing.T) {
 		t.Fatal("paste executed shortcut")
 	}
 }
+
+func TestDashboardShowsRecordedDependencyStatus(t *testing.T) {
+	f := newFixture(t)
+	_, err := f.service.Dependency(f.ctx, continuity.DependencyRequest{Version: 1, ID: model.NewID(), Target: "alpha", DependsOn: "beta", ExpectedTaskRevision: 1, ExpectedPrerequisiteRevision: 1, Previous: "none", Op: "add", Reason: "Reviewed prerequisite"}, "cli", f.now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	f.a.selected = "alpha"
+	f.reload(t)
+	f.a.Draw()
+	if !strings.Contains(f.a.Text(), "depends") || !strings.Contains(f.a.Text(), "beta task · pending") {
+		t.Fatal(f.a.Text())
+	}
+	before, _ := f.e.Store.State(f.ctx)
+	f.a.Draw()
+	after, _ := f.e.Store.State(f.ctx)
+	if !reflect.DeepEqual(before, after) {
+		t.Fatal("dependency display mutated state")
+	}
+}

@@ -130,6 +130,8 @@ type Timer struct {
 	Outcome string    `json:"outcome,omitempty"`
 }
 type State struct {
+	Dependencies          map[string]TaskDependency       `json:"dependencies"`
+	DependencyHeads       map[string]string               `json:"dependency_heads"`
 	PreservationPlans     map[string]PreservationPlan     `json:"preservation_plans"`
 	PreservationReceipts  map[string]PreservationReceipt  `json:"preservation_receipts"`
 	PreservationHeads     map[string]string               `json:"preservation_heads"`

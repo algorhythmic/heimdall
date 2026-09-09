@@ -402,6 +402,14 @@ func (a *App) contextLines() []line {
 		add("next", v.Task.Task.NextAction, fg)
 	}
 	files := line{{"files      ", gray}}
+	deps := continuity.DependencyViews(a.data.State, rootOf(a.selected), func(string) bool { return true })
+	for _, d := range deps {
+		color := gold
+		if d.Status == "satisfied" {
+			color = green
+		}
+		add("depends", d.Title+" · "+d.Status, color)
+	}
 	if len(v.Resources) == 0 {
 		files = append(files, span{"No bound resources", gray})
 	}

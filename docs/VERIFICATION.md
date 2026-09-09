@@ -1,6 +1,15 @@
-# Verification — terminal/editor continuity, initial W01/T02/P01/P02/P03, schema 12
+# Verification — terminal/editor continuity, initial W01/T02/P01/P02/P03/P04, schema 13
 
-Current R0/T01–T03 and initial W01/T02/P01/P02/P03 work was verified locally on Linux/amd64. Historical results below retain their original milestone scope. Published checks run on Windows and Ubuntu; [GitHub Actions](https://github.com/algorhythmic/heimdall/actions) records subsequent runs.
+Current R0/T01–T03 and initial W01/T02/P01/P02/P03/P04 work was verified locally on Linux/amd64. Historical results below retain their original milestone scope. Published checks run on Windows and Ubuntu; [GitHub Actions](https://github.com/algorhythmic/heimdall/actions) records subsequent runs.
+
+## P04 task dependencies and scoped summaries — 2026-09-09
+
+- Full Go tests and vet pass with Go 1.27.1. Race checks pass for continuity, core, store, daemon and TUI. Linux build and Windows/amd64 cross-build pass; Windows was compiled, not executed locally. Linux SHA-256: `d13ccfcdfe9dd10c06e8e069be96c0e79ae542fdab7edb383a68bd56a5215808`; Windows: `f310671a14d6db5d0b68c5f3bd02e805fceb693121f6e8a99a4792da246e4341`.
+- Tests cover direct/transitive dependency cycles, endpoint revision conflicts, exact prior heads, immutable add/remove/retry history, completion/reopen-derived statuses, and cycles introduced by reparenting. A valid atomic multi-task reparent with a transient intermediate cycle commits and replays; invalid final graphs roll back. Request/golden-event fixtures reject forged actors, versions, revisions, IDs and graph changes and verify the event cursor advances.
+- Scoped summaries have explicit checkpoint/due/ID ordering, bounded pagination and grant/scope/event-bound cursors. Moving a prerequisite out of a subtree removes its ID/title/reason/history/status; invisible edges collapse to one placeholder. Revocation denies summary/dependency reads. Browser/scoped tokens cannot reach CLI mutation or history routes. Existing step-after semantics and a real task named `all` remain intact. Summary rendering changes no state.
+- Final compiled P04 acceptance passed in `.tools/dependency-test-EcPGbR`: CLI relations, cycles/stale revisions/removal, saved-checkpoint and pending-decision summaries, scope/pagination/revocation, read-only queries, SIGKILL/restart exact receipts, inert replay and restored backup. No external adapters or agents are dispatched.
+- Actual schema-12 binary upgrade/refusal/rollback passed in `.tools/continuity-test-5cQbYP`, including old-grant limits. Stopped schema-6 through schema-12 fixtures preserve historical events, projections and exact receipts. P03 compiled regression passed in `.tools/preservation-test-QQQME6`; TUI snapshot and real-PTY regression passed in `.tools/tui-test-ryOsJD`. TUI simulation also checks the new dependency status line.
+- P03 commit `283e0ce` passed both published CI jobs before P04. P04 planning relations do not add completion evaluators, resource observations, proposal-write grants, ranked planning or automatic continuation. These remain separate contracts/work. R3/W02 read-only workspace observation is next.
 
 ## P03 manual preservation — 2026-09-09
 

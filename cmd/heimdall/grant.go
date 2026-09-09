@@ -143,12 +143,14 @@ func grantCLI(ctx context.Context, o options, verb string, args []string, out io
 		}
 		return json.NewEncoder(out).Encode(map[string]any{"id": id, "credential_file": path, "status": "grant_recorded"})
 	}
-	if verb != "client" || !model.Contains([]string{"task", "history", "context", "checkpoint"}, action) {
+	if verb != "client" || !model.Contains([]string{"task", "history", "context", "checkpoint", "summary", "dependencies"}, action) {
 		return fmt.Errorf("unsupported grant/client action")
 	}
 	kind := f.String("kind", "checkpoint", "history kind")
 	limit := f.Int("limit", 20, "history page size")
 	cursor := f.String("cursor", "", "history cursor")
+	summarySort := f.String("sort", "checkpoint", "summary ordering: checkpoint, due or id")
+	summarySubtree := f.Bool("subtree", false, "include visible descendants in summary")
 	budget := f.Int("budget", 16000, "context estimate budget")
 	file := f.String("file", "", "checkpoint input JSON")
 	revision := f.Int64("expected-task-revision", 0, "observed task revision")
@@ -198,6 +200,12 @@ func grantCLI(ctx context.Context, o options, verb string, args []string, out io
 	}
 	if action == "context" {
 		q.Set("budget", strconv.Itoa(*budget))
+	}
+	if action == "summary" {
+		q.Set("sort", *summarySort)
+		q.Set("subtree", strconv.FormatBool(*summarySubtree))
+		q.Set("limit", strconv.Itoa(*limit))
+		q.Set("cursor", *cursor)
 	}
 	return print(scoped.Call(ctx, "GET", "/client/"+action+"?"+q.Encode(), nil))
 }

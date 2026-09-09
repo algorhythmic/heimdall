@@ -152,9 +152,9 @@ to write their legacy checkpoint format and cannot submit artifact references.
 
 ## Migration and verification
 
-Database markers 1–11 upgrade to **12**, after a consistent
-`backups/pre-schema-12-*.db` is published under the writer lock. A failed backup
-aborts migration. Older binaries refuse marker 12. Roll back by stopping the
+Database markers 1–12 upgrade to **13**, after a consistent
+`backups/pre-schema-13-*.db` is published under the writer lock. A failed backup
+aborts migration. Older binaries refuse marker 13. Roll back by stopping the
 daemon and opening the pre-upgrade snapshot with its original compatible binary
 in a fresh directory with matching `types.yaml`. Post-upgrade events are absent
 from that snapshot. See [backup instructions](CONTINUITY-SETUP.md#backup-upgrade-and-restore).

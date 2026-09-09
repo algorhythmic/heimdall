@@ -1,0 +1,57 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heimdall.local/schemas/dependency-request-v1.schema.json",
+  "title": "Task dependency request v1",
+  "description": "CLI-authored planning relation. Semantic validation requires distinct existing tasks, current endpoint revisions, exact previous relation head and an acyclic dependency/hierarchy graph. Step prerequisites remain in task After fields.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "id",
+    "target",
+    "depends_on",
+    "expected_task_revision",
+    "expected_prerequisite_revision",
+    "previous",
+    "op",
+    "reason"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    },
+    "target": {
+      "type": "string"
+    },
+    "depends_on": {
+      "type": "string"
+    },
+    "expected_task_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "expected_prerequisite_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "previous": {
+      "type": "string",
+      "pattern": "^(none|[a-f0-9]{32})$"
+    },
+    "op": {
+      "enum": [
+        "add",
+        "remove"
+      ]
+    },
+    "reason": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 4096
+    }
+  }
+}

@@ -1,0 +1,877 @@
+[
+  {
+    "id": 1,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.088636844Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "dd8803eaf3b799b40699bd304074873b",
+    "command_id": "dd8803eaf3b799b40699bd304074873b",
+    "payload": {
+      "request_hash": "09a32b2afbc4b7151e2255a638f2111a61a20c5413e74e1c8383b3f58803f06f",
+      "revision": 1,
+      "result": {
+        "id": "dd8803eaf3b799b40699bd304074873b",
+        "revision": 1,
+        "data": {
+          "task_id": "root"
+        }
+      }
+    }
+  },
+  {
+    "id": 2,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.088636844Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "root",
+    "command_id": "dd8803eaf3b799b40699bd304074873b",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "root",
+          "title": "Root",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T07:21:33.088636844Z",
+        "updated_at": "2026-09-09T07:21:33.088636844Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.098128169Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "09a813d60523a88d5fb2749c19475328",
+    "command_id": "09a813d60523a88d5fb2749c19475328",
+    "payload": {
+      "request_hash": "25664fee21a1a47ac40e03ff5c62b8382714a3d73e231f3c10257a35bcf685e3",
+      "revision": 2,
+      "result": {
+        "id": "09a813d60523a88d5fb2749c19475328",
+        "revision": 2,
+        "data": {
+          "task_id": "alpha"
+        }
+      }
+    }
+  },
+  {
+    "id": 4,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.098128169Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "alpha",
+    "command_id": "09a813d60523a88d5fb2749c19475328",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "alpha",
+          "parent": "root",
+          "title": "Own task",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T07:21:33.098128169Z",
+        "updated_at": "2026-09-09T07:21:33.098128169Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 5,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.107321386Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "650961be3ad7a3d316d66b6da97941f7",
+    "command_id": "650961be3ad7a3d316d66b6da97941f7",
+    "payload": {
+      "request_hash": "b51c00eae63855bb9565e84cbc82b0abed7af5fd468b81a61181a20df9f23517",
+      "revision": 3,
+      "result": {
+        "id": "650961be3ad7a3d316d66b6da97941f7",
+        "revision": 3,
+        "data": {
+          "task_id": "beta"
+        }
+      }
+    }
+  },
+  {
+    "id": 6,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.107321386Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "beta",
+    "command_id": "650961be3ad7a3d316d66b6da97941f7",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "beta",
+          "title": "Private prerequisite",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T07:21:33.107321386Z",
+        "updated_at": "2026-09-09T07:21:33.107321386Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 7,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.116551305Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "fcd6fd9e808abbaddc79b913ab82c52d",
+    "command_id": "fcd6fd9e808abbaddc79b913ab82c52d",
+    "payload": {
+      "request_hash": "a9495fd4b1ef5ac3cf98f47c5b5c05cc34fd1bf7be8cd3d7605cfbfe703ec9a8",
+      "revision": 4,
+      "result": {
+        "id": "fcd6fd9e808abbaddc79b913ab82c52d",
+        "revision": 4,
+        "data": {
+          "task_id": "gamma"
+        }
+      }
+    }
+  },
+  {
+    "id": 8,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.116551305Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "gamma",
+    "command_id": "fcd6fd9e808abbaddc79b913ab82c52d",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "gamma",
+          "title": "Third project",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T07:21:33.116551305Z",
+        "updated_at": "2026-09-09T07:21:33.116551305Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 9,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.125461714Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-4731b1a5af731af6f1fead3dc0b433d9",
+    "command_id": "continuity-4731b1a5af731af6f1fead3dc0b433d9",
+    "payload": {
+      "request_hash": "c81bb31a80fa8518ae7bba5f3b1692e03300ff819a544af93822601c13ddacce",
+      "revision": 4,
+      "result": {
+        "version": 2,
+        "id": "4731b1a5af731af6f1fead3dc0b433d9",
+        "target": "alpha",
+        "task_revision": 1,
+        "previous": "",
+        "objective": "Preserve accepted direction",
+        "constraints": [],
+        "acceptance": {
+          "text": ""
+        },
+        "actor": "cli",
+        "at": "2026-09-09T07:21:33.125461714Z"
+      }
+    }
+  },
+  {
+    "id": 10,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.125461714Z",
+    "subject": "contract",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "4731b1a5af731af6f1fead3dc0b433d9",
+    "command_id": "continuity-4731b1a5af731af6f1fead3dc0b433d9",
+    "payload": {
+      "version": 2,
+      "id": "4731b1a5af731af6f1fead3dc0b433d9",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "objective": "Preserve accepted direction",
+      "constraints": [],
+      "acceptance": {
+        "text": ""
+      },
+      "actor": "cli",
+      "at": "2026-09-09T07:21:33.125461714Z"
+    }
+  },
+  {
+    "id": 11,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.132688002Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-bca95666f4efdf47b1cac1294246dcf6",
+    "command_id": "continuity-bca95666f4efdf47b1cac1294246dcf6",
+    "payload": {
+      "request_hash": "216da2ae67e8b38e9d9644eb2fcd6ce1a4aa66c3945a07a4d1f60608b111f200",
+      "revision": 4,
+      "result": {
+        "version": 1,
+        "id": "bca95666f4efdf47b1cac1294246dcf6",
+        "target": "alpha",
+        "task_revision": 1,
+        "contract_id": "4731b1a5af731af6f1fead3dc0b433d9",
+        "previous": "",
+        "source_event": 10,
+        "summary": "Meaningful planning progress",
+        "next_action": "Review the prerequisite",
+        "blockers": [
+          "Need the reviewed specification"
+        ],
+        "resources": [],
+        "context": [
+          {
+            "target": "alpha",
+            "task_revision": 1,
+            "contract_id": "4731b1a5af731af6f1fead3dc0b433d9"
+          },
+          {
+            "target": "root",
+            "task_revision": 1
+          }
+        ],
+        "decisions": [],
+        "actor": "cli",
+        "at": "2026-09-09T07:21:33.132688002Z"
+      }
+    }
+  },
+  {
+    "id": 12,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.132688002Z",
+    "subject": "checkpoint",
+    "verb": "recorded",
+    "actor": "cli",
+    "entity_id": "bca95666f4efdf47b1cac1294246dcf6",
+    "command_id": "continuity-bca95666f4efdf47b1cac1294246dcf6",
+    "payload": {
+      "version": 1,
+      "id": "bca95666f4efdf47b1cac1294246dcf6",
+      "target": "alpha",
+      "task_revision": 1,
+      "contract_id": "4731b1a5af731af6f1fead3dc0b433d9",
+      "previous": "",
+      "source_event": 10,
+      "summary": "Meaningful planning progress",
+      "next_action": "Review the prerequisite",
+      "blockers": [
+        "Need the reviewed specification"
+      ],
+      "resources": [],
+      "context": [
+        {
+          "target": "alpha",
+          "task_revision": 1,
+          "contract_id": "4731b1a5af731af6f1fead3dc0b433d9"
+        },
+        {
+          "target": "root",
+          "task_revision": 1
+        }
+      ],
+      "decisions": [],
+      "actor": "cli",
+      "at": "2026-09-09T07:21:33.132688002Z"
+    }
+  },
+  {
+    "id": 13,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.139833298Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "progress-d24bea37b5fdcae8218c5a4eb1f14520",
+    "command_id": "progress-d24bea37b5fdcae8218c5a4eb1f14520",
+    "payload": {
+      "request_hash": "d7ebd6ef347d81804785c2487a8eb2af47d648dc38595b149793e4078fe69092",
+      "revision": 4,
+      "result": {
+        "version": 1,
+        "id": "d24bea37b5fdcae8218c5a4eb1f14520",
+        "target": "alpha",
+        "task_revision": 1,
+        "kind": "decision",
+        "text": "A pending design choice",
+        "contract_id": "4731b1a5af731af6f1fead3dc0b433d9",
+        "context": [
+          {
+            "target": "alpha",
+            "task_revision": 1,
+            "contract_id": "4731b1a5af731af6f1fead3dc0b433d9"
+          },
+          {
+            "target": "root",
+            "task_revision": 1
+          }
+        ],
+        "decision_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+        "artifacts": [],
+        "digest": "916af068255265448c78bec09d0dd7ff7bb261c44a604b43ca96b4d61c7b5ed1",
+        "actor": "cli",
+        "at": "2026-09-09T07:21:33.139833298Z"
+      }
+    }
+  },
+  {
+    "id": 14,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.139833298Z",
+    "subject": "progress",
+    "verb": "proposed",
+    "actor": "cli",
+    "entity_id": "d24bea37b5fdcae8218c5a4eb1f14520",
+    "command_id": "progress-d24bea37b5fdcae8218c5a4eb1f14520",
+    "payload": {
+      "version": 1,
+      "id": "d24bea37b5fdcae8218c5a4eb1f14520",
+      "target": "alpha",
+      "task_revision": 1,
+      "kind": "decision",
+      "text": "A pending design choice",
+      "contract_id": "4731b1a5af731af6f1fead3dc0b433d9",
+      "context": [
+        {
+          "target": "alpha",
+          "task_revision": 1,
+          "contract_id": "4731b1a5af731af6f1fead3dc0b433d9"
+        },
+        {
+          "target": "root",
+          "task_revision": 1
+        }
+      ],
+      "decision_digest": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+      "artifacts": [],
+      "digest": "916af068255265448c78bec09d0dd7ff7bb261c44a604b43ca96b4d61c7b5ed1",
+      "actor": "cli",
+      "at": "2026-09-09T07:21:33.139833298Z"
+    }
+  },
+  {
+    "id": 15,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.159138115Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "dependency-815022b1a56fafbb154182662f5f99c6",
+    "command_id": "dependency-815022b1a56fafbb154182662f5f99c6",
+    "payload": {
+      "request_hash": "b86af7b5dccee40b86a3235cee03daccfa3b9e83f61540ad1d1ebfe325142393",
+      "revision": 4,
+      "result": {
+        "version": 1,
+        "id": "815022b1a56fafbb154182662f5f99c6",
+        "target": "alpha",
+        "depends_on": "beta",
+        "task_revision": 1,
+        "prerequisite_revision": 1,
+        "previous": "",
+        "active": true,
+        "reason": "Wait for reviewed prerequisite",
+        "actor": "cli",
+        "at": "2026-09-09T07:21:33.159138115Z"
+      }
+    }
+  },
+  {
+    "id": 16,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.159138115Z",
+    "subject": "dependency",
+    "verb": "recorded",
+    "actor": "cli",
+    "entity_id": "815022b1a56fafbb154182662f5f99c6",
+    "command_id": "dependency-815022b1a56fafbb154182662f5f99c6",
+    "payload": {
+      "version": 1,
+      "id": "815022b1a56fafbb154182662f5f99c6",
+      "target": "alpha",
+      "depends_on": "beta",
+      "task_revision": 1,
+      "prerequisite_revision": 1,
+      "previous": "",
+      "active": true,
+      "reason": "Wait for reviewed prerequisite",
+      "actor": "cli",
+      "at": "2026-09-09T07:21:33.159138115Z"
+    }
+  },
+  {
+    "id": 17,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.182255455Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "dependency-6e4fb3efaf784a9f2953d5513d22d1a4",
+    "command_id": "dependency-6e4fb3efaf784a9f2953d5513d22d1a4",
+    "payload": {
+      "request_hash": "b28fdf0590162b3fed330afebbd2b36bb2e0d42a9b031b5a1303e858d7c80296",
+      "revision": 4,
+      "result": {
+        "version": 1,
+        "id": "6e4fb3efaf784a9f2953d5513d22d1a4",
+        "target": "beta",
+        "depends_on": "gamma",
+        "task_revision": 1,
+        "prerequisite_revision": 1,
+        "previous": "",
+        "active": true,
+        "reason": "Wait for reviewed prerequisite",
+        "actor": "cli",
+        "at": "2026-09-09T07:21:33.182255455Z"
+      }
+    }
+  },
+  {
+    "id": 18,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.182255455Z",
+    "subject": "dependency",
+    "verb": "recorded",
+    "actor": "cli",
+    "entity_id": "6e4fb3efaf784a9f2953d5513d22d1a4",
+    "command_id": "dependency-6e4fb3efaf784a9f2953d5513d22d1a4",
+    "payload": {
+      "version": 1,
+      "id": "6e4fb3efaf784a9f2953d5513d22d1a4",
+      "target": "beta",
+      "depends_on": "gamma",
+      "task_revision": 1,
+      "prerequisite_revision": 1,
+      "previous": "",
+      "active": true,
+      "reason": "Wait for reviewed prerequisite",
+      "actor": "cli",
+      "at": "2026-09-09T07:21:33.182255455Z"
+    }
+  },
+  {
+    "id": 19,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.238302555Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "grant-cc698e799dacc62ee3ae8ea15d5a3718",
+    "command_id": "grant-cc698e799dacc62ee3ae8ea15d5a3718",
+    "payload": {
+      "request_hash": "9c1e165a35e6b6b2943aa7226bb422a213c4f45d891b55b88513de57e65c95e3",
+      "revision": 4,
+      "result": {
+        "id": "cc698e799dacc62ee3ae8ea15d5a3718",
+        "name": "Summary reader",
+        "target": "root",
+        "subtree": true,
+        "resource_ids": [],
+        "expires_at": "2026-09-09T08:21:33.23Z",
+        "capabilities": [
+          "task.read",
+          "history.read",
+          "context.read"
+        ]
+      }
+    }
+  },
+  {
+    "id": 20,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.238302555Z",
+    "subject": "grant",
+    "verb": "issued",
+    "actor": "cli",
+    "entity_id": "cc698e799dacc62ee3ae8ea15d5a3718",
+    "command_id": "grant-cc698e799dacc62ee3ae8ea15d5a3718",
+    "payload": {
+      "version": 1,
+      "id": "cc698e799dacc62ee3ae8ea15d5a3718",
+      "name": "Summary reader",
+      "target": "root",
+      "subtree": true,
+      "resource_ids": [],
+      "token_hash": "b2be48ab0f206c6fa84ece70264f8b8217f9cb71a797dd89910390c24181305f",
+      "expires_at": "2026-09-09T08:21:33.23Z",
+      "at": "2026-09-09T07:21:33.238302555Z",
+      "actor": "cli"
+    }
+  },
+  {
+    "id": 21,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.258050851Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "50e8f2f2b26fc94d15a7abda5904a0ae",
+    "command_id": "50e8f2f2b26fc94d15a7abda5904a0ae",
+    "payload": {
+      "request_hash": "04b3b115ac1675c3b2da2642079e08c136d83450231655be030f77ab0a923217",
+      "revision": 5,
+      "result": {
+        "id": "50e8f2f2b26fc94d15a7abda5904a0ae",
+        "revision": 5,
+        "data": null
+      }
+    }
+  },
+  {
+    "id": 22,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.258050851Z",
+    "subject": "task",
+    "verb": "completed",
+    "actor": "cli",
+    "entity_id": "beta",
+    "command_id": "50e8f2f2b26fc94d15a7abda5904a0ae",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "beta",
+          "title": "Private prerequisite",
+          "type": "project",
+          "status": "done",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 2,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T07:21:33.107321386Z",
+        "updated_at": "2026-09-09T07:21:33.258050851Z",
+        "completed": {}
+      },
+      "fields": [
+        "status"
+      ]
+    }
+  },
+  {
+    "id": 23,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.283411339Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "d63632cc060a1baccf498fdd2bf95d0f",
+    "command_id": "d63632cc060a1baccf498fdd2bf95d0f",
+    "payload": {
+      "request_hash": "7a70d77fc849057bac7ece3c0b30c6a0d3cee63d612fd14db7f18a01782968a5",
+      "revision": 6,
+      "result": {
+        "id": "d63632cc060a1baccf498fdd2bf95d0f",
+        "revision": 6,
+        "data": null
+      }
+    }
+  },
+  {
+    "id": 24,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.283411339Z",
+    "subject": "task",
+    "verb": "reopened",
+    "actor": "cli",
+    "entity_id": "beta",
+    "command_id": "d63632cc060a1baccf498fdd2bf95d0f",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "beta",
+          "title": "Private prerequisite",
+          "type": "project",
+          "status": "backlog",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 3,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T07:21:33.107321386Z",
+        "updated_at": "2026-09-09T07:21:33.283411339Z",
+        "completed": {}
+      },
+      "fields": [
+        "status"
+      ]
+    }
+  },
+  {
+    "id": 25,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.389532011Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "dependency-25ca090c95197eaa6a7b451e37af638f",
+    "command_id": "dependency-25ca090c95197eaa6a7b451e37af638f",
+    "payload": {
+      "request_hash": "9e250ac3e3a14d6a1301966be0454303925e2fdc75821bc6e4113cb4087a4bea",
+      "revision": 6,
+      "result": {
+        "version": 1,
+        "id": "25ca090c95197eaa6a7b451e37af638f",
+        "target": "alpha",
+        "depends_on": "beta",
+        "task_revision": 1,
+        "prerequisite_revision": 3,
+        "previous": "815022b1a56fafbb154182662f5f99c6",
+        "active": false,
+        "reason": "Wait for reviewed prerequisite",
+        "actor": "cli",
+        "at": "2026-09-09T07:21:33.389532011Z"
+      }
+    }
+  },
+  {
+    "id": 26,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.389532011Z",
+    "subject": "dependency",
+    "verb": "recorded",
+    "actor": "cli",
+    "entity_id": "25ca090c95197eaa6a7b451e37af638f",
+    "command_id": "dependency-25ca090c95197eaa6a7b451e37af638f",
+    "payload": {
+      "version": 1,
+      "id": "25ca090c95197eaa6a7b451e37af638f",
+      "target": "alpha",
+      "depends_on": "beta",
+      "task_revision": 1,
+      "prerequisite_revision": 3,
+      "previous": "815022b1a56fafbb154182662f5f99c6",
+      "active": false,
+      "reason": "Wait for reviewed prerequisite",
+      "actor": "cli",
+      "at": "2026-09-09T07:21:33.389532011Z"
+    }
+  },
+  {
+    "id": 27,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.407516555Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "grant-8493e8d374a8c027a6622b30da7fff4b",
+    "command_id": "grant-8493e8d374a8c027a6622b30da7fff4b",
+    "payload": {
+      "request_hash": "3971fb2094e7329d0e71f0cc17d4dc2fc417efd729300103d09d93dbb1b7945a",
+      "revision": 6,
+      "result": {
+        "id": "cc698e799dacc62ee3ae8ea15d5a3718",
+        "name": "Summary reader",
+        "target": "root",
+        "subtree": true,
+        "resource_ids": [],
+        "expires_at": "2026-09-09T08:21:33.23Z",
+        "revoked_at": "2026-09-09T07:21:33.407516555Z",
+        "capabilities": [
+          "task.read",
+          "history.read",
+          "context.read"
+        ]
+      }
+    }
+  },
+  {
+    "id": 28,
+    "event_version": 1,
+    "ts": "2026-09-09T07:21:33.407516555Z",
+    "subject": "grant",
+    "verb": "revoked",
+    "actor": "cli",
+    "entity_id": "cc698e799dacc62ee3ae8ea15d5a3718",
+    "command_id": "grant-8493e8d374a8c027a6622b30da7fff4b",
+    "payload": {
+      "version": 1,
+      "id": "cc698e799dacc62ee3ae8ea15d5a3718",
+      "name": "Summary reader",
+      "target": "root",
+      "subtree": true,
+      "resource_ids": [],
+      "token_hash": "b2be48ab0f206c6fa84ece70264f8b8217f9cb71a797dd89910390c24181305f",
+      "expires_at": "2026-09-09T08:21:33.23Z",
+      "at": "2026-09-09T07:21:33.238302555Z",
+      "revoked_at": "2026-09-09T07:21:33.407516555Z",
+      "actor": "cli"
+    }
+  }
+]

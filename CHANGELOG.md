@@ -1,5 +1,11 @@
 # Development milestones
 
+## P04 task dependencies and scoped summaries — 2026-09-09
+
+- Add immutable task dependency add/remove records with both endpoint revisions, exact prior heads and cycle checks across dependencies and hierarchy. Task edits/imports validate the final atomic graph; replay preserves the same boundary.
+- Add explicit, bounded progress summaries ordered by saved checkpoint, due date or task ID. Scoped readers see only permitted tasks and opaque foreign-prerequisite placeholders; revocation and moved scope apply to every page.
+- Display dependency status in the TUI. Completion/reopening updates the derived view without completing dependent work or dispatching agents. Schema 13 preserves earlier state, events and exact receipts.
+
 ## P03 manual preservation — 2026-09-09
 
 - Add checkpoint-linked preservation preview, retained manual handoff requests and independently observed source/mirror/private-commit/remote facts. Failure reports remain separate from observed results; checkpoint/task state is unchanged.

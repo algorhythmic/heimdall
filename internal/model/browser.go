@@ -40,6 +40,12 @@ type BrowserOperation struct {
 }
 
 func (s *State) Normalize() {
+	if s.Dependencies == nil {
+		s.Dependencies = map[string]TaskDependency{}
+	}
+	if s.DependencyHeads == nil {
+		s.DependencyHeads = map[string]string{}
+	}
 	if s.PreservationPlans == nil {
 		s.PreservationPlans = map[string]PreservationPlan{}
 	}

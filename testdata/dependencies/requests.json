@@ -1,0 +1,24 @@
+[
+  {
+    "version": 1,
+    "id": "11111111111111111111111111111111",
+    "target": "alpha",
+    "depends_on": "beta",
+    "expected_task_revision": 1,
+    "expected_prerequisite_revision": 1,
+    "previous": "none",
+    "op": "add",
+    "reason": "Review prerequisite design"
+  },
+  {
+    "version": 1,
+    "id": "22222222222222222222222222222222",
+    "target": "alpha",
+    "depends_on": "beta",
+    "expected_task_revision": 1,
+    "expected_prerequisite_revision": 1,
+    "previous": "11111111111111111111111111111111",
+    "op": "remove",
+    "reason": "Prerequisite no longer applies"
+  }
+]

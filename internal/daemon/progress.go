@@ -16,6 +16,12 @@ func (s *Server) progressHTTP(w http.ResponseWriter, r *http.Request) {
 	var result any
 	var err error
 	switch {
+	case r.Method == "GET" && r.URL.Path == "/progress/summary":
+		var options continuity.SummaryOptions
+		options, err = summaryOptions(q)
+		if err == nil {
+			result, err = service.ProgressOverview(r.Context(), options)
+		}
 	case r.Method == "GET" && r.URL.Path == "/progress/list":
 		limit := 25
 		if q.Has("limit") {

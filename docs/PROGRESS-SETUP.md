@@ -153,8 +153,8 @@ TUI. No browser or clipboard credentials are involved.
   continuity/checkpoint payload versions and legacy direct `decision accept`
   manual attestation retain their previous semantics. Legacy direct acceptance
   does not retroactively acquire a P02 proposal or artifact digest binding.
-- Database marker **12** refuses older binaries. Upgrades retain a stopped
-  `backups/pre-schema-12-*.db` snapshot. Stop the daemon before restoring a backup
+- Database marker **13** refuses older binaries. Upgrades retain a stopped
+  `backups/pre-schema-13-*.db` snapshot. Stop the daemon before restoring a backup
   into a fresh directory with its matching `types.yaml`; use the matching older
   binary for a pre-upgrade snapshot. Replay never observes or restores files.
 

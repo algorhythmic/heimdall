@@ -115,7 +115,7 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 		return err
 	}
 	service.Snapshots = &workspace.SnapshotService{Store: e.Store, Observer: service.Viewport.Observer}
-	service.Previews = &workspace.PreviewService{Store: e.Store, Observer: service.Viewport.Observer, Herdr: herdr.Adapter{}}
+	service.Previews = &workspace.PreviewService{Store: e.Store, Observer: service.Viewport.Observer, Herdr: herdr.Adapter{}, BrowserReadback: service.Browser}
 	service.Operations = &workspace.OperationService{Store: e.Store, Previews: service.Previews, Observer: service.Viewport.Observer, Dispatcher: hyprland.Dispatcher{Observer: service.Viewport.Observer}, Clock: clock}
 	service.Operations.Applications = application.Adapter{Observer: service.Viewport.Observer}
 	operationDone := make(chan struct{})

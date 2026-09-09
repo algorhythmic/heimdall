@@ -50,6 +50,20 @@ func (a *App) workspaceView(ctx context.Context, target string) (any, error) {
 	}
 	v.Lines = workspacePreviewLines(preview, v.Snapshot)
 	v.Preview = preview
+	if head != "" && preview.Request.ManifestID != "" {
+		raw, err := a.call(ctx, "POST", "/workspace/verify", workspace.RecoveryRequest{Version: 1, Target: target, SnapshotID: head, PlacementPolicy: "saved"})
+		if err != nil {
+			return nil, err
+		}
+		var report workspace.RecoveryReport
+		if err := json.Unmarshal(raw, &report); err != nil {
+			return nil, err
+		}
+		if report.InputDigest != preview.InputDigest {
+			return nil, fmt.Errorf("workspace changed during recovery verification; press r to refresh")
+		}
+		v.Lines = append(recoveryLines(report), v.Lines...)
+	}
 	for _, op := range v.Operations[:min(3, len(v.Operations))] {
 		v.Lines = append(v.Lines, plain(""), line{{op.Intent.Kind + " · " + op.Status + " · " + op.Outcome, gold}}, line{{op.Intent.ID, gray}})
 		for _, issue := range op.Unsupported {
@@ -57,6 +71,23 @@ func (a *App) workspaceView(ctx context.Context, target string) (any, error) {
 		}
 	}
 	return v, nil
+}
+
+func recoveryLines(r workspace.RecoveryReport) []line {
+	color := gold
+	if r.Full {
+		color = green
+	}
+	lines := []line{{{"Recovery now · " + r.Outcome + fmt.Sprintf(" · full=%t", r.Full), color}}}
+	for _, row := range r.Surfaces {
+		lines = append(lines, line{{row.Label + " · " + row.Outcome, color}})
+		for _, c := range []workspace.RecoveryCheck{row.Existence, row.Ownership, row.TaskMembership, row.WorkspaceMembership, row.Placement, row.WindowState, row.Application, row.Action} {
+			if c.Status != "matched" && c.Status != "not_required" {
+				lines = append(lines, line{{c.Reason, gold}})
+			}
+		}
+	}
+	return append(lines, line{{"Point-in-time readback only; no layout or application input", gray}}, plain(""))
 }
 
 func workspacePreviewLines(p workspace.Preview, status workspace.SnapshotStatus) []line {

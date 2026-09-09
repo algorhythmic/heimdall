@@ -29,6 +29,12 @@ func (s *Server) previewHTTP(w http.ResponseWriter, r *http.Request) (any, error
 		return nil, err
 	}
 	switch r.URL.Path {
+	case "/workspace/verify":
+		var input workspace.RecoveryRequest
+		if err := model.StrictJSON(raw, &input); err != nil {
+			return nil, err
+		}
+		return s.Previews.Verify(r.Context(), input, s.Clock().UTC())
 	case "/workspace/preview":
 		input, err := workspace.DecodePreview(raw)
 		if err != nil {

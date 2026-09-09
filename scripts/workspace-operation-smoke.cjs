@@ -1,4 +1,4 @@
-// Compiled W05 acceptance: synthetic Unix IPC in CI; explicitly opted-in real
+// Compiled W05/W07 acceptance: synthetic Unix IPC in CI; explicitly opted-in real
 // Hyprland uses one disposable GTK window and never targets another application.
 const {spawn,execFileSync}=require('node:child_process');
 const fs=require('node:fs');const {join}=require('node:path');const os=require('node:os');
@@ -19,6 +19,7 @@ const fixture={version:{version:'0.56.2',commit:'efb50993780079460b0cbed1363e216
  cli('init');await start();cli('add','Native operation fixture','--id','alpha','--status','active');
  const ep=JSON.parse(fs.readFileSync(join(data,'endpoint.json'))),browser=JSON.parse(fs.readFileSync(join(data,'browser-endpoint.json')));
  for(const path of ['queue','list','show','cancel','reconcile','residents']){const response=await fetch(ep.url+'/workspace/operation/'+path+'?target=alpha',{headers:{authorization:'Bearer '+browser.token}});assert.equal(response.status,401);}
+ const denied=await fetch(ep.url+'/workspace/verify',{method:'POST',headers:{authorization:'Bearer '+browser.token,'content-type':'application/json'},body:JSON.stringify({version:1,target:'alpha',placement_policy:'saved'})});assert.equal(denied.status,401);
  if(process.platform!=='linux'){console.log(JSON.stringify({status:'passed',checks:['native operation routes require local CLI authority; non-Linux adapter unavailable']}));return;}
  const surface=id(),manifest=cli('workspace','accept','alpha','--expected-task-revision','1','--file',file('manifest',{previous:'none',name:'Native fixture',surfaces:[{id:surface,kind:'native',label:'Synthetic view',required:true,restore_policy:'manual'}]}));
  const audit=join(dir,'native-ipc.txt');let stateFile;
@@ -35,12 +36,17 @@ const fixture={version:{version:'0.56.2',commit:'efb50993780079460b0cbed1363e216
  const status=cli('snapshot','status','alpha');cli('snapshot','capture','alpha','--file',file('capture',{version:1,id:id(),op:'capture',target:'alpha',previous:'none',expected_task_revision:1,manifest_id:manifest.id,source_id:source.id,input_digest:status.input_digest}));
  const queue=kind=>{const preview=cli('workspace','diff','alpha');return cli('workspace',kind,'alpha','--file',file('review-'+id(),preview),'--surfaces','all');};
  const settled=operation=>until(()=>{const op=cli('workspace','operation','alpha','--id',operation.intent.id);return op.status==='complete'?op:null;});
+ const reportFile=join(dir,'recovery-present.json'),beforeVerify=cli('state');let report=cli('workspace','verify','alpha','--output',reportFile);assert.equal(report.full,true);assert.equal(report.surfaces[0].workspace_membership.status,'matched');assert.deepEqual(cli('state'),beforeVerify);
+ // Report publication must not overwrite retained evidence.
+ assert.throws(()=>cli('workspace','verify','alpha','--output',reportFile));
  let op=await settled(queue('focus'));assert.equal(op.outcome,'matched');assert.equal(cli('action','show','alpha','--id',op.action_ids[0]).verification,'matched');
+ report=cli('workspace','verify','alpha','--operation',op.intent.id);assert.equal(report.full,true);
  if(native){
   if(process.env.HEIMDALL_NATIVE_REVIEW_FILE){fs.writeFileSync(process.env.HEIMDALL_NATIVE_REVIEW_FILE,JSON.stringify({pid:app.pid,dir}));await until(()=>fs.existsSync(process.env.HEIMDALL_NATIVE_REVIEW_FILE+'.continue'),1200);}
   op=await settled(queue('close'));assert.equal(op.outcome,'matched');await until(()=>app.exitCode!==null);
  }else{
   op=await settled(queue('close'));assert.equal(op.outcome,'partial');assert.equal(Object.keys(cli('state').workspace_slots).length,1);
+  report=cli('workspace','verify','alpha','--operation',op.intent.id);assert.equal(report.full,false);assert.equal(report.surfaces[0].existence.status,'not_matched');file('recovery-refused-close',report);
   const current=JSON.parse(fs.readFileSync(stateFile));current.close_mode='pause_close';file('compositor',current);
   const pending=queue('close');await until(()=>fs.readFileSync(audit,'utf8').split('\n').filter(c=>c==='dispatch closewindow stableid:18000001').length===2);
   // The external effect occurred; kill the daemon before the held ACK returns.
@@ -49,8 +55,9 @@ const fixture={version:{version:'0.56.2',commit:'efb50993780079460b0cbed1363e216
   assert.deepEqual(JSON.parse(fs.readFileSync(stateFile)).clients.map(w=>w.stableId),['18000999']);
   assert.equal(fs.readFileSync(audit,'utf8').split('\n').filter(c=>c.startsWith('dispatch ')).length,3);
  }
+ report=cli('workspace','verify','alpha','--operation',op.intent.id);assert.equal(report.full,true);assert.equal(report.surfaces[0].expected,'absent');file('recovery-closed',report);
  const state=cli('state');assert.equal(Object.keys(state.workspace_slots).length,0);assert.equal(state.tasks.alpha.task.status,'active');
  cli('backup','--output',join(dir,'schema19.db'));fs.writeFileSync(join(dir,'events.json'),JSON.stringify(cli('events'),null,2)+'\n');
  cli('replay');assert.deepEqual(cli('state'),state);await stopProcess(daemon);
- console.log(JSON.stringify({status:'passed',native,checks:['pre-dispatch shared journal and close snapshot','independent active-window focus','graceful close and observed residency','unowned windows left open','inert replay',...(native?['actual isolated GTK view on selected Hyprland']:['application refusal retains capacity','daemon kill after native close before ACK','restart observes absence without repeated input'])],data:dir},null,2));
+ console.log(JSON.stringify({status:'passed',native,checks:['pre-dispatch shared journal and close snapshot','independent active-window focus','graceful close and observed residency','unowned windows left open','inert replay','fresh W07 recovery reports before focus and after observed closure','private report export without overwrite or state mutation',...(native?['actual isolated GTK view on selected Hyprland']:['application refusal retains capacity and cannot claim full recovery','daemon kill after native close before ACK','restart observes absence without repeated input'])],data:dir},null,2));
 }finally{await stopProcess(daemon);await stopProcess(app);await stopProcess(fake);if(socketDir&&!native)fs.rmSync(socketDir,{recursive:true,force:true});}})().catch(e=>{console.error(e);process.exitCode=1;});

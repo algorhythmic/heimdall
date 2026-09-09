@@ -1,5 +1,13 @@
 # Development milestones
 
+## Unreleased — W07 recovery verification (2026-09-09)
+
+- Add scoped `workspace verify` and TUI per-surface/aggregate recovery reports with bounded fresh evidence and explicit uncertainty, separate from action settlement.
+- Verify exact ownership, task/named-workspace membership, logical display placement, supported window state and challenged browser tab membership. Generic terminals remain degraded; unsupported attachment/editor-state readback cannot produce full recovery.
+- Add an explicit named-monitor-clamp verification policy for floating windows; it never dispatches placement changes.
+- Reuse the browser challenge protocol for bounded observation of settled surfaces, with daemon-local monotonic leases and no new application actions. Database schema remains 20.
+- Cover refused closure, wrong workspace/session, stale coverage, PID reuse, browser movement/unowned tabs, fallback limits, concurrent changes, report export and restart boundaries.
+
 ## Unreleased — W06 reviewed application adapters (2026-09-09)
 
 - Add immutable application recipes, CLI review/show, and recipe-aware workspace previews under schema 20.

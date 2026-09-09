@@ -8,8 +8,9 @@ Hyprland 0.56.2. Browser recovery requires extension 0.6.0's recovery capability
 Other native platforms retain the records but cannot execute these adapters.
 
 An operation's `matched` result describes its supported action postconditions.
-It is not W07's full recovery report: terminal attachment rendering, editor
-buffers/cursor readback, layout and display placement can remain unverified.
+It is separate from [W07's fresh recovery report](RECOVERY-VERIFICATION.md), which
+checks membership and placement while keeping terminal attachment rendering and
+editor buffers/cursor readback explicitly unknown or unsupported.
 Task completion is independent of application recovery.
 
 ## Review a recipe
@@ -120,7 +121,7 @@ Neovim metadata is structured data, for example:
 This restores a reviewed saved-file argument list and requests its cursor
 position. It does not source Vim session scripts, reconstruct unsaved buffers,
 run terminal buffers, restore plugins or claim full LazyVim session fidelity.
-Detailed attachment/editor readback belongs to W07.
+W07 exposes these attachment/editor readback limits in its per-surface report.
 
 ## Interruption and identity
 

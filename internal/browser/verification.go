@@ -15,10 +15,11 @@ import (
 // Runtime has no replayable authority. time.Time carries monotonic elapsed time
 // in production; replacing a daemon/connection discards every freshness lease.
 type Runtime struct {
-	mu         sync.Mutex
-	Clock      func() time.Time
-	challenges map[string]runtimeLease
-	reads      map[string]runtimeLease
+	mu           sync.Mutex
+	Clock        func() time.Time
+	challenges   map[string]runtimeLease
+	reads        map[string]runtimeLease
+	observations map[string]observationDemand
 }
 type runtimeLease struct {
 	ID string
@@ -103,13 +104,33 @@ func (s Service) challenge(st model.State, p model.BrowserProfile, now time.Time
 	}
 	required := int64(0)
 	refs := []model.BrowserActionRef{}
+	if demand, ok := s.Runtime.observations[p.ID]; ok {
+		elapsed := s.Runtime.Clock().Sub(demand.Started)
+		if elapsed < 0 || elapsed >= 5*time.Second || demand.Epoch != p.Epoch || demand.Connection != p.Connection {
+			delete(s.Runtime.observations, p.ID)
+		} else {
+			required = demand.After
+			refs = append(refs, demand.Refs...)
+		}
+	}
 	for _, a := range st.Actions {
 		if a.Intent.Browser != nil && a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Epoch == p.Epoch && model.ActionHolds(a) && a.VerificationAttempts < 8 {
 			if a.LastEventID > required {
 				required = a.LastEventID
 			}
-			refs = append(refs, *a.BrowserRef())
+			found := false
+			for _, ref := range refs {
+				if ref.ID == a.Intent.ID {
+					found = true
+				}
+			}
+			if !found {
+				refs = append(refs, *a.BrowserRef())
+			}
 		}
+	}
+	if len(refs) > 128 {
+		return nil, nil
 	}
 	if required == 0 || s.fresh(p, required, now) {
 		return nil, nil

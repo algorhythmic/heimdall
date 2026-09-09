@@ -60,6 +60,7 @@ async function until(fn,label){for(let i=0;i<180;i++){const r=await fn();if(r)re
    await restored.close();await until(()=>!Object.values(cli('browser','status').profiles)[0].tabs.some(t=>t.url===restoreURL),'missing restore URL');
    const reopened=operation('open');assert.equal(reopened.unsupported.length,0);actionID=reopened.action_ids[0];const record=cli('action','show','alpha','--id',actionID);assert.equal(record.intent.version,5);
    await verified(record);assert.equal((await settled(reopened)).outcome,'matched');
+   const recoveryReport=await until(()=>{const r=cli('workspace','verify','alpha','--operation',reopened.intent.id);return r.surfaces[0].application.status==='matched'?r:null;},'W07 fresh browser membership');assert.equal(recoveryReport.surfaces[0].ownership.status,'matched');if(!live)assert.equal(recoveryReport.full,true);input('recovery-report',recoveryReport);
    assert.equal(await popup.evaluate(async url=>(await chrome.tabs.query({})).filter(t=>t.url===url).length,restoreURL),1);
    closed=operation('close');await settled(closed);assert.equal(cli('action','show','alpha','--id',closed.action_ids[0]).verification,'matched');
   }

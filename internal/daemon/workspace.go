@@ -20,7 +20,7 @@ func (s *Server) workspaceHTTP(w http.ResponseWriter, r *http.Request) {
 		result, err = s.applicationHTTP(w, r)
 	case strings.HasPrefix(r.URL.Path, "/workspace/operation/"):
 		result, err = s.operationHTTP(w, r)
-	case r.URL.Path == "/workspace/list" || r.URL.Path == "/workspace/diff" || r.URL.Path == "/workspace/preview" || r.URL.Path == "/workspace/validate":
+	case r.URL.Path == "/workspace/list" || r.URL.Path == "/workspace/diff" || r.URL.Path == "/workspace/preview" || r.URL.Path == "/workspace/validate" || r.URL.Path == "/workspace/verify":
 		result, err = s.previewHTTP(w, r)
 	case strings.HasPrefix(r.URL.Path, "/workspace/snapshot/"):
 		result, err = s.snapshotHTTP(w, r)

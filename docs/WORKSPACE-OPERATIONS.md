@@ -111,6 +111,11 @@ old identities never migrate silently to a new compositor.
 
 ## Protocol and verification
 
+Use `heimdall workspace verify TASK --operation OPERATION_ID` for a fresh
+per-surface and aggregate report separate from action settlement. See
+[recovery verification](RECOVERY-VERIFICATION.md) for placement policy and
+explicit application-state limits. Verification never dispatches layout changes.
+
 W05's schema 19 added operation/residency records, action intent v3 and native
 transition v4, plus operation snapshot metadata v2. Browser intent v1/v2 and
 their histories remain unchanged. W06's schema 20 adds reviewed recipes and
@@ -131,5 +136,5 @@ focus/absence, and inert replay. Compiled Linux acceptance uses isolated Unix
 sockets and kills the daemon after a synthetic close before ACK. An opt-in
 native test verifies a disposable GTK window on the actual selected Hyprland
 session. W06 acceptance additionally covers real application launch, Herdr
-detach and browser duplicate prevention. Full attachment/display recovery,
-reboot and VM power-loss gates remain with W07–W08.
+detach and browser duplicate prevention. W07 adds fresh capability-scoped reports;
+unsupported attachment state, reboot and VM power-loss gates remain open.

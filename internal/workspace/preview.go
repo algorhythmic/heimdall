@@ -18,11 +18,17 @@ import (
 const PreviewMaxBytes = 256 << 10
 
 type PreviewService struct {
-	Store    *store.Store
-	Observer *hyprland.Observer
-	Herdr    HerdrAdapter
-	once     sync.Once
-	key      [32]byte
+	Store           *store.Store
+	Observer        *hyprland.Observer
+	Herdr           HerdrAdapter
+	BrowserReadback interface {
+		ObserveWorkspace(context.Context, string, []string, time.Time) error
+		RecoveryFresh(model.BrowserProfile, int64, time.Time) bool
+	}
+	// Optional process identity reader for application recovery verification.
+	Process func(int) (model.ApplicationProcess, error)
+	once    sync.Once
+	key     [32]byte
 }
 
 func (s *PreviewService) seal(v Preview) string {

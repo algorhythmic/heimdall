@@ -1,5 +1,22 @@
 # Verification — workspace continuity and reviewed application recovery, schema 20
 
+## W07 fresh recovery verification — 2026-09-09
+
+- The full Go race suite passes; final browser/workspace/daemon/TUI race checks additionally cover the new settled-surface readback demand and daemon-local monotonic lease. Go vet, all four extension test files, strict TypeScript compilation, Linux build and Windows/amd64 cross-build pass. Windows is cross-built, not executed locally.
+- Compiled native-operation/recovery acceptance passes with synthetic compositor sockets in `.tools/workspace-operation-test-MMlVU0` and one disposable GTK window on actual Hyprland 0.56.2 in `.tools/workspace-operation-test-emyEAC`. Reports verify current membership/placement before focus and fresh absence after close. Refused closure cannot claim full recovery; daemon SIGKILL before close acknowledgment reconciles without repeated input. Private report export refuses overwrite and native verification leaves durable state unchanged.
+- Chromium 151.0.7922.34/native messaging with synthetic compositor acceptance passes in `.tools/browser-pairing-test-TBlIfF`, including a full W07 report after a paired reopen. The same full supported browser/native membership and placement report passes on actual Hyprland in `.tools/browser-pairing-test-SoReRj`. Dedicated profiles and temporary host registration leave normal browser profiles unchanged. Browser verification reuses existing challenge/readback journal events for observations, not new actions or duplicate input.
+- Deterministic tests reject wrong workspace, hidden/offscreen or changed window state, changed monitor scale, ambiguous/reused identities, foreign/stale task bindings, missing/partial/pruned points, empty selections, browser movement, discarded/loading/unowned/changed-URL tabs, stale/unchallenged/incomplete censuses and expired/runtime-lost leases. Wrong Herdr session evidence cannot become success; session survival cannot masquerade as view attachment, and editor existence cannot masquerade as buffer/cursor restoration.
+- Explicit named-monitor-clamp tests check bounded floating geometry, policy opt-in, no implicit fallback, mismatched observed placement and refusal of tiled fallback. Concurrent task changes during IPC refuse mixed-scope report publication. Route tests reject non-CLI credentials and forged/duplicate authority fields. Generic terminal reports stay degraded; PID/start-time reuse makes ownership unknown.
+- Compiled TUI wide/compact, real-PTY interaction, workspace preview, resize, terminal restoration and pure replay regressions pass in `.tools/tui-test-o5aCos`. The workspace dialog now includes fresh aggregate/per-surface limits. No report or observation demand is replayable execution authority; schema remains 20 with existing event/reducer compatibility tests passing.
+- Linux SHA-256: `952ccdad44750ae9ec78e4a732a36abcea7b78dc1cd1f76616cc3de4f701126a`; Windows: `155d85cf194b5ddaa0fae1c442cc443bb383241b376c3917f7dc4455a3ccda29`. Extension runtime/package remains 0.6.0.
+- W06 commit `f58cc28` passed the published Linux and Windows jobs ([run 34388742808](https://github.com/algorhythmic/heimdall/actions/runs/34388742808)). Existing native-operation and browser-pairing CI acceptance now also checks W07 reports.
+
+W07 delivers capability-scoped verification and explicit uncertainty, not a claim
+that every application fully recovered. Attachment rendering, editor buffer/cursor
+state, reserved work areas, occlusion and automatic layout input remain unsupported.
+W08 startup/readiness, compositor/reboot and controlled VM interruption gates remain
+open. See [recovery verification](RECOVERY-VERIFICATION.md).
+
 ## W06 reviewed application adapters — 2026-09-09
 
 - The full Go race suite passes; final affected model/store/workspace/actions/browser/application race checks include restart after process creation but before receipt publication. Go vet, all four extension Node test files, strict TypeScript compilation, Linux build and Windows/amd64 cross-build pass. Windows is compiled, not executed locally.

@@ -137,11 +137,12 @@ readback, including age, autosave policy, layout changes and review requirements
 Press `s` to review an explicit capture/pin request; Enter submits the retained
 request and Escape cancels. See [workspace preview](WORKSPACE-PREVIEW.md).
 [Reviewed application adapters](APPLICATION-RECOVERY.md) support explicit recovery;
-full recovery verification, agent pane jumping and a native Omarchy bar module
+[recovery reports](RECOVERY-VERIFICATION.md) expose current evidence and unsupported
+attachment/editor-state limits. Agent pane jumping and a native Omarchy bar module
 remain future stages. No desktop configuration or login hook
 is installed. The [reference design notes](design/TUI.md) map these boundaries.
 
 Run `go test ./internal/tui` and `node scripts/tui-smoke.cjs` for simulation and
 compiled acceptance. Linux additionally exercises a real PTY with Python 3.
 
-W05/W06 workspace controls: inside `p`, use `o` to review open/focus and `c` to review graceful close. Enter submits the frozen scoped operation; Escape cancels. `r` shows fresh observations and recent outcomes. Reviewed application recipes are shown in the comparison/confirmation; create or retire them through the CLI. Unsupported close policies preserve open views. See [application recovery](APPLICATION-RECOVERY.md) and [workspace operations](WORKSPACE-OPERATIONS.md).
+W05–W07 workspace controls: inside `p`, use `o` to review open/focus and `c` to review graceful close. Enter submits the frozen scoped operation; Escape cancels. `r` shows fresh recovery verification, explicit per-surface limitations and recent action outcomes. Reviewed application recipes are shown in the comparison/confirmation; create or retire them through the CLI. Unsupported close policies preserve open views. See [recovery verification](RECOVERY-VERIFICATION.md), [application recovery](APPLICATION-RECOVERY.md) and [workspace operations](WORKSPACE-OPERATIONS.md).

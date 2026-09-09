@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Heimdall read-only recovery verification request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "target", "placement_policy"],
+  "properties": {
+    "version": {"const": 1},
+    "target": {"type": "string", "minLength": 1},
+    "operation_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "snapshot_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "placement_policy": {"enum": ["saved", "named-monitor-clamp"]},
+    "fallback_monitor": {"type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[^\\u0000-\\u001f\\u007f]+$"}
+  },
+  "not": {"required": ["operation_id", "snapshot_id"]},
+  "allOf": [{
+    "if": {"properties": {"placement_policy": {"const": "named-monitor-clamp"}}},
+    "then": {"required": ["fallback_monitor"]},
+    "else": {"not": {"required": ["fallback_monitor"]}}
+  }],
+  "$comment": "The Go request validator additionally enforces task ID syntax and current task/operation/snapshot scope. This request authorizes no application input."
+}

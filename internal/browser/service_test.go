@@ -16,7 +16,7 @@ func TestBrowserLifecycleReplayAndGuards(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer st.Close()
-	s := Service{st}
+	s := NewService(st)
 	ctx := context.Background()
 	now := time.Now().UTC()
 	counter := 0

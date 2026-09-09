@@ -1,5 +1,13 @@
 # Development milestones
 
+## C13 browser verification slice — 2026-09-09
+
+- Add challenged double readback, monotonic freshness leases and independent exact browser postconditions under schema 17 and extension 0.4.0.
+- Reconcile retained results and the same attempt without repeating input; bound observations, preserve epoch-loss/close uncertainty and refuse duplicate owned surfaces.
+- Exercise actual Linux Chromium native-host discovery, daemon loss after a browser side effect, and before-unload closure boundaries in an isolated profile.
+- Browser-to-Hyprland nonce association remains the next integration slice.
+
+
 ## Unreleased — C12 shared action journal (2026-09-09)
 
 - Task-bound intent, context/manifest/authority pins, immutable attempt identity and dispatch observations under schema 16. Execution and verification stay separate; legacy browser success remains unscoped and unverified.

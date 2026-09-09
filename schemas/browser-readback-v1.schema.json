@@ -1,0 +1,148 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Challenged browser readback message v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "v",
+    "id",
+    "profile",
+    "epoch",
+    "connection",
+    "type",
+    "challenge_id",
+    "seq",
+    "observed_at",
+    "tabs",
+    "present_tabs",
+    "instances",
+    "focused_window",
+    "complete",
+    "stable"
+  ],
+  "properties": {
+    "v": {
+      "const": 1
+    },
+    "type": {
+      "const": "readback"
+    },
+    "seq": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "observed_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "focused_window": {
+      "type": "integer"
+    },
+    "complete": {
+      "type": "boolean"
+    },
+    "stable": {
+      "type": "boolean"
+    },
+    "tabs": {
+      "type": "array",
+      "maxItems": 2048,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "id",
+          "window_id",
+          "url",
+          "title",
+          "active"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "window_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "url": {
+            "type": "string",
+            "maxLength": 8192
+          },
+          "title": {
+            "type": "string",
+            "maxLength": 1024
+          },
+          "active": {
+            "type": "boolean"
+          },
+          "load_status": {
+            "enum": [
+              "",
+              "unloaded",
+              "loading",
+              "complete"
+            ]
+          },
+          "discarded": {
+            "type": "boolean"
+          },
+          "navigation_pending": {
+            "type": "boolean"
+          }
+        }
+      }
+    },
+    "present_tabs": {
+      "type": "array",
+      "maxItems": 2048,
+      "uniqueItems": true,
+      "items": {
+        "type": "integer",
+        "minimum": 1
+      }
+    },
+    "instances": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "tab_id",
+          "action_ref"
+        ],
+        "properties": {
+          "tab_id": {
+            "type": "integer",
+            "minimum": 1
+          },
+          "action_ref": {
+            "$ref": "action-reference-v1.schema.json"
+          }
+        }
+      }
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    },
+    "profile": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    },
+    "epoch": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    },
+    "connection": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    },
+    "challenge_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    }
+  }
+}

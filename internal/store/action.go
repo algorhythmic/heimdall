@@ -87,7 +87,7 @@ func applyAction(st *model.State, e Event) error {
 		return err
 	}
 	a, exists := st.Actions[v.ActionID]
-	if !exists || v.Version != 1 || !model.OpaqueID.MatchString(v.ID) || v.ActionID != e.EntityID || v.AttemptID != a.Intent.AttemptID || v.PreviousRevision != a.Revision || v.Actor != e.Actor || !v.At.Equal(e.TS) || v.At.IsZero() || len(v.Reason) > 512 {
+	if !exists || (v.Version != 1 && v.Version != 2) || !model.OpaqueID.MatchString(v.ID) || v.ActionID != e.EntityID || v.AttemptID != a.Intent.AttemptID || v.PreviousRevision != a.Revision || v.Actor != e.Actor || !v.At.Equal(e.TS) || v.At.IsZero() || len(v.Reason) > 512 {
 		return fmt.Errorf("invalid action transition identity, revision or provenance")
 	}
 	if v.Kind != "report" && v.Report != nil {
@@ -96,7 +96,7 @@ func applyAction(st *model.State, e Event) error {
 	if v.Kind != "dispatch" && v.DeliveryID != "" {
 		return fmt.Errorf("delivery identity on another transition")
 	}
-	if v.Kind != "observe" && v.Kind != "dispatch" && v.Observation != nil {
+	if v.Kind != "observe" && v.Kind != "dispatch" && v.Kind != "verify" && v.Observation != nil {
 		return fmt.Errorf("observation on another transition")
 	}
 	switch v.Kind {
@@ -108,6 +108,9 @@ func applyAction(st *model.State, e Event) error {
 		o := v.Observation
 		if o == nil || !model.OpaqueID.MatchString(o.ID) || o.Status != "unknown" || o.SourceEpoch != p.Epoch || o.Digest != model.ContentDigest(p) || !o.ObservedAt.Equal(p.ReceivedAt) || v.At.Before(p.ReceivedAt) || v.At.Sub(p.ReceivedAt) > 5*time.Second || !p.Complete {
 			return fmt.Errorf("dispatch lacks a fresh observation reference")
+		}
+		if v.Version == 2 && (p.Freshness == nil || !p.Freshness.Stable || p.Freshness.Challenge.AfterEventID < a.LastEventID) {
+			return fmt.Errorf("dispatch requires challenged stable readback after intent")
 		}
 		a.Execution = "dispatching"
 		a.DeliveryID = v.DeliveryID
@@ -152,7 +155,9 @@ func applyAction(st *model.State, e Event) error {
 		}
 		if r.Status == "succeeded" {
 			a.Execution = "api_reported"
-			a.Verification = "pending"
+			if v.Version == 1 || a.Observation == nil || !model.Contains([]string{"matched", "not_matched"}, a.Observation.Status) {
+				a.Verification = "pending"
+			}
 		} else if r.Status == "refused" && a.UncertainSince.IsZero() {
 			a.Execution = "refused"
 			a.Verification = "unknown"
@@ -164,6 +169,39 @@ func applyAction(st *model.State, e Event) error {
 			}
 		}
 		a.Report = r
+		if v.Version == 2 {
+			a.VerificationAttempts = 0
+		}
+	case "source_lost":
+		p := st.Browsers[a.Intent.Browser.Profile]
+		if v.Version != 2 || !model.Contains([]string{"cli", "observer:browser"}, e.Actor) || !model.ActionHolds(a) || !model.Contains([]string{"api_reported", "uncertain"}, a.Execution) || v.Reason == "" || (p.Paired && p.Epoch == a.Intent.Browser.Epoch) {
+			return fmt.Errorf("browser source is still current")
+		}
+		a.Verification = "unknown"
+	case "reconcile":
+		if v.Version != 2 || e.Actor != "cli" || model.Contains([]string{"queued", "cancelled", "refused"}, a.Execution) || v.Reason == "" {
+			return fmt.Errorf("invalid explicit action reconciliation")
+		}
+		for id, other := range st.Actions {
+			if id != a.Intent.ID && other.Intent.SurfaceID == a.Intent.SurfaceID && model.ActionHolds(other) {
+				return fmt.Errorf("surface has another unresolved attempt: %w", ErrConflict)
+			}
+		}
+		a.Verification = "pending"
+		a.VerificationAttempts = 0
+	case "verify":
+		if v.Version != 2 || e.Actor != "observer:browser" || v.Observation == nil {
+			return fmt.Errorf("invalid browser verification authority")
+		}
+		p := st.Browsers[a.Intent.Browser.Profile]
+		o := v.Observation
+		status, detail := model.BrowserOutcome(a, p)
+		if !model.OpaqueID.MatchString(o.ID) || o.Status != status || o.Detail != detail || o.SourceEpoch != p.Epoch || o.Digest != model.ContentDigest(p) || !o.ObservedAt.Equal(p.ReceivedAt) || !o.ObservedAt.Equal(v.At) || p.Freshness == nil {
+			return fmt.Errorf("verification differs from independent readback")
+		}
+		a.Observation = o
+		a.VerificationAttempts++
+		a.Verification = status
 	case "observe":
 		// C13 supplies independent browser postconditions. C12 can retain only
 		// explicit unsupported/unknown observations, never manufactured success.

@@ -97,7 +97,7 @@ func TestActionEventGoldenAndForgery(t *testing.T) {
 					t.Fatal("forged event changed state")
 				}
 			}
-			bad(func(_ *Event, p map[string]any) { p["version"] = 2 })
+			bad(func(_ *Event, p map[string]any) { p["version"] = 99 })
 			bad(func(e *Event, _ map[string]any) { e.Actor = "client:forged" })
 			bad(func(_ *Event, p map[string]any) { p["unknown_authority"] = true })
 			if e.Verb == "queued" {

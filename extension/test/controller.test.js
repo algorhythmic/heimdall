@@ -37,3 +37,7 @@ test('shared action cannot inject input before intent persistence or with wrong 
  await assert.rejects(h.actions.execute(op),/storage unavailable/);assert.equal(h.calls.length,0);
  const bad=harness();assert.equal((await bad.actions.execute({...op,action_ref:{...actionRef,actor:'cli'}})).status,'refused');assert.equal(bad.calls.length,0);
 });
+test('a pending navigation invalidates the old committed URL before input',async()=>{
+ const h=harness();h.state.owners={1:opID};h.api.tabs.get=async()=>({id:1,windowId:1,url:'https://example.test/',pendingUrl:'https://example.test/next'});
+ const r=await h.actions.execute({id:'c'.repeat(32),epoch,action:'close',tab_id:1,owner_id:opID,expected_url:'https://example.test/',expires_at:new Date(Date.now()+30000).toISOString()});assert.equal(r.status,'refused');assert.equal(h.calls.length,0);
+});

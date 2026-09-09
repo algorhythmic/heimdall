@@ -18,6 +18,7 @@ import (
 )
 
 type fixture struct {
+	autoRead                                      bool
 	t                                             *testing.T
 	ctx                                           context.Context
 	e                                             *core.Engine
@@ -34,7 +35,8 @@ func setup(t *testing.T) *fixture {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() { e.Close() })
-	f := &fixture{t: t, ctx: context.Background(), e: e, a: actions.Service{Store: e.Store}, b: browser.Service{Store: e.Store}, now: time.Now().UTC(), profile: model.NewID(), epoch: model.NewID(), connection: model.NewID(), surface: model.NewID()}
+	f := &fixture{t: t, ctx: context.Background(), e: e, a: actions.Service{Store: e.Store}, b: *browser.NewService(e.Store), autoRead: true, now: time.Now().UTC(), profile: model.NewID(), epoch: model.NewID(), connection: model.NewID(), surface: model.NewID()}
+	f.b.Runtime.Clock = func() time.Time { return f.now }
 	for _, target := range []string{"alpha", "beta"} {
 		task := model.Task{ID: target, Title: target, Type: "project", Status: "active"}
 		if _, err = e.Execute(f.ctx, core.Command{ID: model.NewID(), Op: "add", Task: &task}, "cli", f.now); err != nil {
@@ -51,6 +53,7 @@ func setup(t *testing.T) *fixture {
 	hello := f.message("hello")
 	hello.ExtensionVersion = "0.3.0"
 	hello.ActionProtocol = 1
+	hello.VerificationProtocol = 1
 	f.send(hello)
 	if _, err = f.b.Control(f.ctx, browser.Control{ID: model.NewID(), Action: "pair", Profile: f.profile}, f.now); err != nil {
 		t.Fatal(err)
@@ -83,6 +86,7 @@ func (f *fixture) inventory(tabs []model.BrowserTab) {
 	m.FocusedWindow = &focus
 	m.Tabs = tabs
 	f.send(m)
+	f.prepareReadback()
 }
 func (f *fixture) request() actions.Request {
 	f.t.Helper()
@@ -100,6 +104,7 @@ func (f *fixture) queue(r actions.Request) model.ActionRecord {
 	}
 	var a model.ActionRecord
 	json.Unmarshal(raw, &a)
+	f.prepareReadback()
 	return a
 }
 func (f *fixture) action(id string) model.ActionRecord {
@@ -236,6 +241,7 @@ func TestActionQueuedCancellationAndDeliveryGuards(t *testing.T) {
 				hello := f.message("hello")
 				hello.ExtensionVersion = "0.3.0"
 				hello.ActionProtocol = 1
+				hello.VerificationProtocol = 1
 				f.send(hello)
 			}
 			if _, err := f.b.Handle(f.ctx, poll, f.now); err == nil {
@@ -370,4 +376,52 @@ func TestActionDeadlineSweepDoesNotRedispatchOrGrowWhenIdle(t *testing.T) {
 			}
 		})
 	}
+}
+
+// Existing action-journal tests now run on the current challenged transport.
+// Supply a synthetic read only for queued intents; outcome checks stay separate.
+func (f *fixture) prepareReadback() {
+	if !f.autoRead {
+		return
+	}
+	st, _ := f.e.Store.State(f.ctx)
+	queued := false
+	for _, a := range st.Actions {
+		if a.Execution == "queued" && a.Intent.Browser.Profile == f.profile {
+			queued = true
+		}
+	}
+	if !queued {
+		return
+	}
+	reply := f.send(f.message("poll"))
+	if reply.Challenge == nil {
+		f.t.Fatal("queued intent needs challenge", reply)
+	}
+	p := st.Browsers[f.profile]
+	tabs := p.Tabs
+	instances := []model.BrowserInstance{}
+	for i, t := range tabs {
+		if a, ok := st.Actions[t.OwnerID]; ok {
+			instances = append(instances, model.BrowserInstance{TabID: t.ID, ActionRef: *a.BrowserRef()})
+		}
+		tabs[i].OwnerID = ""
+	}
+	present := []int{}
+	for _, t := range tabs {
+		present = append(present, t.ID)
+	}
+	complete, stable, focus := true, true, p.FocusedWindow
+	m := f.message("readback")
+	m.ChallengeID = reply.Challenge.ID
+	m.Complete = &complete
+	m.Stable = &stable
+	m.FocusedWindow = &focus
+	m.ObservedAt = f.now.Format(time.RFC3339Nano)
+	f.sequence++
+	m.Sequence = f.sequence
+	m.Tabs = tabs
+	m.PresentTabs = present
+	m.Instances = instances
+	f.send(m)
 }

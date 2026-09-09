@@ -3,6 +3,7 @@
   "private": true,
   "version": "0.7.0",
   "devDependencies": {
-    "playwright": "1.62.1"
+    "playwright": "1.62.1",
+    "typescript": "7.0.2"
   }
 }

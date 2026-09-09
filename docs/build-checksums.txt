@@ -1,3 +1,3 @@
-3a708f7f113b6be7094e97b7922e6246189f5126c88d3ad35187885e85cff208  bin/heimdall
-d28a0806fe8e52397bf490474f4b18e1fe3d7ed7a30a947293992e5cbee43f39  .tools/heimdall-c12-windows.exe
-b15ee1eb1beadbc2682fde6b9e88723f4238cdc190b51f6db6bec0276aa21fd6  bin/heimdall-extension-0.3.0.zip
+2ea44bb2870c40d2eb6832d8a2e1693cebd9e87fa2fc81cefd962f6246f3e9e1  bin/heimdall
+e29c28a2c0ab816136185b976f4eebcce5fa4fb6863020a28a8aa99f71b39ced  .tools/heimdall-c13-windows.exe
+7e84f9185c1b4abe2168a78bedf7b313f37b4ca8e31125f54d46349b49b97f31  bin/heimdall-extension-0.4.0.zip

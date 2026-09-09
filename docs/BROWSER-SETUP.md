@@ -1,4 +1,4 @@
-# Browser setup — extension 0.3.0 / schema 16
+# Browser setup — extension 0.4.0 / schema 17
 
 Run the extension and daemon together. Chrome/Edge launches the small native helper as needed. Braid remains a separate retrieval component; neither Braid nor the task engine is bundled into the extension.
 
@@ -16,12 +16,12 @@ From the Heimdall project, choose a private, persistent local data directory. Ke
 In a second terminal, prepare the native helper in its final location. The output directory must be empty; use a new version directory for an upgrade.
 
 ```powershell
-.\bin\heimdall.exe browser setup --extension-id lffmpcoiimmjmacdbgnnjnegplmhiaic --output "$env:LOCALAPPDATA\Heimdall\browser-host-0.3.0" --data-dir "$env:LOCALAPPDATA\Heimdall\data"
+.\bin\heimdall.exe browser setup --extension-id lffmpcoiimmjmacdbgnnjnegplmhiaic --output "$env:LOCALAPPDATA\Heimdall\browser-host-0.4.0" --data-dir "$env:LOCALAPPDATA\Heimdall\data"
 ```
 
 Inspect the generated `host-config.json`, `dev.heimdall.browser.json`, and `SETUP.txt`. Import `register-chrome.reg` for Chrome or `register-edge.reg` for Edge. This registers a current-user native host; it does not install a background service. Do not move the host directory afterward. Registration is not performed by the build or setup command.
 
-Open the browser's extension management page, enable developer mode, select **Load unpacked**, and choose the project's `extension` folder. Alternatively extract `bin/heimdall-extension-0.3.0.zip` and select the extracted directory containing `manifest.json`. Keep that directory in place. The included public development key fixes the ID at `lffmpcoiimmjmacdbgnnjnegplmhiaic`; verify the displayed ID matches. This is not a signed Web Store release.
+Open the browser's extension management page, enable developer mode, select **Load unpacked**, and choose the project's `extension` folder. Alternatively extract `bin/heimdall-extension-0.4.0.zip` and select the extracted directory containing `manifest.json`. Keep that directory in place. The included public development key fixes the ID at `lffmpcoiimmjmacdbgnnjnegplmhiaic`; verify the displayed ID matches. This is not a signed Web Store release.
 
 Open the Heimdall popup. It displays a profile ID and pairing command. Run that command with the same data directory:
 
@@ -59,10 +59,10 @@ Wait for updated inventory between navigation and subsequent commands. Redirecte
 - **Stale epoch/URL:** refresh `browser status`. Commands cannot transfer ownership across a browser restart or control unrelated user tabs.
 - **Paused or gap:** use the popup. A gap indicates outbox retention/epoch loss; snapshots do not provide complete historical activity coverage.
 
-For upgrades, stop the daemon and copy its data directory as a backup, replace its executable, prepare a new versioned host directory, update the browser's native registration and reload the extension. The current build upgrades database markers 1–15 to 16 after a consistent pre-upgrade backup; older executables refuse marker 16. See [continuity setup](CONTINUITY-SETUP.md) for rollback. Rollback requires the old backup, not lowering the marker. Keep the development manifest key to retain its extension ID. To remove the integration, unpair profiles, remove the extension, and remove only the `dev.heimdall.browser` entry beneath the chosen browser's current-user `NativeMessagingHosts` registry key. Existing task/event data is separate.
+For upgrades, stop the daemon and copy its data directory as a backup, replace its executable, prepare a new versioned host directory, update the browser's native registration and reload the extension. The current build upgrades database markers 1–16 to 17 after a consistent pre-upgrade backup; older executables refuse marker 17. See [continuity setup](CONTINUITY-SETUP.md) for rollback. Rollback requires the old backup, not lowering the marker. Keep the development manifest key to retain its extension ID. To remove the integration, unpair profiles, remove the extension, and remove only the `dev.heimdall.browser` entry beneath the chosen browser's current-user `NativeMessagingHosts` registry key. Existing task/event data is separate.
 
 ## Linux and acceptance boundary
 
-The Linux binary is cross-built, not executed in this verification run. Run its `browser setup` command to produce a platform-native helper and manifest; place the manifest under the appropriate Chrome/Chromium `NativeMessagingHosts` directory following `SETUP.txt`. Host discovery for alternate profiles, distro wrappers and managed browsers needs local validation. No login service, browser auto-launch, Hyprland pairing or restoration has been implemented.
+Linux Chromium native-host discovery now passes in an isolated acceptance profile with the compiled Linux helper. See [browser verification](BROWSER-VERIFICATION.md) for reproducible setup and limits. Normal-profile deployment, actual Windows/Edge registration and browser-to-Hyprland association remain separate gates. No global browser configuration or login service is changed by the acceptance harness.
 
 Automated verification covers real Chromium APIs, compiled native framing, pairing, metadata, commands, offline buffering, pause/resume and daemon recovery. The worker integration harness replaces Chrome's OS native-host discovery with a test port; installation into a normal Chrome/Edge profile remains an explicit deployment acceptance step. See [VERIFICATION.md](VERIFICATION.md).

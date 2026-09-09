@@ -13,13 +13,14 @@ import (
 	_ "modernc.org/sqlite"
 	"os"
 	"path/filepath"
+	"reflect"
 	"sync"
 	"time"
 )
 
 var ErrConflict = errors.New("revision or idempotency conflict")
 
-const SchemaVersion = 16
+const SchemaVersion = 17
 
 type Event struct {
 	ID        int64           `json:"id"`
@@ -114,7 +115,7 @@ func Open(dir string) (*Store, error) {
  CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,event_version INTEGER NOT NULL,ts TEXT NOT NULL,subject TEXT NOT NULL,verb TEXT NOT NULL,actor TEXT NOT NULL,entity_id TEXT NOT NULL,command_id TEXT NOT NULL,payload TEXT NOT NULL CHECK(json_valid(payload)),idempotency_key TEXT NOT NULL UNIQUE);
  CREATE TABLE IF NOT EXISTS projection_state(id INTEGER PRIMARY KEY CHECK(id=1),body TEXT NOT NULL CHECK(json_valid(body)));
  CREATE TABLE IF NOT EXISTS commands(id TEXT PRIMARY KEY,request_hash TEXT NOT NULL,result TEXT NOT NULL);
- ` + snapshotTables + `CREATE INDEX IF NOT EXISTS events_subject_entity ON events(subject,entity_id,id); PRAGMA user_version=16;`)
+ ` + snapshotTables + `CREATE INDEX IF NOT EXISTS events_subject_entity ON events(subject,entity_id,id); PRAGMA user_version=17;`)
 	if err != nil {
 		s.Close()
 		return nil, err
@@ -195,7 +196,7 @@ func (s *Store) TransactChecked(ctx context.Context, id, actor string, request [
 		return nil, err
 	}
 	// Empty background scans do not grow the event log.
-	if (actor == "scheduler" || actor == "coordinator") && len(change.Events) == 0 {
+	if (actor == "scheduler" || actor == "coordinator" || actor == "observer:browser") && len(change.Events) == 0 {
 		return result, nil
 	}
 	accepted := Pending{"command", "accepted", id, Acceptance{h, change.Revision, result}}
@@ -329,6 +330,10 @@ func Apply(st *model.State, e Event) error {
 		if err := applyArtifact(st, e); err != nil {
 			return err
 		}
+	case "browser.challenge_issued", "browser.readback_observed":
+		if err := applyBrowserVerification(st, e); err != nil {
+			return err
+		}
 	case "browser.profile_seen", "browser.pairing_changed", "browser.inventory_observed":
 		var p model.BrowserProfile
 		if err := json.Unmarshal(e.Payload, &p); err != nil {
@@ -336,6 +341,16 @@ func Apply(st *model.State, e Event) error {
 		}
 		if p.ID != e.EntityID {
 			return fmt.Errorf("invalid browser profile identity")
+		}
+
+		// Earlier event shapes may carry unchanged challenge metadata through a
+		// pairing update, but cannot introduce independently verified observations.
+		old := st.Browsers[p.ID]
+		if p.Freshness != nil && (e.Verb != "pairing_changed" || !reflect.DeepEqual(p.Freshness, old.Freshness) || !reflect.DeepEqual(p.Tabs, old.Tabs) || !reflect.DeepEqual(p.PresentTabs, old.PresentTabs) || !p.ReceivedAt.Equal(old.ReceivedAt)) {
+			return fmt.Errorf("fresh browser proof requires the readback event")
+		}
+		if p.Challenge != nil && !reflect.DeepEqual(p.Challenge, old.Challenge) {
+			return fmt.Errorf("browser challenge requires explicit issuance")
 		}
 		st.Browsers[p.ID] = p
 	case "action.queued", "action.transitioned":

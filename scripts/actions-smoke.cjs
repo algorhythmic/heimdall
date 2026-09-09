@@ -26,14 +26,15 @@ async function inventory(tabs=[]){return ingress(message({type:'inventory',seq:+
  assert.equal(cli('browser','status').legacy_actions[legacyOp.id].execution,'api_reported');assert.equal(cli('browser','status').legacy_actions[legacyOp.id].verification,'unsupported');
  const c=cli('action','context','alpha'),request={version:1,id:id(),target:'alpha',expected_task_revision:c.task_revision,manifest_id:c.manifest_id,surface_id:surface,context_digest:c.context_digest,browser:{profile,epoch,action:'open',url:'https://action.example.test/'}};
  assert.notEqual(refused('action','queue','alpha','--file',input('unsupported',request)).status,0);
- connection=id();await ingress(message({type:'hello',extension_version:'0.3.0',action_protocol:1,label:'Synthetic browser'}));await inventory();
+ connection=id();await ingress(message({type:'hello',extension_version:'0.4.0',action_protocol:1,verification_protocol:1,label:'Synthetic browser'}));await inventory();
  const file=input('request',request),queued=cli('action','queue','alpha','--file',file);assert.equal(queued.execution,'queued');assert.equal(queued.verification,'pending');assert(queued.intent.attempt_id);
  assert.deepEqual(cli('action','queue','alpha','--file',file),queued);assert.equal(cli('action','show','alpha','--id',request.id).last_event_id,queued.last_event_id);
  assert.notEqual(refused('action','queue','alpha','--file',input('conflicting',{...request,id:id()})).status,0);
+ const challenge=await ingress(message({type:'poll'}));assert(challenge.challenge);await ingress(message({type:'readback',challenge_id:challenge.challenge.id,seq:++sequence,observed_at:new Date().toISOString(),tabs:[],present_tabs:[],instances:[],stable:true,complete:true,focused_window:1}));
  const poll=message({type:'poll'}),delivery=await ingress(poll);assert.equal(delivery.commands.length,1);const ref=delivery.commands[0].action_ref;assert.equal(ref.id,request.id);assert.equal(ref.attempt_id,queued.intent.attempt_id);
  assert.equal(cli('action','show','alpha','--id',request.id).execution,'dispatching');assert.deepEqual(await ingress(poll),delivery);assert.equal((await ingress(message({type:'poll'}))).commands?.length||0,0);
  await stopProcess(daemon,'SIGKILL');await start();let action=cli('action','show','alpha','--id',request.id);assert.equal(action.execution,'uncertain');assert.equal(action.verification,'unknown');assert(action.uncertain_since);
- connection=id();await ingress(message({type:'hello',extension_version:'0.3.0',action_protocol:1,label:'Reconnected synthetic browser'}));await inventory();assert.equal((await ingress(message({type:'poll'}))).commands?.length||0,0);
+ connection=id();await ingress(message({type:'hello',extension_version:'0.4.0',action_protocol:1,verification_protocol:1,label:'Reconnected synthetic browser'}));await inventory();assert.equal((await ingress(message({type:'poll'}))).commands?.length||0,0);
  const cancel={version:1,id:id(),target:'alpha',action_id:request.id,expected_revision:action.revision,reason:'Cancel without assuming dispatched input stopped'};
  action=cli('action','cancel','alpha','--file',input('cancel',cancel));assert.equal(action.execution,'uncertain');assert.equal(action.cancel_requested,true);
  assert.notEqual(refused('action','queue','alpha','--file',input('still-conflicting',{...request,id:id()})).status,0);
@@ -44,9 +45,9 @@ async function inventory(tabs=[]){return ingress(message({type:'inventory',seq:+
  assert.notEqual(refused('action','show','beta','--id',request.id).status,0);assert.equal(cli('action','list','alpha').length,1);const history=cli('action','history','alpha','--id',request.id);assert.equal(history.length,5);
  const credential=join(dir,'reader.credential.json');cli('grant','issue','alpha','--name','No action authority','--expires',new Date(Date.now()+3600000).toISOString(),'--output',credential);
  const ep=JSON.parse(fs.readFileSync(join(data,'endpoint.json'))),reader=JSON.parse(fs.readFileSync(credential)),browser=JSON.parse(fs.readFileSync(join(data,'browser-endpoint.json')));
- for(const token of [reader.token,browser.token])for(const path of ['context','show','list','history','queue','cancel']){const response=await fetch(ep.url+'/action/'+path+'?target=alpha&id='+request.id,{headers:{authorization:'Bearer '+token}});assert.equal(response.status,401);}
+ for(const token of [reader.token,browser.token])for(const path of ['context','show','list','history','queue','cancel','reconcile']){const response=await fetch(ep.url+'/action/'+path+'?target=alpha&id='+request.id,{headers:{authorization:'Bearer '+token}});assert.equal(response.status,401);}
  const state=cli('state');cli('replay');assert.deepEqual(cli('state'),state);assert.equal(state.tasks.alpha.task.status,'active');
- fs.writeFileSync(join(dir,'events.json'),JSON.stringify(cli('events'),null,2)+'\n');const backup=join(dir,'schema16.db');cli('backup','--output',backup);
+ fs.writeFileSync(join(dir,'events.json'),JSON.stringify(cli('events'),null,2)+'\n');const backup=join(dir,'schema17.db');cli('backup','--output',backup);
  await stopProcess(daemon);const original=data;data=join(dir,'restored');fs.mkdirSync(data);fs.copyFileSync(backup,join(data,'heimdall.db'));fs.copyFileSync(join(original,'types.yaml'),join(data,'types.yaml'));await start();assert.deepEqual(cli('state'),state);assert.deepEqual(cli('action','queue','alpha','--file',file),queued);
  console.log(JSON.stringify({status:'passed',legacy:!!legacy,checks:['legacy browser success remains unverified','intent and attempt committed before delivery','surface conflict and exact retry','SIGKILL after delivery leaves uncertainty','cancel in flight and late API report remain distinct','wrong attempt and cross-task refusal','legacy control cannot bypass scoped ownership','history, replay and backup restore','CLI-only action authority'],data:dir},null,2));
 }finally{await stopProcess(daemon);}})().catch(e=>{console.error(e);process.exitCode=1;});

@@ -12,6 +12,7 @@ import (
 	"heimdall/internal/actions"
 	"heimdall/internal/adapters/herdr"
 	"heimdall/internal/adapters/hyprland"
+	"heimdall/internal/browser"
 	"heimdall/internal/checks"
 	"heimdall/internal/core"
 	"heimdall/internal/model"
@@ -37,6 +38,7 @@ type Request struct {
 	Now     string       `json:"now,omitempty"`
 }
 type Server struct {
+	Browser           *browser.Service
 	Previews          *workspace.PreviewService
 	Snapshots         *workspace.SnapshotService
 	Viewport          *workspace.ViewportService
@@ -101,7 +103,7 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 		return err
 	}
 	defer os.Remove(browserPath)
-	service := &Server{Engine: e, Token: ep.Token, BrowserToken: browserToken, Host: listener.Addr().String(), Clock: clock}
+	service := &Server{Browser: browser.NewService(e.Store), Engine: e, Token: ep.Token, BrowserToken: browserToken, Host: listener.Addr().String(), Clock: clock}
 	server := &http.Server{Handler: service, ReadHeaderTimeout: 2 * time.Second, ReadTimeout: 5 * time.Second, WriteTimeout: 10 * time.Second, IdleTimeout: 30 * time.Second, MaxHeaderBytes: 8192}
 	localCtx, cancel := context.WithCancel(ctx)
 	defer cancel()

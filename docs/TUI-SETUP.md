@@ -127,7 +127,7 @@ The TUI is a local human CLI client. It reads the selected data directory's CLI
 endpoint, rediscovers the daemon after restart and uses the same authority as
 other CLI commands. A task argument filters the display; it is not an access
 grant. Scoped MCP/agent credentials and extension credentials gain no new powers.
-Current database schema is 16. Historical UI-v2 reviews still replay with their
+Current database schema is 17. Historical UI-v2 reviews still replay with their
 original provenance, but there is no live browser-session authority.
 
 The screenshots include later roadmap capabilities. Current binding counts are

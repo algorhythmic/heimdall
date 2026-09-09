@@ -37,7 +37,10 @@ func (s *Server) browserHTTP(w http.ResponseWriter, r *http.Request) {
 		writeError(w, 400, err)
 		return
 	}
-	service := browser.Service{Store: s.Engine.Store}
+	service := s.Browser
+	if service == nil {
+		service = browser.NewService(s.Engine.Store)
+	}
 	var result any
 	switch r.URL.Path {
 	case "/browser/message":

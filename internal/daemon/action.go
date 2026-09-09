@@ -52,11 +52,15 @@ func (s *Server) actionHTTP(w http.ResponseWriter, r *http.Request) {
 				if err == nil {
 					result, err = service.Queue(r.Context(), input, "cli", s.Clock().UTC())
 				}
-			case "/action/cancel":
+			case "/action/cancel", "/action/reconcile":
 				var input actions.CancelRequest
 				err = model.StrictJSON(raw, &input)
 				if err == nil {
-					result, err = service.Cancel(r.Context(), input, "cli", s.Clock().UTC())
+					if r.URL.Path == "/action/reconcile" {
+						result, err = service.Reconcile(r.Context(), input, "cli", s.Clock().UTC())
+					} else {
+						result, err = service.Cancel(r.Context(), input, "cli", s.Clock().UTC())
+					}
 				}
 			default:
 				err = fmt.Errorf("unknown action command")

@@ -12,9 +12,12 @@ import (
 	"time"
 )
 
-type Service struct{ Store *store.Store }
+type Service struct {
+	Store   *store.Store
+	Runtime *Runtime
+}
 
-func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.RawMessage, error) {
+func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.RawMessage, error) {
 	if err := m.Validate(); err != nil {
 		return nil, err
 	}
@@ -31,13 +34,18 @@ func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.Raw
 		if !ok || p.Epoch != m.Epoch || p.Connection != m.Connection {
 			return fmt.Errorf("stale_connection: reconnect before sending messages")
 		}
-		if (m.Type == "poll" || m.Type == "command_result") && !p.Paired {
+		if (m.Type == "poll" || m.Type == "command_result" || m.Type == "readback") && !p.Paired {
 			return fmt.Errorf("profile_unpaired")
+		}
+		if m.Type == "readback" {
+			if err := s.readbackAllowed(p, m, now); err != nil {
+				return err
+			}
 		}
 		if m.Type == "poll" {
 			for _, a := range st.Actions {
 				if a.DeliveryID == m.ID && a.Intent.Browser.Profile == m.Profile {
-					if a.Execution != "dispatching" || a.CancelRequested || !model.ActionInputsCurrent(st, a.Intent) || !model.ActionBrowserCurrent(st, a.Intent) || !now.Before(a.Intent.ExpiresAt) || p.ActionProtocol != 1 || !p.Complete || p.ReceivedEpoch != s.Store.RuntimeID() || now.Before(p.ReceivedAt) || now.Sub(p.ReceivedAt) > 5*time.Second {
+					if a.Execution != "dispatching" || a.CancelRequested || !model.ActionInputsCurrent(st, a.Intent) || !model.ActionBrowserCurrent(st, a.Intent) || !now.Before(a.Intent.ExpiresAt) || !s.fresh(p, 0, now) {
 						return fmt.Errorf("cached action delivery no longer authorized")
 					}
 				}
@@ -65,6 +73,10 @@ func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			p.Label = m.Label
 			p.ExtensionVersion = m.ExtensionVersion
 			p.ActionProtocol = m.ActionProtocol
+			p.VerificationProtocol = m.VerificationProtocol
+			p.Challenge = nil
+			p.Freshness = nil
+			p.PresentTabs = nil
 			// Every transport hello requires a fresh daemon-received inventory.
 			p.ReceivedAt = time.Time{}
 			p.ReceivedEpoch = ""
@@ -86,6 +98,19 @@ func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.Raw
 				for _, id := range ids {
 					change.Events = append(change.Events, actions.Pending(actions.Transition(st.Actions[id], "interrupt", "browser transport replaced after possible dispatch", actor, now)))
 				}
+			}
+
+			ids := []string{}
+			for id, a := range st.Actions {
+				if a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Epoch != p.Epoch && model.ActionHolds(a) && model.Contains([]string{"api_reported", "uncertain"}, a.Execution) {
+					ids = append(ids, id)
+				}
+			}
+			sort.Strings(ids)
+			for _, id := range ids {
+				v := actions.Transition(st.Actions[id], "source_lost", "Browser session epoch changed; old runtime outcome requires explicit recovery", actor, now)
+				v.Version = 2
+				change.Events = append(change.Events, actions.Pending(v))
 			}
 			change.Result = reply
 			return change, nil
@@ -127,14 +152,31 @@ func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			sort.Slice(p.Tabs, func(i, j int) bool { return p.Tabs[i].ID < p.Tabs[j].ID })
 			p.LastSequence = m.Sequence
 			p.LastObservedAt, _ = time.Parse(time.RFC3339Nano, m.ObservedAt)
+			p.Freshness = nil
+			p.PresentTabs = nil
 			p.ReceivedAt = now.UTC()
 			p.ReceivedEpoch = s.Store.RuntimeID()
 			p.FocusedWindow = *m.FocusedWindow
 			p.Complete = *m.Complete
 			change.Events = append(change.Events, store.Pending{Subject: "browser", Verb: "inventory_observed", EntityID: p.ID, Payload: p})
 			reply.LastSequence = p.LastSequence
+		case "readback":
+			var err error
+			change.Events, err = s.readback(st, m, now)
+			if err != nil {
+				return change, err
+			}
+			reply.LastSequence = m.Sequence
 		case "poll":
 			reply.Type = "commands"
+			if c, event := s.challenge(st, p, now); c != nil {
+				reply.Challenge = c
+				if event != nil {
+					change.Events = []store.Pending{*event}
+				}
+				change.Result = reply
+				return change, nil
+			}
 			keys := []string{}
 			for id := range st.BrowserOperations {
 				keys = append(keys, id)
@@ -163,11 +205,14 @@ func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.Raw
 						change.Events = append(change.Events, store.Pending{Subject: "browser", Verb: "command_finished", EntityID: o.ID, Payload: o})
 						continue
 					}
-					if p.ActionProtocol != 1 || !p.Complete || p.ReceivedEpoch != s.Store.RuntimeID() || now.Before(p.ReceivedAt) || now.Sub(p.ReceivedAt) > 5*time.Second {
+					if !s.fresh(p, a.LastEventID, now) {
 						continue
 					}
 					if len(reply.Commands) < 8 {
 						v := actions.Transition(a, "dispatch", "fresh paired browser transport delivery", "coordinator", now)
+						if s.Runtime != nil {
+							v.Version = 2
+						}
 						v.DeliveryID = m.ID
 						v.Observation = &model.ActionObservation{ID: model.NewID(), Status: "unknown", SourceEpoch: p.Epoch, Digest: model.ContentDigest(p), ObservedAt: p.ReceivedAt, Detail: "Complete browser inventory used as dispatch precondition"}
 						change.Events = append(change.Events, actions.Pending(v))
@@ -196,7 +241,15 @@ func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			}
 			if o.ActionRef != nil {
 				v := actions.Transition(st.Actions[o.ActionRef.ID], "report", "browser API report; postcondition unverified", actor, now)
+				if s.Runtime != nil {
+					v.Version = 2
+				}
 				v.Report = &model.ActionReport{Status: r.Status, Detail: r.Detail, TabID: r.TabID, WindowID: r.WindowID, URL: r.URL}
+
+				if reflect.DeepEqual(st.Actions[o.ActionRef.ID].Report, v.Report) {
+					change.Result = reply
+					return change, nil
+				}
 				change.Events = append(change.Events, actions.Pending(v))
 			}
 			late := o.Status == "expired"
@@ -243,7 +296,16 @@ func (s Service) Control(ctx context.Context, c Control, now time.Time) (json.Ra
 				}
 				sort.Strings(keys)
 				for _, id := range keys {
+
 					o := st.BrowserOperations[id]
+					if o.Profile == p.ID && o.Status != "pending" && o.ActionRef != nil {
+						a := st.Actions[o.ActionRef.ID]
+						if model.ActionHolds(a) && model.Contains([]string{"api_reported", "uncertain"}, a.Execution) {
+							v := actions.Transition(a, "source_lost", "Profile unpaired; outcome readback unavailable", "cli", now)
+							v.Version = 2
+							change.Events = append(change.Events, actions.Pending(v))
+						}
+					}
 					if o.Profile == p.ID && o.Status == "pending" {
 						if o.ActionRef != nil {
 							a := st.Actions[o.ActionRef.ID]

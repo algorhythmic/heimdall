@@ -249,3 +249,27 @@ func Legacy(o model.BrowserOperation) LegacyBrowserAction {
 	}
 	return LegacyBrowserAction{o, execution, "unsupported", "unscoped_legacy_browser"}
 }
+
+// Reconcile requests fresh observation of the same attempt and never dispatches it.
+func (s Service) Reconcile(ctx context.Context, r CancelRequest, actor string, now time.Time) (json.RawMessage, error) {
+	if actor != "cli" || r.Version != 1 || !model.OpaqueID.MatchString(r.ID) || !model.OpaqueID.MatchString(r.ActionID) || !model.ValidID(r.Target) || r.ExpectedRevision < 1 || r.Reason == "" || len(r.Reason) > 512 {
+		return nil, fmt.Errorf("invalid explicit reconciliation")
+	}
+	raw, _ := json.Marshal(r)
+	return s.Store.Transact(ctx, "action-reconcile-"+r.ID, actor, raw, now, func(st model.State) (store.Change, error) {
+		c := store.Change{Revision: st.Revision}
+		a := st.Actions[r.ActionID]
+		if a.Intent.Target != r.Target || a.Revision != r.ExpectedRevision {
+			return c, fmt.Errorf("action scope/revision: %w", store.ErrConflict)
+		}
+		v := Transition(a, "reconcile", r.Reason, actor, now)
+		v.Version = 2
+		p := Pending(v)
+		if err := ApplyPending(&st, p, "action-reconcile-"+r.ID, actor, now); err != nil {
+			return c, err
+		}
+		c.Events = []store.Pending{p}
+		c.Result = st.Actions[r.ActionID]
+		return c, nil
+	})
+}

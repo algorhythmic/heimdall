@@ -15,7 +15,7 @@ import (
 
 func actionCLI(ctx context.Context, o options, args []string, out io.Writer) error {
 	if len(args) < 2 || !model.ValidID(args[1]) {
-		return fmt.Errorf("action requires context|queue|cancel|show|list|history TASK")
+		return fmt.Errorf("action requires context|queue|cancel|reconcile|show|list|history TASK")
 	}
 	action, target := args[0], args[1]
 	f := flag.NewFlagSet("action "+action, flag.ContinueOnError)
@@ -23,7 +23,7 @@ func actionCLI(ctx context.Context, o options, args []string, out io.Writer) err
 	var file, id string
 	var before int64
 	limit := 25
-	if action == "queue" || action == "cancel" {
+	if action == "queue" || action == "cancel" || action == "reconcile" {
 		f.StringVar(&file, "file", "", "retained complete JSON request")
 	}
 	if action == "show" || action == "history" {
@@ -39,7 +39,7 @@ func actionCLI(ctx context.Context, o options, args []string, out io.Writer) err
 	if f.NArg() != 0 {
 		return fmt.Errorf("unexpected action arguments")
 	}
-	if !model.Contains([]string{"context", "queue", "cancel", "show", "list", "history"}, action) {
+	if !model.Contains([]string{"context", "queue", "cancel", "reconcile", "show", "list", "history"}, action) {
 		return fmt.Errorf("unknown action verb")
 	}
 	method := "GET"
@@ -59,7 +59,7 @@ func actionCLI(ctx context.Context, o options, args []string, out io.Writer) err
 		q.Set("limit", strconv.Itoa(limit))
 	}
 	path := "/action/" + action + "?" + q.Encode()
-	if action == "queue" || action == "cancel" {
+	if action == "queue" || action == "cancel" || action == "reconcile" {
 		if file == "" {
 			return fmt.Errorf("--file REQUEST.json required")
 		}

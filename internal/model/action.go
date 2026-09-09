@@ -15,14 +15,15 @@ func ValidActionVerification(s string) bool {
 }
 
 type BrowserIntent struct {
-	Profile     string `json:"profile"`
-	Epoch       string `json:"epoch"`
-	Action      string `json:"action"`
-	TabID       int    `json:"tab_id,omitempty"`
-	WindowID    int    `json:"window_id,omitempty"`
-	OwnerID     string `json:"owner_id,omitempty"`
-	ExpectedURL string `json:"expected_url,omitempty"`
-	URL         string `json:"url,omitempty"`
+	LoadCondition string `json:"load_condition,omitempty"`
+	Profile       string `json:"profile"`
+	Epoch         string `json:"epoch"`
+	Action        string `json:"action"`
+	TabID         int    `json:"tab_id,omitempty"`
+	WindowID      int    `json:"window_id,omitempty"`
+	OwnerID       string `json:"owner_id,omitempty"`
+	ExpectedURL   string `json:"expected_url,omitempty"`
+	URL           string `json:"url,omitempty"`
 }
 type ActionPostcondition struct {
 	Kind           string `json:"kind"`
@@ -64,20 +65,21 @@ type ActionObservation struct {
 	Detail      string    `json:"detail"`
 }
 type ActionRecord struct {
-	Intent              ActionIntent       `json:"intent"`
-	IntentDigest        string             `json:"intent_digest"`
-	Revision            int64              `json:"revision"`
-	Execution           string             `json:"execution"`
-	Verification        string             `json:"verification"`
-	CancelRequested     bool               `json:"cancel_requested"`
-	DeliveryID          string             `json:"delivery_id,omitempty"`
-	UncertainSince      time.Time          `json:"uncertain_since"`
-	Report              *ActionReport      `json:"report,omitempty"`
-	Observation         *ActionObservation `json:"observation,omitempty"`
-	DispatchObservation *ActionObservation `json:"dispatch_observation,omitempty"`
-	UpdatedAt           time.Time          `json:"updated_at"`
-	LastReason          string             `json:"last_reason"`
-	LastEventID         int64              `json:"last_event_id"`
+	VerificationAttempts int                `json:"verification_attempts,omitempty"`
+	Intent               ActionIntent       `json:"intent"`
+	IntentDigest         string             `json:"intent_digest"`
+	Revision             int64              `json:"revision"`
+	Execution            string             `json:"execution"`
+	Verification         string             `json:"verification"`
+	CancelRequested      bool               `json:"cancel_requested"`
+	DeliveryID           string             `json:"delivery_id,omitempty"`
+	UncertainSince       time.Time          `json:"uncertain_since"`
+	Report               *ActionReport      `json:"report,omitempty"`
+	Observation          *ActionObservation `json:"observation,omitempty"`
+	DispatchObservation  *ActionObservation `json:"dispatch_observation,omitempty"`
+	UpdatedAt            time.Time          `json:"updated_at"`
+	LastReason           string             `json:"last_reason"`
+	LastEventID          int64              `json:"last_event_id"`
 }
 type ActionTransition struct {
 	Version          int                `json:"version"`
@@ -122,6 +124,9 @@ func BrowserURL(s string) bool {
 	return err == nil && (u.Scheme == "https" || u.Scheme == "http") && u.Host != "" && u.User == nil && len(s) <= 8192
 }
 func (b BrowserIntent) Validate() error {
+	if b.LoadCondition != "" && (b.LoadCondition != "complete" || (b.Action != "open" && b.Action != "navigate")) {
+		return fmt.Errorf("only open/navigation accept complete load condition")
+	}
 	if !OpaqueID.MatchString(b.Profile) || !OpaqueID.MatchString(b.Epoch) || !Contains([]string{"open", "navigate", "focus", "move", "close"}, b.Action) {
 		return fmt.Errorf("invalid browser intent identity/action")
 	}
@@ -144,6 +149,9 @@ func (b BrowserIntent) Validate() error {
 }
 func BrowserPostcondition(b BrowserIntent) ActionPostcondition {
 	p := ActionPostcondition{RedirectPolicy: "exact", LoadCondition: "not_requested"}
+	if b.LoadCondition != "" {
+		p.LoadCondition = b.LoadCondition
+	}
 	switch b.Action {
 	case "open":
 		p.Kind = "owned_instance_exists"
@@ -224,7 +232,8 @@ func ActionHolds(a ActionRecord) bool {
 	if a.Execution == "cancelled" || a.Execution == "refused" {
 		return false
 	}
-	return a.Verification != "matched" && a.Verification != "not_matched"
+	// An uncertain failed postcondition is not permission to duplicate a possible effect.
+	return a.Verification != "matched" && !(a.Verification == "not_matched" && a.Execution == "api_reported")
 }
 func ActionConflict(st State, v ActionIntent) string {
 	ids := []string{}
@@ -255,11 +264,30 @@ func ActionBrowserCurrent(st State, v ActionIntent) bool {
 	if !p.Paired || p.Epoch != b.Epoch || p.ActionProtocol != 1 {
 		return false
 	}
+
 	if b.Action == "open" {
+		for id, old := range st.Actions {
+			if id == v.ID || old.Intent.SurfaceID != v.SurfaceID || old.Intent.Browser == nil || old.Intent.Browser.Action != "open" || old.Execution == "refused" || old.Execution == "cancelled" {
+				continue
+			}
+			// A new action ID cannot duplicate an already owned logical surface. A
+			// browser-session change needs explicit adoption/recovery, not URL matching.
+			if old.Intent.Browser.Profile != b.Profile || old.Intent.Browser.Epoch != b.Epoch || old.Report == nil || old.Report.TabID < 1 {
+				return false
+			}
+			if !p.Complete || p.Freshness == nil || !p.Freshness.Stable {
+				return false
+			}
+			for _, id := range p.PresentTabs {
+				if id == old.Report.TabID {
+					return false
+				}
+			}
+		}
 		return true
 	}
 	for _, tab := range p.Tabs {
-		if tab.ID == b.TabID && tab.OwnerID == b.OwnerID && tab.URL == b.ExpectedURL {
+		if tab.ID == b.TabID && tab.OwnerID == b.OwnerID && tab.URL == b.ExpectedURL && !tab.NavigationPending {
 			return true
 		}
 	}

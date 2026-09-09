@@ -3,28 +3,35 @@ package model
 import "time"
 
 type BrowserTab struct {
-	ID       int    `json:"id"`
-	WindowID int    `json:"window_id"`
-	URL      string `json:"url"`
-	Title    string `json:"title"`
-	Active   bool   `json:"active"`
-	OwnerID  string `json:"owner_id,omitempty"`
+	NavigationPending bool   `json:"navigation_pending,omitempty"`
+	LoadStatus        string `json:"load_status,omitempty"`
+	Discarded         bool   `json:"discarded,omitempty"`
+	ID                int    `json:"id"`
+	WindowID          int    `json:"window_id"`
+	URL               string `json:"url"`
+	Title             string `json:"title"`
+	Active            bool   `json:"active"`
+	OwnerID           string `json:"owner_id,omitempty"`
 }
 type BrowserProfile struct {
-	ActionProtocol   int          `json:"action_protocol,omitempty"`
-	ReceivedAt       time.Time    `json:"received_at"`
-	ReceivedEpoch    string       `json:"received_epoch,omitempty"`
-	ID               string       `json:"id"`
-	Label            string       `json:"label"`
-	ExtensionVersion string       `json:"extension_version"`
-	Epoch            string       `json:"epoch"`
-	Connection       string       `json:"connection"`
-	Paired           bool         `json:"paired"`
-	LastSequence     int64        `json:"last_sequence"`
-	LastObservedAt   time.Time    `json:"last_observed_at"`
-	Tabs             []BrowserTab `json:"tabs"`
-	FocusedWindow    int          `json:"focused_window"`
-	Complete         bool         `json:"complete"`
+	VerificationProtocol int               `json:"verification_protocol,omitempty"`
+	Challenge            *BrowserChallenge `json:"challenge,omitempty"`
+	Freshness            *BrowserFreshness `json:"freshness,omitempty"`
+	PresentTabs          []int             `json:"present_tabs,omitempty"`
+	ActionProtocol       int               `json:"action_protocol,omitempty"`
+	ReceivedAt           time.Time         `json:"received_at"`
+	ReceivedEpoch        string            `json:"received_epoch,omitempty"`
+	ID                   string            `json:"id"`
+	Label                string            `json:"label"`
+	ExtensionVersion     string            `json:"extension_version"`
+	Epoch                string            `json:"epoch"`
+	Connection           string            `json:"connection"`
+	Paired               bool              `json:"paired"`
+	LastSequence         int64             `json:"last_sequence"`
+	LastObservedAt       time.Time         `json:"last_observed_at"`
+	Tabs                 []BrowserTab      `json:"tabs"`
+	FocusedWindow        int               `json:"focused_window"`
+	Complete             bool              `json:"complete"`
 }
 type BrowserOperation struct {
 	ActionRef   *BrowserActionRef `json:"action_ref,omitempty"`

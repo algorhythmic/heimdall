@@ -19,6 +19,12 @@ jobs:
         with:
           node-version: '24'
       - run: node --test extension/test/*.test.js
+      - run: npm ci --prefix scripts/browser-test
+      - run: node scripts/browser-test/node_modules/typescript/bin/tsc --noEmit --strict --target es2022 --module esnext --moduleResolution bundler --resolveJsonModule extension/test/protocol-types.ts
+      - run: node scripts/browser-test/node_modules/playwright/cli.js install --with-deps chromium
+        if: runner.os == 'Linux'
+      - run: node scripts/browser-verification-smoke.cjs
+        if: runner.os == 'Linux'
       - run: node scripts/core-smoke.cjs
       - run: node scripts/native-smoke.cjs
       - run: node scripts/actions-smoke.cjs

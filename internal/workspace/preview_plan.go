@@ -243,6 +243,41 @@ func planPreview(st model.State, r PreviewRequest, point store.PointView, observ
 		if surface.Kind == "terminal" && row.Window != nil {
 			row.Requirements = append(row.Requirements, "pane_attachment_not_verified")
 		}
+		if recipe := st.ApplicationRecipes[st.ApplicationHeads[surface.ID]]; recipe.Active && recipe.Target == r.Target {
+			row.ApplicationRecipe = &recipe
+			if recipe.Spec.Browser != nil {
+				p := st.Browsers[recipe.Spec.Browser.Profile]
+				br := &BrowserApplicationReview{Profile: p.ID, Epoch: p.Epoch, Ready: p.Paired && p.RecoveryProtocol == 1 && p.Complete && !now.Before(p.ReceivedAt) && now.Sub(p.ReceivedAt) < 5*time.Second, Tabs: []model.BrowserTab{}}
+				for _, tab := range p.Tabs {
+					owner := st.Actions[tab.OwnerID]
+					if (owner.Intent.Target == r.Target && owner.Intent.SurfaceID == surface.ID) || tab.URL == recipe.Spec.Browser.URL {
+						tab.Title = ""
+						br.Tabs = append(br.Tabs, tab)
+					}
+				}
+				row.BrowserReview = br
+			}
+			if !model.ApplicationRecipeCurrent(st, recipe.ID, r.Target, surface.ID) {
+				row.Issues = append(row.Issues, "application_recipe_stale")
+			} else if v.Fresh && row.Window == nil {
+				row.Disposition = "launch"
+				row.Requirements = append(row.Requirements, "fresh_absence_before_dispatch", "unique_process_and_window_association", "layout_recovery_not_asserted")
+				if recipe.Spec.SessionBindingID != "" {
+					row.Disposition = "reattach"
+					if row.SessionStatus != "current" {
+						row.Disposition = "review-required"
+						row.Issues = append(row.Issues, "original_session_unavailable_no_process_restart")
+					}
+				} else if recipe.Spec.Browser != nil {
+					row.Disposition = "review-required"
+					row.Requirements = append(row.Requirements, "paired_profile_self_restore_deduplication", "fresh_browser_native_nonce_association")
+				} else if recipe.Spec.Editor != nil {
+					row.Issues = append(row.Issues, "unsaved_editor_buffers_not_restored")
+				} else {
+					row.Issues = append(row.Issues, "prior_terminal_processes_not_resumed")
+				}
+			}
+		}
 		if model.Contains(v.Issues, "manifest_task_changed") || model.Contains(v.Issues, "snapshot_not_pinned_or_current") || model.Contains(v.Issues, "snapshot_age_limit_exceeded") || model.Contains(v.Issues, "snapshot_clock_ahead") {
 			row.Disposition = "review-required"
 		}

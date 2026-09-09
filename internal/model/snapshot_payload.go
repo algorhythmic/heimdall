@@ -10,10 +10,13 @@ import (
 func SnapshotHash(raw []byte) string { return fmt.Sprintf("%x", sha256.Sum256(raw)) }
 func SnapshotInputDigest(st State, target string) string {
 	m := st.WorkspaceManifests[st.WorkspaceHeads[target]]
-	type binding struct{ Surface, Viewport, Session string }
+	type binding struct {
+		Surface, Viewport, Session string
+		Recipe                     string `json:"Recipe,omitempty"`
+	}
 	bindings := []binding{}
 	for _, surface := range m.Surfaces {
-		bindings = append(bindings, binding{surface.ID, st.ViewportHeads[surface.ID], st.SessionHeads[surface.ID]})
+		bindings = append(bindings, binding{surface.ID, st.ViewportHeads[surface.ID], st.SessionHeads[surface.ID], st.ApplicationHeads[surface.ID]})
 	}
 	raw, _ := json.Marshal(struct {
 		Target           string
@@ -70,7 +73,12 @@ func ValidateSnapshotPayload(st State, v WorkspacePoint, raw []byte) error {
 		b := st.ViewportBindings[surface.ViewportBindingID]
 		if surface.Status == "observed" {
 			w := surface.Window
-			if w == nil || !b.Active || b.Window == nil || w.Identity != *b.Window || w.Identity.SourceEpoch != v.SourceEpoch || seen[w.Identity] || !monitors[w.MonitorID] || !workspaces[w.WorkspaceID] || w.PID < 1 || len(w.Title) > 512 || len(w.Class) > 512 {
+			validMetadata := w != nil && w.PID > 0
+			if w != nil && m.Surfaces[i].Kind == "browser" && b.BrowserAssociationID != "" {
+				scoped, allowed := ScopedBrowserWindow(st, b, *w)
+				validMetadata = allowed && scoped == *w && w.PID == 0 && w.Title == "" && w.Class == ""
+			}
+			if w == nil || !b.Active || b.Window == nil || w.Identity != *b.Window || w.Identity.SourceEpoch != v.SourceEpoch || seen[w.Identity] || !monitors[w.MonitorID] || !workspaces[w.WorkspaceID] || !validMetadata || len(w.Title) > 512 || len(w.Class) > 512 {
 				return fmt.Errorf("snapshot window identity or topology mismatch")
 			}
 			seen[w.Identity] = true

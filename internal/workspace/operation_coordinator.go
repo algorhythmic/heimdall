@@ -31,6 +31,9 @@ func (s *OperationService) Run(ctx context.Context) {
 				}
 			}
 			for _, a := range st.Actions {
+				if a.Intent.Workspace != nil && model.WorkspaceOperationHolds(st.WorkspaceOperations[a.Intent.Workspace.OperationID]) && !model.ActionHolds(a) {
+					due = true
+				}
 				if a.Intent.Native != nil && ((a.Execution == "queued" && !a.CancelRequested) || (model.ActionHolds(a) && a.VerificationAttempts < 8 && a.Execution != "refused" && a.Execution != "cancelled")) {
 					due = true
 				}
@@ -158,7 +161,26 @@ func (s *OperationService) dispatch(ctx context.Context, a model.ActionRecord) e
 	if !model.ActionInputsCurrent(st, a.Intent) {
 		return s.refuse(ctx, a.Intent.ID, "Task, ownership or operation inputs changed")
 	}
-	prepared, err := s.Dispatcher.Prepare(ctx, st.DesktopSources[n.SourceID], hyprland.Command{Kind: n.Kind, Window: *n.Window, Workspace: n.Workspace})
+	var prepared hyprland.PreparedCommand
+	if n.Launch != nil {
+		if s.Applications == nil {
+			return s.refuse(ctx, a.Intent.ID, "Application adapter unavailable")
+		}
+		prepared, err = s.Applications.Prepare(ctx, st.DesktopSources[n.SourceID], *st.ApplicationRecipes[n.Launch.RecipeID].Spec, a.Intent.AttemptID, applicationSession(st, a))
+	} else {
+		if n.SessionBindingID != "" {
+			binding := st.ViewportBindings[n.ViewportBindingID]
+			owner := st.Actions[binding.ApplicationActionID]
+			if s.Applications == nil || owner.Report == nil || owner.Report.Native == nil || owner.Report.Native.Process == nil {
+				return s.refuse(ctx, a.Intent.ID, "Original attach process receipt unavailable")
+			}
+			p, err := s.Applications.Process(owner.Report.Native.Process.PID)
+			if err != nil || p != *owner.Report.Native.Process {
+				return s.refuse(ctx, a.Intent.ID, "Original attach process changed")
+			}
+		}
+		prepared, err = s.Dispatcher.Prepare(ctx, st.DesktopSources[n.SourceID], hyprland.Command{Kind: n.Kind, Window: *n.Window, Workspace: n.Workspace})
+	}
 	if err != nil {
 		return s.refuse(ctx, a.Intent.ID, "Native preparation refused: "+boundedReason(err.Error()))
 	}
@@ -172,6 +194,21 @@ func (s *OperationService) dispatch(ctx context.Context, a model.ActionRecord) e
 			return err
 		}
 		o.Detail = "Fresh exact owned window before native input"
+		if n.Launch != nil {
+			if err := launchAbsent(st, a, observed); err != nil {
+				return err
+			}
+			o.Detail = "Fresh absence before reviewed application launch"
+		}
+		if err := s.observeApplicationSession(ctx, st, a, &o); err != nil {
+			return err
+		}
+		if n.SessionBindingID != "" {
+			owner := st.Actions[st.ViewportBindings[n.ViewportBindingID].ApplicationActionID]
+			if o.Native.Window == nil || o.Native.Window.PID != owner.Report.Native.Process.PID {
+				return fmt.Errorf("detach view process changed")
+			}
+		}
 		v := actions.Transition(a, "dispatch", "Persisted native input boundary", "coordinator", now)
 		v.Version, v.DeliveryID, v.Observation = 4, model.NewID(), &o
 		raw, _ := json.Marshal(v)
@@ -227,7 +264,7 @@ func (s *OperationService) report(ctx context.Context, id string, receipt hyprla
 		if receipt.Acknowledged {
 			status = "succeeded"
 		}
-		v.Report = &model.ActionReport{Status: status, Detail: boundedReason(receipt.Detail), Native: &model.NativeDispatchReport{Submitted: receipt.Submitted, Acknowledged: receipt.Acknowledged}}
+		v.Report = &model.ActionReport{Status: status, Detail: boundedReason(receipt.Detail), Native: &model.NativeDispatchReport{Submitted: receipt.Submitted, Acknowledged: receipt.Acknowledged, Process: receipt.Process}}
 		b := newOperationBatch(st, command, "coordinator", now)
 		if err := b.add("action", "transitioned", id, v); err != nil {
 			return b.change, err
@@ -256,7 +293,12 @@ func (s *OperationService) verify(ctx context.Context, a model.ActionRecord) err
 	if err != nil {
 		return s.unavailable(ctx, a.Intent.ID)
 	}
-	o.Status, o.Detail = model.NativeOutcome(a, *o.Native)
+	o.Status, o.Detail = model.NativeOutcomeInState(st, a, *o.Native)
+	if a.Intent.Native.Launch != nil {
+		s.observeLaunch(st, a, observed, &o)
+	}
+	_ = s.observeApplicationSession(ctx, st, a, &o)
+	o.Status, o.Detail = model.NativeOutcomeInState(st, a, *o.Native)
 	v := actions.Transition(a, "verify", "Independent native readback", "observer:hyprland", now)
 	v.Version, v.Observation = 4, &o
 	raw, _ := json.Marshal(v)
@@ -270,6 +312,12 @@ func (s *OperationService) verify(ctx context.Context, a model.ActionRecord) err
 		b := newOperationBatch(current, command, "observer:hyprland", now)
 		if err := b.add("action", "transitioned", a.Intent.ID, v); err != nil {
 			return b.change, err
+		}
+		if a.Intent.Native.Launch != nil && o.Status == "matched" {
+			binding := model.ViewportBinding{Version: 3, ID: v.ID, ApplicationActionID: a.Intent.ID, Target: a.Intent.Target, TaskRevision: a.Intent.TaskRevision, ManifestID: a.Intent.ManifestID, SurfaceID: a.Intent.SurfaceID, Previous: current.ViewportHeads[a.Intent.SurfaceID], Active: true, SourceID: o.Native.SourceID, SnapshotID: o.Native.SnapshotID, Window: &o.Native.Window.Identity, SessionBindingID: a.Intent.Native.Launch.SessionBindingID, Actor: "coordinator", At: now}
+			if err := b.add("viewport", "bound", binding.ID, binding); err != nil {
+				return b.change, err
+			}
 		}
 		b.change.Result = b.state.Actions[a.Intent.ID]
 		return b.change, nil

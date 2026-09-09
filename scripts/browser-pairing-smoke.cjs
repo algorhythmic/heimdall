@@ -9,8 +9,9 @@ async function until(fn,label){for(let i=0;i<180;i++){const r=await fn();if(r)re
 (async()=>{
  if(process.platform!=='linux')return;
  const live=process.env.HEIMDALL_PAIRING_HEADFUL==='1';
+ const recovery=process.env.HEIMDALL_APPLICATION_BROWSER==='1';
  const {root,exe,dir}=smokePaths('browser-pairing'),data=join(dir,'data'),profileDir=join(dir,'chromium');
- const cli=(...args)=>JSON.parse(execFileSync(exe,[...args,'--data-dir',data],{encoding:'utf8'}));
+ const cli=(...args)=>JSON.parse(execFileSync(exe,[...args,'--data-dir',data,'--json'],{encoding:'utf8'}));
  const input=(name,value)=>{const p=join(dir,name+'.json');fs.writeFileSync(p,JSON.stringify(value));return p;};
  cli('init');const extension=fs.readFileSync(join(root,'extension','extension-id.txt'),'utf8').trim();cli('browser','setup','--extension-id',extension,'--output',join(dir,'host'));
  fs.mkdirSync(join(profileDir,'NativeMessagingHosts'),{recursive:true});fs.copyFileSync(join(dir,'host','dev.heimdall.browser.json'),join(profileDir,'NativeMessagingHosts','dev.heimdall.browser.json'));
@@ -33,7 +34,7 @@ async function until(fn,label){for(let i=0;i<180;i++){const r=await fn();if(r)re
   cli('add','Browser pairing','--id','alpha','--status','active');const surface=id();cli('workspace','accept','alpha','--expected-task-revision','1','--file',input('manifest',{previous:'none',name:'Browser pairing',surfaces:[{id:surface,kind:'browser',label:'Browser',required:true,restore_policy:'manual'}]}));
   const queue=browser=>{const c=cli('action','context','alpha'),state=cli('state');return cli('action','queue','alpha','--file',input('action-'+id(),{version:2,id:id(),target:'alpha',expected_task_revision:c.task_revision,manifest_id:c.manifest_id,surface_id:surface,context_digest:c.context_digest,browser:{profile:p.id,epoch:p.epoch,...browser,pairing:{version:1,source_id:source.id,source_epoch:source.epoch,previous_viewport:state.viewport_heads[surface]??'none'}}}));};
   let actionID,expectedTitle;
-  if(!live){markerTimer=setInterval(()=>{if(!actionID)return;const title=context.pages().some(p=>p.url().endsWith('/pair.html#'+actionID))?'Heimdall pairing '+actionID+' - Chromium':'Heimdall pairing acceptance - Chromium';if(expectedTitle===title)return;expectedTitle=title;fixture.clients=[{address:'0x100',stableId:'18000001',pid:123,class:'chromium',title,workspace:{id:1,name:'planning'},monitor:0,at:[10,20],size:[800,600],mapped:true}];input('compositor',fixture);fake.stdin.write('windowtitle>>100\n');},50);}
+  if(!live){markerTimer=setInterval(()=>{if(!actionID)return;const marker=context.pages().some(p=>p.url().endsWith('/pair.html#'+actionID));const visible=marker||!recovery||context.pages().some(p=>p.url().startsWith(url));const title=visible?(marker?'Heimdall pairing '+actionID+' - Chromium':'Heimdall pairing acceptance - Chromium'):'';if(expectedTitle===title)return;expectedTitle=title;fixture.clients=visible?[{address:'0x100',stableId:'18000001',pid:123,class:'chromium',title,workspace:{id:1,name:'planning'},monitor:0,at:[10,20],size:[800,600],mapped:true}]:[];input('compositor',fixture);fake.stdin.write('windowtitle>>100\n');},50);}
   const opened=queue({action:'open',url,load_condition:'complete'});actionID=opened.intent.id;
   const action=a=>cli('action','show','alpha','--id',a.intent.id);
   const verified=async a=>until(()=>{const r=action(a);if(r.verification==='matched')return r;return false;},'paired '+a.intent.browser.action+' '+a.intent.id);
@@ -45,8 +46,25 @@ async function until(fn,label){for(let i=0;i<180;i++){const r=await fn();if(r)re
   const paired=await verified(associated);assert.notEqual(paired.pairing.association_id,open.pairing.association_id);
   assert.equal(await popup.evaluate(async()=>{const tabs=await chrome.tabs.query({});return tabs.filter(t=>t.url.includes('/pair.html#')).length;}),0);
   const view=cli('viewport','list','alpha');assert.equal(view.surfaces[0].status,'observed');assert.equal(view.surfaces[0].window.title,'');assert.equal(view.surfaces[0].window.pid,0);
-  state=cli('state');cli('replay');assert.deepEqual(cli('state'),state);cli('backup','--output',join(dir,'schema19.db'));if(!live)fs.writeFileSync(join(dir,'events.json'),JSON.stringify(cli('events'),null,2)+'\n');
-  console.log(JSON.stringify({status:'passed',browser:context.browser().version(),compositor:live?'actual Hyprland '+probe.snapshot.compositor_version:'synthetic read-only IPC',checks:['real native messaging','nonce open before navigation','ordered browser/native double observation','atomic association and viewport binding','one-time continuation','explicit owned-tab association','temporary-tab-only cleanup','scoped title redaction','inert replay'],data:dir},null,2));
+  if(recovery){
+   assert.equal(Object.values(cli('browser','status').profiles)[0].recovery_protocol,1);
+   const manifest=cli('action','context','alpha').manifest_id,restoreURL=url+'-recovery';
+   cli('application','review','alpha','--file',input('recipe',{version:1,id:id(),target:'alpha',expected_task_revision:1,manifest_id:manifest,surface_id:surface,previous:'none',spec:{adapter:'browser',browser:{profile:p.id,url:restoreURL},close_policy:'owned_tab'}}));
+   const ss=cli('snapshot','status','alpha');cli('snapshot','capture','alpha','--file',input('point',{version:1,id:id(),op:'capture',target:'alpha',previous:'none',expected_task_revision:1,manifest_id:manifest,source_id:source.id,input_digest:ss.input_digest}));
+   const operation=kind=>cli('workspace',kind,'alpha','--file',input('review-'+id(),cli('workspace','diff','alpha')),'--surfaces','all');
+   const settled=op=>until(()=>{const o=cli('workspace','operation','alpha','--id',op.intent.id);return o.status==='complete'?o:null;},'workspace browser settlement');
+   let closed=operation('close');assert.equal(closed.unsupported.length,0);await settled(closed);assert.equal(cli('action','show','alpha','--id',closed.action_ids[0]).verification,'matched');
+   const restored=await context.newPage();await restored.goto(restoreURL);
+   await until(()=>Object.values(cli('browser','status').profiles)[0].tabs.some(t=>t.url===restoreURL),'self-restored inventory');
+   const deduped=await settled(operation('open'));assert.equal(deduped.action_ids.length,0);assert.equal(deduped.outcome,'partial');assert.match(deduped.unsupported[0].reason,/already restored/);
+   await restored.close();await until(()=>!Object.values(cli('browser','status').profiles)[0].tabs.some(t=>t.url===restoreURL),'missing restore URL');
+   const reopened=operation('open');assert.equal(reopened.unsupported.length,0);actionID=reopened.action_ids[0];const record=cli('action','show','alpha','--id',actionID);assert.equal(record.intent.version,5);
+   await verified(record);assert.equal((await settled(reopened)).outcome,'matched');
+   assert.equal(await popup.evaluate(async url=>(await chrome.tabs.query({})).filter(t=>t.url===url).length,restoreURL),1);
+   closed=operation('close');await settled(closed);assert.equal(cli('action','show','alpha','--id',closed.action_ids[0]).verification,'matched');
+  }
+  state=cli('state');cli('replay');assert.deepEqual(cli('state'),state);cli('backup','--output',join(dir,'schema20.db'));if(!live)fs.writeFileSync(join(dir,'events.json'),JSON.stringify(cli('events'),null,2)+'\n');
+  console.log(JSON.stringify({status:'passed',browser:context.browser().version(),compositor:live?'actual Hyprland '+probe.snapshot.compositor_version:'synthetic read-only IPC',checks:['real native messaging','nonce open before navigation','ordered browser/native double observation','atomic association and viewport binding','one-time continuation','explicit owned-tab association','temporary-tab-only cleanup','scoped title redaction','inert replay',...(recovery?['reviewed workspace browser close','self-restored URL does not gain ownership or duplicate','workspace-owned paired reopen and new binding']:[])],data:dir},null,2));
   if(live&&process.env.HEIMDALL_PAIRING_VISUAL==='1'){
    await popup.evaluate(async nonce=>chrome.windows.create({url:chrome.runtime.getURL('pair.html')+'#'+nonce,focused:true}),id());
    console.log('Visual marker ready; release file: '+join(dir,'visual-done'));

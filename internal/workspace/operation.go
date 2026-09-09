@@ -34,13 +34,18 @@ type OperationControl struct {
 type NativeDispatcher interface {
 	Prepare(context.Context, model.DesktopSource, hyprland.Command) (hyprland.PreparedCommand, error)
 }
+type ApplicationAdapter interface {
+	Prepare(context.Context, model.DesktopSource, model.ApplicationSpec, string, *model.SessionBinding) (hyprland.PreparedCommand, error)
+	Process(int) (model.ApplicationProcess, error)
+}
 type OperationService struct {
-	Store      *store.Store
-	Previews   *PreviewService
-	Observer   *hyprland.Observer
-	Dispatcher NativeDispatcher
-	Clock      func() time.Time
-	mu         sync.Mutex
+	Store        *store.Store
+	Previews     *PreviewService
+	Observer     *hyprland.Observer
+	Dispatcher   NativeDispatcher
+	Applications ApplicationAdapter
+	Clock        func() time.Time
+	mu           sync.Mutex
 }
 
 func (s *OperationService) now() time.Time {
@@ -180,7 +185,13 @@ func (s *OperationService) Queue(ctx context.Context, r OperationRequest, actor 
 		diff.SwapPreviewDigest = i.Swap.PreviewDigest
 	}
 	for _, a := range intents {
-		diff.Changes = append(diff.Changes, model.WorkspaceIssue{Target: a.Target, SurfaceID: a.SurfaceID, Reason: a.Native.Kind})
+		kind := ""
+		if a.Native != nil {
+			kind = a.Native.Kind
+		} else {
+			kind = a.Browser.Action
+		}
+		diff.Changes = append(diff.Changes, model.WorkspaceIssue{Target: a.Target, SurfaceID: a.SurfaceID, Reason: kind})
 	}
 	diff.Changes = append(diff.Changes, unsupported...)
 	census, err := residency(st, observed, now)
@@ -230,6 +241,15 @@ func (s *OperationService) Queue(ctx context.Context, r OperationRequest, actor 
 			if err := b.add("action", "queued", a.ID, a); err != nil {
 				return b.change, err
 			}
+			if a.Browser != nil {
+				intent := a.Browser
+				record := b.state.Actions[a.ID]
+				op := model.BrowserOperation{ID: a.ID, Profile: intent.Profile, Epoch: intent.Epoch, Action: intent.Action, TabID: intent.TabID, WindowID: intent.WindowID, OwnerID: intent.OwnerID, ExpectedURL: intent.ExpectedURL, URL: intent.URL, Pairing: intent.Pairing, Status: "pending", CreatedAt: a.At, ExpiresAt: a.ExpiresAt, ActionRef: record.BrowserRef()}
+				op.Recovery = true
+				if err := b.add("browser", "command_queued", a.ID, op); err != nil {
+					return b.change, err
+				}
+			}
 		}
 		b.change.Result = b.state.WorkspaceOperations[i.ID]
 		return b.change, nil
@@ -243,10 +263,24 @@ func operationActions(st model.State, i model.WorkspaceOperationIntent, primary 
 			if !model.Contains(selected, row.SurfaceID) {
 				continue
 			}
+			if row.Kind == "browser" {
+				a, issue := browserOperationAction(st, i, v, row, kind)
+				if issue != "" {
+					issues = append(issues, model.WorkspaceIssue{Target: v.Request.Target, SurfaceID: row.SurfaceID, Reason: issue})
+				} else {
+					intents = append(intents, a)
+				}
+				continue
+			}
 			b := st.ViewportBindings[row.ViewportBindingID]
+			recipe := st.ApplicationRecipes[st.ApplicationHeads[row.SurfaceID]]
+			canLaunch := i.Kind == "open" && kind == "focus" && (row.Kind == "terminal" || row.Kind == "editor") && row.Window == nil && v.Fresh && model.ApplicationRecipeCurrent(st, recipe.ID, v.Request.Target, row.SurfaceID) && (recipe.Spec.SessionBindingID == "" || row.SessionStatus == "current")
+			terminalClose := row.Kind == "terminal" && model.ApplicationRecipeCurrent(st, recipe.ID, v.Request.Target, row.SurfaceID) && model.Contains([]string{"graceful_session_end", "detach"}, recipe.Spec.ClosePolicy)
 			issue := ""
 			if row.Kind == "browser" {
 				issue = "Browser surface requires fresh scoped application membership"
+			} else if canLaunch {
+				// Fresh absence plus an explicit recipe can replace an old epoch.
 			} else if !b.Active || b.Window == nil || b.TaskRevision != v.TaskRevision || b.ManifestID != v.Request.ManifestID || b.SourceID != i.SourceID || b.Window.SourceEpoch != i.SourceEpoch {
 				issue = "Current explicit native ownership required"
 			} else if row.Window == nil {
@@ -254,7 +288,7 @@ func operationActions(st model.State, i model.WorkspaceOperationIntent, primary 
 					continue
 				}
 				issue = "Reviewed launch or session attachment required"
-			} else if kind == "close" && (row.Kind != "native" || st.SessionBindings[st.SessionHeads[row.SurfaceID]].Active) {
+			} else if kind == "close" && !terminalClose && (row.Kind != "native" || st.SessionBindings[st.SessionHeads[row.SurfaceID]].Active) {
 				issue = "Application-aware graceful close or verified session detach required"
 			}
 			if issue != "" {
@@ -262,7 +296,19 @@ func operationActions(st model.State, i model.WorkspaceOperationIntent, primary 
 				continue
 			}
 			n := model.NativeIntent{OperationID: i.ID, Kind: kind, ViewportBindingID: b.ID, SourceID: i.SourceID, SourceEpoch: i.SourceEpoch, Window: b.Window}
-			intents = append(intents, model.ActionIntent{Version: 3, ID: model.NewID(), Target: v.Request.Target, TaskRevision: v.TaskRevision, ManifestID: v.Request.ManifestID, SurfaceID: row.SurfaceID, ContextDigest: model.ActionContextDigest(st, v.Request.Target), SnapshotID: v.Request.SnapshotID, Adapter: "hyprland", AttemptID: model.NewID(), Authority: "cli", AuthorityRef: "workspace-operation-" + i.ID, Native: &n, Expected: model.NativePostcondition(n), At: i.At, ExpiresAt: i.At.Add(30 * time.Second)})
+			version := 3
+			if canLaunch {
+				version = 4
+				n.Kind, n.Window = "open", nil
+				n.Launch = &model.ApplicationLaunch{RecipeID: recipe.ID, PreviousViewport: row.ViewportBindingID, SessionBindingID: recipe.Spec.SessionBindingID, Editor: recipe.Spec.Editor != nil}
+				n.ViewportBindingID = row.ViewportBindingID
+			}
+			if kind == "close" && terminalClose {
+				version = 4
+				n.RecipeID = recipe.ID
+				n.SessionBindingID = recipe.Spec.SessionBindingID
+			}
+			intents = append(intents, model.ActionIntent{Version: version, ID: model.NewID(), Target: v.Request.Target, TaskRevision: v.TaskRevision, ManifestID: v.Request.ManifestID, SurfaceID: row.SurfaceID, ContextDigest: model.ActionContextDigest(st, v.Request.Target), SnapshotID: v.Request.SnapshotID, Adapter: "hyprland", AttemptID: model.NewID(), Authority: "cli", AuthorityRef: "workspace-operation-" + i.ID, Native: &n, Expected: model.NativePostcondition(n), At: i.At, ExpiresAt: i.At.Add(30 * time.Second)})
 		}
 	}
 	if swap != nil {

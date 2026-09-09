@@ -169,7 +169,7 @@ func WorkspaceActionScope(op WorkspaceOperation, v ActionIntent) bool {
 		return v.TaskRevision == i.TaskRevision && v.ManifestID == i.ManifestID && v.ContextDigest == i.ContextDigest && v.SnapshotID == i.SnapshotID && Contains(i.SurfaceIDs, v.SurfaceID)
 	}
 	s := i.Swap
-	return s != nil && v.Target == s.Target && v.TaskRevision == s.TaskRevision && v.ManifestID == s.ManifestID && v.ContextDigest == s.ContextDigest && v.SnapshotID == s.SnapshotID && v.Native != nil && v.Native.Kind == "close"
+	return s != nil && v.Target == s.Target && v.TaskRevision == s.TaskRevision && v.ManifestID == s.ManifestID && v.ContextDigest == s.ContextDigest && v.SnapshotID == s.SnapshotID && ((v.Native != nil && v.Native.Kind == "close") || (v.Workspace != nil && v.Browser != nil && v.Browser.Action == "close"))
 }
 
 // A pending transfer occupies the outgoing resident's same slot. It cannot
@@ -192,16 +192,31 @@ func WorkspaceOperationHolds(o WorkspaceOperation) bool {
 // Native actions share ActionRecord's intent/dispatch/report/verification
 // history. The coordinator must additionally pin the current viewport binding.
 type NativeIntent struct {
-	OperationID       string          `json:"operation_id"`
-	Kind              string          `json:"kind"`
-	ViewportBindingID string          `json:"viewport_binding_id"`
-	SourceID          string          `json:"source_id"`
-	SourceEpoch       string          `json:"source_epoch"`
-	Window            *WindowIdentity `json:"window,omitempty"`
-	Workspace         string          `json:"workspace,omitempty"`
+	SessionBindingID  string             `json:"session_binding_id,omitempty"`
+	Launch            *ApplicationLaunch `json:"launch,omitempty"`
+	RecipeID          string             `json:"recipe_id,omitempty"`
+	OperationID       string             `json:"operation_id"`
+	Kind              string             `json:"kind"`
+	ViewportBindingID string             `json:"viewport_binding_id"`
+	SourceID          string             `json:"source_id"`
+	SourceEpoch       string             `json:"source_epoch"`
+	Window            *WindowIdentity    `json:"window,omitempty"`
+	Workspace         string             `json:"workspace,omitempty"`
 }
 
 func (n NativeIntent) Validate() error {
+	if n.SessionBindingID != "" && (n.Kind != "close" || n.RecipeID == "" || !OpaqueID.MatchString(n.SessionBindingID)) {
+		return fmt.Errorf("invalid detach session")
+	}
+	if n.Launch != nil && n.Launch.SessionBindingID != "" && !OpaqueID.MatchString(n.Launch.SessionBindingID) {
+		return fmt.Errorf("invalid launch session binding")
+	}
+	if n.Launch != nil && (n.Kind != "open" || n.Window != nil || n.ViewportBindingID != n.Launch.PreviousViewport || !OpaqueID.MatchString(n.Launch.RecipeID) || (n.Launch.PreviousViewport != "" && !OpaqueID.MatchString(n.Launch.PreviousViewport))) {
+		return fmt.Errorf("invalid application launch pins")
+	}
+	if n.RecipeID != "" && (n.Kind != "close" || !OpaqueID.MatchString(n.RecipeID)) {
+		return fmt.Errorf("invalid application close recipe")
+	}
 	if !OpaqueID.MatchString(n.OperationID) || !OpaqueID.MatchString(n.SourceID) || !TokenHashPattern.MatchString(n.SourceEpoch) || !Contains([]string{"open", "focus", "move", "close"}, n.Kind) {
 		return fmt.Errorf("invalid native action authority")
 	}

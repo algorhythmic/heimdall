@@ -130,6 +130,8 @@ type Timer struct {
 	Outcome string    `json:"outcome,omitempty"`
 }
 type State struct {
+	ApplicationRecipes    map[string]ApplicationRecipe    `json:"application_recipes"`
+	ApplicationHeads      map[string]string               `json:"application_heads"`
 	WorkspaceResidency    *WorkspaceResidency             `json:"workspace_residency,omitempty"`
 	WorkspaceOperations   map[string]WorkspaceOperation   `json:"workspace_operations"`
 	WorkspaceSlots        map[int]WorkspaceSlot           `json:"workspace_slots"`

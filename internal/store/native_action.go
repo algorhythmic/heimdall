@@ -8,7 +8,7 @@ import (
 
 func queueNativeAction(st *model.State, e Event, v model.ActionIntent) error {
 	op := st.WorkspaceOperations[v.Native.OperationID]
-	if !model.Contains(op.ActionIDs, v.ID) || !model.WorkspaceActionScope(op, v) || !v.At.Equal(op.Intent.At) || v.Native.Kind == "open" || v.Native.SourceID != op.Intent.SourceID || v.Native.SourceEpoch != op.Intent.SourceEpoch {
+	if !model.Contains(op.ActionIDs, v.ID) || !model.WorkspaceActionScope(op, v) || !v.At.Equal(op.Intent.At) || (v.Native.Kind == "open" && v.Native.Launch == nil) || v.Native.SourceID != op.Intent.SourceID || v.Native.SourceEpoch != op.Intent.SourceEpoch {
 		return fmt.Errorf("native action lacks exact operation authority")
 	}
 	owned := false
@@ -18,8 +18,20 @@ func queueNativeAction(st *model.State, e Event, v model.ActionIntent) error {
 			if surface.Kind == "browser" {
 				return fmt.Errorf("browser surface requires its scoped application adapter")
 			}
-			if v.Native.Kind == "close" && (surface.Kind != "native" || st.SessionBindings[st.SessionHeads[surface.ID]].Active) {
+			recipe := st.ApplicationRecipes[v.Native.RecipeID]
+			terminalClose := surface.Kind == "terminal" && model.ApplicationRecipeCurrent(*st, recipe.ID, v.Target, v.SurfaceID) && model.Contains([]string{"graceful_session_end", "detach"}, recipe.Spec.ClosePolicy) && v.Native.SessionBindingID == recipe.Spec.SessionBindingID
+			if v.Native.Launch != nil && ((!v.Native.Launch.Editor && surface.Kind != "terminal") || (v.Native.Launch.Editor && surface.Kind != "editor") || (st.ApplicationRecipes[v.Native.Launch.RecipeID].Spec.Editor != nil) != v.Native.Launch.Editor || st.ApplicationRecipes[v.Native.Launch.RecipeID].Spec.SessionBindingID != v.Native.Launch.SessionBindingID) {
+				return fmt.Errorf("launch requires a generic terminal surface")
+			}
+			if v.Native.Kind == "close" && !terminalClose && (surface.Kind != "native" || st.SessionBindings[st.SessionHeads[surface.ID]].Active) {
 				return fmt.Errorf("graceful native close cannot detach an application session")
+			}
+			if v.Native.SessionBindingID != "" {
+				b := st.ViewportBindings[v.Native.ViewportBindingID]
+				a := st.Actions[b.ApplicationActionID]
+				if a.Intent.Native == nil || a.Intent.Native.Launch == nil || a.Intent.Native.Launch.SessionBindingID != v.Native.SessionBindingID || b.SessionBindingID != v.Native.SessionBindingID {
+					return fmt.Errorf("detach requires a previously associated direct-attach view")
+				}
 			}
 		}
 	}
@@ -53,11 +65,29 @@ func nativeReadback(st model.State, a model.ActionRecord, o *model.ActionObserva
 		return fmt.Errorf("native readback required")
 	}
 	r, n := o.Native, a.Intent.Native
+	sessionID := n.SessionBindingID
+	if n.Launch != nil {
+		sessionID = n.Launch.SessionBindingID
+	}
+	if (r.SessionBindingID == "") != (r.SessionDigest == "") || (r.SessionBindingID != "" && (r.SessionBindingID != sessionID || st.SessionHeads[a.Intent.SurfaceID] != sessionID || r.SessionDigest != model.ApplicationSessionDigest(st.SessionBindings[sessionID]))) {
+		return fmt.Errorf("session readback differs from pinned session")
+	}
 	source := st.DesktopSources[n.SourceID]
 	if r.Version != 1 || r.ActionID != a.Intent.ID || r.AttemptID != a.Intent.AttemptID || r.SourceID != n.SourceID || r.SourceEpoch != n.SourceEpoch || !source.Active || st.DesktopSourceHead != n.SourceID || source.Epoch != n.SourceEpoch || !model.TokenHashPattern.MatchString(r.SnapshotID) || r.AfterEventID != e.ID-2 || r.AfterEventID < a.LastEventID || r.StartedAt.Before(a.UpdatedAt) || r.CapturedAt.Before(r.StartedAt) || r.ReceivedAt.Before(r.CapturedAt) || r.ReceivedAt.Sub(r.StartedAt) > 5*time.Second || !r.ReceivedAt.Equal(e.TS) || !o.ObservedAt.Equal(r.CapturedAt) || o.SourceEpoch != n.SourceEpoch || o.Digest != model.ContentDigest(r) || len(o.Detail) > 512 {
 		return fmt.Errorf("native readback scope, ordering or freshness changed")
 	}
-	if r.Window != nil && (n.Window == nil || r.Window.Identity != *n.Window || len(r.Window.Title) > 512 || len(r.Window.Class) > 512 || len(r.Window.Address) > 18 || r.Window.PID < 1 || r.Window.Size[0] < 0 || r.Window.Size[1] < 0 || r.Workspace == "" || len(r.Workspace) > 256) {
+	if n.Launch == nil && (r.Process != nil || r.LaunchCandidates != 0) {
+		return fmt.Errorf("launch proof on non-launch action")
+	}
+	if n.Launch != nil {
+		if r.LaunchCandidates < 0 || r.LaunchCandidates > 4096 || (r.Process != nil && !r.Process.Valid()) {
+			return fmt.Errorf("invalid launch process proof")
+		}
+		if r.Window != nil && (r.Process == nil || r.LaunchCandidates != 1 || r.Window.PID != r.Process.PID || r.Window.Class != model.ApplicationClass(a.Intent.AttemptID) || a.Report == nil || a.Report.Native == nil || a.Report.Native.Process == nil || *r.Process != *a.Report.Native.Process) {
+			return fmt.Errorf("launch window differs from original process receipt")
+		}
+	}
+	if r.Window != nil && ((n.Launch == nil && (n.Window == nil || r.Window.Identity != *n.Window)) || r.Window.Identity.Validate() != nil || r.Window.Identity.SourceEpoch != n.SourceEpoch || len(r.Window.Title) > 512 || len(r.Window.Class) > 512 || len(r.Window.Address) > 18 || r.Window.PID < 1 || r.Window.Size[0] < 0 || r.Window.Size[1] < 0 || r.Workspace == "" || len(r.Workspace) > 256) {
 		return fmt.Errorf("native readback contains a foreign or invalid window")
 	}
 	if r.Window == nil && r.Workspace != "" {
@@ -83,8 +113,14 @@ func transitionNativeAction(st model.State, a *model.ActionRecord, v model.Actio
 		if err := nativeReadback(st, *a, v.Observation, e); err != nil {
 			return err
 		}
-		if !v.Observation.Native.Complete || v.Observation.Native.Window == nil || v.Observation.Status != "unknown" {
+		if !v.Observation.Native.Complete || (n.Launch == nil && v.Observation.Native.Window == nil) || (n.Launch != nil && (v.Observation.Native.Window != nil || v.Observation.Native.LaunchCandidates != 0 || v.Observation.Native.Process != nil)) || v.Observation.Status != "unknown" {
 			return fmt.Errorf("dispatch requires fresh existing exact window")
+		}
+		if sessionID := n.SessionBindingID; sessionID != "" && v.Observation.Native.SessionBindingID != sessionID {
+			return fmt.Errorf("detach requires fresh original session survival")
+		}
+		if n.Launch != nil && n.Launch.SessionBindingID != "" && v.Observation.Native.SessionBindingID != n.Launch.SessionBindingID {
+			return fmt.Errorf("attach requires fresh original session survival")
 		}
 		a.Execution, a.DeliveryID, a.DispatchObservation = "dispatching", v.DeliveryID, v.Observation
 	case "report":
@@ -93,6 +129,12 @@ func transitionNativeAction(st model.State, a *model.ActionRecord, v model.Actio
 			return fmt.Errorf("invalid native dispatch receipt")
 		}
 		status := "uncertain"
+		if r.Native.Process != nil && (n.Launch == nil || !r.Native.Process.Valid() || !r.Native.Submitted) {
+			return fmt.Errorf("invalid launched process receipt")
+		}
+		if n.Launch != nil && r.Native.Acknowledged && r.Native.Process == nil {
+			return fmt.Errorf("launch acknowledgment requires process identity")
+		}
 		if r.Native.Acknowledged {
 			status = "succeeded"
 		}
@@ -114,7 +156,7 @@ func transitionNativeAction(st model.State, a *model.ActionRecord, v model.Actio
 		if err := nativeReadback(st, *a, v.Observation, e); err != nil {
 			return err
 		}
-		status, detail := model.NativeOutcome(*a, *v.Observation.Native)
+		status, detail := model.NativeOutcomeInState(st, *a, *v.Observation.Native)
 		if v.Observation.Status != status || v.Observation.Detail != detail {
 			return fmt.Errorf("native verification differs from independent readback")
 		}

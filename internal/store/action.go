@@ -42,11 +42,25 @@ func applyAction(st *model.State, e Event) error {
 		if !owned || m.TaskRevision != v.TaskRevision {
 			return fmt.Errorf("current task-owned browser surface required")
 		}
+		if v.Workspace != nil {
+			w := v.Workspace
+			op := st.WorkspaceOperations[w.OperationID]
+			recipe := st.ApplicationRecipes[w.RecipeID]
+			if w.PreviousViewport != st.ViewportHeads[v.SurfaceID] || st.Browsers[v.Browser.Profile].RecoveryProtocol != 1 {
+				return fmt.Errorf("browser recovery capability or viewport changed")
+			}
+			if !v.At.Equal(op.Intent.At) || recipe.Spec == nil || recipe.Spec.Browser == nil || recipe.Spec.Browser.Profile != v.Browser.Profile || (v.Browser.Action == "open" && recipe.Spec.Browser.URL != v.Browser.URL) || (v.Browser.Action == "close" && (recipe.Spec.ClosePolicy != "owned_tab" || op.CloseSnapshotID == "")) || (v.Browser.Action == "close" && v.Target == op.Intent.Target && op.Intent.Kind != "close") || (op.Intent.Kind == "close" && v.Browser.Action != "close") {
+				return fmt.Errorf("browser action differs from operation recipe or close scope")
+			}
+		}
 		if v.SnapshotID != "" && !model.SnapshotProtected(*st, v.SnapshotID) {
 			return fmt.Errorf("referenced snapshot must already be pinned or current")
 		}
 		if v.SnapshotID != "" {
 			belongs := st.SnapshotHeads[v.Target].ID == v.SnapshotID || st.SnapshotPins[v.SnapshotID].Target == v.Target
+			if v.Workspace != nil {
+				belongs = belongs || model.WorkspaceActionScope(st.WorkspaceOperations[v.Workspace.OperationID], v)
+			}
 			if !belongs {
 				return fmt.Errorf("foreign snapshot reference")
 			}
@@ -271,6 +285,9 @@ func validateActionOperation(st model.State, op model.BrowserOperation) error {
 		return fmt.Errorf("browser action reference mismatch")
 	}
 	b := a.Intent.Browser
+	if b == nil || op.Recovery != (a.Intent.Workspace != nil) {
+		return fmt.Errorf("browser recovery authority changed")
+	}
 	if !reflect.DeepEqual(op.Pairing, b.Pairing) {
 		return fmt.Errorf("browser pairing authority changed")
 	}

@@ -127,7 +127,7 @@ The TUI is a local human CLI client. It reads the selected data directory's CLI
 endpoint, rediscovers the daemon after restart and uses the same authority as
 other CLI commands. A task argument filters the display; it is not an access
 grant. Scoped MCP/agent credentials and extension credentials gain no new powers.
-Current database schema is 17. Historical UI-v2 reviews still replay with their
+Current database schema is 20. Historical UI-v2 reviews still replay with their
 original provenance, but there is no live browser-session authority.
 
 The screenshots include later roadmap capabilities. Current binding counts are
@@ -136,11 +136,12 @@ preview compares the current saved point with fresh owned windows and Herdr
 readback, including age, autosave policy, layout changes and review requirements.
 Press `s` to review an explicit capture/pin request; Enter submits the retained
 request and Escape cancels. See [workspace preview](WORKSPACE-PREVIEW.md).
-Application recovery, agent pane jumping and a native Omarchy bar module remain
-future stages. No desktop configuration or login hook
+[Reviewed application adapters](APPLICATION-RECOVERY.md) support explicit recovery;
+full recovery verification, agent pane jumping and a native Omarchy bar module
+remain future stages. No desktop configuration or login hook
 is installed. The [reference design notes](design/TUI.md) map these boundaries.
 
 Run `go test ./internal/tui` and `node scripts/tui-smoke.cjs` for simulation and
 compiled acceptance. Linux additionally exercises a real PTY with Python 3.
 
-W05 workspace controls: inside `p`, use `o` to review open/focus and `c` to review graceful close. Enter submits the frozen scoped operation; Escape cancels. `r` shows fresh observations and recent outcomes. Application launch/detach remains explicitly unsupported until its recovery adapter is available. See [workspace operations](WORKSPACE-OPERATIONS.md).
+W05/W06 workspace controls: inside `p`, use `o` to review open/focus and `c` to review graceful close. Enter submits the frozen scoped operation; Escape cancels. `r` shows fresh observations and recent outcomes. Reviewed application recipes are shown in the comparison/confirmation; create or retire them through the CLI. Unsupported close policies preserve open views. See [application recovery](APPLICATION-RECOVERY.md) and [workspace operations](WORKSPACE-OPERATIONS.md).

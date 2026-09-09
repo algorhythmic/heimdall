@@ -76,6 +76,7 @@ func (c Command) wireFor(provider string) (string, error) {
 }
 
 type DispatchReceipt struct {
+	Process *model.ApplicationProcess `json:"process,omitempty"`
 	// submitted means bytes may have reached the compositor. It is independent
 	// of API acknowledgment, window closure, application data and verification.
 	Submitted    bool   `json:"submitted"`

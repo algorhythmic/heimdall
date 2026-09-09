@@ -1,5 +1,13 @@
 # Development milestones
 
+## Unreleased — W06 reviewed application adapters (2026-09-09)
+
+- Add immutable application recipes, CLI review/show, and recipe-aware workspace previews under schema 20.
+- Launch reviewed Foot commands, rebind exact observed process/window identities, attach to surviving Herdr terminals and verify session survival after detach. Lost receipts and uncertain attempts never trigger a new launch.
+- Connect paired-browser open/focus/owned-tab close to workspace operations. Extension 0.6.0 advertises recovery capability and checks browser self-restored URLs before creation/navigation.
+- Open structured saved-file Neovim state; preserve potentially unsaved editors by leaving them open. Full attachment/editor-state/layout verification remains W07.
+- Allow correctly redacted browser snapshots while preserving native PID validation and scoped ownership checks.
+
 ## C13 browser verification slice — 2026-09-09
 
 - Add challenged double readback, monotonic freshness leases and independent exact browser postconditions under schema 17 and extension 0.4.0.

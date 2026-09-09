@@ -44,3 +44,13 @@ test('association uses the owned selected window and removes only its temporary 
 test('ambiguous recovered nonce tabs cannot establish pairing',async()=>{
  const f=fixture();await f.actions.execute(f.op);delete f.state.journal[ref.id].pairing.ready;f.tabs.push({...f.tabs[0],id:8,windowId:4});assert.deepEqual(await retainedPairings(f.api,[ref]),[]);assert.equal(f.calls.length,1);
 });
+
+test('recovery leaves browser-restored URLs unowned and creates no duplicate',async()=>{
+ const f=fixture();f.op.recovery=true;f.tabs.push({id:19,windowId:9,url:f.op.url});
+ const result=await f.actions.execute(f.op);assert.equal(result.status,'refused');assert.match(result.detail,/already restored/);assert.equal(f.calls.length,0);assert.equal(f.state.owners,undefined);
+});
+test('self restoration during pairing withholds navigation and preserves the retained attempt',async()=>{
+ const f=fixture();f.op.recovery=true;await f.actions.execute(f.op);f.tabs.push({id:19,windowId:9,pendingUrl:f.op.url});
+ const result=await f.actions.pairing.continue(f.continuation());assert.equal(result.status,'refused');assert.equal(f.calls.length,1);assert.equal(f.tabs[0].url,pairURL(f.api,ref.id));
+ assert.equal((await f.actions.execute({...f.op,recovery:false})).status,'uncertain');assert.equal(f.calls.length,1);
+});

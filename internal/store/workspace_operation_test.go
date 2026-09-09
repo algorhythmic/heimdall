@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"encoding/json"
+	"fmt"
 	"heimdall/internal/model"
 	"os"
 	"path/filepath"
@@ -30,6 +31,22 @@ func TestWorkspaceOperationSchemaNineteenReplay(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer s.Close()
+	var version int
+	if err := s.db.QueryRow("PRAGMA user_version").Scan(&version); err != nil || version != SchemaVersion {
+		t.Fatal("schema-19 upgrade", version, err)
+	}
+	backups, err := filepath.Glob(filepath.Join(dir, "backups", fmt.Sprintf("pre-schema-%d-*.db", SchemaVersion)))
+	if err != nil || len(backups) != 1 {
+		t.Fatal("schema-19 rollback backup", backups, err)
+	}
+	backup, err := sql.Open("sqlite", backups[0])
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer backup.Close()
+	if err := backup.QueryRow("PRAGMA user_version").Scan(&version); err != nil || version != 19 {
+		t.Fatal("backup schema changed", version, err)
+	}
 	st, err := s.State(context.Background())
 	if err != nil {
 		t.Fatal(err)

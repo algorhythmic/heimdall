@@ -90,6 +90,9 @@ func workspacePreviewLines(p workspace.Preview, status workspace.SnapshotStatus)
 			color = green
 		}
 		lines = append(lines, line{{row.Kind + " · " + row.Label + "  ", fg}, {row.Disposition, color}}, line{{row.SurfaceID, gray}})
+		if row.ApplicationRecipe != nil {
+			lines = append(lines, line{{"Reviewed  " + model.ApplicationSummary(*row.ApplicationRecipe), gray}})
+		}
 		if row.Observed != nil {
 			lines = append(lines, line{{"Now    " + row.Observed.Workspace + " · " + row.Observed.Monitor, gray}})
 		}
@@ -128,13 +131,16 @@ func (a *App) confirmWorkspaceOperation(d *dialog, kind string) {
 	r := workspace.OperationRequest{Version: 1, ID: model.NewID(), Kind: kind, Preview: p, SurfaceIDs: ids}
 	raw, _ := json.Marshal(r)
 	next := a.newDialog("confirm", kind+" workspace · "+d.target, d.target)
-	next.lines = []line{plain(fmt.Sprintf("Enter requests %s for %d reviewed surfaces.", kind, len(ids))), plain("Existing owned windows use their exact bindings."), plain("Missing applications and session detachments may require recovery support."), plain("Unowned windows remain open. Escape cancels.")}
+	next.lines = []line{plain(fmt.Sprintf("Enter requests %s for %d reviewed surfaces.", kind, len(ids))), plain("Missing views use their explicitly reviewed application recipes."), plain("Application state and layout may remain unverified."), plain("Unowned windows remain open. Escape cancels.")}
 	if kind == "close" {
 		next.lines = append(next.lines, plain("Current membership is saved before requesting graceful closure."), plain("Applications that stay open keep their resident capacity."))
 	}
 	for _, row := range p.Surfaces {
 		if row.Membership != "removed" {
 			next.lines = append(next.lines, line{{row.Label + " · " + row.ObservationStatus, gray}})
+			if row.ApplicationRecipe != nil {
+				next.lines = append(next.lines, plain(model.ApplicationSummary(*row.ApplicationRecipe)))
+			}
 		}
 	}
 	next.pending = &savedRequest{1, d.target, "/workspace/operation/queue", raw}

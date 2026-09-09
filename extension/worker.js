@@ -24,7 +24,7 @@ async function connect(){
  const current=port;
  port.onMessage.addListener(reply=>{const p=pending.get(reply.id);if(p){pending.delete(reply.id);p.resolve(reply);}});
  port.onDisconnect.addListener(()=>{const reason=chrome.runtime.lastError?.message??'Native host disconnected';if(port===current)port=undefined;paired=false;for(const p of pending.values())p.reject(Error(reason));pending.clear();status({connected:false,detail:reason});});
- const reply=await rpc({type:'hello',label:'Browser profile',extension_version:chrome.runtime.getManifest().version,action_protocol:1,verification_protocol:1,pairing_protocol:1,extension_id:chrome.runtime.id});paired=reply.paired;
+ const reply=await rpc({type:'hello',label:'Browser profile',extension_version:chrome.runtime.getManifest().version,action_protocol:1,verification_protocol:1,pairing_protocol:1,recovery_protocol:1,extension_id:chrome.runtime.id});paired=reply.paired;
  const s=await chrome.storage.session.get(['sequence']);await chrome.storage.session.set({sequence:Math.max(s.sequence??0,reply.last_sequence??0)});
  dirty=true;
 }

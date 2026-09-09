@@ -16,6 +16,7 @@ var IDPattern = regexp.MustCompile(`^[a-f0-9]{32}$`)
 var ExtensionPattern = regexp.MustCompile(`^[a-p]{32}$`)
 
 type Message struct {
+	RecoveryProtocol     int                     `json:"recovery_protocol,omitempty"`
 	PairingProtocol      int                     `json:"pairing_protocol,omitempty"`
 	ExtensionID          string                  `json:"extension_id,omitempty"`
 	PairReady            *model.BrowserPairReady `json:"pair_ready,omitempty"`
@@ -121,6 +122,9 @@ func (m Message) Validate() error {
 	}
 	if (m.PairingProtocol != 0 && m.PairingProtocol != 1) || (m.Type != "hello" && (m.PairingProtocol != 0 || m.ExtensionID != "")) || (m.PairingProtocol == 1 && (!model.BrowserExtensionIDPattern.MatchString(m.ExtensionID) || m.VerificationProtocol != 1 || m.ActionProtocol != 1)) || (m.PairingProtocol == 0 && m.ExtensionID != "") {
 		return fmt.Errorf("invalid pairing capability")
+	}
+	if m.RecoveryProtocol != 0 && (m.RecoveryProtocol != 1 || m.Type != "hello" || m.PairingProtocol != 1) {
+		return fmt.Errorf("invalid browser recovery capability")
 	}
 	if m.Type != "pairing_ready" && m.PairReady != nil {
 		return fmt.Errorf("pairing report on another message")

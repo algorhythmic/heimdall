@@ -10,5 +10,6 @@ export function requestFingerprint(op){
   const r=op.action_ref,ref=r?[r.version,r.id,r.attempt_id,r.intent_digest,r.target,r.manifest_id,r.surface_id]:null;
   const base=[op.id,op.epoch,op.action,op.tab_id??0,op.window_id??0,op.owner_id??'',op.expected_url??'',op.url??'',op.expires_at,ref];
   if(op.pairing)base.push([op.pairing.version,op.pairing.source_id,op.pairing.source_epoch,op.pairing.previous_viewport]);
+  if(op.recovery)base.push(['recovery',true]);
   return JSON.stringify(base);
 }

@@ -82,6 +82,7 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			p.ActionProtocol = m.ActionProtocol
 			p.VerificationProtocol = m.VerificationProtocol
 			p.PairingProtocol = m.PairingProtocol
+			p.RecoveryProtocol = m.RecoveryProtocol
 			p.ExtensionID = m.ExtensionID
 			p.EventGeneration = 0
 			p.Markers = nil

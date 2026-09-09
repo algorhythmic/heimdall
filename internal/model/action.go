@@ -33,23 +33,24 @@ type ActionPostcondition struct {
 	LoadCondition  string `json:"load_condition"`
 }
 type ActionIntent struct {
-	Version       int                 `json:"version"`
-	ID            string              `json:"id"`
-	Target        string              `json:"target"`
-	TaskRevision  int64               `json:"task_revision"`
-	ManifestID    string              `json:"manifest_id"`
-	SurfaceID     string              `json:"surface_id"`
-	ContextDigest string              `json:"context_digest"`
-	SnapshotID    string              `json:"snapshot_id,omitempty"`
-	Adapter       string              `json:"adapter"`
-	AttemptID     string              `json:"attempt_id"`
-	Authority     string              `json:"authority"`
-	AuthorityRef  string              `json:"authority_ref"`
-	Browser       *BrowserIntent      `json:"browser,omitempty"`
-	Native        *NativeIntent       `json:"native,omitempty"`
-	Expected      ActionPostcondition `json:"expected"`
-	At            time.Time           `json:"at"`
-	ExpiresAt     time.Time           `json:"expires_at"`
+	Workspace     *BrowserWorkspaceAction `json:"workspace,omitempty"`
+	Version       int                     `json:"version"`
+	ID            string                  `json:"id"`
+	Target        string                  `json:"target"`
+	TaskRevision  int64                   `json:"task_revision"`
+	ManifestID    string                  `json:"manifest_id"`
+	SurfaceID     string                  `json:"surface_id"`
+	ContextDigest string                  `json:"context_digest"`
+	SnapshotID    string                  `json:"snapshot_id,omitempty"`
+	Adapter       string                  `json:"adapter"`
+	AttemptID     string                  `json:"attempt_id"`
+	Authority     string                  `json:"authority"`
+	AuthorityRef  string                  `json:"authority_ref"`
+	Browser       *BrowserIntent          `json:"browser,omitempty"`
+	Native        *NativeIntent           `json:"native,omitempty"`
+	Expected      ActionPostcondition     `json:"expected"`
+	At            time.Time               `json:"at"`
+	ExpiresAt     time.Time               `json:"expires_at"`
 }
 type ActionReport struct {
 	Native   *NativeDispatchReport `json:"native,omitempty"`
@@ -194,7 +195,7 @@ func BrowserPostcondition(b BrowserIntent) ActionPostcondition {
 	return p
 }
 func (v ActionIntent) Validate() error {
-	if (v.Version != 1 && v.Version != 2 && v.Version != 3) || !ValidID(v.Target) || v.TaskRevision < 1 || !TokenHashPattern.MatchString(v.ContextDigest) || v.Authority != "cli" || v.At.IsZero() || v.ExpiresAt.Sub(v.At) != 30*time.Second {
+	if (v.Version < 1 || v.Version > 5) || !ValidID(v.Target) || v.TaskRevision < 1 || !TokenHashPattern.MatchString(v.ContextDigest) || v.Authority != "cli" || v.At.IsZero() || v.ExpiresAt.Sub(v.At) != 30*time.Second {
 		return fmt.Errorf("invalid action intent envelope")
 	}
 	for _, id := range []string{v.ID, v.ManifestID, v.SurfaceID, v.AttemptID} {
@@ -205,7 +206,23 @@ func (v ActionIntent) Validate() error {
 	if v.SnapshotID != "" && !OpaqueID.MatchString(v.SnapshotID) {
 		return fmt.Errorf("invalid action snapshot reference")
 	}
-	if v.Version == 3 {
+	if (v.Version == 5) != (v.Workspace != nil) {
+		return fmt.Errorf("workspace browser action requires version 5")
+	}
+	if v.Workspace != nil {
+		w := v.Workspace
+		if v.Native != nil || v.Browser == nil || v.Adapter != "browser" || !OpaqueID.MatchString(w.OperationID) || !OpaqueID.MatchString(w.RecipeID) || (w.PreviousViewport != "" && !OpaqueID.MatchString(w.PreviousViewport)) || v.AuthorityRef != "workspace-operation-"+w.OperationID || !Contains([]string{"open", "focus", "close"}, v.Browser.Action) || v.Browser.Validate() != nil || v.Expected != BrowserPostcondition(*v.Browser) || (v.Browser.Action == "open" && v.Browser.Pairing == nil) {
+			return fmt.Errorf("invalid workspace browser authority")
+		}
+		return nil
+	}
+	if v.Version == 3 || v.Version == 4 {
+		if v.Version == 3 && v.Native != nil && (v.Native.Launch != nil || v.Native.RecipeID != "") {
+			return fmt.Errorf("application inputs require action version 4")
+		}
+		if v.Version == 4 && (v.Native == nil || (v.Native.Launch == nil && v.Native.RecipeID == "")) {
+			return fmt.Errorf("application action lacks recipe")
+		}
 		if v.Native == nil || v.Browser != nil || v.Adapter != "hyprland" || v.AuthorityRef != "workspace-operation-"+v.Native.OperationID || v.Native.Validate() != nil || v.Expected != NativePostcondition(*v.Native) {
 			return fmt.Errorf("invalid workspace-owned native action")
 		}
@@ -298,6 +315,20 @@ func ActionConflict(st State, v ActionIntent) string {
 	return ""
 }
 func ActionInputsCurrent(st State, v ActionIntent) bool {
+	if v.Workspace != nil {
+		w := v.Workspace
+		op := st.WorkspaceOperations[w.OperationID]
+		if st.DesktopSourceHead != op.Intent.SourceID || !st.DesktopSources[op.Intent.SourceID].Active || st.DesktopSources[op.Intent.SourceID].Epoch != op.Intent.SourceEpoch {
+			return false
+		}
+		inputs := op.Intent.InputDigest
+		if op.Intent.Swap != nil && v.Target == op.Intent.Swap.Target {
+			inputs = op.Intent.Swap.InputDigest
+		}
+		if !WorkspaceOperationHolds(op) || op.CancelRequested || !WorkspaceActionScope(op, v) || !Contains(op.ActionIDs, v.ID) || !ApplicationRecipeCurrent(st, w.RecipeID, v.Target, v.SurfaceID) || OperationInputDigest(st, op, v.Target) != inputs {
+			return false
+		}
+	}
 	if v.Native != nil {
 		n := v.Native
 		source := st.DesktopSources[n.SourceID]
@@ -306,10 +337,10 @@ func ActionInputsCurrent(st State, v ActionIntent) bool {
 		if operation.Intent.Swap != nil && v.Target == operation.Intent.Swap.Target {
 			inputs = operation.Intent.Swap.InputDigest
 		}
-		if SnapshotInputDigest(st, v.Target) != inputs {
+		if OperationInputDigest(st, operation, v.Target) != inputs {
 			return false
 		}
-		if !WorkspaceOperationHolds(operation) || operation.CancelRequested || !WorkspaceActionScope(operation, v) || !source.Active || st.DesktopSourceHead != source.ID || source.Epoch != n.SourceEpoch || st.ViewportHeads[v.SurfaceID] != n.ViewportBindingID {
+		if !WorkspaceOperationHolds(operation) || operation.CancelRequested || !WorkspaceActionScope(operation, v) || !source.Active || st.DesktopSourceHead != source.ID || source.Epoch != n.SourceEpoch || !nativeViewportCurrent(st, v) {
 			return false
 		}
 		if n.Window != nil {
@@ -341,11 +372,20 @@ func ActionInputsCurrent(st State, v ActionIntent) bool {
 }
 
 func ActionBrowserCurrent(st State, v ActionIntent) bool {
+	if v.Workspace != nil {
+		op := st.WorkspaceOperations[v.Workspace.OperationID]
+		if v.Target == op.Intent.Target && !WorkspaceSwapReady(st, op) {
+			return false
+		}
+	}
 	if v.Browser == nil {
 		return false
 	}
 	b := v.Browser
 	p := st.Browsers[b.Profile]
+	if v.Workspace != nil && p.RecoveryProtocol != 1 {
+		return false
+	}
 	if !p.Paired || p.Epoch != b.Epoch || p.ActionProtocol != 1 {
 		return false
 	}
@@ -354,6 +394,13 @@ func ActionBrowserCurrent(st State, v ActionIntent) bool {
 	}
 
 	if b.Action == "open" {
+		if v.Workspace != nil {
+			for _, tab := range p.Tabs {
+				if tab.URL == b.URL && tab.OwnerID != v.ID {
+					return false
+				}
+			}
+		}
 		for id, old := range st.Actions {
 			if id == v.ID || old.Intent.SurfaceID != v.SurfaceID || old.Intent.Browser == nil || old.Intent.Browser.Action != "open" || old.Execution == "refused" || old.Execution == "cancelled" {
 				continue
@@ -376,8 +423,34 @@ func ActionBrowserCurrent(st State, v ActionIntent) bool {
 	}
 	for _, tab := range p.Tabs {
 		if tab.ID == b.TabID && tab.OwnerID == b.OwnerID && tab.URL == b.ExpectedURL && !tab.NavigationPending && (b.Action != "associate" || tab.WindowID == b.WindowID) {
+			if v.Workspace != nil {
+				binding := st.ViewportBindings[st.ViewportHeads[v.SurfaceID]]
+				proof := st.BrowserAssociations[binding.BrowserAssociationID]
+				if !binding.Active || proof.WindowID != tab.WindowID || proof.Profile != p.ID || proof.Epoch != p.Epoch {
+					return false
+				}
+			}
 			return true
 		}
 	}
 	return false
+}
+
+func nativeViewportCurrent(st State, v ActionIntent) bool {
+	n := v.Native
+	head := st.ViewportHeads[v.SurfaceID]
+	if n.Launch != nil {
+		if !ApplicationRecipeCurrent(st, n.Launch.RecipeID, v.Target, v.SurfaceID) {
+			return false
+		}
+		if head != n.Launch.PreviousViewport && st.ViewportBindings[head].ApplicationActionID != v.ID {
+			return false
+		}
+	} else if head != n.ViewportBindingID {
+		return false
+	}
+	if n.RecipeID != "" && !ApplicationRecipeCurrent(st, n.RecipeID, v.Target, v.SurfaceID) {
+		return false
+	}
+	return true
 }

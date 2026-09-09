@@ -265,10 +265,10 @@ func applyWorkspaceOperation(st *model.State, e Event) error {
 		}
 		if outcome == "matched" {
 			i := op.Intent
-			if st.Tasks[i.Target].Revision != i.TaskRevision || st.WorkspaceHeads[i.Target] != i.ManifestID || model.SnapshotInputDigest(*st, i.Target) != i.InputDigest || model.ActionContextDigest(*st, i.Target) != i.ContextDigest {
+			if st.Tasks[i.Target].Revision != i.TaskRevision || st.WorkspaceHeads[i.Target] != i.ManifestID || model.OperationInputDigest(*st, op, i.Target) != i.InputDigest || model.ActionContextDigest(*st, i.Target) != i.ContextDigest {
 				outcome = "partial"
 			}
-			if s := i.Swap; s != nil && (st.Tasks[s.Target].Revision != s.TaskRevision || st.WorkspaceHeads[s.Target] != s.ManifestID || model.SnapshotInputDigest(*st, s.Target) != s.InputDigest || model.ActionContextDigest(*st, s.Target) != s.ContextDigest) {
+			if s := i.Swap; s != nil && (st.Tasks[s.Target].Revision != s.TaskRevision || st.WorkspaceHeads[s.Target] != s.ManifestID || model.OperationInputDigest(*st, op, s.Target) != s.InputDigest || model.ActionContextDigest(*st, s.Target) != s.ContextDigest) {
 				outcome = "partial"
 			}
 		}

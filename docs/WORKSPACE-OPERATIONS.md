@@ -2,8 +2,9 @@
 
 W05 adds explicit workspace `open`, `focus`, and `close`, with status,
 cancellation, and observation-only reconciliation. It coordinates the existing
-shared action journal. Application launch and session recovery are W06 work;
-an unsupported surface is reported explicitly and never counted as recovered.
+shared action journal. [W06 application recipes](APPLICATION-RECOVERY.md) now add
+terminal launch, Herdr direct attach/detach, paired-browser operations and saved-file
+Neovim views. Unsupported or unverified application state remains explicit.
 
 The supported native baseline is Linux Hyprland **0.56.2**, commit
 `efb50993780079460b0cbed1363e2166a2de1d9f`. Both `hyprlang` and `lua`
@@ -25,9 +26,9 @@ the selected surfaces within its 30-second review lifetime:
 ./bin/heimdall action show alpha --id ACTION_ID
 ```
 
-`--surfaces ID,ID` selects a subset. `open` currently focuses surviving owned
-views; it does not recreate missing applications. `focus` explicitly requests
-focus. Neither operation claims layout or application-state recovery.
+`--surfaces ID,ID` selects a subset. `open` focuses surviving owned views and can
+recreate missing views with an explicitly reviewed application recipe. `focus`
+requests focus. Neither operation claims complete layout or application-state recovery.
 
 ```sh
 ./bin/heimdall workspace close alpha --dry-run
@@ -80,9 +81,9 @@ intents. Complete capture publishes a new head; partial/empty capture preserves
 the last complete head. Unfinished operations protect the selected points and
 their close snapshot from pruning. Desired manifests are preserved.
 
-W05 graceful close supports `native` surfaces without session bindings.
-Terminal/editor detach and browser tab closure require the W06 application
-adapters; their outer windows are not destroyed as a substitute. Unowned
+W05 graceful close supports `native` surfaces without session bindings. W06 adds
+explicit terminal close policies, observed Herdr-session preservation and scoped
+browser tab closure. Editor windows remain open to preserve unsaved buffers. Unowned
 windows are left open. There is no process kill, arbitrary command, or
 active-window fallback.
 
@@ -110,9 +111,11 @@ old identities never migrate silently to a new compositor.
 
 ## Protocol and verification
 
-Schema 19 adds operation/residency records, action intent v3 and native
+W05's schema 19 added operation/residency records, action intent v3 and native
 transition v4, plus operation snapshot metadata v2. Browser intent v1/v2 and
-their histories remain unchanged. See the [request schema](../schemas/workspace-operation-request-v1.schema.json).
+their histories remain unchanged. W06's schema 20 adds reviewed recipes and
+application actions; see [application recovery](APPLICATION-RECOVERY.md) and the
+[operation request schema](../schemas/workspace-operation-request-v1.schema.json).
 
 The fixed encodings follow the pinned upstream
 [Lua dispatcher implementation](https://github.com/hyprwm/Hyprland/blob/efb50993780079460b0cbed1363e2166a2de1d9f/src/config/lua/bindings/LuaBindingsDispatchers.cpp),
@@ -127,5 +130,6 @@ input, refusal, cancellation, lost ACK, no retry after restart, independent
 focus/absence, and inert replay. Compiled Linux acceptance uses isolated Unix
 sockets and kills the daemon after a synthetic close before ACK. An opt-in
 native test verifies a disposable GTK window on the actual selected Hyprland
-session. Real application launch, Herdr detach, browser self-restoration,
-display recovery, reboot, and VM power-loss gates remain with W06–W08.
+session. W06 acceptance additionally covers real application launch, Herdr
+detach and browser duplicate prevention. Full attachment/display recovery,
+reboot and VM power-loss gates remain with W07–W08.

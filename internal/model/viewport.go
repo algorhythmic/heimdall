@@ -37,6 +37,7 @@ func (w WindowIdentity) Validate() error {
 }
 
 type ViewportBinding struct {
+	ApplicationActionID  string          `json:"application_action_id,omitempty"`
 	BrowserAssociationID string          `json:"browser_association_id,omitempty"`
 	Version              int             `json:"version"`
 	ID                   string          `json:"id"`
@@ -72,7 +73,14 @@ func (s DesktopSource) Validate() error {
 func (b ViewportBinding) Validate() error {
 
 	version, actor := b.Version, b.Actor
-	if b.Version == 2 {
+	if b.Version == 3 {
+		if !b.Active || b.Actor != "coordinator" || !OpaqueID.MatchString(b.ApplicationActionID) || b.BrowserAssociationID != "" {
+			return fmt.Errorf("application viewport requires observed launch association")
+		}
+		version, actor = 1, "cli"
+	} else if b.ApplicationActionID != "" {
+		return fmt.Errorf("application association requires viewport version 3")
+	} else if b.Version == 2 {
 		if !b.Active || b.Actor != "coordinator" || !OpaqueID.MatchString(b.BrowserAssociationID) {
 			return fmt.Errorf("browser viewport requires a coordinator association")
 		}

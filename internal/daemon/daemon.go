@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"heimdall/internal/actions"
+	"heimdall/internal/adapters/application"
 	"heimdall/internal/adapters/herdr"
 	"heimdall/internal/adapters/hyprland"
 	"heimdall/internal/browser"
@@ -116,6 +117,7 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	service.Snapshots = &workspace.SnapshotService{Store: e.Store, Observer: service.Viewport.Observer}
 	service.Previews = &workspace.PreviewService{Store: e.Store, Observer: service.Viewport.Observer, Herdr: herdr.Adapter{}}
 	service.Operations = &workspace.OperationService{Store: e.Store, Previews: service.Previews, Observer: service.Viewport.Observer, Dispatcher: hyprland.Dispatcher{Observer: service.Viewport.Observer}, Clock: clock}
+	service.Operations.Applications = application.Adapter{Observer: service.Viewport.Observer}
 	operationDone := make(chan struct{})
 	go func() { defer close(operationDone); service.Operations.Run(localCtx) }()
 	service.Browser.AssociationCheck = func(p model.BrowserAssociation) error { return service.Viewport.Observer.Check(p.SnapshotID) }

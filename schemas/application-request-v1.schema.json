@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heimdall.local/schemas/application-request-v1.schema.json",
+  "title": "Explicit local application recipe review or retirement",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "target", "expected_task_revision", "manifest_id", "surface_id", "previous"],
+  "properties": {
+    "version": {"const": 1},
+    "id": {"$ref": "#/$defs/id"},
+    "target": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,22}[a-z0-9]$"},
+    "expected_task_revision": {"type": "integer", "minimum": 1},
+    "manifest_id": {"$ref": "#/$defs/id"},
+    "surface_id": {"$ref": "#/$defs/id"},
+    "previous": {"type": "string", "pattern": "^(none|[a-f0-9]{32})$"},
+    "spec": {
+      "description": "Omit to retire. The strict Go validator additionally checks adapter-specific combinations, canonical local files, task/surface kind, current session pins and argv total byte bounds.",
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["adapter", "close_policy"],
+      "properties": {
+        "adapter": {"enum": ["foot", "foot-herdr", "foot-nvim", "browser"]},
+        "executable": {"$ref": "#/$defs/path"},
+        "executable_digest": {"$ref": "#/$defs/digest"},
+        "command": {"$ref": "#/$defs/path"},
+        "command_digest": {"$ref": "#/$defs/digest"},
+        "argv": {"type": ["array", "null"], "maxItems": 64, "items": {"type": "string", "maxLength": 4096}},
+        "cwd": {"$ref": "#/$defs/path"},
+        "close_policy": {"enum": ["leave_open", "graceful_session_end", "detach", "owned_tab"]},
+        "session_binding_id": {"$ref": "#/$defs/id"},
+        "browser": {
+          "type": "object", "additionalProperties": false, "required": ["profile", "url"],
+          "properties": {"profile": {"$ref": "#/$defs/id"}, "url": {"type": "string", "pattern": "^https?://", "maxLength": 8192}}
+        },
+        "editor": {
+          "type": "object", "additionalProperties": false, "required": ["files", "active", "line", "column"],
+          "properties": {
+            "files": {"type": "array", "minItems": 1, "maxItems": 32, "uniqueItems": true, "items": {"$ref": "#/$defs/path"}},
+            "active": {"type": "integer", "minimum": 0, "maximum": 31},
+            "line": {"type": "integer", "minimum": 1, "maximum": 10000000},
+            "column": {"type": "integer", "minimum": 1, "maximum": 10000000}
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "path": {"type": "string", "pattern": "^/", "maxLength": 4096}
+  }
+}

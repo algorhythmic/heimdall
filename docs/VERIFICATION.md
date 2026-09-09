@@ -1,4 +1,23 @@
-# Verification — terminal/editor continuity, initial W01/T02/P01/P02/P03/P04/W02/W03/W04/C12/C13 browser verification and association, schema 18
+# Verification — workspace continuity and reviewed application recovery, schema 20
+
+## W06 reviewed application adapters — 2026-09-09
+
+- The full Go race suite passes; final affected model/store/workspace/actions/browser/application race checks include restart after process creation but before receipt publication. Go vet, all four extension Node test files, strict TypeScript compilation, Linux build and Windows/amd64 cross-build pass. Windows is compiled, not executed locally.
+- Installed native acceptance passes in `.tools/application-test-xkcp9V`: dedicated Foot launch and exact process/window binding, repeat-open focus, daemon SIGKILL/restart without duplicate launch, graceful generic close, existing Herdr direct-terminal attachment, detach with the original session surviving, expired-session refusal and structured Neovim saved-file launch. Editor close is refused. The baseline is Foot 1.28.0, Herdr 0.8.2/protocol 20 and Hyprland 0.56.2; only disposable test processes and task data are used.
+- Real Chromium 151.0.7922.34/native messaging with synthetic compositor acceptance passes in `.tools/browser-pairing-test-pukJWD`: reviewed browser close, unowned self-restored URL refusal without adoption or duplicate creation, C13 paired reopening and a new viewport binding. Extension 0.6.0 checks duplication before marker creation and continuation navigation. Scoped browser snapshot capture and inert replay are also exercised.
+- The final build passes the same browser recovery flow against actual Hyprland 0.56.2 in `.tools/browser-pairing-test-n4WStL`, using a dedicated Chromium profile and temporary native-host registration. Normal browser profiles and user configuration are unchanged.
+- Final W05 regression passes in `.tools/workspace-operation-test-zZj9BB`: pre-dispatch journal and close snapshot, fresh focus/absence readback, application refusal retaining capacity, unowned-window preservation and daemon loss after close before acknowledgment without repeated input.
+- Deterministic tests reject stale/cross-task recipes, changed executable hashes, missing cwd/editor files, unsupported close policies, arbitrary attach arguments, duplicate candidate windows, foreign PIDs, PID reuse and forged reducer records without mutation. Cancellation still observes an already launched child; retiring its recipe produces bounded uncertainty. Losing the launch receipt never adopts a lookalike window or retries process creation.
+- The retained schema-19 SQL fixture upgrades to schema 20, replays without changing older operation outcomes and retains a schema-19 pre-upgrade backup. New recipe/action/binding records replay without adapter or filesystem calls. CI enables W06 browser recovery in the existing Linux pairing acceptance.
+- Final artifact SHA-256: Linux `c90d1f3e0552b31c75a4a8c7944b06b26f4f97899b96be11bd7dfb9713eaaf2e`; Windows `8282d570270aea26b2249a714f4afb145c221fecd6807f5a88326fb328ce141a`; extension 0.6.0 ZIP `b54728d91a39b71cc1d6e4a403a442c87ea6b1e9a2b758b078f005ad6e97f52a`.
+
+These checks establish W06's supported adapter boundary, not full recovery.
+Herdr attachment rendering, editor buffer/cursor readback, complete membership
+and display placement reports remain W07. Browser cross-epoch adoption requires
+explicit review; reboot, compositor interruption and controlled VM power loss
+remain W08. See [application recovery](APPLICATION-RECOVERY.md).
+
+Earlier sections below retain their original milestone scope and artifact versions.
 
 
 ## C13 Linux browser/compositor association — 2026-09-09

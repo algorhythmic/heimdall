@@ -44,6 +44,7 @@ export class PairActions {
   if(op.action==='open'){
    let u;try{u=new URL(op.url);}catch{return refuse('Invalid URL');}
    if(!['http:','https:'].includes(u.protocol)||u.username||u.password)return refuse('URL is not allowed');
+   if(op.recovery&&(await this.api.tabs.query({})).some(t=>!t.incognito&&(t.url===op.url||t.pendingUrl===op.url)))return refuse('Browser already restored this URL; explicit ownership review required');
   }else{
    let t;try{t=await this.api.tabs.get(op.tab_id);}catch{return refuse('Original tab missing');}
    if(t.incognito||owners[t.id]!==op.owner_id||!op.owner_id||t.url!==op.expected_url||t.pendingUrl||t.windowId!==op.window_id)return refuse('Selected owned tab/window changed');
@@ -83,6 +84,7 @@ export class PairActions {
    let t;try{t=await this.api.tabs.get(op.tab_id);}catch{return refuse('Original tab missing');}
    if(t.incognito||owners[t.id]!==op.owner_id||t.url!==op.expected_url||t.pendingUrl||t.windowId!==op.window_id)return refuse('Original owned tab changed');
   }else if(owners[marker.id]!==op.id)return refuse('Marker ownership changed');
+  if(op.action==='open'&&op.recovery&&(await this.api.tabs.query({})).some(t=>t.id!==marker.id&&!t.incognito&&(t.url===op.url||t.pendingUrl===op.url)))return refuse('Browser restored this URL during pairing; navigation withheld');
   p.continuation={id:c.id,request:continuationKey(c),started:Date.now()};await this.api.storage.session.set({journal});
   let result;
   try{

@@ -124,6 +124,9 @@ func previewCLI(ctx context.Context, o options, action, target string, args []st
 	fmt.Fprintf(out, "Workspace preview · %s\nManifest %s · snapshot %s · age %ds\nFresh=%t · review required=%t · expires %s\n", terminalText(target), terminalText(v.Request.ManifestID), terminalText(v.Request.SnapshotID), v.SnapshotAgeSeconds, v.Fresh, v.ReviewRequired, v.ExpiresAt.Format("15:04:05Z07:00"))
 	for _, row := range v.Surfaces {
 		fmt.Fprintf(out, "%s · %s: %s\n", terminalText(row.SurfaceID), terminalText(row.Label), row.Disposition)
+		if row.ApplicationRecipe != nil {
+			fmt.Fprintln(out, "  Reviewed "+terminalText(model.ApplicationSummary(*row.ApplicationRecipe)))
+		}
 		for _, text := range []string{strings.Join(row.Changes, ", "), strings.Join(row.Issues, ", "), strings.Join(row.Requirements, ", ")} {
 			if text != "" {
 				fmt.Fprintln(out, "  "+terminalText(text))

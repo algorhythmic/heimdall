@@ -14,6 +14,7 @@ type BrowserTab struct {
 	OwnerID           string `json:"owner_id,omitempty"`
 }
 type BrowserProfile struct {
+	RecoveryProtocol     int               `json:"recovery_protocol,omitempty"`
 	EventGeneration      int64             `json:"event_generation,omitempty"`
 	PairingProtocol      int               `json:"pairing_protocol,omitempty"`
 	ExtensionID          string            `json:"extension_id,omitempty"`
@@ -38,6 +39,7 @@ type BrowserProfile struct {
 	Complete             bool              `json:"complete"`
 }
 type BrowserOperation struct {
+	Recovery    bool                  `json:"recovery,omitempty"`
 	Pairing     *BrowserPairingIntent `json:"pairing,omitempty"`
 	ActionRef   *BrowserActionRef     `json:"action_ref,omitempty"`
 	ID          string                `json:"id"`
@@ -56,6 +58,12 @@ type BrowserOperation struct {
 }
 
 func (s *State) Normalize() {
+	if s.ApplicationRecipes == nil {
+		s.ApplicationRecipes = map[string]ApplicationRecipe{}
+	}
+	if s.ApplicationHeads == nil {
+		s.ApplicationHeads = map[string]string{}
+	}
 	if s.WorkspaceOperations == nil {
 		s.WorkspaceOperations = map[string]WorkspaceOperation{}
 	}

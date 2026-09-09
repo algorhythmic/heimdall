@@ -7,7 +7,8 @@ import (
 
 func applyViewport(st *model.State, e Event) error {
 	cli := e.Actor == "cli" && e.CommandID == "viewport-"+e.EntityID
-	if !cli && !(e.Subject == "viewport" && e.Verb == "bound" && e.Actor == "coordinator" && e.CommandID == "browser-association-"+e.EntityID) {
+	application := e.Subject == "viewport" && e.Verb == "bound" && e.Actor == "observer:hyprland"
+	if !cli && !application && !(e.Subject == "viewport" && e.Verb == "bound" && e.Actor == "coordinator" && e.CommandID == "browser-association-"+e.EntityID) {
 		return fmt.Errorf("invalid viewport command authority")
 	}
 	if _, ok := st.DesktopSources[e.EntityID]; ok {
@@ -65,6 +66,10 @@ func applyViewport(st *model.State, e Event) error {
 			proof, ok := st.BrowserAssociations[v.BrowserAssociationID]
 			if !ok || v.Version != 2 || v.ID != proof.ID || proof.ActionRef.Target != v.Target || proof.ActionRef.ManifestID != v.ManifestID || proof.ActionRef.SurfaceID != v.SurfaceID || proof.Window != *v.Window || proof.SourceID != v.SourceID || proof.SnapshotID != v.SnapshotID || !proof.At.Equal(v.At) || v.SessionBindingID != "" {
 				return fmt.Errorf("browser viewport requires its exact C13 observed association")
+			}
+		} else if v.Version == 3 && (kind == "terminal" || kind == "editor") && application {
+			if err := applicationBinding(*st, v, e); err != nil {
+				return err
 			}
 		} else if v.Version != 1 {
 			return fmt.Errorf("browser association cannot bind another surface kind")

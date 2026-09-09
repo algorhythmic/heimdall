@@ -53,22 +53,31 @@ type Placement struct {
 }
 
 type PreviewSurface struct {
-	SurfaceID         string                `json:"surface_id"`
-	Kind              string                `json:"kind"`
-	Label             string                `json:"label"`
-	Required          bool                  `json:"required"`
-	Membership        string                `json:"membership"`
-	ViewportBindingID string                `json:"viewport_binding_id"`
-	SessionBindingID  string                `json:"session_binding_id"`
-	Window            *model.WindowIdentity `json:"window,omitempty"`
-	Observed          *Placement            `json:"observed,omitempty"`
-	Desired           *Placement            `json:"desired,omitempty"`
-	SessionStatus     string                `json:"session_status"`
-	ObservationStatus string                `json:"observation_status"`
-	Disposition       string                `json:"disposition"`
-	Changes           []string              `json:"changes"`
-	Issues            []string              `json:"issues"`
-	Requirements      []string              `json:"requirements"`
+	BrowserReview     *BrowserApplicationReview `json:"browser_review,omitempty"`
+	ApplicationRecipe *model.ApplicationRecipe  `json:"application_recipe,omitempty"`
+	SurfaceID         string                    `json:"surface_id"`
+	Kind              string                    `json:"kind"`
+	Label             string                    `json:"label"`
+	Required          bool                      `json:"required"`
+	Membership        string                    `json:"membership"`
+	ViewportBindingID string                    `json:"viewport_binding_id"`
+	SessionBindingID  string                    `json:"session_binding_id"`
+	Window            *model.WindowIdentity     `json:"window,omitempty"`
+	Observed          *Placement                `json:"observed,omitempty"`
+	Desired           *Placement                `json:"desired,omitempty"`
+	SessionStatus     string                    `json:"session_status"`
+	ObservationStatus string                    `json:"observation_status"`
+	Disposition       string                    `json:"disposition"`
+	Changes           []string                  `json:"changes"`
+	Issues            []string                  `json:"issues"`
+	Requirements      []string                  `json:"requirements"`
+}
+
+type BrowserApplicationReview struct {
+	Profile string             `json:"profile"`
+	Epoch   string             `json:"epoch"`
+	Ready   bool               `json:"ready"`
+	Tabs    []model.BrowserTab `json:"tabs"`
 }
 
 type Preview struct {

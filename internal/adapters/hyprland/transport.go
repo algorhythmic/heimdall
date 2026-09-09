@@ -1,5 +1,6 @@
-// Package hyprland implements a fixed, read-only IPC vocabulary. There is no
-// dispatcher, shell command, focus/move/close or process-launch path here.
+// Package hyprland keeps observation connections read-only. Native actions use
+// a separate typed preparation/dispatch boundary; no shell or process launcher
+// is exposed by either interface.
 package hyprland
 
 import (
@@ -32,7 +33,7 @@ func (c *socketConnection) Events() io.Reader { return c.events }
 func (c *socketConnection) Close() error      { return c.events.Close() }
 func (c *socketConnection) Read(ctx context.Context, command string) ([]byte, error) {
 	switch command {
-	case "clients", "workspaces", "monitors", "version":
+	case "clients", "workspaces", "monitors", "version", "status", "activewindow":
 	default:
 		return nil, fmt.Errorf("unsupported read command")
 	}

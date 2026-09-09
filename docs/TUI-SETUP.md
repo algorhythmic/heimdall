@@ -142,3 +142,5 @@ is installed. The [reference design notes](design/TUI.md) map these boundaries.
 
 Run `go test ./internal/tui` and `node scripts/tui-smoke.cjs` for simulation and
 compiled acceptance. Linux additionally exercises a real PTY with Python 3.
+
+W05 workspace controls: inside `p`, use `o` to review open/focus and `c` to review graceful close. Enter submits the frozen scoped operation; Escape cancels. `r` shows fresh observations and recent outcomes. Application launch/detach remains explicitly unsupported until its recovery adapter is available. See [workspace operations](WORKSPACE-OPERATIONS.md).

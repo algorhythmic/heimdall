@@ -45,7 +45,7 @@ func (s *BrowserPairingService) Tick(ctx context.Context) error {
 	}
 	ids := []string{}
 	for id, a := range st.Actions {
-		if a.Intent.Browser.Pairing != nil && a.Pairing != nil && a.Pairing.Ready != nil && a.Pairing.ContinuationDeliveryID == "" && !a.Pairing.Abandoned && !a.CancelRequested && a.Pairing.ProbeAttempts <= 3 && s.now().Before(a.Intent.ExpiresAt) {
+		if a.Intent.Browser != nil && a.Intent.Browser.Pairing != nil && a.Pairing != nil && a.Pairing.Ready != nil && a.Pairing.ContinuationDeliveryID == "" && !a.Pairing.Abandoned && !a.CancelRequested && a.Pairing.ProbeAttempts <= 3 && s.now().Before(a.Intent.ExpiresAt) {
 			ids = append(ids, id)
 		}
 	}
@@ -63,7 +63,7 @@ func (s *BrowserPairingService) Observe(ctx context.Context, id string) error {
 		return err
 	}
 	a, ok := st.Actions[id]
-	if !ok || a.Intent.Browser.Pairing == nil {
+	if !ok || a.Intent.Browser == nil || a.Intent.Browser.Pairing == nil {
 		return fmt.Errorf("pairing action missing")
 	}
 	lease, err := s.Browser.Lease(ctx, a.Intent.Browser.Profile)

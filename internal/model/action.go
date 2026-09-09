@@ -46,24 +46,27 @@ type ActionIntent struct {
 	Authority     string              `json:"authority"`
 	AuthorityRef  string              `json:"authority_ref"`
 	Browser       *BrowserIntent      `json:"browser,omitempty"`
+	Native        *NativeIntent       `json:"native,omitempty"`
 	Expected      ActionPostcondition `json:"expected"`
 	At            time.Time           `json:"at"`
 	ExpiresAt     time.Time           `json:"expires_at"`
 }
 type ActionReport struct {
-	Status   string `json:"status"`
-	Detail   string `json:"detail"`
-	TabID    int    `json:"tab_id,omitempty"`
-	WindowID int    `json:"window_id,omitempty"`
-	URL      string `json:"url,omitempty"`
+	Native   *NativeDispatchReport `json:"native,omitempty"`
+	Status   string                `json:"status"`
+	Detail   string                `json:"detail"`
+	TabID    int                   `json:"tab_id,omitempty"`
+	WindowID int                   `json:"window_id,omitempty"`
+	URL      string                `json:"url,omitempty"`
 }
 type ActionObservation struct {
-	ID          string    `json:"id"`
-	Status      string    `json:"status"`
-	SourceEpoch string    `json:"source_epoch"`
-	Digest      string    `json:"digest"`
-	ObservedAt  time.Time `json:"observed_at"`
-	Detail      string    `json:"detail"`
+	Native      *NativeReadback `json:"native,omitempty"`
+	ID          string          `json:"id"`
+	Status      string          `json:"status"`
+	SourceEpoch string          `json:"source_epoch"`
+	Digest      string          `json:"digest"`
+	ObservedAt  time.Time       `json:"observed_at"`
+	Detail      string          `json:"detail"`
 }
 type ActionRecord struct {
 	Pairing              *BrowserPairingState `json:"pairing,omitempty"`
@@ -112,6 +115,9 @@ type BrowserActionRef struct {
 }
 
 func (a ActionRecord) BrowserRef() *BrowserActionRef {
+	if a.Intent.Native != nil {
+		return nil
+	}
 	return &BrowserActionRef{1, a.Intent.ID, a.Intent.AttemptID, a.IntentDigest, a.Intent.Target, a.Intent.ManifestID, a.Intent.SurfaceID}
 }
 func (r BrowserActionRef) Validate() error {
@@ -188,7 +194,7 @@ func BrowserPostcondition(b BrowserIntent) ActionPostcondition {
 	return p
 }
 func (v ActionIntent) Validate() error {
-	if (v.Version != 1 && v.Version != 2) || !ValidID(v.Target) || v.TaskRevision < 1 || !TokenHashPattern.MatchString(v.ContextDigest) || v.Adapter != "browser" || v.Authority != "cli" || v.AuthorityRef != "action-"+v.ID || v.At.IsZero() || v.ExpiresAt.Sub(v.At) != 30*time.Second {
+	if (v.Version != 1 && v.Version != 2 && v.Version != 3) || !ValidID(v.Target) || v.TaskRevision < 1 || !TokenHashPattern.MatchString(v.ContextDigest) || v.Authority != "cli" || v.At.IsZero() || v.ExpiresAt.Sub(v.At) != 30*time.Second {
 		return fmt.Errorf("invalid action intent envelope")
 	}
 	for _, id := range []string{v.ID, v.ManifestID, v.SurfaceID, v.AttemptID} {
@@ -198,6 +204,15 @@ func (v ActionIntent) Validate() error {
 	}
 	if v.SnapshotID != "" && !OpaqueID.MatchString(v.SnapshotID) {
 		return fmt.Errorf("invalid action snapshot reference")
+	}
+	if v.Version == 3 {
+		if v.Native == nil || v.Browser != nil || v.Adapter != "hyprland" || v.AuthorityRef != "workspace-operation-"+v.Native.OperationID || v.Native.Validate() != nil || v.Expected != NativePostcondition(*v.Native) {
+			return fmt.Errorf("invalid workspace-owned native action")
+		}
+		return nil
+	}
+	if v.Native != nil || v.Adapter != "browser" || v.AuthorityRef != "action-"+v.ID {
+		return fmt.Errorf("invalid browser action authority")
 	}
 	if v.Browser == nil {
 		return fmt.Errorf("browser intent required")
@@ -254,6 +269,11 @@ func ActionHolds(a ActionRecord) bool {
 	if a.Execution == "cancelled" || a.Execution == "refused" || (a.Pairing != nil && a.Pairing.Abandoned) {
 		return false
 	}
+	// Native applications can process a graceful request after the IPC ACK.
+	// Give the bounded observation budget time to settle without repeating input.
+	if a.Intent.Native != nil && a.Execution == "api_reported" && a.Verification == "not_matched" && a.VerificationAttempts < 8 {
+		return true
+	}
 	// An uncertain failed postcondition is not permission to duplicate a possible effect.
 	return a.Verification != "matched" && !(a.Verification == "not_matched" && a.Execution == "api_reported")
 }
@@ -278,6 +298,27 @@ func ActionConflict(st State, v ActionIntent) string {
 	return ""
 }
 func ActionInputsCurrent(st State, v ActionIntent) bool {
+	if v.Native != nil {
+		n := v.Native
+		source := st.DesktopSources[n.SourceID]
+		operation := st.WorkspaceOperations[n.OperationID]
+		inputs := operation.Intent.InputDigest
+		if operation.Intent.Swap != nil && v.Target == operation.Intent.Swap.Target {
+			inputs = operation.Intent.Swap.InputDigest
+		}
+		if SnapshotInputDigest(st, v.Target) != inputs {
+			return false
+		}
+		if !WorkspaceOperationHolds(operation) || operation.CancelRequested || !WorkspaceActionScope(operation, v) || !source.Active || st.DesktopSourceHead != source.ID || source.Epoch != n.SourceEpoch || st.ViewportHeads[v.SurfaceID] != n.ViewportBindingID {
+			return false
+		}
+		if n.Window != nil {
+			b := st.ViewportBindings[n.ViewportBindingID]
+			if !b.Active || b.Window == nil || *b.Window != *n.Window || b.Target != v.Target || b.SurfaceID != v.SurfaceID || b.SourceID != n.SourceID || b.ManifestID != v.ManifestID || b.TaskRevision != v.TaskRevision {
+				return false
+			}
+		}
+	}
 	if v.Browser != nil && v.Browser.Pairing != nil {
 		p := v.Browser.Pairing
 		s := st.DesktopSources[p.SourceID]

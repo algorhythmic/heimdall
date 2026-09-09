@@ -59,7 +59,7 @@ async function until(fn,label){for(let i=0;i<200;i++){const r=await fn();if(r)re
   const closedUnsaved=await until(()=>{const a=action(closeUnsaved);return (['matched','not_matched'].includes(a.verification)||(a.execution==='uncertain'&&a.verification==='unknown'))&&a;},'before-unload close readback');
   const stillPresent=!unsavedPage.isClosed();assert.equal(closedUnsaved.verification==='matched',!stillPresent);if(stillPresent)assert.notEqual(closedUnsaved.verification,'matched');
   const state=cli('state');cli('replay');assert.deepEqual(cli('state'),state);assert.equal(state.tasks.alpha.task.status,'active');
-  cli('backup','--output',join(dir,'schema18.db'));fs.writeFileSync(join(dir,'events.json'),JSON.stringify(cli('events'),null,2)+'\n');
+  cli('backup','--output',join(dir,'schema19.db'));fs.writeFileSync(join(dir,'events.json'),JSON.stringify(cli('events'),null,2)+'\n');
   console.log(JSON.stringify({status:'passed',browser:context.browser().version(),native_discovery:'actual Chromium NativeMessagingHosts in isolated user-data directory',before_unload:{dialogs:unloadDialogs,verification:closedUnsaved.verification,data_saved:'not asserted'},checks:['explicit pairing','fresh nonce and stable readback','duplicate URL ownership exclusion','exact redirect mismatch','navigation completed load','focus','move','exact closure','real daemon kill after browser side effect before result','retained result recovery without duplicate tab','inert replay and unchanged task completion'],data:dir},null,2));
  }finally{await context?.close();await stopProcess(daemon);await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1;});

@@ -6,7 +6,7 @@ import (
 )
 
 func applySnapshot(st *model.State, e Event) error {
-	if e.CommandID != "snapshot-"+e.EntityID {
+	if e.CommandID != "snapshot-"+e.EntityID && e.Verb != "captured" {
 		return fmt.Errorf("invalid snapshot command identity")
 	}
 	switch e.Verb {
@@ -17,6 +17,18 @@ func applySnapshot(st *model.State, e Event) error {
 		}
 		if err := v.Validate(); err != nil {
 			return err
+		}
+		if v.Kind == "operation" {
+			op := st.WorkspaceOperations[v.OperationID]
+			target := op.Intent.Target
+			if op.Intent.Swap != nil {
+				target = op.Intent.Swap.Target
+			}
+			if e.CommandID != "workspace-operation-"+v.OperationID || op.Revision != 1 || op.CloseSnapshotID != "" || op.DiffID == "" || target != v.Target || (op.Intent.Kind != "close" && op.Intent.Swap == nil) || !v.At.Equal(op.Intent.At) {
+				return fmt.Errorf("close capture lacks its reviewed operation")
+			}
+		} else if e.CommandID != "snapshot-"+e.EntityID {
+			return fmt.Errorf("invalid snapshot command identity")
 		}
 		if v.ID != e.EntityID || v.Actor != e.Actor || !v.At.Equal(e.TS) || st.Tasks[v.Target].Revision != v.TaskRevision || st.WorkspaceHeads[v.Target] != v.ManifestID || st.WorkspaceManifests[v.ManifestID].TaskRevision != v.TaskRevision || st.DesktopSourceHead != v.SourceID || !st.DesktopSources[v.SourceID].Active || st.DesktopSources[v.SourceID].Epoch != v.SourceEpoch || st.SnapshotHeads[v.Target].ID != v.PreviousHead || model.SnapshotInputDigest(*st, v.Target) != v.InputDigest {
 			return fmt.Errorf("snapshot capture input changed")
@@ -41,6 +53,11 @@ func applySnapshot(st *model.State, e Event) error {
 		}
 		if v.Published {
 			st.SnapshotHeads[v.Target] = v
+		}
+		if v.Kind == "operation" {
+			op := st.WorkspaceOperations[v.OperationID]
+			op.CloseSnapshotID = v.ID
+			st.WorkspaceOperations[v.OperationID] = op
 		}
 	case "policy":
 		var v model.SnapshotPolicy

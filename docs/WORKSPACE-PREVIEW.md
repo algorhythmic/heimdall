@@ -88,3 +88,5 @@ Acceptance includes deterministic planner and stale/forged/expired/restart
 tests, cross-task negatives, read-only IPC auditing, unchanged durable state,
 display/epoch/identity failures, and compiled CLI/TUI/PTY workflows. No live
 application movement, launch, close, reboot recovery or VM power loss is claimed.
+
+W05 now consumes an explicitly submitted, current preview for [journaled workspace operations](WORKSPACE-OPERATIONS.md). The comparison itself remains read-only. The TUI adds `o` open/focus and `c` graceful-close confirmations.

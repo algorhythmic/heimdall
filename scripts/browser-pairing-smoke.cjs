@@ -45,7 +45,7 @@ async function until(fn,label){for(let i=0;i<180;i++){const r=await fn();if(r)re
   const paired=await verified(associated);assert.notEqual(paired.pairing.association_id,open.pairing.association_id);
   assert.equal(await popup.evaluate(async()=>{const tabs=await chrome.tabs.query({});return tabs.filter(t=>t.url.includes('/pair.html#')).length;}),0);
   const view=cli('viewport','list','alpha');assert.equal(view.surfaces[0].status,'observed');assert.equal(view.surfaces[0].window.title,'');assert.equal(view.surfaces[0].window.pid,0);
-  state=cli('state');cli('replay');assert.deepEqual(cli('state'),state);cli('backup','--output',join(dir,'schema18.db'));if(!live)fs.writeFileSync(join(dir,'events.json'),JSON.stringify(cli('events'),null,2)+'\n');
+  state=cli('state');cli('replay');assert.deepEqual(cli('state'),state);cli('backup','--output',join(dir,'schema19.db'));if(!live)fs.writeFileSync(join(dir,'events.json'),JSON.stringify(cli('events'),null,2)+'\n');
   console.log(JSON.stringify({status:'passed',browser:context.browser().version(),compositor:live?'actual Hyprland '+probe.snapshot.compositor_version:'synthetic read-only IPC',checks:['real native messaging','nonce open before navigation','ordered browser/native double observation','atomic association and viewport binding','one-time continuation','explicit owned-tab association','temporary-tab-only cleanup','scoped title redaction','inert replay'],data:dir},null,2));
   if(live&&process.env.HEIMDALL_PAIRING_VISUAL==='1'){
    await popup.evaluate(async nonce=>chrome.windows.create({url:chrome.runtime.getURL('pair.html')+'#'+nonce,focused:true}),id());

@@ -37,6 +37,7 @@ type dialog struct {
 	progress             *continuity.ProgressView
 	workspace            *workspace.View
 	snapshotStatus       *workspace.SnapshotStatus
+	workspacePreview     *workspace.Preview
 	pending              *savedRequest
 	journal              string
 	proposal             string
@@ -347,6 +348,7 @@ func (a *App) applyDialog(r result) {
 		v := r.value.(workspaceDialogView)
 		d.workspace = &v.View
 		d.snapshotStatus = &v.Snapshot
+		d.workspacePreview = &v.Preview
 		d.lines = v.Lines
 	case "bind":
 		v := r.value.(workspace.View)
@@ -505,6 +507,12 @@ func (a *App) dialogKey(e *tcell.EventKey) {
 	case 'o':
 		if d.kind == "step" {
 			a.confirmCore(d, "reopen", d.target)
+		} else if d.kind == "workspace" {
+			a.confirmWorkspaceOperation(d, "open")
+		}
+	case 'c':
+		if d.kind == "workspace" {
+			a.confirmWorkspaceOperation(d, "close")
 		}
 	case 'e':
 		if d.kind == "draft" {
@@ -737,7 +745,7 @@ func (a *App) OpenRequest(path string) error {
 	if err := readBounded(path, &r); err != nil {
 		return err
 	}
-	if r.Version != 1 || !model.Contains([]string{"/commands", "/progress/command", "/continuity/command", "/workspace/herdr/bind", "/workspace/snapshot/command", "/evidence/evaluate"}, r.Path) || !json.Valid(r.Body) {
+	if r.Version != 1 || !model.Contains([]string{"/commands", "/progress/command", "/continuity/command", "/workspace/herdr/bind", "/workspace/snapshot/command", "/workspace/operation/queue", "/evidence/evaluate"}, r.Path) || !json.Valid(r.Body) {
 		return errors.New("invalid retained TUI request")
 	}
 	d := a.newDialog("confirm", "retry retained request · "+r.Target, r.Target)

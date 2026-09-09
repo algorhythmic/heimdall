@@ -22,6 +22,7 @@ type WorkspacePoint struct {
 	PayloadBytes  int       `json:"payload_bytes"`
 	Kind          string    `json:"kind"`
 	PolicyID      string    `json:"policy_id,omitempty"`
+	OperationID   string    `json:"operation_id,omitempty"`
 	Coverage      string    `json:"coverage"`
 	Published     bool      `json:"published"`
 	ObservedAt    time.Time `json:"observed_at"`
@@ -98,7 +99,7 @@ type SnapshotPrune struct {
 }
 
 func (v WorkspacePoint) Validate() error {
-	if v.Version != 1 || !OpaqueID.MatchString(v.ID) || !ValidID(v.Target) || v.TaskRevision < 1 || !OpaqueID.MatchString(v.ManifestID) || !OpaqueID.MatchString(v.SourceID) || (v.PreviousHead != "" && !OpaqueID.MatchString(v.PreviousHead)) || v.At.IsZero() || v.ObservedAt.IsZero() {
+	if (v.Version != 1 && v.Version != 2) || !OpaqueID.MatchString(v.ID) || !ValidID(v.Target) || v.TaskRevision < 1 || !OpaqueID.MatchString(v.ManifestID) || !OpaqueID.MatchString(v.SourceID) || (v.PreviousHead != "" && !OpaqueID.MatchString(v.PreviousHead)) || v.At.IsZero() || v.ObservedAt.IsZero() {
 		return fmt.Errorf("invalid workspace snapshot envelope")
 	}
 	for _, digest := range []string{v.SourceEpoch, v.InputDigest, v.ContentDigest, v.PayloadDigest} {
@@ -109,7 +110,14 @@ func (v WorkspacePoint) Validate() error {
 	if v.PayloadBytes < 1 || v.PayloadBytes > 384<<10 || !Contains([]string{"complete", "partial"}, v.Coverage) || v.Published != (v.Coverage == "complete") {
 		return fmt.Errorf("invalid snapshot coverage or payload bound")
 	}
-	if v.Kind == "manual" {
+	if (v.Version == 2) != (v.Kind == "operation") || (v.Kind != "operation" && v.OperationID != "") {
+		return fmt.Errorf("snapshot operation provenance requires version 2")
+	}
+	if v.Kind == "operation" {
+		if v.Actor != "cli" || !OpaqueID.MatchString(v.OperationID) || v.PolicyID != "" {
+			return fmt.Errorf("operation snapshot requires its explicit CLI operation")
+		}
+	} else if v.Kind == "manual" {
 		if v.Actor != "cli" || v.PolicyID != "" {
 			return fmt.Errorf("manual snapshot requires CLI authority")
 		}
@@ -151,6 +159,11 @@ func (v SnapshotPrune) Validate() error {
 	return nil
 }
 func SnapshotProtected(st State, id string) bool {
+	for _, op := range st.WorkspaceOperations {
+		if WorkspaceOperationHolds(op) && (op.CloseSnapshotID == id || op.Intent.SnapshotID == id || (op.Intent.Swap != nil && op.Intent.Swap.SnapshotID == id)) {
+			return true
+		}
+	}
 	for _, action := range st.Actions {
 		if action.Intent.SnapshotID == id && ActionHolds(action) {
 			return true

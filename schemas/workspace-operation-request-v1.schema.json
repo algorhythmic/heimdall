@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heimdall.local/schemas/workspace-operation-request-v1.schema.json",
+  "title": "Explicit reviewed workspace operation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "kind", "preview", "surface_ids"],
+  "properties": {
+    "version": {"const": 1},
+    "id": {"type": "string", "pattern": "^[0-9a-f]{32}$"},
+    "kind": {"enum": ["open", "focus", "close"]},
+    "preview": {"$ref": "#/$defs/preview"},
+    "surface_ids": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"type": "string", "pattern": "^[0-9a-f]{32}$"}},
+    "swap": {"$ref": "#/$defs/preview"}
+  },
+  "allOf": [{"if": {"required": ["swap"]}, "then": {"properties": {"kind": {"const": "open"}}}}],
+  "$defs": {
+    "preview": {
+      "description": "Complete daemon-issued Preview, passed verbatim. Strict Go decoding, the lifetime HMAC, freshness and scoped semantic comparison validate the full artifact; this schema documents its identifying fields only.",
+      "type": "object",
+      "required": ["version", "request", "digest", "token"],
+      "properties": {
+        "version": {"const": 1},
+        "request": {"$ref": "workspace-preview-request-v1.schema.json"},
+        "digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "token": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}

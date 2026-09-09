@@ -89,7 +89,7 @@ func applyBrowserVerification(st *model.State, e Event) error {
 	markerActions := map[string]bool{}
 	for _, m := range r.Markers {
 		a, ok := st.Actions[m.ActionRef.ID]
-		if !ok || a.Intent.Browser.Profile != p.ID || a.Intent.Browser.Epoch != p.Epoch || a.Intent.Browser.Pairing == nil || a.Pairing == nil || a.Pairing.Ready == nil || !reflect.DeepEqual(&m.ActionRef, a.BrowserRef()) || m.TabID != a.Pairing.Ready.MarkerTabID || m.WindowID != a.Pairing.Ready.WindowID || !present[m.TabID] || markerIDs[m.TabID] || markerActions[m.ActionRef.ID] {
+		if !ok || a.Intent.Browser == nil || a.Intent.Browser.Profile != p.ID || a.Intent.Browser.Epoch != p.Epoch || a.Intent.Browser.Pairing == nil || a.Pairing == nil || a.Pairing.Ready == nil || !reflect.DeepEqual(&m.ActionRef, a.BrowserRef()) || m.TabID != a.Pairing.Ready.MarkerTabID || m.WindowID != a.Pairing.Ready.WindowID || !present[m.TabID] || markerIDs[m.TabID] || markerActions[m.ActionRef.ID] {
 			return fmt.Errorf("marker does not match its issued browser attempt")
 		}
 		markerIDs[m.TabID] = true

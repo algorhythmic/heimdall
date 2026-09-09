@@ -8,7 +8,7 @@ import (
 )
 
 func applyActionPairing(st model.State, a *model.ActionRecord, v model.ActionTransition) error {
-	if v.Version != 3 || a.Intent.Browser.Pairing == nil {
+	if v.Version != 3 || a.Intent.Browser == nil || a.Intent.Browser.Pairing == nil {
 		return fmt.Errorf("pairing transition requires versioned intent")
 	}
 	b := a.Intent.Browser

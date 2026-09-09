@@ -3,7 +3,7 @@ package model
 import "time"
 
 func BrowserOutcomeInState(st State, a ActionRecord, p BrowserProfile) (string, string) {
-	if a.Intent.Browser.Pairing != nil && a.Pairing != nil && a.Pairing.AssociationID != "" {
+	if a.Intent.Browser != nil && a.Intent.Browser.Pairing != nil && a.Pairing != nil && a.Pairing.AssociationID != "" {
 		proof := st.BrowserAssociations[a.Pairing.AssociationID]
 		binding := st.ViewportBindings[st.ViewportHeads[a.Intent.SurfaceID]]
 		if proof.ID == "" || binding.BrowserAssociationID != proof.ID || !binding.Active || st.DesktopSourceHead != proof.SourceID || !st.DesktopSources[proof.SourceID].Active || st.DesktopSources[proof.SourceID].Epoch != proof.Window.SourceEpoch {

@@ -6,12 +6,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"heimdall/internal/model"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
 )
 
 type Status struct {
+	FocusKnown      bool                   `json:"focus_known,omitempty"`
+	FocusedWindow   *model.WindowIdentity  `json:"focused_window,omitempty"`
 	Version         int                    `json:"version"`
 	Selected        bool                   `json:"selected"`
 	Fresh           bool                   `json:"fresh"`
@@ -172,7 +175,7 @@ func (o *Observer) connect(ctx context.Context) error {
 	}
 	return nil
 }
-func (o *Observer) capture(ctx context.Context) (captureErr error) {
+func (o *Observer) capture(ctx context.Context, focus bool) (captureErr error) {
 	o.refresh.Lock()
 	defer o.refresh.Unlock()
 	defer func() {
@@ -183,6 +186,8 @@ func (o *Observer) capture(ctx context.Context) (captureErr error) {
 	o.mu.Lock()
 	o.lastAttempt = time.Now()
 	o.status.Fresh = false
+	o.status.FocusKnown = false
+	o.status.FocusedWindow = nil
 	o.mu.Unlock()
 	ctx, cancel := context.WithTimeout(ctx, 3*time.Second)
 	defer cancel()
@@ -198,16 +203,30 @@ func (o *Observer) capture(ctx context.Context) (captureErr error) {
 		if err != nil {
 			return err
 		}
+		var active1, active2 *model.WindowIdentity
+		if focus {
+			active1, err = activeWindow(ctx, c)
+			if err != nil {
+				return err
+			}
+		}
 		second, err := inventory(ctx, c)
 		if err != nil {
 			return err
 		}
+		if focus {
+			active2, err = activeWindow(ctx, c)
+			if err != nil {
+				return err
+			}
+		}
 		o.mu.Lock()
-		valid := !o.broken && seq == o.sequence && first.ID == second.ID
+		valid := !o.broken && seq == o.sequence && first.ID == second.ID && reflect.DeepEqual(active1, active2)
 		if valid {
 			second.StartedAt = startedAt
 			second.CapturedAt = time.Now().UTC()
 			o.status.Snapshot = &second
+			o.status.FocusKnown, o.status.FocusedWindow = focus, active2
 			o.status.Fresh = true
 			o.status.Issue = ""
 			o.status.Reconciliations++
@@ -223,13 +242,26 @@ func (o *Observer) capture(ctx context.Context) (captureErr error) {
 	return fmt.Errorf("inventory_changed_during_capture")
 }
 func (o *Observer) Read(ctx context.Context, fresh bool) (Status, error) {
+	return o.read(ctx, fresh, false)
+}
+
+// ReadFocused checks activewindow twice alongside the reconciled inventory.
+// Focus history rank is deliberately not a focus postcondition.
+func (o *Observer) ReadFocused(ctx context.Context) (Status, error) {
+	return o.read(ctx, true, true)
+}
+func (o *Observer) read(ctx context.Context, fresh, focus bool) (Status, error) {
 	var err error
 	if fresh {
-		err = o.capture(ctx)
+		err = o.capture(ctx, focus)
 	}
 	o.mu.Lock()
 	defer o.mu.Unlock()
 	v := o.status
+	if v.FocusedWindow != nil {
+		copy := *v.FocusedWindow
+		v.FocusedWindow = &copy
+	}
 	if v.Snapshot == nil || time.Since(v.Snapshot.CapturedAt) > 10*time.Second {
 		v.Fresh = false
 		if v.Issue == "" {
@@ -244,6 +276,40 @@ func (o *Observer) Read(ctx context.Context, fresh bool) (Status, error) {
 		v.Snapshot = &copy
 	}
 	return v, err
+}
+
+func activeWindow(ctx context.Context, c Connection) (*model.WindowIdentity, error) {
+	b, err := c.Read(ctx, "activewindow")
+	if err != nil {
+		return nil, err
+	}
+	var fields map[string]json.RawMessage
+	if json.Unmarshal(b, &fields) != nil || fields == nil {
+		return nil, fmt.Errorf("invalid_activewindow_json")
+	}
+	if len(fields) == 0 {
+		return nil, nil
+	}
+	var id string
+	if json.Unmarshal(fields["stableId"], &id) != nil {
+		return nil, fmt.Errorf("active_window_identity_unavailable")
+	}
+	w := model.WindowIdentity{SourceEpoch: c.Source().Epoch, StableID: id}
+	if w.Validate() != nil {
+		return nil, fmt.Errorf("invalid_active_window_identity")
+	}
+	return &w, nil
+}
+
+// CheckCapture also rejects an intervening capture, including one with unchanged
+// inventory but different focus. No socket reads occur under a store writer.
+func (o *Observer) CheckCapture(id string, at time.Time) error {
+	o.mu.Lock()
+	defer o.mu.Unlock()
+	if !o.status.Fresh || o.broken || o.status.Snapshot == nil || o.status.Snapshot.ID != id || !o.status.Snapshot.CapturedAt.Equal(at) || time.Since(at) > 5*time.Second {
+		return fmt.Errorf("native capture changed or expired")
+	}
+	return nil
 }
 func (o *Observer) Check(id string) error {
 	o.mu.Lock()

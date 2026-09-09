@@ -19,7 +19,7 @@ func (s Service) continuations(st model.State, m Message, now time.Time) ([]mode
 	out := []model.BrowserContinuation{}
 	events := []store.Pending{}
 	for _, a := range st.Actions {
-		if a.Intent.Browser.Profile != m.Profile || a.Pairing == nil || a.Pairing.ContinuationDeliveryID != "" || !s.continuationAllowed(st, a, now, a.LastEventID) {
+		if a.Intent.Browser == nil || a.Intent.Browser.Profile != m.Profile || a.Pairing == nil || a.Pairing.ContinuationDeliveryID != "" || !s.continuationAllowed(st, a, now, a.LastEventID) {
 			continue
 		}
 		r := a.Pairing.Ready

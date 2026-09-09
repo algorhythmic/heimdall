@@ -1,3 +1,3 @@
-75b12709d2c83e28e3c4205808584f75e2c8dc8f3d23de3c3902546c37ad3a1e  bin/heimdall
-50c64d24c3fc649718550590b1eb95284c175ce4487f5b7f387cc90e247c6356  .tools/heimdall-c13-pairing-windows.exe
+4e1692015ca8a8c4278ac963e83d10dc96793291cd4a8c6fef379c8fd581b1a4  bin/heimdall
+83f4d330c0524cbafa61cdfb06c0b74da6adb766969d0f1ab320e1fbb7f7161b  .tools/heimdall-w05-windows.exe
 d6d3ccb62212387755deba24fbca5d3b70de8c413c3f53d56dd4e43d91ef03f8  bin/heimdall-extension-0.5.0.zip

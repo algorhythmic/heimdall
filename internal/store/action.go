@@ -29,6 +29,9 @@ func applyAction(st *model.State, e Event) error {
 		if !model.ActionInputsCurrent(*st, v) {
 			return fmt.Errorf("action context changed: %w", ErrConflict)
 		}
+		if v.Native != nil {
+			return queueNativeAction(st, e, v)
+		}
 		m := st.WorkspaceManifests[v.ManifestID]
 		owned := false
 		for _, surface := range m.Surfaces {
@@ -90,8 +93,14 @@ func applyAction(st *model.State, e Event) error {
 		return err
 	}
 	a, exists := st.Actions[v.ActionID]
-	if !exists || (v.Version != 1 && v.Version != 2 && v.Version != 3) || !model.OpaqueID.MatchString(v.ID) || v.ActionID != e.EntityID || v.AttemptID != a.Intent.AttemptID || v.PreviousRevision != a.Revision || v.Actor != e.Actor || !v.At.Equal(e.TS) || v.At.IsZero() || len(v.Reason) > 512 {
+	if !exists || (v.Version != 1 && v.Version != 2 && v.Version != 3 && v.Version != 4) || !model.OpaqueID.MatchString(v.ID) || v.ActionID != e.EntityID || v.AttemptID != a.Intent.AttemptID || v.PreviousRevision != a.Revision || v.Actor != e.Actor || !v.At.Equal(e.TS) || v.At.IsZero() || len(v.Reason) > 512 {
 		return fmt.Errorf("invalid action transition identity, revision or provenance")
+	}
+	if a.Intent.Native == nil && (v.Version == 4 || (v.Report != nil && v.Report.Native != nil) || (v.Observation != nil && v.Observation.Native != nil)) {
+		return fmt.Errorf("native fields on browser transition")
+	}
+	if a.Intent.Native != nil && (v.PairProbe != nil || v.PairReady != nil || v.AssociationID != "" || v.ContinuationID != "") {
+		return fmt.Errorf("browser fields on native transition")
 	}
 	if v.PairProbe != nil && (v.Version != 3 || v.Kind != "pair_probe") {
 		return fmt.Errorf("pairing probe on another transition")
@@ -114,130 +123,136 @@ func applyAction(st *model.State, e Event) error {
 	if v.Kind != "observe" && v.Kind != "dispatch" && v.Kind != "verify" && v.Kind != "pair_continue" && v.Observation != nil {
 		return fmt.Errorf("observation on another transition")
 	}
-	switch v.Kind {
-	case "pair_ready", "pair_probe", "pair_bound", "pair_continue", "pair_abandoned":
-		if err := applyActionPairing(*st, &a, v); err != nil {
+	if a.Intent.Native != nil && model.Contains([]string{"dispatch", "report", "verify", "observe", "source_lost"}, v.Kind) {
+		if err := transitionNativeAction(*st, &a, v, e); err != nil {
 			return err
 		}
-	case "dispatch":
-		if e.Actor != "coordinator" || !model.OpaqueID.MatchString(v.DeliveryID) || a.Execution != "queued" || a.CancelRequested || v.At.Before(a.Intent.At) || !v.At.Before(a.Intent.ExpiresAt) || !model.ActionInputsCurrent(*st, a.Intent) || !model.ActionBrowserCurrent(*st, a.Intent) {
-			return fmt.Errorf("action cannot dispatch")
-		}
-		p := st.Browsers[a.Intent.Browser.Profile]
-		o := v.Observation
-		if o == nil || !model.OpaqueID.MatchString(o.ID) || o.Status != "unknown" || o.SourceEpoch != p.Epoch || o.Digest != model.ContentDigest(p) || !o.ObservedAt.Equal(p.ReceivedAt) || v.At.Before(p.ReceivedAt) || v.At.Sub(p.ReceivedAt) > 5*time.Second || !p.Complete {
-			return fmt.Errorf("dispatch lacks a fresh observation reference")
-		}
-		if (v.Version >= 2 || a.Intent.Browser.Pairing != nil) && (p.Freshness == nil || !p.Freshness.Stable || p.Freshness.Challenge.AfterEventID < a.LastEventID) {
-			return fmt.Errorf("dispatch requires challenged stable readback after intent")
-		}
-		a.Execution = "dispatching"
-		a.DeliveryID = v.DeliveryID
-		a.DispatchObservation = o
-	case "refuse":
-		if e.Actor != "coordinator" || a.Execution != "queued" || v.Reason == "" {
-			return fmt.Errorf("action cannot be refused after possible dispatch")
-		}
-		a.Execution = "refused"
-		a.Verification = "unknown"
-	case "interrupt":
-		if !model.Contains([]string{"coordinator", "observer:browser"}, e.Actor) || a.Execution != "dispatching" || v.Reason == "" {
-			return fmt.Errorf("action cannot be interrupted")
-		}
-		a.Execution = "uncertain"
-		a.Verification = "unknown"
-		if a.UncertainSince.IsZero() {
-			a.UncertainSince = v.At
-		}
-	case "cancel":
-		if !model.Contains([]string{"cli", "coordinator"}, e.Actor) || !model.ActionHolds(a) || a.CancelRequested || v.Reason == "" {
-			return fmt.Errorf("action cannot be cancelled")
-		}
-		a.CancelRequested = true
-		if a.Execution == "queued" {
-			a.Execution = "cancelled"
-			a.Verification = "unknown"
-		} else if a.Execution == "dispatching" {
-			a.Execution = "uncertain"
-			a.Verification = "unknown"
-			if a.UncertainSince.IsZero() {
-				a.UncertainSince = v.At
+	} else {
+		switch v.Kind {
+		case "pair_ready", "pair_probe", "pair_bound", "pair_continue", "pair_abandoned":
+			if err := applyActionPairing(*st, &a, v); err != nil {
+				return err
 			}
-		}
-	case "report":
-		r := v.Report
-		if a.Intent.Browser.Pairing != nil {
-			firstFailure := v.Version == 3 && v.ContinuationID == "" && a.Pairing == nil && r != nil && r.Status != "succeeded"
-			if !firstFailure && (v.Version != 3 || a.Pairing == nil || a.Pairing.ContinuationDeliveryID == "" || v.ContinuationID != a.Pairing.ContinuationID) {
-				return fmt.Errorf("final pairing result requires its dispatched continuation")
+		case "dispatch":
+			if e.Actor != "coordinator" || !model.OpaqueID.MatchString(v.DeliveryID) || a.Execution != "queued" || a.CancelRequested || v.At.Before(a.Intent.At) || !v.At.Before(a.Intent.ExpiresAt) || !model.ActionInputsCurrent(*st, a.Intent) || !model.ActionBrowserCurrent(*st, a.Intent) {
+				return fmt.Errorf("action cannot dispatch")
 			}
-		}
-		if e.Actor != "observer:browser" || r == nil || !model.Contains([]string{"succeeded", "refused", "failed", "uncertain"}, r.Status) || len(r.Detail) > 512 || !model.Contains([]string{"dispatching", "uncertain"}, a.Execution) {
-			return fmt.Errorf("unexpected action report")
-		}
-		if r.Status == "succeeded" && a.Intent.Browser.Action == "open" && (r.TabID < 1 || r.WindowID < 1 || !model.BrowserURL(r.URL)) {
-			return fmt.Errorf("open report lacks runtime identity")
-		}
-		if r.Status == "succeeded" {
-			a.Execution = "api_reported"
-			if v.Version == 1 || a.Observation == nil || !model.Contains([]string{"matched", "not_matched"}, a.Observation.Status) {
-				a.Verification = "pending"
+			p := st.Browsers[a.Intent.Browser.Profile]
+			o := v.Observation
+			if o == nil || !model.OpaqueID.MatchString(o.ID) || o.Status != "unknown" || o.SourceEpoch != p.Epoch || o.Digest != model.ContentDigest(p) || !o.ObservedAt.Equal(p.ReceivedAt) || v.At.Before(p.ReceivedAt) || v.At.Sub(p.ReceivedAt) > 5*time.Second || !p.Complete {
+				return fmt.Errorf("dispatch lacks a fresh observation reference")
 			}
-		} else if r.Status == "refused" && a.UncertainSince.IsZero() && a.Pairing == nil {
+			if (v.Version >= 2 || a.Intent.Browser.Pairing != nil) && (p.Freshness == nil || !p.Freshness.Stable || p.Freshness.Challenge.AfterEventID < a.LastEventID) {
+				return fmt.Errorf("dispatch requires challenged stable readback after intent")
+			}
+			a.Execution = "dispatching"
+			a.DeliveryID = v.DeliveryID
+			a.DispatchObservation = o
+		case "refuse":
+			if e.Actor != "coordinator" || a.Execution != "queued" || v.Reason == "" {
+				return fmt.Errorf("action cannot be refused after possible dispatch")
+			}
 			a.Execution = "refused"
 			a.Verification = "unknown"
-		} else {
+		case "interrupt":
+			if !model.Contains([]string{"coordinator", "observer:browser"}, e.Actor) || (a.Intent.Native != nil && e.Actor != "coordinator") || a.Execution != "dispatching" || v.Reason == "" {
+				return fmt.Errorf("action cannot be interrupted")
+			}
 			a.Execution = "uncertain"
 			a.Verification = "unknown"
 			if a.UncertainSince.IsZero() {
 				a.UncertainSince = v.At
 			}
-		}
-		a.Report = r
-		if v.Version >= 2 {
-			a.VerificationAttempts = 0
-		}
-	case "source_lost":
-		p := st.Browsers[a.Intent.Browser.Profile]
-		if v.Version != 2 || !model.Contains([]string{"cli", "observer:browser"}, e.Actor) || !model.ActionHolds(a) || !model.Contains([]string{"api_reported", "uncertain"}, a.Execution) || v.Reason == "" || (p.Paired && p.Epoch == a.Intent.Browser.Epoch) {
-			return fmt.Errorf("browser source is still current")
-		}
-		a.Verification = "unknown"
-	case "reconcile":
-		if v.Version != 2 || e.Actor != "cli" || model.Contains([]string{"queued", "cancelled", "refused"}, a.Execution) || v.Reason == "" {
-			return fmt.Errorf("invalid explicit action reconciliation")
-		}
-		for id, other := range st.Actions {
-			if id != a.Intent.ID && other.Intent.SurfaceID == a.Intent.SurfaceID && model.ActionHolds(other) {
-				return fmt.Errorf("surface has another unresolved attempt: %w", ErrConflict)
+		case "cancel":
+			if !model.Contains([]string{"cli", "coordinator"}, e.Actor) || !model.ActionHolds(a) || a.CancelRequested || v.Reason == "" {
+				return fmt.Errorf("action cannot be cancelled")
 			}
+			a.CancelRequested = true
+			if a.Execution == "queued" {
+				a.Execution = "cancelled"
+				a.Verification = "unknown"
+			} else if a.Execution == "dispatching" {
+				a.Execution = "uncertain"
+				a.Verification = "unknown"
+				if a.UncertainSince.IsZero() {
+					a.UncertainSince = v.At
+				}
+			}
+		case "report":
+			r := v.Report
+			if a.Intent.Browser.Pairing != nil {
+				firstFailure := v.Version == 3 && v.ContinuationID == "" && a.Pairing == nil && r != nil && r.Status != "succeeded"
+				if !firstFailure && (v.Version != 3 || a.Pairing == nil || a.Pairing.ContinuationDeliveryID == "" || v.ContinuationID != a.Pairing.ContinuationID) {
+					return fmt.Errorf("final pairing result requires its dispatched continuation")
+				}
+			}
+			if e.Actor != "observer:browser" || r == nil || !model.Contains([]string{"succeeded", "refused", "failed", "uncertain"}, r.Status) || len(r.Detail) > 512 || !model.Contains([]string{"dispatching", "uncertain"}, a.Execution) {
+				return fmt.Errorf("unexpected action report")
+			}
+			if r.Status == "succeeded" && a.Intent.Browser.Action == "open" && (r.TabID < 1 || r.WindowID < 1 || !model.BrowserURL(r.URL)) {
+				return fmt.Errorf("open report lacks runtime identity")
+			}
+			if r.Status == "succeeded" {
+				a.Execution = "api_reported"
+				if v.Version == 1 || a.Observation == nil || !model.Contains([]string{"matched", "not_matched"}, a.Observation.Status) {
+					a.Verification = "pending"
+				}
+			} else if r.Status == "refused" && a.UncertainSince.IsZero() && a.Pairing == nil {
+				a.Execution = "refused"
+				a.Verification = "unknown"
+			} else {
+				a.Execution = "uncertain"
+				a.Verification = "unknown"
+				if a.UncertainSince.IsZero() {
+					a.UncertainSince = v.At
+				}
+			}
+			a.Report = r
+			if v.Version >= 2 {
+				a.VerificationAttempts = 0
+			}
+		case "source_lost":
+			p := st.Browsers[a.Intent.Browser.Profile]
+			if v.Version != 2 || !model.Contains([]string{"cli", "observer:browser"}, e.Actor) || !model.ActionHolds(a) || !model.Contains([]string{"api_reported", "uncertain"}, a.Execution) || v.Reason == "" || (p.Paired && p.Epoch == a.Intent.Browser.Epoch) {
+				return fmt.Errorf("browser source is still current")
+			}
+			a.Verification = "unknown"
+		case "reconcile":
+			if v.Version != 2 || e.Actor != "cli" || model.Contains([]string{"queued", "cancelled", "refused"}, a.Execution) || v.Reason == "" {
+				return fmt.Errorf("invalid explicit action reconciliation")
+			}
+			for id, other := range st.Actions {
+				if id != a.Intent.ID && other.Intent.SurfaceID == a.Intent.SurfaceID && model.ActionHolds(other) {
+					return fmt.Errorf("surface has another unresolved attempt: %w", ErrConflict)
+				}
+			}
+			a.Verification = "pending"
+			a.VerificationAttempts = 0
+		case "verify":
+			if v.Version != 2 || e.Actor != "observer:browser" || v.Observation == nil {
+				return fmt.Errorf("invalid browser verification authority")
+			}
+			p := st.Browsers[a.Intent.Browser.Profile]
+			o := v.Observation
+			status, detail := model.BrowserOutcomeInState(*st, a, p)
+			if !model.OpaqueID.MatchString(o.ID) || o.Status != status || o.Detail != detail || o.SourceEpoch != p.Epoch || o.Digest != model.ContentDigest(p) || !o.ObservedAt.Equal(p.ReceivedAt) || !o.ObservedAt.Equal(v.At) || p.Freshness == nil {
+				return fmt.Errorf("verification differs from independent readback")
+			}
+			a.Observation = o
+			a.VerificationAttempts++
+			a.Verification = status
+		case "observe":
+			// C13 supplies independent browser postconditions. C12 can retain only
+			// explicit unsupported/unknown observations, never manufactured success.
+			o := v.Observation
+			if a.Intent.Browser == nil || e.Actor != "observer:browser" || o == nil || !model.OpaqueID.MatchString(o.ID) || !model.Contains([]string{"unknown", "unsupported"}, o.Status) || o.SourceEpoch != a.Intent.Browser.Epoch || !model.TokenHashPattern.MatchString(o.Digest) || o.ObservedAt.IsZero() || o.ObservedAt.After(v.At) || len(o.Detail) > 512 || a.Execution == "queued" {
+				return fmt.Errorf("invalid or unsupported verification observation")
+			}
+			a.Observation = o
+			a.Verification = o.Status
+		default:
+			return fmt.Errorf("unknown action transition")
 		}
-		a.Verification = "pending"
-		a.VerificationAttempts = 0
-	case "verify":
-		if v.Version != 2 || e.Actor != "observer:browser" || v.Observation == nil {
-			return fmt.Errorf("invalid browser verification authority")
-		}
-		p := st.Browsers[a.Intent.Browser.Profile]
-		o := v.Observation
-		status, detail := model.BrowserOutcomeInState(*st, a, p)
-		if !model.OpaqueID.MatchString(o.ID) || o.Status != status || o.Detail != detail || o.SourceEpoch != p.Epoch || o.Digest != model.ContentDigest(p) || !o.ObservedAt.Equal(p.ReceivedAt) || !o.ObservedAt.Equal(v.At) || p.Freshness == nil {
-			return fmt.Errorf("verification differs from independent readback")
-		}
-		a.Observation = o
-		a.VerificationAttempts++
-		a.Verification = status
-	case "observe":
-		// C13 supplies independent browser postconditions. C12 can retain only
-		// explicit unsupported/unknown observations, never manufactured success.
-		o := v.Observation
-		if e.Actor != "observer:browser" || o == nil || !model.OpaqueID.MatchString(o.ID) || !model.Contains([]string{"unknown", "unsupported"}, o.Status) || o.SourceEpoch != a.Intent.Browser.Epoch || !model.TokenHashPattern.MatchString(o.Digest) || o.ObservedAt.IsZero() || o.ObservedAt.After(v.At) || len(o.Detail) > 512 || a.Execution == "queued" {
-			return fmt.Errorf("invalid or unsupported verification observation")
-		}
-		a.Observation = o
-		a.Verification = o.Status
-	default:
-		return fmt.Errorf("unknown action transition")
 	}
 	if !reflect.DeepEqual(a.Intent, st.Actions[v.ActionID].Intent) {
 		return fmt.Errorf("immutable action intent changed")

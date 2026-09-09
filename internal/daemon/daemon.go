@@ -38,6 +38,7 @@ type Request struct {
 	Now     string       `json:"now,omitempty"`
 }
 type Server struct {
+	Operations        *workspace.OperationService
 	Browser           *browser.Service
 	Previews          *workspace.PreviewService
 	Snapshots         *workspace.SnapshotService
@@ -114,6 +115,9 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	}
 	service.Snapshots = &workspace.SnapshotService{Store: e.Store, Observer: service.Viewport.Observer}
 	service.Previews = &workspace.PreviewService{Store: e.Store, Observer: service.Viewport.Observer, Herdr: herdr.Adapter{}}
+	service.Operations = &workspace.OperationService{Store: e.Store, Previews: service.Previews, Observer: service.Viewport.Observer, Dispatcher: hyprland.Dispatcher{Observer: service.Viewport.Observer}, Clock: clock}
+	operationDone := make(chan struct{})
+	go func() { defer close(operationDone); service.Operations.Run(localCtx) }()
 	service.Browser.AssociationCheck = func(p model.BrowserAssociation) error { return service.Viewport.Observer.Check(p.SnapshotID) }
 	pairings := &workspace.BrowserPairingService{Store: e.Store, Browser: service.Browser, Observer: service.Viewport.Observer, Clock: clock}
 	pairingDone := make(chan struct{})
@@ -140,6 +144,7 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	err = server.Serve(listener)
 	cancel()
 	<-snapshotDone
+	<-operationDone
 	<-pairingDone
 	<-viewportDone
 	<-watchDone

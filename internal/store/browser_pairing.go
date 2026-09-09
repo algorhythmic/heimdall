@@ -15,7 +15,7 @@ func applyBrowserAssociation(st *model.State, e Event) error {
 		return err
 	}
 	a, ok := st.Actions[v.ActionRef.ID]
-	if !ok || a.Intent.Browser.Pairing == nil || a.Pairing == nil || a.Pairing.Probe == nil || a.Pairing.Ready == nil {
+	if !ok || a.Intent.Browser == nil || a.Intent.Browser.Pairing == nil || a.Pairing == nil || a.Pairing.Probe == nil || a.Pairing.Ready == nil {
 		return fmt.Errorf("association lacks a pairing probe")
 	}
 	p, b, probe, ready := st.Browsers[v.Profile], a.Intent.Browser, a.Pairing.Probe, a.Pairing.Ready

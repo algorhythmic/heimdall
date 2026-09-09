@@ -177,8 +177,7 @@ func (s Service) Sweep(ctx context.Context, now time.Time) error {
 				kind, reason = "interrupt", "delivery deadline passed after possible dispatch"
 			}
 			c.Events = append(c.Events, Pending(Transition(a, kind, reason, "coordinator", now)))
-			if a.Execution == "queued" {
-				op := st.BrowserOperations[id]
+			if op, ok := st.BrowserOperations[id]; a.Execution == "queued" && ok {
 				op.Status = "refused"
 				op.Detail = reason
 				c.Events = append(c.Events, store.Pending{Subject: "browser", Verb: "command_finished", EntityID: id, Payload: op})

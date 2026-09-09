@@ -56,6 +56,12 @@ type BrowserOperation struct {
 }
 
 func (s *State) Normalize() {
+	if s.WorkspaceOperations == nil {
+		s.WorkspaceOperations = map[string]WorkspaceOperation{}
+	}
+	if s.WorkspaceSlots == nil {
+		s.WorkspaceSlots = map[int]WorkspaceSlot{}
+	}
 	if s.BrowserAssociations == nil {
 		s.BrowserAssociations = map[string]BrowserAssociation{}
 	}

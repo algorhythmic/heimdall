@@ -104,7 +104,7 @@ func (s Service) challenge(st model.State, p model.BrowserProfile, now time.Time
 	required := int64(0)
 	refs := []model.BrowserActionRef{}
 	for _, a := range st.Actions {
-		if a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Epoch == p.Epoch && model.ActionHolds(a) && a.VerificationAttempts < 8 {
+		if a.Intent.Browser != nil && a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Epoch == p.Epoch && model.ActionHolds(a) && a.VerificationAttempts < 8 {
 			if a.LastEventID > required {
 				required = a.LastEventID
 			}
@@ -144,7 +144,7 @@ func (s Service) readback(st model.State, m Message, now time.Time) ([]store.Pen
 	p := st.Browsers[m.Profile]
 	ids := []string{}
 	for id, a := range st.Actions {
-		if a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Epoch == p.Epoch && a.Execution != "queued" && model.ActionHolds(a) && a.VerificationAttempts < 8 {
+		if a.Intent.Browser != nil && a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Epoch == p.Epoch && a.Execution != "queued" && model.ActionHolds(a) && a.VerificationAttempts < 8 {
 			ids = append(ids, id)
 		}
 	}

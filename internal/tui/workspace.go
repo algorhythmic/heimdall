@@ -11,9 +11,11 @@ import (
 )
 
 type workspaceDialogView struct {
-	View     workspace.View
-	Snapshot workspace.SnapshotStatus
-	Lines    []line
+	View       workspace.View
+	Snapshot   workspace.SnapshotStatus
+	Lines      []line
+	Preview    workspace.Preview
+	Operations []model.WorkspaceOperation
 }
 
 func (a *App) workspaceView(ctx context.Context, target string) (any, error) {
@@ -22,7 +24,7 @@ func (a *App) workspaceView(ctx context.Context, target string) (any, error) {
 	for _, request := range []struct {
 		path string
 		dest any
-	}{{"/workspace/state", &v.View}, {"/workspace/snapshot/status", &v.Snapshot}} {
+	}{{"/workspace/state", &v.View}, {"/workspace/snapshot/status", &v.Snapshot}, {"/workspace/operation/list", &v.Operations}} {
 		raw, err := a.call(ctx, "GET", request.path+q, nil)
 		if err != nil {
 			return nil, err
@@ -47,6 +49,13 @@ func (a *App) workspaceView(ctx context.Context, target string) (any, error) {
 		return nil, fmt.Errorf("workspace changed while observing; press r to refresh")
 	}
 	v.Lines = workspacePreviewLines(preview, v.Snapshot)
+	v.Preview = preview
+	for _, op := range v.Operations[:min(3, len(v.Operations))] {
+		v.Lines = append(v.Lines, plain(""), line{{op.Intent.Kind + " · " + op.Status + " · " + op.Outcome, gold}}, line{{op.Intent.ID, gray}})
+		for _, issue := range op.Unsupported {
+			v.Lines = append(v.Lines, line{{issue.Reason, gold}})
+		}
+	}
 	return v, nil
 }
 
@@ -100,8 +109,35 @@ func workspacePreviewLines(p workspace.Preview, status workspace.SnapshotStatus)
 	if len(p.Issues) > 0 {
 		lines = append(lines, line{{strings.ReplaceAll(strings.Join(p.Issues, " · "), "_", " "), gold}})
 	}
-	lines = append(lines, line{{fmt.Sprintf("%d unowned windows in relevant workspaces left open", p.UnownedLeftOpen), gray}}, line{{"Preview only · application actions require a reviewed operation", gray}})
+	lines = append(lines, line{{fmt.Sprintf("%d unowned windows in relevant workspaces left open", p.UnownedLeftOpen), gray}}, line{{"o open/focus · c review graceful close · r refresh operations", gray}})
 	return lines
+}
+
+func (a *App) confirmWorkspaceOperation(d *dialog, kind string) {
+	if d.workspacePreview == nil || !d.workspacePreview.Fresh || d.workspacePreview.Request.Validate() != nil {
+		d.err = "Save a point and refresh the workspace before requesting an operation."
+		return
+	}
+	p := model.Clone(*d.workspacePreview)
+	ids := []string{}
+	for _, row := range p.Surfaces {
+		if row.Membership != "removed" {
+			ids = append(ids, row.SurfaceID)
+		}
+	}
+	r := workspace.OperationRequest{Version: 1, ID: model.NewID(), Kind: kind, Preview: p, SurfaceIDs: ids}
+	raw, _ := json.Marshal(r)
+	next := a.newDialog("confirm", kind+" workspace · "+d.target, d.target)
+	next.lines = []line{plain(fmt.Sprintf("Enter requests %s for %d reviewed surfaces.", kind, len(ids))), plain("Existing owned windows use their exact bindings."), plain("Missing applications and session detachments may require recovery support."), plain("Unowned windows remain open. Escape cancels.")}
+	if kind == "close" {
+		next.lines = append(next.lines, plain("Current membership is saved before requesting graceful closure."), plain("Applications that stay open keep their resident capacity."))
+	}
+	for _, row := range p.Surfaces {
+		if row.Membership != "removed" {
+			next.lines = append(next.lines, line{{row.Label + " · " + row.ObservationStatus, gray}})
+		}
+	}
+	next.pending = &savedRequest{1, d.target, "/workspace/operation/queue", raw}
 }
 
 func (a *App) confirmSnapshot(d *dialog) {

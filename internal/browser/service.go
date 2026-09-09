@@ -48,7 +48,7 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 				if a.Pairing != nil && a.Pairing.ContinuationDeliveryID == m.ID && !s.continuationAllowed(st, a, now, 0) {
 					return fmt.Errorf("cached continuation no longer authorized")
 				}
-				if a.DeliveryID == m.ID && a.Intent.Browser.Profile == m.Profile {
+				if a.Intent.Browser != nil && a.DeliveryID == m.ID && a.Intent.Browser.Profile == m.Profile {
 					if a.Pairing != nil && a.Pairing.Ready != nil {
 						return fmt.Errorf("first pairing phase already reported")
 					}
@@ -101,7 +101,7 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			if transportChanged {
 				ids := []string{}
 				for id, a := range st.Actions {
-					if a.Intent.Browser.Profile == p.ID && a.Execution == "dispatching" {
+					if a.Intent.Browser != nil && a.Intent.Browser.Profile == p.ID && a.Execution == "dispatching" {
 						ids = append(ids, id)
 					}
 				}
@@ -113,7 +113,7 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 
 			ids := []string{}
 			for id, a := range st.Actions {
-				if a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Epoch != p.Epoch && model.ActionHolds(a) && model.Contains([]string{"api_reported", "uncertain"}, a.Execution) {
+				if a.Intent.Browser != nil && a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Epoch != p.Epoch && model.ActionHolds(a) && model.Contains([]string{"api_reported", "uncertain"}, a.Execution) {
 					ids = append(ids, id)
 				}
 			}
@@ -243,7 +243,7 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 				}
 				pairingActive := false
 				for _, a := range st.Actions {
-					if a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Pairing != nil && model.ActionHolds(a) {
+					if a.Intent.Browser != nil && a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Pairing != nil && model.ActionHolds(a) {
 						pairingActive = true
 					}
 				}
@@ -256,7 +256,7 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			}
 		case "pairing_ready":
 			a, ok := st.Actions[m.PairReady.ActionRef.ID]
-			if !ok || a.Intent.Browser.Profile != p.ID || a.Intent.Browser.Epoch != p.Epoch || !reflect.DeepEqual(&m.PairReady.ActionRef, a.BrowserRef()) {
+			if !ok || a.Intent.Browser == nil || a.Intent.Browser.Profile != p.ID || a.Intent.Browser.Epoch != p.Epoch || !reflect.DeepEqual(&m.PairReady.ActionRef, a.BrowserRef()) {
 				return change, fmt.Errorf("pairing report scope differs from issued attempt")
 			}
 			if a.Pairing != nil && reflect.DeepEqual(a.Pairing.Ready, m.PairReady) {
@@ -376,7 +376,7 @@ func (s Service) Control(ctx context.Context, c Control, now time.Time) (json.Ra
 			return change, fmt.Errorf("unpaired profile or stale epoch")
 		}
 		for _, a := range st.Actions {
-			if a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Pairing != nil && model.ActionHolds(a) {
+			if a.Intent.Browser != nil && a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Pairing != nil && model.ActionHolds(a) {
 				return change, fmt.Errorf("profile has an unresolved pairing action")
 			}
 		}

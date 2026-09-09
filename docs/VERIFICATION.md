@@ -1,4 +1,17 @@
-# Verification — terminal/editor continuity, initial W01/T02/P01/P02/P03/P04/W02/W03/W04, schema 15
+# Verification — terminal/editor continuity, initial W01/T02/P01/P02/P03/P04/W02/W03/W04/C12, schema 16
+
+
+## C12 shared action journal — 2026-09-09
+
+- Full Go tests and vet pass; race checks pass for actions, browser, store, daemon and workspace. Linux and Windows/amd64 builds pass with Go 1.27.1; Windows is cross-built, not executed locally. Linux SHA-256: `3a708f7f113b6be7094e97b7922e6246189f5126c88d3ad35187885e85cff208`; Windows: `d28a0806fe8e52397bf490474f4b18e1fe3d7ed7a30a947293992e5cbee43f39`.
+- Intent, browser outbox entry and receipt commit together before delivery. Tests cover exact attempt/scope references, stale context and inventory, epoch/connection changes, deadline sweeps, conflicting surfaces/owned instances, cancellation before and after delivery, denied cached redelivery, unknown/forged fields, and late reports after uncertainty. API success remains `api_reported` with pending verification; it never completes a task. Idle recovery/deadline scans emit no events.
+- Final compiled synthetic-browser acceptance passes in `.tools/actions-test-C2rBbZ`: persisted dispatch, SIGKILL/restart without redispatch, conflict/cancel/late-result handling, scoped history pagination, original receipts, inert replay and fresh-directory backup restoration. Unfinished actions protect retained snapshot payloads; cancellation before dispatch releases protection. Unit tests exercise prune refusal and exact retry after later pruning.
+- Actual schema-15 binary upgrade/refusal/pre-upgrade rollback passes in `.tools/continuity-test-kzb0iJ`, preserving older contract and read-grant authority. Schema 16 retains legacy browser records without inventing task ownership; the compatibility view labels historical success unverified. SQL, request and event fixtures in `testdata/actions` cover migration and strict replay.
+- Go and JavaScript consume the same action-reference conformance fixture. Node tests cover persisted intent before browser input, lost result persistence, unchanged exact retries, payload mismatch and invalid scope rejection. Extension 0.3.0 keeps its development ID; its package contains the new runtime protocol module. ZIP SHA-256: `b15ee1eb1beadbc2682fde6b9e88723f4238cdc190b51f6db6bec0276aa21fd6`.
+- Isolated real Chromium extension checks pass for open, inventory, navigation, focus, move, close, stale URLs, idempotence, IndexedDB and popup rendering. The worker integration separately exercises real browser APIs with compiled native framing through a discovery shim. These checks do not establish actual OS native-host registration or independent postconditions; those remain C13 gates. TypeScript declarations are supplied, but no TypeScript compiler check is claimed.
+- W04 preview regression passes in `.tools/preview-test-1s3yJG`; TUI/real-PTY regression passes in `.tools/tui-test-wweHiS`. W04 commit `b53887f` passed both published CI jobs ([run 34335427527](https://github.com/algorhythmic/heimdall/actions/runs/34335427527)). C12 CI includes the portable action smoke on both operating systems.
+
+See [shared action setup and boundaries](ACTIONS-SETUP.md). C13 must add challenged fresh readback and independent reconciliation before browser recovery can be reported as verified.
 
 
 ## W04 scoped workspace preview — 2026-09-09

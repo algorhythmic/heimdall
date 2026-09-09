@@ -1,6 +1,8 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
 import {Actions,inventory,validURL} from '../controller.js';
+import {readFileSync} from 'node:fs';
+const actionRef=JSON.parse(readFileSync(new URL('../../testdata/actions/wire-v1.json',import.meta.url))).reference;
 const epoch='a'.repeat(32), opID='b'.repeat(32);
 function harness(){
  const state={},calls=[];
@@ -18,3 +20,20 @@ test('interrupted side effect is uncertain and never repeated',async()=>{const h
 test('stale epoch, expired, paused, and unowned tabs refuse with no action',async()=>{for(const patch of [{epoch:'c'.repeat(32)},{expires_at:'2000-01-01T00:00:00Z'},{action:'close',tab_id:1,expected_url:'https://example.test/'}]){const h=harness();assert.equal((await h.actions.execute(operation(patch))).status,'refused');assert.equal(h.calls.length,0);}const h=harness();assert.equal((await h.actions.execute(operation(),true)).status,'refused');});
 test('owned tab requires current URL and supports explicit close',async()=>{const h=harness();h.state.owners={1:'owner'};const op=operation({action:'close',tab_id:1,owner_id:'owner',expected_url:'https://changed.test/'});assert.equal((await h.actions.execute(op)).status,'refused');op.expected_url='https://example.test/';assert.equal((await h.actions.execute(op)).status,'succeeded');assert.equal(h.state.owners[1],undefined);assert.equal(h.calls[0][0],'remove');});
 test('partial API failure is retained as uncertain',async()=>{const h=harness();h.api.tabs.update=async()=>{throw Error('window closed');};const result=await h.actions.execute(operation());assert.equal(result.status,'uncertain');assert.deepEqual(await h.actions.execute(operation()),result);assert.equal(h.calls.length,1);});
+test('shared task and attempt identity survives exact result retry',async()=>{
+ const h=harness(),op=operation({id:actionRef.id,action_ref:actionRef});const result=await h.actions.execute(op);
+ assert.deepEqual(result.action_ref,actionRef);assert.deepEqual(await h.actions.execute(op),result);assert.equal(h.calls.filter(c=>c[0]==='create').length,1);
+ assert.deepEqual(await h.actions.execute({...op,action_ref:Object.fromEntries(Object.entries(actionRef).reverse())}),result);
+ const changed={...op,url:'https://other.test/'};assert.equal((await h.actions.execute(changed)).status,'uncertain');assert.equal(h.calls.filter(c=>c[0]==='create').length,1);
+});
+test('shared action host disappears after side effect before result persistence',async()=>{
+ const h=harness(),op=operation({id:actionRef.id,action_ref:actionRef});const set=h.api.storage.session.set;let writes=0;
+ h.api.storage.session.set=async value=>{if(++writes===3)throw Error('worker stopped before durable result');return set(value);};
+ await assert.rejects(h.actions.execute(op),/worker stopped/);const calls=h.calls.length;
+ const retry=await h.actions.execute(op);assert.equal(retry.status,'uncertain');assert.deepEqual(retry.action_ref,actionRef);assert.equal(h.calls.length,calls);
+});
+test('shared action cannot inject input before intent persistence or with wrong scope shape',async()=>{
+ const h=harness(),op=operation({id:actionRef.id,action_ref:actionRef});h.api.storage.session.set=async()=>{throw Error('storage unavailable');};
+ await assert.rejects(h.actions.execute(op),/storage unavailable/);assert.equal(h.calls.length,0);
+ const bad=harness();assert.equal((await bad.actions.execute({...op,action_ref:{...actionRef,actor:'cli'}})).status,'refused');assert.equal(bad.calls.length,0);
+});

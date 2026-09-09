@@ -1,0 +1,36 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "CLI-authorized shared browser action request v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "id", "target", "expected_task_revision", "manifest_id", "surface_id", "context_digest", "browser"],
+  "properties": {
+    "version": {"const": 1},
+    "id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "target": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,22}[a-z0-9]$", "not": {"enum": ["unassigned", "radiator"]}},
+    "expected_task_revision": {"type": "integer", "minimum": 1},
+    "manifest_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "surface_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "context_digest": {"type": "string", "pattern": "^[a-f0-9]{64}$"},
+    "snapshot_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "browser": {
+      "type": "object", "additionalProperties": false,
+      "required": ["profile", "epoch", "action"],
+      "properties": {
+        "profile": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+        "epoch": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+        "action": {"enum": ["open", "navigate", "focus", "move", "close"]},
+        "tab_id": {"type": "integer", "minimum": 1},
+        "window_id": {"type": "integer", "minimum": 1},
+        "owner_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+        "expected_url": {"type": "string", "maxLength": 8192},
+        "url": {"type": "string", "maxLength": 8192}
+      },
+      "allOf": [
+        {"if": {"properties": {"action": {"const": "open"}}}, "then": {"required": ["url"], "not": {"anyOf": [{"required": ["tab_id"]}, {"required": ["window_id"]}, {"required": ["owner_id"]}, {"required": ["expected_url"]}]}}, "else": {"required": ["tab_id", "owner_id", "expected_url"]}},
+        {"if": {"properties": {"action": {"const": "navigate"}}}, "then": {"required": ["url"]}},
+        {"if": {"properties": {"action": {"const": "move"}}}, "then": {"required": ["window_id"]}}
+      ]
+    }
+  }
+}

@@ -1,0 +1,25 @@
+{
+  "request": {
+    "version": 1,
+    "id": "a2b2c6b91081d418714697316b8f235d",
+    "target": "alpha",
+    "expected_task_revision": 1,
+    "manifest_id": "0396e88861bafeaf9dad3e84ade60289",
+    "surface_id": "2319547c6e2081eb3fd695f4f57b85f3",
+    "context_digest": "6c9426cc6af05d3821532ced339637b91e1b0f3d55eab7c47caf401cd88c8ead",
+    "browser": {
+      "profile": "d05713a2f1b8edae3b642a3b2203b07a",
+      "epoch": "004278fd47cfa5c0f3afb312d1360100",
+      "action": "open",
+      "url": "https://action.example.test/"
+    }
+  },
+  "cancel": {
+    "version": 1,
+    "id": "51bc335471e8d8b10409bc235c087ba6",
+    "target": "alpha",
+    "action_id": "a2b2c6b91081d418714697316b8f235d",
+    "expected_revision": 3,
+    "reason": "Cancel without assuming dispatched input stopped"
+  }
+}

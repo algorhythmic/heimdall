@@ -1,6 +1,8 @@
-# Browser setup — development build 0.2.0
+# Browser setup — extension 0.3.0 / schema 16
 
 Run the extension and daemon together. Chrome/Edge launches the small native helper as needed. Braid remains a separate retrieval component; neither Braid nor the task engine is bundled into the extension.
+
+Shared task-bound browser actions use [the C12 journal](ACTIONS-SETUP.md). API success remains unverified until C13 independently checks the postcondition. This extension advertises action protocol 1, retains exact attempt references in its pre-input journal and preserves the existing development extension ID.
 
 ## Windows
 
@@ -14,12 +16,12 @@ From the Heimdall project, choose a private, persistent local data directory. Ke
 In a second terminal, prepare the native helper in its final location. The output directory must be empty; use a new version directory for an upgrade.
 
 ```powershell
-.\bin\heimdall.exe browser setup --extension-id lffmpcoiimmjmacdbgnnjnegplmhiaic --output "$env:LOCALAPPDATA\Heimdall\browser-host-0.2.0" --data-dir "$env:LOCALAPPDATA\Heimdall\data"
+.\bin\heimdall.exe browser setup --extension-id lffmpcoiimmjmacdbgnnjnegplmhiaic --output "$env:LOCALAPPDATA\Heimdall\browser-host-0.3.0" --data-dir "$env:LOCALAPPDATA\Heimdall\data"
 ```
 
 Inspect the generated `host-config.json`, `dev.heimdall.browser.json`, and `SETUP.txt`. Import `register-chrome.reg` for Chrome or `register-edge.reg` for Edge. This registers a current-user native host; it does not install a background service. Do not move the host directory afterward. Registration is not performed by the build or setup command.
 
-Open the browser's extension management page, enable developer mode, select **Load unpacked**, and choose the project's `extension` folder. Alternatively extract `bin/heimdall-extension-0.2.0.zip` and select the extracted directory containing `manifest.json`. Keep that directory in place. The included public development key fixes the ID at `lffmpcoiimmjmacdbgnnjnegplmhiaic`; verify the displayed ID matches. This is not a signed Web Store release.
+Open the browser's extension management page, enable developer mode, select **Load unpacked**, and choose the project's `extension` folder. Alternatively extract `bin/heimdall-extension-0.3.0.zip` and select the extracted directory containing `manifest.json`. Keep that directory in place. The included public development key fixes the ID at `lffmpcoiimmjmacdbgnnjnegplmhiaic`; verify the displayed ID matches. This is not a signed Web Store release.
 
 Open the Heimdall popup. It displays a profile ID and pairing command. Run that command with the same data directory:
 
@@ -57,7 +59,7 @@ Wait for updated inventory between navigation and subsequent commands. Redirecte
 - **Stale epoch/URL:** refresh `browser status`. Commands cannot transfer ownership across a browser restart or control unrelated user tabs.
 - **Paused or gap:** use the popup. A gap indicates outbox retention/epoch loss; snapshots do not provide complete historical activity coverage.
 
-For upgrades, stop the daemon and copy its data directory as a backup, replace its executable, prepare a new versioned host directory, update the browser's native registration and reload the extension. Build 0.2.0 upgrades the database marker from 1 to 2 while retaining existing events/tasks; the old core executable then refuses that directory. Rollback requires the old backup, not lowering the marker. Keep the development manifest key to retain its extension ID. To remove the integration, unpair profiles, remove the extension, and remove only the `dev.heimdall.browser` entry beneath the chosen browser's current-user `NativeMessagingHosts` registry key. Existing task/event data is separate.
+For upgrades, stop the daemon and copy its data directory as a backup, replace its executable, prepare a new versioned host directory, update the browser's native registration and reload the extension. The current build upgrades database markers 1–15 to 16 after a consistent pre-upgrade backup; older executables refuse marker 16. See [continuity setup](CONTINUITY-SETUP.md) for rollback. Rollback requires the old backup, not lowering the marker. Keep the development manifest key to retain its extension ID. To remove the integration, unpair profiles, remove the extension, and remove only the `dev.heimdall.browser` entry beneath the chosen browser's current-user `NativeMessagingHosts` registry key. Existing task/event data is separate.
 
 ## Linux and acceptance boundary
 

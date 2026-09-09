@@ -1,5 +1,12 @@
 # Development milestones
 
+## Unreleased — C12 shared action journal (2026-09-09)
+
+- Task-bound intent, context/manifest/authority pins, immutable attempt identity and dispatch observations under schema 16. Execution and verification stay separate; legacy browser success remains unscoped and unverified.
+- Atomic intent/outbox and guarded delivery receipts, no new-ID retry of uncertain input, explicit cancellation, deadline/reconnect/restart uncertainty and retained late API reports. Unfinished actions protect referenced snapshots.
+- Extension 0.3.0 carries exact action/attempt references and persists a matching request journal before browser effects. Go/browser conformance and old-ID/legacy ownership guards preserve the existing protocol.
+- Scoped action/history CLI and replay/backup/schema-15 rollback tests. Independent browser postconditions and native-host registration remain C13.
+
 ## Unreleased — W04 workspace preview (2026-09-09)
 
 - Scoped live List/Diff and explicit current-manifest/retained-snapshot previews with reattach, launch, move, leave-open, unavailable and review-required dispositions.

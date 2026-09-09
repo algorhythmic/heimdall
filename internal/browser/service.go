@@ -4,8 +4,10 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"heimdall/internal/actions"
 	"heimdall/internal/model"
 	"heimdall/internal/store"
+	"reflect"
 	"sort"
 	"time"
 )
@@ -19,13 +21,36 @@ func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.Raw
 	request, _ := json.Marshal(m)
 	actor := "observer:browser"
 	if m.Type == "poll" {
-		actor = "scheduler"
+		actor = "coordinator"
 	}
-	return s.Store.Transact(ctx, "browser-"+m.Profile+"-"+m.ID, actor, request, now, func(st model.State) (store.Change, error) {
+	authorize := func(st model.State) error {
+		if m.Type == "hello" {
+			return nil
+		}
+		p, ok := st.Browsers[m.Profile]
+		if !ok || p.Epoch != m.Epoch || p.Connection != m.Connection {
+			return fmt.Errorf("stale_connection: reconnect before sending messages")
+		}
+		if (m.Type == "poll" || m.Type == "command_result") && !p.Paired {
+			return fmt.Errorf("profile_unpaired")
+		}
+		if m.Type == "poll" {
+			for _, a := range st.Actions {
+				if a.DeliveryID == m.ID && a.Intent.Browser.Profile == m.Profile {
+					if a.Execution != "dispatching" || a.CancelRequested || !model.ActionInputsCurrent(st, a.Intent) || !model.ActionBrowserCurrent(st, a.Intent) || !now.Before(a.Intent.ExpiresAt) || p.ActionProtocol != 1 || !p.Complete || p.ReceivedEpoch != s.Store.RuntimeID() || now.Before(p.ReceivedAt) || now.Sub(p.ReceivedAt) > 5*time.Second {
+						return fmt.Errorf("cached action delivery no longer authorized")
+					}
+				}
+			}
+		}
+		return nil
+	}
+	return s.Store.TransactChecked(ctx, "browser-"+m.Profile+"-"+m.ID, actor, request, now, authorize, func(st model.State) (store.Change, error) {
 		reply := Reply{V: 1, Type: "ack", ID: m.ID, Profile: m.Profile}
 		change := store.Change{Revision: st.Revision}
 		p, exists := st.Browsers[m.Profile]
 		if m.Type == "hello" {
+			transportChanged := exists && (p.Connection != m.Connection || p.Epoch != m.Epoch)
 			if !exists {
 				p = model.BrowserProfile{ID: m.Profile, Tabs: []model.BrowserTab{}, FocusedWindow: -1}
 			}
@@ -39,6 +64,10 @@ func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			p.Connection = m.Connection
 			p.Label = m.Label
 			p.ExtensionVersion = m.ExtensionVersion
+			p.ActionProtocol = m.ActionProtocol
+			// Every transport hello requires a fresh daemon-received inventory.
+			p.ReceivedAt = time.Time{}
+			p.ReceivedEpoch = ""
 			reply.Type = "welcome"
 			reply.Paired = p.Paired
 			reply.LastSequence = p.LastSequence
@@ -46,6 +75,18 @@ func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.Raw
 				reply.Type = "pairing_required"
 			}
 			change.Events = []store.Pending{{Subject: "browser", Verb: "profile_seen", EntityID: p.ID, Payload: p}}
+			if transportChanged {
+				ids := []string{}
+				for id, a := range st.Actions {
+					if a.Intent.Browser.Profile == p.ID && a.Execution == "dispatching" {
+						ids = append(ids, id)
+					}
+				}
+				sort.Strings(ids)
+				for _, id := range ids {
+					change.Events = append(change.Events, actions.Pending(actions.Transition(st.Actions[id], "interrupt", "browser transport replaced after possible dispatch", actor, now)))
+				}
+			}
 			change.Result = reply
 			return change, nil
 		}
@@ -86,6 +127,8 @@ func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			sort.Slice(p.Tabs, func(i, j int) bool { return p.Tabs[i].ID < p.Tabs[j].ID })
 			p.LastSequence = m.Sequence
 			p.LastObservedAt, _ = time.Parse(time.RFC3339Nano, m.ObservedAt)
+			p.ReceivedAt = now.UTC()
+			p.ReceivedEpoch = s.Store.RuntimeID()
 			p.FocusedWindow = *m.FocusedWindow
 			p.Complete = *m.Complete
 			change.Events = append(change.Events, store.Pending{Subject: "browser", Verb: "inventory_observed", EntityID: p.ID, Payload: p})
@@ -100,6 +143,36 @@ func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			for _, id := range keys {
 				o := st.BrowserOperations[id]
 				if o.Profile != p.ID || o.Status != "pending" {
+					continue
+				}
+				if o.ActionRef != nil {
+					a := st.Actions[o.ActionRef.ID]
+					if a.Execution == "dispatching" && (o.Epoch != p.Epoch || !now.Before(o.ExpiresAt)) {
+						v := actions.Transition(a, "interrupt", "delivery deadline or browser epoch changed", "coordinator", now)
+						change.Events = append(change.Events, actions.Pending(v))
+						continue
+					}
+					if a.Execution != "queued" {
+						continue
+					}
+					if a.CancelRequested || o.Epoch != p.Epoch || !now.Before(o.ExpiresAt) || !model.ActionInputsCurrent(st, a.Intent) || !model.ActionBrowserCurrent(st, a.Intent) {
+						v := actions.Transition(a, "refuse", "authority, inputs, epoch or deadline changed before dispatch", "coordinator", now)
+						change.Events = append(change.Events, actions.Pending(v))
+						o.Status = "refused"
+						o.Detail = v.Reason
+						change.Events = append(change.Events, store.Pending{Subject: "browser", Verb: "command_finished", EntityID: o.ID, Payload: o})
+						continue
+					}
+					if p.ActionProtocol != 1 || !p.Complete || p.ReceivedEpoch != s.Store.RuntimeID() || now.Before(p.ReceivedAt) || now.Sub(p.ReceivedAt) > 5*time.Second {
+						continue
+					}
+					if len(reply.Commands) < 8 {
+						v := actions.Transition(a, "dispatch", "fresh paired browser transport delivery", "coordinator", now)
+						v.DeliveryID = m.ID
+						v.Observation = &model.ActionObservation{ID: model.NewID(), Status: "unknown", SourceEpoch: p.Epoch, Digest: model.ContentDigest(p), ObservedAt: p.ReceivedAt, Detail: "Complete browser inventory used as dispatch precondition"}
+						change.Events = append(change.Events, actions.Pending(v))
+						reply.Commands = append(reply.Commands, o)
+					}
 					continue
 				}
 				if o.Epoch != p.Epoch || !now.Before(o.ExpiresAt) {
@@ -118,8 +191,16 @@ func (s Service) Handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			if !ok || o.Profile != p.ID || o.Epoch != p.Epoch {
 				return change, fmt.Errorf("result does not belong to this browser epoch")
 			}
+			if !reflect.DeepEqual(r.ActionRef, o.ActionRef) {
+				return change, fmt.Errorf("result action/attempt reference differs from issued command")
+			}
+			if o.ActionRef != nil {
+				v := actions.Transition(st.Actions[o.ActionRef.ID], "report", "browser API report; postcondition unverified", actor, now)
+				v.Report = &model.ActionReport{Status: r.Status, Detail: r.Detail, TabID: r.TabID, WindowID: r.WindowID, URL: r.URL}
+				change.Events = append(change.Events, actions.Pending(v))
+			}
 			late := o.Status == "expired"
-			if o.Status != "pending" && !late {
+			if o.Status != "pending" && !late && !(o.ActionRef != nil && model.Contains([]string{"cancelled", "uncertain", "failed"}, o.Status)) {
 				return change, fmt.Errorf("operation already finalized")
 			}
 			if r.Status == "succeeded" && o.Action == "open" {
@@ -164,6 +245,12 @@ func (s Service) Control(ctx context.Context, c Control, now time.Time) (json.Ra
 				for _, id := range keys {
 					o := st.BrowserOperations[id]
 					if o.Profile == p.ID && o.Status == "pending" {
+						if o.ActionRef != nil {
+							a := st.Actions[o.ActionRef.ID]
+							if model.ActionHolds(a) && !a.CancelRequested {
+								change.Events = append(change.Events, actions.Pending(actions.Transition(a, "cancel", "profile unpaired", "cli", now)))
+							}
+						}
 						o.Status = "cancelled"
 						o.Detail = "profile unpaired"
 						change.Events = append(change.Events, store.Pending{Subject: "browser", Verb: "command_finished", EntityID: o.ID, Payload: o})
@@ -176,6 +263,9 @@ func (s Service) Control(ctx context.Context, c Control, now time.Time) (json.Ra
 		if !p.Paired || c.Epoch != p.Epoch {
 			return change, fmt.Errorf("unpaired profile or stale epoch")
 		}
+		if _, exists := st.BrowserOperations[c.ID]; exists {
+			return change, fmt.Errorf("browser operation ID already used: %w", store.ErrConflict)
+		}
 		if !model.Contains([]string{"open", "navigate", "focus", "move", "close"}, c.Action) {
 			return change, fmt.Errorf("unsupported browser action")
 		}
@@ -187,6 +277,9 @@ func (s Service) Control(ctx context.Context, c Control, now time.Time) (json.Ra
 			found := false
 			for _, t := range p.Tabs {
 				if t.ID == c.TabID && t.URL == c.ExpectedURL && t.OwnerID != "" {
+					if _, scoped := st.Actions[t.OwnerID]; scoped {
+						return change, fmt.Errorf("task-owned browser tab requires the shared action API")
+					}
 					found = true
 					o.OwnerID = t.OwnerID
 				}

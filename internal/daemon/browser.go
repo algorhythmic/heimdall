@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"heimdall/internal/actions"
 	"heimdall/internal/browser"
 	"io"
 	"net/http"
@@ -16,7 +17,13 @@ func (s *Server) browserHTTP(w http.ResponseWriter, r *http.Request) {
 			writeError(w, 500, err)
 			return
 		}
-		writeJSON(w, map[string]any{"profiles": st.Browsers, "operations": st.BrowserOperations})
+		legacy := map[string]actions.LegacyBrowserAction{}
+		for id, op := range st.BrowserOperations {
+			if op.ActionRef == nil {
+				legacy[id] = actions.Legacy(op)
+			}
+		}
+		writeJSON(w, map[string]any{"profiles": st.Browsers, "operations": st.BrowserOperations, "legacy_actions": legacy})
 		return
 	}
 	if r.Method != "POST" || r.Header.Get("Content-Type") != "application/json" {

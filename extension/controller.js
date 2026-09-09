@@ -1,3 +1,4 @@
+import {validActionRef,actionResult,requestFingerprint} from './action-protocol.js';
 export const id = () => crypto.randomUUID().replaceAll('-','');
 export function validURL(value){try{const u=new URL(value);return ['http:','https:'].includes(u.protocol)&&!u.username&&!u.password&&value.length<=8192;}catch{return false;}}
 function utf8Trim(s,max){while(new TextEncoder().encode(s).length>max)s=s.slice(0,Math.floor(s.length*0.9));return s;}
@@ -12,11 +13,16 @@ export function inventory(tabs,focusedWindow){
 export class Actions {
   constructor(api,epoch){this.api=api;this.epoch=epoch;}
   async execute(op,paused=false){
+	const wrap=result=>actionResult(op,result);
+	if(op.action_ref&&(!validActionRef(op.action_ref)||op.action_ref.id!==op.id))return wrap({operation_id:op.id,status:'refused',detail:'Invalid task/action/attempt reference'});
     const {journal={},owners={}}=await this.api.storage.session.get(['journal','owners']);
     const old=journal[op.id];
-    if(old)return old.result??{operation_id:op.id,status:'uncertain',detail:'Previous attempt interrupted; action was not repeated'};
-    const refuse=detail=>({operation_id:op.id,status:'refused',detail});
-    if(paused||op.epoch!==this.epoch||Date.now()>=Date.parse(op.expires_at))return refuse('Paused, stale epoch, or expired');
+    if(old){
+      if(op.action_ref&&old.request!==requestFingerprint(op))return wrap({operation_id:op.id,status:'uncertain',detail:'Prior journal identity differs; action was not repeated'});
+      return wrap(old.result??{operation_id:op.id,status:'uncertain',detail:'Previous attempt interrupted; action was not repeated'});
+    }
+    const refuse=detail=>wrap({operation_id:op.id,status:'refused',detail});
+    if(paused||op.epoch!==this.epoch||!Number.isFinite(Date.parse(op.expires_at))||Date.now()>=Date.parse(op.expires_at))return refuse('Paused, stale epoch, or expired');
     if(['open','navigate'].includes(op.action)&&!validURL(op.url))return refuse('URL is not allowed');
     if(!['open','navigate','focus','move','close'].includes(op.action))return refuse('Unknown action');
     let tab;
@@ -26,7 +32,7 @@ export class Actions {
       if(op.action==='move'){try{const w=await this.api.windows.get(op.window_id);if(w.incognito)return refuse('Private window');}catch{return refuse('Window no longer exists');}}
     }
     // Persist before any browser side effect. A interrupted attempt is never repeated.
-    journal[op.id]={started:Date.now()};
+    journal[op.id]={started:Date.now(),request:requestFingerprint(op)};
     for(const key of Object.keys(journal)){if(journal[key].started<Date.now()-86400000)delete journal[key];}
     await this.api.storage.session.set({journal});
     let result;
@@ -45,6 +51,6 @@ export class Actions {
         result={operation_id:op.id,status:'succeeded'};
       }
     }catch(e){result={operation_id:op.id,status:'uncertain',detail:utf8Trim(String(e.message),512)};}
-    journal[op.id].result=result;await this.api.storage.session.set({journal});return result;
+    result=wrap(result);journal[op.id].result=result;await this.api.storage.session.set({journal});return result;
   }
 }

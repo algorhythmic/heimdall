@@ -151,6 +151,11 @@ func (v SnapshotPrune) Validate() error {
 	return nil
 }
 func SnapshotProtected(st State, id string) bool {
+	for _, action := range st.Actions {
+		if action.Intent.SnapshotID == id && ActionHolds(action) {
+			return true
+		}
+	}
 	if _, ok := st.SnapshotPins[id]; ok {
 		return true
 	}

@@ -3,12 +3,8 @@
 package browser
 
 import (
-	"bytes"
-	"encoding/json"
 	"fmt"
 	"heimdall/internal/model"
-	"io"
-	"net/url"
 	"regexp"
 	"time"
 )
@@ -20,6 +16,7 @@ var IDPattern = regexp.MustCompile(`^[a-f0-9]{32}$`)
 var ExtensionPattern = regexp.MustCompile(`^[a-p]{32}$`)
 
 type Message struct {
+	ActionProtocol   int                `json:"action_protocol,omitempty"`
 	V                int                `json:"v"`
 	Type             string             `json:"type"`
 	ID               string             `json:"id"`
@@ -36,12 +33,13 @@ type Message struct {
 	Result           *OperationResult   `json:"result,omitempty"`
 }
 type OperationResult struct {
-	OperationID string `json:"operation_id"`
-	Status      string `json:"status"`
-	TabID       int    `json:"tab_id,omitempty"`
-	WindowID    int    `json:"window_id,omitempty"`
-	URL         string `json:"url,omitempty"`
-	Detail      string `json:"detail,omitempty"`
+	ActionRef   *model.BrowserActionRef `json:"action_ref,omitempty"`
+	OperationID string                  `json:"operation_id"`
+	Status      string                  `json:"status"`
+	TabID       int                     `json:"tab_id,omitempty"`
+	WindowID    int                     `json:"window_id,omitempty"`
+	URL         string                  `json:"url,omitempty"`
+	Detail      string                  `json:"detail,omitempty"`
 }
 type Reply struct {
 	V            int                      `json:"v"`
@@ -69,19 +67,13 @@ func Decode(b []byte) (Message, error) {
 	if len(b) > MaxFrame {
 		return m, fmt.Errorf("frame too large")
 	}
-	d := json.NewDecoder(bytes.NewReader(b))
-	d.DisallowUnknownFields()
-	if err := d.Decode(&m); err != nil {
+	if err := model.StrictJSON(b, &m); err != nil {
 		return m, err
-	}
-	if err := d.Decode(new(any)); err != io.EOF {
-		return m, fmt.Errorf("expected one JSON message")
 	}
 	return m, m.Validate()
 }
 func ValidURL(s string) bool {
-	u, e := url.Parse(s)
-	return e == nil && (u.Scheme == "https" || u.Scheme == "http") && u.Host != "" && u.User == nil && len(s) <= 8192
+	return model.BrowserURL(s)
 }
 func (m Message) Validate() error {
 	if m.V != 1 {
@@ -100,6 +92,9 @@ func (m Message) Validate() error {
 	}
 	if m.Type != "hello" && (m.Label != "" || m.ExtensionVersion != "") {
 		return fmt.Errorf("hello fields on another message")
+	}
+	if (m.ActionProtocol != 0 && m.ActionProtocol != 1) || (m.Type != "hello" && m.ActionProtocol != 0) {
+		return fmt.Errorf("invalid action protocol capability")
 	}
 	if m.Type != "command_result" && m.Result != nil {
 		return fmt.Errorf("result on another message")
@@ -127,6 +122,12 @@ func (m Message) Validate() error {
 	case "command_result":
 		if m.Result == nil || !IDPattern.MatchString(m.Result.OperationID) || !model.Contains([]string{"succeeded", "refused", "failed", "uncertain"}, m.Result.Status) || len(m.Result.Detail) > 512 {
 			return fmt.Errorf("invalid command result")
+		}
+		if m.Result.ActionRef != nil {
+			if m.Result.OperationID != m.Result.ActionRef.ID {
+				return fmt.Errorf("result action identity mismatch")
+			}
+			return m.Result.ActionRef.Validate()
 		}
 	default:
 		return fmt.Errorf("unsupported message type")

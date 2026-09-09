@@ -21,6 +21,7 @@ jobs:
       - run: node --test extension/test/*.test.js
       - run: node scripts/core-smoke.cjs
       - run: node scripts/native-smoke.cjs
+      - run: node scripts/actions-smoke.cjs
       - run: node scripts/continuity-smoke.cjs
       - run: node scripts/resume-smoke.cjs
       - run: node scripts/workspace-smoke.cjs

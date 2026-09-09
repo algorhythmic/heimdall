@@ -19,7 +19,7 @@ import (
 
 var ErrConflict = errors.New("revision or idempotency conflict")
 
-const SchemaVersion = 15
+const SchemaVersion = 16
 
 type Event struct {
 	ID        int64           `json:"id"`
@@ -52,6 +52,7 @@ type TaskChange struct {
 	Fields []string         `json:"fields"`
 }
 type Store struct {
+	runtimeID        string
 	testSnapshotHook func(string)
 	mu               sync.Mutex
 	db               *sql.DB
@@ -83,7 +84,7 @@ func Open(dir string) (*Store, error) {
 		return nil, err
 	}
 	db.SetMaxOpenConns(1)
-	s := &Store{db: db, lock: f}
+	s := &Store{db: db, lock: f, runtimeID: model.NewID()}
 	var version int
 	if err = db.QueryRow("PRAGMA user_version").Scan(&version); err != nil {
 		s.Close()
@@ -113,7 +114,7 @@ func Open(dir string) (*Store, error) {
  CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,event_version INTEGER NOT NULL,ts TEXT NOT NULL,subject TEXT NOT NULL,verb TEXT NOT NULL,actor TEXT NOT NULL,entity_id TEXT NOT NULL,command_id TEXT NOT NULL,payload TEXT NOT NULL CHECK(json_valid(payload)),idempotency_key TEXT NOT NULL UNIQUE);
  CREATE TABLE IF NOT EXISTS projection_state(id INTEGER PRIMARY KEY CHECK(id=1),body TEXT NOT NULL CHECK(json_valid(body)));
  CREATE TABLE IF NOT EXISTS commands(id TEXT PRIMARY KEY,request_hash TEXT NOT NULL,result TEXT NOT NULL);
- ` + snapshotTables + `PRAGMA user_version=15;`)
+ ` + snapshotTables + `CREATE INDEX IF NOT EXISTS events_subject_entity ON events(subject,entity_id,id); PRAGMA user_version=16;`)
 	if err != nil {
 		s.Close()
 		return nil, err
@@ -126,8 +127,9 @@ func Open(dir string) (*Store, error) {
 	}
 	return s, nil
 }
-func (s *Store) Close() error { err := s.db.Close(); s.lock.Close(); return err }
-func hash(b []byte) string    { h := sha256.Sum256(b); return hex.EncodeToString(h[:]) }
+func (s *Store) Close() error      { err := s.db.Close(); s.lock.Close(); return err }
+func (s *Store) RuntimeID() string { return s.runtimeID }
+func hash(b []byte) string         { h := sha256.Sum256(b); return hex.EncodeToString(h[:]) }
 func readState(ctx context.Context, q interface {
 	QueryRowContext(context.Context, string, ...any) *sql.Row
 }) (model.State, error) {
@@ -193,7 +195,7 @@ func (s *Store) TransactChecked(ctx context.Context, id, actor string, request [
 		return nil, err
 	}
 	// Empty background scans do not grow the event log.
-	if actor == "scheduler" && len(change.Events) == 0 {
+	if (actor == "scheduler" || actor == "coordinator") && len(change.Events) == 0 {
 		return result, nil
 	}
 	accepted := Pending{"command", "accepted", id, Acceptance{h, change.Revision, result}}
@@ -336,6 +338,10 @@ func Apply(st *model.State, e Event) error {
 			return fmt.Errorf("invalid browser profile identity")
 		}
 		st.Browsers[p.ID] = p
+	case "action.queued", "action.transitioned":
+		if err := applyAction(st, e); err != nil {
+			return err
+		}
 	case "browser.command_queued", "browser.command_finished":
 		var p model.BrowserOperation
 		if err := json.Unmarshal(e.Payload, &p); err != nil {
@@ -343,6 +349,11 @@ func Apply(st *model.State, e Event) error {
 		}
 		if p.ID != e.EntityID {
 			return fmt.Errorf("invalid browser operation identity")
+		}
+		if p.ActionRef != nil {
+			if err := validateActionOperation(*st, p); err != nil {
+				return err
+			}
 		}
 		st.BrowserOperations[p.ID] = p
 	case "command.accepted":

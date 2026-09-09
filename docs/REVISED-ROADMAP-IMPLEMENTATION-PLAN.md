@@ -24,7 +24,7 @@ This follows the [workflow assessment](OMARCHY-WORKFLOW-ASSESSMENT.md) and makes
 
 | Area | Current source and recorded capability | Work to carry forward |
 |---|---|---|
-| Storage | Single writer, WAL/FULL, schema 15, immutable events, command receipts, JSON state projection plus dedicated snapshot payload/index tables; consistent database backup | Extend the existing writer and migrations; measure snapshot volume before high-frequency capture. See [store](../internal/store/store.go). |
+| Storage | Single writer, WAL/FULL, schema 16, immutable events, command receipts, JSON state projection plus dedicated snapshot payload/index tables; consistent database backup | Extend the existing writer and migrations; measure snapshot volume before high-frequency capture. See [store](../internal/store/store.go). |
 | Continuity | Accepted contracts/decisions, resource digests, immutable checkpoints, deterministic context and drift checks | Human-readable CLI, general Git/worktree identity, structured artifact/action references, proposed/rejected decision review. See [model](../internal/model/continuity.go) and [context](../internal/continuity/context.go). |
 | Authority | Separate CLI/browser credentials; scoped reads and explicitly granted checkpoint writes; local TUI completion review | New adapter/result and workspace capabilities need explicit policy. Existing grants must not acquire them during migration. See [ledger](CAPABILITY-LEDGER.md). |
 | Evidence and GUI | Initial C08–C11 implementations are delivered | Preserve stale-evidence and completion revalidation. Raw-output retention, broader process/input coverage and post-completion notices remain open. |
@@ -119,6 +119,8 @@ Monitor recovery prioritizes named workspace/task membership and usable logical 
 W04 delivery, 2026-09-09: scoped live List/Diff, explicit selected-point previews and daemon-lifetime sealed validation are implemented under schema 15. Read-only comparisons expose ownership, source, display and snapshot uncertainty; the TUI shows these details and supports explicit point capture. See [workspace preview](WORKSPACE-PREVIEW.md) and [verification](VERIFICATION.md). Next: C12 shared actions and C13 browser verification before W05–W07 recovery. No preview disposition grants dispatch authority.
 
 ## 6. Shared actions and WCU integration
+
+C12 delivery, 2026-09-09: the shared journal, browser attempt wire contract, guarded dispatch receipts, uncertain/cancelled/late outcomes, surface serialization and unfinished snapshot references are implemented under schema 16. Legacy browser success remains unverified. C13 independent postconditions and actual native registration are next; then W05–W07 consume this journal for manual recovery. See [action setup](ACTIONS-SETUP.md) and [verification](VERIFICATION.md).
 
 C12 is a shared substrate, not a second browser stack. Add a task-bound action record with request ID, logical target, manifest/contract/resource revisions as applicable, adapter/runtime epoch, authority reference, intended postcondition, attempt identity and observation references. Preserve separate execution and verification states from the earlier plan. Existing browser success remains API-reported and unverified when migrated; keep browser IDs, extension identity, pairing rules and retry receipts compatible.
 

@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"heimdall/internal/actions"
 	"heimdall/internal/adapters/herdr"
 	"heimdall/internal/adapters/hyprland"
 	"heimdall/internal/checks"
@@ -56,6 +57,9 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	e.ValidateEvidence = checks.ValidateTarget
 	if clock == nil {
 		clock = time.Now
+	}
+	if err := (actions.Service{Store: e.Store}).Recover(ctx, clock().UTC()); err != nil {
+		return err
 	}
 	if err := (checks.Service{Store: e.Store}).Recover(ctx, clock().UTC()); err != nil {
 		return err
@@ -160,6 +164,7 @@ func watch(ctx context.Context, e *core.Engine, clock func() time.Time) {
 			now := clock()
 			if !now.Before(nextTimer) {
 				_, _ = e.Execute(ctx, core.Command{ID: model.NewID(), Op: "tick"}, "scheduler", now)
+				_ = (actions.Service{Store: e.Store}).Sweep(ctx, now.UTC())
 				nextTimer = now.Add(time.Second)
 			}
 		}
@@ -207,6 +212,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if strings.HasPrefix(r.URL.Path, "/artifact/") {
 		s.artifactHTTP(w, r)
+		return
+	}
+	if strings.HasPrefix(r.URL.Path, "/action/") {
+		s.actionHTTP(w, r)
 		return
 	}
 	if strings.HasPrefix(r.URL.Path, "/workspace/") {

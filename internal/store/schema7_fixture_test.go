@@ -27,6 +27,10 @@ func TestStoppedSchemaTenFixtureUpgrade(t *testing.T) {
 	testStoppedWorkspaceFixture(t, "../../testdata/progress/schema10.sql", 10)
 }
 
+func TestStoppedSchemaElevenFixtureUpgrade(t *testing.T) {
+	testStoppedWorkspaceFixture(t, "../../testdata/preservation/schema11.sql", 11)
+}
+
 func testStoppedWorkspaceFixture(t *testing.T, path string, marker int) {
 	t.Helper()
 	dir := t.TempDir()

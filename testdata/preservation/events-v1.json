@@ -1,0 +1,1084 @@
+[
+  {
+    "id": 1,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.107493514Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "4bdf102a38b424b84bdd95f7ce5d6eff",
+    "command_id": "4bdf102a38b424b84bdd95f7ce5d6eff",
+    "payload": {
+      "request_hash": "596e9f7f64feb99d86f836c96dd2f81eb2b6a6ef4ddebada2db55eef1ca155cc",
+      "revision": 1,
+      "result": {
+        "id": "4bdf102a38b424b84bdd95f7ce5d6eff",
+        "revision": 1,
+        "data": {
+          "task_id": "alpha"
+        }
+      }
+    }
+  },
+  {
+    "id": 2,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.107493514Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "alpha",
+    "command_id": "4bdf102a38b424b84bdd95f7ce5d6eff",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "alpha",
+          "title": "Preserve planning",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T06:59:04.107493514Z",
+        "updated_at": "2026-09-09T06:59:04.107493514Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.117183759Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-3d19d9b650c53e3fd324754f2e661959",
+    "command_id": "continuity-3d19d9b650c53e3fd324754f2e661959",
+    "payload": {
+      "request_hash": "f1b38aa06d399e88ee962e445845edb70b3cd18baf4fa9f6a8572267b37d9207",
+      "revision": 1,
+      "result": {
+        "version": 1,
+        "id": "3d19d9b650c53e3fd324754f2e661959",
+        "target": "alpha",
+        "kind": "tree",
+        "root": "/home/david/Projects/heimdall/.tools/preservation-test-tEkauf/work",
+        "path": ".",
+        "exclude": [
+          ".git"
+        ],
+        "active": true,
+        "initial": {
+          "digest": "a692891e6c3ab3d444fa574405458209b3f0063de094743dbcbca5bffc907f93",
+          "files": 1,
+          "bytes": 28
+        },
+        "actor": "cli",
+        "at": "2026-09-09T06:59:04.117183759Z"
+      }
+    }
+  },
+  {
+    "id": 4,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.117183759Z",
+    "subject": "resource",
+    "verb": "bound",
+    "actor": "cli",
+    "entity_id": "3d19d9b650c53e3fd324754f2e661959",
+    "command_id": "continuity-3d19d9b650c53e3fd324754f2e661959",
+    "payload": {
+      "version": 1,
+      "id": "3d19d9b650c53e3fd324754f2e661959",
+      "target": "alpha",
+      "kind": "tree",
+      "root": "/home/david/Projects/heimdall/.tools/preservation-test-tEkauf/work",
+      "path": ".",
+      "exclude": [
+        ".git"
+      ],
+      "active": true,
+      "initial": {
+        "digest": "a692891e6c3ab3d444fa574405458209b3f0063de094743dbcbca5bffc907f93",
+        "files": 1,
+        "bytes": 28
+      },
+      "actor": "cli",
+      "at": "2026-09-09T06:59:04.117183759Z"
+    }
+  },
+  {
+    "id": 5,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.124210596Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-5089d77c3de64d5b7a7dca3acce4f47b",
+    "command_id": "continuity-5089d77c3de64d5b7a7dca3acce4f47b",
+    "payload": {
+      "request_hash": "778376cb46297a7e7e441a5632b089b189b0eb5823bba4c20f3fdfb0bcfa5f62",
+      "revision": 1,
+      "result": {
+        "version": 2,
+        "id": "5089d77c3de64d5b7a7dca3acce4f47b",
+        "target": "alpha",
+        "task_revision": 1,
+        "previous": "",
+        "objective": "Preserve exact planning work",
+        "constraints": [],
+        "acceptance": {
+          "text": ""
+        },
+        "resource_ids": [
+          "3d19d9b650c53e3fd324754f2e661959"
+        ],
+        "actor": "cli",
+        "at": "2026-09-09T06:59:04.124210596Z"
+      }
+    }
+  },
+  {
+    "id": 6,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.124210596Z",
+    "subject": "contract",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "5089d77c3de64d5b7a7dca3acce4f47b",
+    "command_id": "continuity-5089d77c3de64d5b7a7dca3acce4f47b",
+    "payload": {
+      "version": 2,
+      "id": "5089d77c3de64d5b7a7dca3acce4f47b",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "objective": "Preserve exact planning work",
+      "constraints": [],
+      "acceptance": {
+        "text": ""
+      },
+      "resource_ids": [
+        "3d19d9b650c53e3fd324754f2e661959"
+      ],
+      "actor": "cli",
+      "at": "2026-09-09T06:59:04.124210596Z"
+    }
+  },
+  {
+    "id": 7,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.131471696Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "artifact-1873da329f6ceaa64b732ad0907fe33b",
+    "command_id": "artifact-1873da329f6ceaa64b732ad0907fe33b",
+    "payload": {
+      "request_hash": "4d8e89932901f4278691eb5a3cad4b8c9c8ac725b0eb85e69b00e50c11e76162",
+      "revision": 1,
+      "result": {
+        "artifact": {
+          "version": 1,
+          "id": "1873da329f6ceaa64b732ad0907fe33b",
+          "target": "alpha",
+          "name": "Notes",
+          "environment": "local",
+          "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+          "platform": "linux",
+          "actor": "cli",
+          "at": "2026-09-09T06:59:04.131471696Z"
+        },
+        "head": "1873da329f6ceaa64b732ad0907fe33b",
+        "lifecycle": "draft",
+        "record": {
+          "version": 1,
+          "id": "1873da329f6ceaa64b732ad0907fe33b",
+          "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+          "target": "alpha",
+          "task_revision": 1,
+          "previous": "",
+          "resource_id": "3d19d9b650c53e3fd324754f2e661959",
+          "path": "notes.md",
+          "observation": {
+            "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+            "bytes": 28,
+            "mode": 420
+          },
+          "actor": "cli",
+          "at": "2026-09-09T06:59:04.131471696Z"
+        }
+      }
+    }
+  },
+  {
+    "id": 8,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.131471696Z",
+    "subject": "artifact",
+    "verb": "registered",
+    "actor": "cli",
+    "entity_id": "1873da329f6ceaa64b732ad0907fe33b",
+    "command_id": "artifact-1873da329f6ceaa64b732ad0907fe33b",
+    "payload": {
+      "version": 1,
+      "id": "1873da329f6ceaa64b732ad0907fe33b",
+      "target": "alpha",
+      "name": "Notes",
+      "environment": "local",
+      "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+      "platform": "linux",
+      "actor": "cli",
+      "at": "2026-09-09T06:59:04.131471696Z"
+    }
+  },
+  {
+    "id": 9,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.131471696Z",
+    "subject": "artifact",
+    "verb": "versioned",
+    "actor": "cli",
+    "entity_id": "1873da329f6ceaa64b732ad0907fe33b",
+    "command_id": "artifact-1873da329f6ceaa64b732ad0907fe33b",
+    "payload": {
+      "version": 1,
+      "id": "1873da329f6ceaa64b732ad0907fe33b",
+      "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "resource_id": "3d19d9b650c53e3fd324754f2e661959",
+      "path": "notes.md",
+      "observation": {
+        "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+        "bytes": 28,
+        "mode": 420
+      },
+      "actor": "cli",
+      "at": "2026-09-09T06:59:04.131471696Z"
+    }
+  },
+  {
+    "id": 10,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.138658333Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-85095a73bd88906ad17febcf8abbaf09",
+    "command_id": "continuity-85095a73bd88906ad17febcf8abbaf09",
+    "payload": {
+      "request_hash": "15620ac49d2311037475aaa735155223b1e9ba9750aaf9b655c3db41c1e9f90d",
+      "revision": 1,
+      "result": {
+        "artifacts": [
+          {
+            "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "version_id": "1873da329f6ceaa64b732ad0907fe33b"
+          }
+        ],
+        "version": 3,
+        "id": "85095a73bd88906ad17febcf8abbaf09",
+        "target": "alpha",
+        "task_revision": 1,
+        "contract_id": "5089d77c3de64d5b7a7dca3acce4f47b",
+        "previous": "",
+        "source_event": 9,
+        "summary": "Saved before remote work",
+        "next_action": "Review later",
+        "blockers": [],
+        "resources": [
+          {
+            "id": "3d19d9b650c53e3fd324754f2e661959",
+            "snapshot": {
+              "digest": "a692891e6c3ab3d444fa574405458209b3f0063de094743dbcbca5bffc907f93",
+              "files": 1,
+              "bytes": 28
+            }
+          }
+        ],
+        "context": [
+          {
+            "target": "alpha",
+            "task_revision": 1,
+            "contract_id": "5089d77c3de64d5b7a7dca3acce4f47b"
+          }
+        ],
+        "decisions": [],
+        "actor": "cli",
+        "at": "2026-09-09T06:59:04.138658333Z"
+      }
+    }
+  },
+  {
+    "id": 11,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.138658333Z",
+    "subject": "checkpoint",
+    "verb": "recorded",
+    "actor": "cli",
+    "entity_id": "85095a73bd88906ad17febcf8abbaf09",
+    "command_id": "continuity-85095a73bd88906ad17febcf8abbaf09",
+    "payload": {
+      "artifacts": [
+        {
+          "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+          "version_id": "1873da329f6ceaa64b732ad0907fe33b"
+        }
+      ],
+      "version": 3,
+      "id": "85095a73bd88906ad17febcf8abbaf09",
+      "target": "alpha",
+      "task_revision": 1,
+      "contract_id": "5089d77c3de64d5b7a7dca3acce4f47b",
+      "previous": "",
+      "source_event": 9,
+      "summary": "Saved before remote work",
+      "next_action": "Review later",
+      "blockers": [],
+      "resources": [
+        {
+          "id": "3d19d9b650c53e3fd324754f2e661959",
+          "snapshot": {
+            "digest": "a692891e6c3ab3d444fa574405458209b3f0063de094743dbcbca5bffc907f93",
+            "files": 1,
+            "bytes": 28
+          }
+        }
+      ],
+      "context": [
+        {
+          "target": "alpha",
+          "task_revision": 1,
+          "contract_id": "5089d77c3de64d5b7a7dca3acce4f47b"
+        }
+      ],
+      "decisions": [],
+      "actor": "cli",
+      "at": "2026-09-09T06:59:04.138658333Z"
+    }
+  },
+  {
+    "id": 12,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.201284102Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "preservation-9b1c82c657d1e02a3d2c563386d5c3e9",
+    "command_id": "preservation-9b1c82c657d1e02a3d2c563386d5c3e9",
+    "payload": {
+      "request_hash": "365a3d6197d6b04d05785963ee6da8f5ebd9a2c652535052fd628bb35eb5bc62",
+      "revision": 1,
+      "result": {
+        "version": 1,
+        "id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+        "target": "alpha",
+        "task_revision": 1,
+        "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+        "input": {
+          "checkpoint_id": "85095a73bd88906ad17febcf8abbaf09",
+          "private_root": "/home/david/Projects/heimdall/.tools/preservation-test-tEkauf/.private",
+          "remote": "origin",
+          "ref": "refs/heads/main",
+          "selections": [
+            {
+              "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "mirror_path": "alpha/ingested/local/notes.md"
+            }
+          ]
+        },
+        "preview_digest": "c0d2c3bedc76472323751d55b97d3087e9ee596ffe2230a26b6ca50e364ef273",
+        "snapshot": {
+          "items": [
+            {
+              "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "expected_digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "source": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              },
+              "mirror": {
+                "status": "missing",
+                "bytes": 0
+              },
+              "committed": {
+                "status": "missing",
+                "bytes": 0
+              }
+            }
+          ],
+          "repository_status": "available",
+          "head": "30bb5644d2b4b4c07f408b134570c525c005a097",
+          "ref": "refs/heads/main",
+          "dirty_count": 0,
+          "unrelated_count": 0,
+          "working_digest": "3efc4bde985b863c79d40cf407c07eba7c28d27d33d95da382c183f32fccaf2d",
+          "remote_fingerprint": "62f43ceebc61ea017d1b98658e812765c746a8c37bfa06a60d16581a20a86820",
+          "remote_status": "not_checked",
+          "stage": "not_preserved"
+        },
+        "actor": "cli",
+        "at": "2026-09-09T06:59:04.201284102Z"
+      }
+    }
+  },
+  {
+    "id": 13,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.201284102Z",
+    "subject": "preservation",
+    "verb": "requested",
+    "actor": "cli",
+    "entity_id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+    "command_id": "preservation-9b1c82c657d1e02a3d2c563386d5c3e9",
+    "payload": {
+      "version": 1,
+      "id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+      "target": "alpha",
+      "task_revision": 1,
+      "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+      "input": {
+        "checkpoint_id": "85095a73bd88906ad17febcf8abbaf09",
+        "private_root": "/home/david/Projects/heimdall/.tools/preservation-test-tEkauf/.private",
+        "remote": "origin",
+        "ref": "refs/heads/main",
+        "selections": [
+          {
+            "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "mirror_path": "alpha/ingested/local/notes.md"
+          }
+        ]
+      },
+      "preview_digest": "c0d2c3bedc76472323751d55b97d3087e9ee596ffe2230a26b6ca50e364ef273",
+      "snapshot": {
+        "items": [
+          {
+            "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "expected_digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+            "source": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            },
+            "mirror": {
+              "status": "missing",
+              "bytes": 0
+            },
+            "committed": {
+              "status": "missing",
+              "bytes": 0
+            }
+          }
+        ],
+        "repository_status": "available",
+        "head": "30bb5644d2b4b4c07f408b134570c525c005a097",
+        "ref": "refs/heads/main",
+        "dirty_count": 0,
+        "unrelated_count": 0,
+        "working_digest": "3efc4bde985b863c79d40cf407c07eba7c28d27d33d95da382c183f32fccaf2d",
+        "remote_fingerprint": "62f43ceebc61ea017d1b98658e812765c746a8c37bfa06a60d16581a20a86820",
+        "remote_status": "not_checked",
+        "stage": "not_preserved"
+      },
+      "actor": "cli",
+      "at": "2026-09-09T06:59:04.201284102Z"
+    }
+  },
+  {
+    "id": 14,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.239196181Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "preservation-b645588b9f7e9c07295ea4ecc3610422",
+    "command_id": "preservation-b645588b9f7e9c07295ea4ecc3610422",
+    "payload": {
+      "request_hash": "cdff13eab46df346d4606ffec659e4e76977877e60c158407196471a8c95227b",
+      "revision": 1,
+      "result": {
+        "version": 1,
+        "id": "b645588b9f7e9c07295ea4ecc3610422",
+        "target": "alpha",
+        "task_revision": 1,
+        "plan_id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+        "previous": "",
+        "reported_outcome": "not_reported",
+        "note": "",
+        "snapshot": {
+          "items": [
+            {
+              "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "expected_digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "source": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              },
+              "mirror": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              },
+              "committed": {
+                "status": "missing",
+                "bytes": 0
+              }
+            }
+          ],
+          "repository_status": "available",
+          "head": "30bb5644d2b4b4c07f408b134570c525c005a097",
+          "ref": "refs/heads/main",
+          "dirty_count": 1,
+          "unrelated_count": 0,
+          "working_digest": "e7a1ac20e0fe4888df5cabf85e815639519f8a6dd6ad55cf27a566ee7ce8bb63",
+          "remote_fingerprint": "62f43ceebc61ea017d1b98658e812765c746a8c37bfa06a60d16581a20a86820",
+          "remote_status": "not_checked",
+          "stage": "mirrored"
+        },
+        "actor": "cli",
+        "at": "2026-09-09T06:59:04.239196181Z"
+      }
+    }
+  },
+  {
+    "id": 15,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.239196181Z",
+    "subject": "preservation",
+    "verb": "observed",
+    "actor": "cli",
+    "entity_id": "b645588b9f7e9c07295ea4ecc3610422",
+    "command_id": "preservation-b645588b9f7e9c07295ea4ecc3610422",
+    "payload": {
+      "version": 1,
+      "id": "b645588b9f7e9c07295ea4ecc3610422",
+      "target": "alpha",
+      "task_revision": 1,
+      "plan_id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+      "previous": "",
+      "reported_outcome": "not_reported",
+      "note": "",
+      "snapshot": {
+        "items": [
+          {
+            "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "expected_digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+            "source": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            },
+            "mirror": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            },
+            "committed": {
+              "status": "missing",
+              "bytes": 0
+            }
+          }
+        ],
+        "repository_status": "available",
+        "head": "30bb5644d2b4b4c07f408b134570c525c005a097",
+        "ref": "refs/heads/main",
+        "dirty_count": 1,
+        "unrelated_count": 0,
+        "working_digest": "e7a1ac20e0fe4888df5cabf85e815639519f8a6dd6ad55cf27a566ee7ce8bb63",
+        "remote_fingerprint": "62f43ceebc61ea017d1b98658e812765c746a8c37bfa06a60d16581a20a86820",
+        "remote_status": "not_checked",
+        "stage": "mirrored"
+      },
+      "actor": "cli",
+      "at": "2026-09-09T06:59:04.239196181Z"
+    }
+  },
+  {
+    "id": 16,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.323543053Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "preservation-67a556ac22dc9f306378f81d0c5940d5",
+    "command_id": "preservation-67a556ac22dc9f306378f81d0c5940d5",
+    "payload": {
+      "request_hash": "4bcf9e56294bbbaa858c92ade643b560022cc1eca81875eb1a89d7dda107a853",
+      "revision": 1,
+      "result": {
+        "version": 1,
+        "id": "67a556ac22dc9f306378f81d0c5940d5",
+        "target": "alpha",
+        "task_revision": 1,
+        "plan_id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+        "previous": "b645588b9f7e9c07295ea4ecc3610422",
+        "reported_outcome": "push_failed",
+        "note": "Manual push failed",
+        "snapshot": {
+          "items": [
+            {
+              "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "expected_digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "source": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              },
+              "mirror": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              },
+              "committed": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              }
+            }
+          ],
+          "repository_status": "available",
+          "head": "a99f54bb6846d88f2106c3349efd1272db771217",
+          "ref": "refs/heads/main",
+          "dirty_count": 0,
+          "unrelated_count": 0,
+          "working_digest": "62f25acd72a6813b57643cfb5bc6bfd844bc98fe5eb7409135ef65cff3d417a9",
+          "remote_fingerprint": "62f43ceebc61ea017d1b98658e812765c746a8c37bfa06a60d16581a20a86820",
+          "remote_status": "missing",
+          "stage": "committed"
+        },
+        "actor": "cli",
+        "at": "2026-09-09T06:59:04.323543053Z"
+      }
+    }
+  },
+  {
+    "id": 17,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.323543053Z",
+    "subject": "preservation",
+    "verb": "observed",
+    "actor": "cli",
+    "entity_id": "67a556ac22dc9f306378f81d0c5940d5",
+    "command_id": "preservation-67a556ac22dc9f306378f81d0c5940d5",
+    "payload": {
+      "version": 1,
+      "id": "67a556ac22dc9f306378f81d0c5940d5",
+      "target": "alpha",
+      "task_revision": 1,
+      "plan_id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+      "previous": "b645588b9f7e9c07295ea4ecc3610422",
+      "reported_outcome": "push_failed",
+      "note": "Manual push failed",
+      "snapshot": {
+        "items": [
+          {
+            "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "expected_digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+            "source": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            },
+            "mirror": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            },
+            "committed": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            }
+          }
+        ],
+        "repository_status": "available",
+        "head": "a99f54bb6846d88f2106c3349efd1272db771217",
+        "ref": "refs/heads/main",
+        "dirty_count": 0,
+        "unrelated_count": 0,
+        "working_digest": "62f25acd72a6813b57643cfb5bc6bfd844bc98fe5eb7409135ef65cff3d417a9",
+        "remote_fingerprint": "62f43ceebc61ea017d1b98658e812765c746a8c37bfa06a60d16581a20a86820",
+        "remote_status": "missing",
+        "stage": "committed"
+      },
+      "actor": "cli",
+      "at": "2026-09-09T06:59:04.323543053Z"
+    }
+  },
+  {
+    "id": 18,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.449080855Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "preservation-1fcc4b4eeeb8ff4f62885467d5ad472a",
+    "command_id": "preservation-1fcc4b4eeeb8ff4f62885467d5ad472a",
+    "payload": {
+      "request_hash": "bde384a0096e81ababfaa83f358259a2f58c0b2d66ef2c5ee7ba6ce884c8efa8",
+      "revision": 1,
+      "result": {
+        "version": 1,
+        "id": "1fcc4b4eeeb8ff4f62885467d5ad472a",
+        "target": "alpha",
+        "task_revision": 1,
+        "plan_id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+        "previous": "67a556ac22dc9f306378f81d0c5940d5",
+        "reported_outcome": "succeeded",
+        "note": "Manual push completed",
+        "snapshot": {
+          "items": [
+            {
+              "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "expected_digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "source": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              },
+              "mirror": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              },
+              "committed": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              }
+            }
+          ],
+          "repository_status": "available",
+          "head": "a99f54bb6846d88f2106c3349efd1272db771217",
+          "ref": "refs/heads/main",
+          "dirty_count": 0,
+          "unrelated_count": 0,
+          "working_digest": "62f25acd72a6813b57643cfb5bc6bfd844bc98fe5eb7409135ef65cff3d417a9",
+          "remote_fingerprint": "62f43ceebc61ea017d1b98658e812765c746a8c37bfa06a60d16581a20a86820",
+          "remote_status": "matched",
+          "remote_commit": "a99f54bb6846d88f2106c3349efd1272db771217",
+          "stage": "published"
+        },
+        "actor": "cli",
+        "at": "2026-09-09T06:59:04.449080855Z"
+      }
+    }
+  },
+  {
+    "id": 19,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.449080855Z",
+    "subject": "preservation",
+    "verb": "observed",
+    "actor": "cli",
+    "entity_id": "1fcc4b4eeeb8ff4f62885467d5ad472a",
+    "command_id": "preservation-1fcc4b4eeeb8ff4f62885467d5ad472a",
+    "payload": {
+      "version": 1,
+      "id": "1fcc4b4eeeb8ff4f62885467d5ad472a",
+      "target": "alpha",
+      "task_revision": 1,
+      "plan_id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+      "previous": "67a556ac22dc9f306378f81d0c5940d5",
+      "reported_outcome": "succeeded",
+      "note": "Manual push completed",
+      "snapshot": {
+        "items": [
+          {
+            "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "expected_digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+            "source": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            },
+            "mirror": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            },
+            "committed": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            }
+          }
+        ],
+        "repository_status": "available",
+        "head": "a99f54bb6846d88f2106c3349efd1272db771217",
+        "ref": "refs/heads/main",
+        "dirty_count": 0,
+        "unrelated_count": 0,
+        "working_digest": "62f25acd72a6813b57643cfb5bc6bfd844bc98fe5eb7409135ef65cff3d417a9",
+        "remote_fingerprint": "62f43ceebc61ea017d1b98658e812765c746a8c37bfa06a60d16581a20a86820",
+        "remote_status": "matched",
+        "remote_commit": "a99f54bb6846d88f2106c3349efd1272db771217",
+        "stage": "published"
+      },
+      "actor": "cli",
+      "at": "2026-09-09T06:59:04.449080855Z"
+    }
+  },
+  {
+    "id": 20,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.487288843Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "preservation-d29f256c1146fdab2979c651f03b40be",
+    "command_id": "preservation-d29f256c1146fdab2979c651f03b40be",
+    "payload": {
+      "request_hash": "fee8f726c2172a91c600f021df4b1fbcc67738f0afd1c552c69f4b383124df1e",
+      "revision": 1,
+      "result": {
+        "version": 1,
+        "id": "d29f256c1146fdab2979c651f03b40be",
+        "target": "alpha",
+        "task_revision": 1,
+        "plan_id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+        "previous": "1fcc4b4eeeb8ff4f62885467d5ad472a",
+        "reported_outcome": "missing_original",
+        "note": "Original removed",
+        "snapshot": {
+          "items": [
+            {
+              "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "expected_digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "source": {
+                "status": "missing",
+                "bytes": 0
+              },
+              "mirror": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              },
+              "committed": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              }
+            }
+          ],
+          "repository_status": "available",
+          "head": "a99f54bb6846d88f2106c3349efd1272db771217",
+          "ref": "refs/heads/main",
+          "dirty_count": 0,
+          "unrelated_count": 0,
+          "working_digest": "62f25acd72a6813b57643cfb5bc6bfd844bc98fe5eb7409135ef65cff3d417a9",
+          "remote_fingerprint": "62f43ceebc61ea017d1b98658e812765c746a8c37bfa06a60d16581a20a86820",
+          "remote_status": "not_checked",
+          "stage": "committed"
+        },
+        "actor": "cli",
+        "at": "2026-09-09T06:59:04.487288843Z"
+      }
+    }
+  },
+  {
+    "id": 21,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.487288843Z",
+    "subject": "preservation",
+    "verb": "observed",
+    "actor": "cli",
+    "entity_id": "d29f256c1146fdab2979c651f03b40be",
+    "command_id": "preservation-d29f256c1146fdab2979c651f03b40be",
+    "payload": {
+      "version": 1,
+      "id": "d29f256c1146fdab2979c651f03b40be",
+      "target": "alpha",
+      "task_revision": 1,
+      "plan_id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+      "previous": "1fcc4b4eeeb8ff4f62885467d5ad472a",
+      "reported_outcome": "missing_original",
+      "note": "Original removed",
+      "snapshot": {
+        "items": [
+          {
+            "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "expected_digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+            "source": {
+              "status": "missing",
+              "bytes": 0
+            },
+            "mirror": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            },
+            "committed": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            }
+          }
+        ],
+        "repository_status": "available",
+        "head": "a99f54bb6846d88f2106c3349efd1272db771217",
+        "ref": "refs/heads/main",
+        "dirty_count": 0,
+        "unrelated_count": 0,
+        "working_digest": "62f25acd72a6813b57643cfb5bc6bfd844bc98fe5eb7409135ef65cff3d417a9",
+        "remote_fingerprint": "62f43ceebc61ea017d1b98658e812765c746a8c37bfa06a60d16581a20a86820",
+        "remote_status": "not_checked",
+        "stage": "committed"
+      },
+      "actor": "cli",
+      "at": "2026-09-09T06:59:04.487288843Z"
+    }
+  },
+  {
+    "id": 22,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.51751649Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "preservation-c4efb8c3ed436540de48c293edb76019",
+    "command_id": "preservation-c4efb8c3ed436540de48c293edb76019",
+    "payload": {
+      "request_hash": "4b924de58b841dfa3b965fa73df1879a3c2dce667e1d355ee85427e965646f82",
+      "revision": 1,
+      "result": {
+        "version": 1,
+        "id": "c4efb8c3ed436540de48c293edb76019",
+        "target": "alpha",
+        "task_revision": 1,
+        "plan_id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+        "previous": "d29f256c1146fdab2979c651f03b40be",
+        "reported_outcome": "offline",
+        "note": "Remote unavailable",
+        "snapshot": {
+          "items": [
+            {
+              "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+              "expected_digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "source": {
+                "status": "missing",
+                "bytes": 0
+              },
+              "mirror": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              },
+              "committed": {
+                "status": "matched",
+                "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+                "bytes": 28
+              }
+            }
+          ],
+          "repository_status": "available",
+          "head": "a99f54bb6846d88f2106c3349efd1272db771217",
+          "ref": "refs/heads/main",
+          "dirty_count": 0,
+          "unrelated_count": 0,
+          "working_digest": "62f25acd72a6813b57643cfb5bc6bfd844bc98fe5eb7409135ef65cff3d417a9",
+          "remote_fingerprint": "62f43ceebc61ea017d1b98658e812765c746a8c37bfa06a60d16581a20a86820",
+          "remote_status": "unavailable",
+          "stage": "committed"
+        },
+        "actor": "cli",
+        "at": "2026-09-09T06:59:04.51751649Z"
+      }
+    }
+  },
+  {
+    "id": 23,
+    "event_version": 1,
+    "ts": "2026-09-09T06:59:04.51751649Z",
+    "subject": "preservation",
+    "verb": "observed",
+    "actor": "cli",
+    "entity_id": "c4efb8c3ed436540de48c293edb76019",
+    "command_id": "preservation-c4efb8c3ed436540de48c293edb76019",
+    "payload": {
+      "version": 1,
+      "id": "c4efb8c3ed436540de48c293edb76019",
+      "target": "alpha",
+      "task_revision": 1,
+      "plan_id": "9b1c82c657d1e02a3d2c563386d5c3e9",
+      "previous": "d29f256c1146fdab2979c651f03b40be",
+      "reported_outcome": "offline",
+      "note": "Remote unavailable",
+      "snapshot": {
+        "items": [
+          {
+            "artifact_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "version_id": "1873da329f6ceaa64b732ad0907fe33b",
+            "expected_digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+            "source": {
+              "status": "missing",
+              "bytes": 0
+            },
+            "mirror": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            },
+            "committed": {
+              "status": "matched",
+              "digest": "4fc1c5dbd0ae1e6cb45faccd800418b0cef51ca8acf19457fa813dcf642053da",
+              "bytes": 28
+            }
+          }
+        ],
+        "repository_status": "available",
+        "head": "a99f54bb6846d88f2106c3349efd1272db771217",
+        "ref": "refs/heads/main",
+        "dirty_count": 0,
+        "unrelated_count": 0,
+        "working_digest": "62f25acd72a6813b57643cfb5bc6bfd844bc98fe5eb7409135ef65cff3d417a9",
+        "remote_fingerprint": "62f43ceebc61ea017d1b98658e812765c746a8c37bfa06a60d16581a20a86820",
+        "remote_status": "unavailable",
+        "stage": "committed"
+      },
+      "actor": "cli",
+      "at": "2026-09-09T06:59:04.51751649Z"
+    }
+  }
+]

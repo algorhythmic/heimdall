@@ -113,12 +113,15 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 		return err
 	}
 	if len(o.args) == 0 {
-		return fmt.Errorf("usage: heimdall init|start|doctor|ls|state|add|update|import-tasks|capture|assign|complete|reopen|drop|ratify|checks|tick|sync|fmt|events|replay|browser|contract|decision|resource|artifact|progress|checkpoint|context|resume|workspace|session|backup|grant|client|mcp|evidence|tui|ui [--data-dir PATH] [--json]")
+		return fmt.Errorf("usage: heimdall init|start|doctor|ls|state|add|update|import-tasks|capture|assign|complete|reopen|drop|ratify|checks|tick|sync|fmt|events|replay|browser|contract|decision|resource|artifact|progress|preservation|checkpoint|context|resume|workspace|session|backup|grant|client|mcp|evidence|tui|ui [--data-dir PATH] [--json]")
 	}
 	verb := o.args[0]
 	rest := o.args[1:]
 	if verb == "progress" {
 		return progressCLI(ctx, o, rest, out)
+	}
+	if verb == "preservation" {
+		return preservationCLI(ctx, o, rest, out)
 	}
 	if verb == "artifact" {
 		return artifactCLI(ctx, o, rest, out)

@@ -1,6 +1,15 @@
-# Verification — terminal/editor continuity, initial W01/T02/P01/P02, schema 11
+# Verification — terminal/editor continuity, initial W01/T02/P01/P02/P03, schema 12
 
-Current R0/T01–T03 and initial W01/T02/P01/P02 work was verified locally on Linux/amd64. Historical results below retain their original milestone scope. Published checks run on Windows and Ubuntu; [GitHub Actions](https://github.com/algorhythmic/heimdall/actions) records subsequent runs.
+Current R0/T01–T03 and initial W01/T02/P01/P02/P03 work was verified locally on Linux/amd64. Historical results below retain their original milestone scope. Published checks run on Windows and Ubuntu; [GitHub Actions](https://github.com/algorhythmic/heimdall/actions) records subsequent runs.
+
+## P03 manual preservation — 2026-09-09
+
+- Full Go tests and vet pass with Go 1.27.1. Linux build and Windows/amd64 cross-build pass; Windows was compiled, not executed locally. Linux SHA-256: `5ec9584c19e396516199c3dde6c5fc2c84d65ef9ab4d975efc16e13cf4b124f2`; Windows: `4af1949d3eb81bf04c6ff6f7baa5f70287a3bc99ef8ef7a6aae2f6100475eb3a`.
+- Tests cover exact saved-checkpoint artifact pins, changed preview and receipt-head refusal, distinct source/mirror/committed/remote facts, unrelated dirty/staged changes, rebase conflicts, refused credential/database names and symlinks, changed and missing originals, reported copy/push/offline failures, and remote readback from a synthetic bare repository. Repository-configured filters, diff/fsmonitor/SSH/uploadpack helpers are not run. A concurrent commit during mirror observation produces `uncertain`.
+- Request fixtures reject unknown/duplicate/version/authority fields and caller-supplied observations. Golden event fixtures reject malformed stages, digests, task scope/revisions and chains. Earlier stopped schema-6 through schema-11 fixtures preserve state, history, exact receipts and pre-upgrade backups. Browser and scoped client credentials cannot reach preservation routes.
+- Final compiled P03 CLI acceptance passed in `.tools/preservation-test-KnCBTp`: no writes from preview, exact pins, manual mirror/commit/local-remote push followed by independent readback, unavailable remote, deleted source, portable export, wrong-target refusal, SIGKILL/restart, exact retries, inert replay and restored backup after removing the original clone. No user private clone or network remote was modified or queried.
+- Race checks pass for continuity, dotprivate observation, store and daemon. The actual retained schema-11 binary passes upgrade/refusal/rollback in `.tools/continuity-test-7avIIb`; pre-upgrade read credentials keep their original authority. P02 compiled regression passed in `.tools/progress-test-rpY4qB`; TUI snapshots and real-PTY input/restoration passed in `.tools/tui-test-aiKtGh`. The TUI commit `e1ff3e3` passed both published GitHub CI jobs before P03.
+- This delivers the roadmap's manual fallback, not programmatic dotprivate dispatch or full P03 automation. Installed dotprivate 0.1.0 matches the reviewed sibling source at revision `51d0fce` (SHA-256 `66fd872c909f7a33ea941d31012750e60647e5a87f4e75a7ee55431f56b4c8ae`); its broad staging boundary remains. Network/authenticated remote behavior, private-clone writer serialization, cancellation of dispatched operations and unattended retries wait for the applicable shared-action/upstream work. Operator reports about events during a manual copy are distinct from readback evidence.
 
 ## TUI design replacement — 2026-09-08 Pacific / September 9 UTC
 

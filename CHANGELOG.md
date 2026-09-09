@@ -1,5 +1,11 @@
 # Development milestones
 
+## P03 manual preservation — 2026-09-09
+
+- Add checkpoint-linked preservation preview, retained manual handoff requests and independently observed source/mirror/private-commit/remote facts. Failure reports remain separate from observed results; checkpoint/task state is unchanged.
+- Add bounded CLI status, reconciliation receipts and portable progress export. Remote reads pin the explicit destination; no dotprivate execution or Git writes occur. Programmatic preservation remains gated by shared C12 actions and an upstream selected-files boundary.
+- Schema 12 retains all previous records and receipts with stopped schema-11 migration, malformed-event, inert replay, exact retry, restart and backup restore coverage.
+
 This records implementation milestones and current development work. Versions describe local development builds; they do not imply published releases or completed deployment acceptance. The initial Git import captured the 0.5.0 implementation together, rather than reconstructing historical source commits.
 
 ## Unreleased — Terminal interface replacement (2026-09-08)

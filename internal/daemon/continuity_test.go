@@ -15,7 +15,7 @@ func TestContinuityRoleAndStrictDecode(t *testing.T) {
 	}
 	defer e.Close()
 	s := &Server{Engine: e, Token: strings.Repeat("a", 64), BrowserToken: strings.Repeat("b", 64), Host: "127.0.0.1:7477", Clock: time.Now}
-	for _, path := range []string{"/continuity/context", "/continuity/resume", "/continuity/state", "/continuity/command", "/continuity/backup", "/workspace/state", "/workspace/manifest", "/workspace/session", "/workspace/command", "/workspace/herdr/bind", "/workspace/herdr/refresh", "/workspace/herdr/publish", "/artifact/record", "/artifact/list", "/artifact/show", "/artifact/check", "/progress/list", "/progress/show", "/progress/command"} {
+	for _, path := range []string{"/continuity/context", "/continuity/resume", "/continuity/state", "/continuity/command", "/continuity/backup", "/workspace/state", "/workspace/manifest", "/workspace/session", "/workspace/command", "/workspace/herdr/bind", "/workspace/herdr/refresh", "/workspace/herdr/publish", "/artifact/record", "/artifact/list", "/artifact/show", "/artifact/check", "/progress/list", "/progress/show", "/progress/command", "/preservation/preview", "/preservation/command", "/preservation/show", "/preservation/list", "/preservation/export"} {
 		r := httptest.NewRequest("POST", path, strings.NewReader(`{}`))
 		r.Host = s.Host
 		r.Header.Set("Authorization", "Bearer "+s.BrowserToken)

@@ -1,0 +1,164 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://heimdall.local/schemas/preservation-request-v1.schema.json",
+  "title": "Explicit manual preservation request v1",
+  "description": "Preview and request carry plan; request requires its preview_digest. Observe records readback and an optional separately labelled operator report. No dispatch. Semantic validation additionally checks exact checkpoint pins, sorted unique selections, local paths, branch syntax and a note for reported outcomes.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "id",
+    "target",
+    "expected_task_revision"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    },
+    "target": {
+      "type": "string"
+    },
+    "expected_task_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "plan": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "checkpoint_id",
+        "private_root",
+        "remote",
+        "ref",
+        "selections"
+      ],
+      "properties": {
+        "checkpoint_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "private_root": {
+          "type": "string"
+        },
+        "remote": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+        },
+        "ref": {
+          "type": "string",
+          "pattern": "^refs/heads/",
+          "maxLength": 256
+        },
+        "selections": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "artifact_id",
+              "version_id",
+              "mirror_path"
+            ],
+            "properties": {
+              "artifact_id": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{32}$"
+              },
+              "version_id": {
+                "type": "string",
+                "pattern": "^[a-f0-9]{32}$"
+              },
+              "mirror_path": {
+                "type": "string",
+                "minLength": 1,
+                "maxLength": 4096
+              }
+            }
+          }
+        }
+      }
+    },
+    "preview_digest": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "observe": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "plan_id",
+        "previous",
+        "check_remote",
+        "reported_outcome",
+        "note"
+      ],
+      "properties": {
+        "plan_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "previous": {
+          "type": "string",
+          "pattern": "^(none|[a-f0-9]{32})$"
+        },
+        "check_remote": {
+          "type": "boolean"
+        },
+        "reported_outcome": {
+          "enum": [
+            "not_reported",
+            "succeeded",
+            "offline",
+            "refused_file",
+            "missing_original",
+            "rebase_conflict",
+            "source_changed_during_copy",
+            "push_failed",
+            "unknown"
+          ]
+        },
+        "note": {
+          "type": "string",
+          "maxLength": 4096
+        }
+      }
+    }
+  },
+  "oneOf": [
+    {
+      "required": [
+        "plan"
+      ],
+      "not": {
+        "required": [
+          "observe"
+        ]
+      }
+    },
+    {
+      "required": [
+        "observe"
+      ],
+      "not": {
+        "anyOf": [
+          {
+            "required": [
+              "plan"
+            ]
+          },
+          {
+            "required": [
+              "preview_digest"
+            ]
+          }
+        ]
+      }
+    }
+  ]
+}

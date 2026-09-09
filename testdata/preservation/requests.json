@@ -1,0 +1,34 @@
+[
+  {
+    "version": 1,
+    "id": "11111111111111111111111111111111",
+    "target": "alpha",
+    "expected_task_revision": 1,
+    "plan": {
+      "checkpoint_id": "22222222222222222222222222222222",
+      "private_root": "/tmp/synthetic/.private",
+      "remote": "origin",
+      "ref": "refs/heads/main",
+      "selections": [
+        {
+          "artifact_id": "33333333333333333333333333333333",
+          "version_id": "44444444444444444444444444444444",
+          "mirror_path": "alpha/ingested/local/notes.md"
+        }
+      ]
+    }
+  },
+  {
+    "version": 1,
+    "id": "11111111111111111111111111111111",
+    "target": "alpha",
+    "expected_task_revision": 1,
+    "observe": {
+      "plan_id": "55555555555555555555555555555555",
+      "previous": "none",
+      "check_remote": true,
+      "reported_outcome": "push_failed",
+      "note": "Operator reported a failed push; readback remains independent"
+    }
+  }
+]

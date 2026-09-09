@@ -1,5 +1,7 @@
 # Capability and authority ledger
 
+P03 adds local CLI-only preservation preview/request/observe/show/list/export. Browser and scoped MCP/client credentials acquire no access. Stored observations and operator reports confer no completion or dispatch authority. Remote checks are explicit, read-only, bounded and pinned to the plan destination. No private clone is automatically bound or modified. Schema 12 retains all earlier event versions.
+
 TUI replacement, 2026-09-08 Pacific: the browser frontend and all UI bootstrap/session
 routes are retired. The Go TUI uses the existing local CLI bearer and explicit
 review/command APIs. Its optional task argument is a display filter, not a grant.

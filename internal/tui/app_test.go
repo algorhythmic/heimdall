@@ -5,10 +5,12 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"heimdall/internal/adapters/hyprland"
 	"heimdall/internal/continuity"
 	"heimdall/internal/core"
 	"heimdall/internal/daemon"
 	"heimdall/internal/model"
+	"heimdall/internal/workspace"
 	"io"
 	"net/http"
 	"net/http/httptest"
@@ -42,6 +44,10 @@ func newFixture(t *testing.T) *fixture {
 	ctx := context.Background()
 	now := time.Now().UTC()
 	s := &daemon.Server{Engine: engine, Token: strings.Repeat("a", 64), Clock: func() time.Time { return now }}
+	observer := hyprland.New()
+	t.Cleanup(observer.Close)
+	s.Snapshots = &workspace.SnapshotService{Store: engine.Store, Observer: observer}
+	s.Previews = &workspace.PreviewService{Store: engine.Store, Observer: observer}
 	server := httptest.NewUnstartedServer(s)
 	s.Host = server.Listener.Addr().String()
 	server.Start()

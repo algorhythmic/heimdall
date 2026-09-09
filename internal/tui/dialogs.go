@@ -36,6 +36,7 @@ type dialog struct {
 	draft                *draft
 	progress             *continuity.ProgressView
 	workspace            *workspace.View
+	snapshotStatus       *workspace.SnapshotStatus
 	pending              *savedRequest
 	journal              string
 	proposal             string
@@ -273,49 +274,6 @@ func (a *App) openWorkspace(target string) {
 	d.busy = true
 	a.async("workspace", target, d.generation, func(ctx context.Context) (any, error) { return a.workspaceView(ctx, target) })
 }
-func (a *App) workspaceView(ctx context.Context, target string) (any, error) {
-	raw, err := a.call(ctx, "GET", "/workspace/state?target="+url.QueryEscape(target), nil)
-	if err != nil {
-		return nil, err
-	}
-	var v workspace.View
-	if err = json.Unmarshal(raw, &v); err != nil {
-		return nil, err
-	}
-	lines := []line{line{{"Desired membership vs observed sessions · preview only", gray}}, plain(""), line{{"surface                 desired / observed now", gray}}}
-	if v.Manifest == nil {
-		lines = append(lines, line{{"No desired workspace recorded. Accept a manifest with heimdall workspace accept.", gold}})
-	} else {
-		for _, s := range v.Manifest.Surfaces {
-			state := "not observed"
-			color := gold
-			for _, b := range v.Bindings {
-				if b.SurfaceID != s.ID {
-					continue
-				}
-				state = b.Status
-				if b.Binding != nil && b.Binding.Active && b.Binding.Version == 2 {
-					raw, err = a.call(ctx, "GET", "/workspace/herdr/refresh?"+url.Values{"target": {target}, "surface": {s.ID}, "binding": {b.Head}}.Encode(), nil)
-					if err != nil {
-						state = "unavailable"
-					} else {
-						var c workspace.SessionCheck
-						if json.Unmarshal(raw, &c) == nil {
-							state = c.Status + " · " + strings.Join(c.Issues, ", ")
-						}
-					}
-				}
-				color = checkColor(strings.Split(state, " · ")[0])
-			}
-			lines = append(lines, line{{fmt.Sprintf("%-24s", s.Kind+" · "+s.Label), fg}, {state, color}}, line{{"                        " + s.ID, gray}})
-		}
-	}
-	lines = append(lines, plain(""), line{{"Application/window topology and recovery are not implemented.", gray}}, line{{"No processes are launched, moved or reattached from this preview.", gray}})
-	return struct {
-		View  workspace.View
-		Lines []line
-	}{v, lines}, nil
-}
 func (a *App) openBind(target string) {
 	target = rootOf(target)
 	if target == "" {
@@ -386,11 +344,9 @@ func (a *App) applyDialog(r result) {
 			d.lines = append(d.lines, plain("No bound resources."))
 		}
 	case "workspace":
-		v := r.value.(struct {
-			View  workspace.View
-			Lines []line
-		})
+		v := r.value.(workspaceDialogView)
 		d.workspace = &v.View
+		d.snapshotStatus = &v.Snapshot
 		d.lines = v.Lines
 	case "bind":
 		v := r.value.(workspace.View)
@@ -555,6 +511,10 @@ func (a *App) dialogKey(e *tcell.EventKey) {
 			a.editor(d)
 		} else if d.kind == "step" {
 			a.evaluators(d)
+		}
+	case 's':
+		if d.kind == "workspace" {
+			a.confirmSnapshot(d)
 		}
 	case 'b':
 		if d.kind == "workspace" {
@@ -777,7 +737,7 @@ func (a *App) OpenRequest(path string) error {
 	if err := readBounded(path, &r); err != nil {
 		return err
 	}
-	if r.Version != 1 || !model.Contains([]string{"/commands", "/progress/command", "/continuity/command", "/workspace/herdr/bind", "/evidence/evaluate"}, r.Path) || !json.Valid(r.Body) {
+	if r.Version != 1 || !model.Contains([]string{"/commands", "/progress/command", "/continuity/command", "/workspace/herdr/bind", "/workspace/snapshot/command", "/evidence/evaluate"}, r.Path) || !json.Valid(r.Body) {
 		return errors.New("invalid retained TUI request")
 	}
 	d := a.newDialog("confirm", "retry retained request · "+r.Target, r.Target)

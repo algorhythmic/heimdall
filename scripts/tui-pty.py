@@ -47,7 +47,7 @@ try:
     # Save root progress with a durable draft through the actual form.
     send('\tc'); wait_text('what changed'); send('Reviewed TUI checkpoint form.'); send('\x13')
     wait_state(lambda st: any(c['summary']=='Reviewed TUI checkpoint form.' for c in st['checkpoints'].values()))
-    send('p'); wait_text('desktop preview'); send('\x1b')
+    send('p'); wait_text('desktop preview'); wait_text('No saved point'); wait_text('Autosave'); send('\x1b')
     # Resize exercises compact mode in the same terminal and preserves selection.
     fcntl.ioctl(slave, termios.TIOCSWINSZ, struct.pack('HHHH',24,80,0,0)); os.kill(process.pid, signal.SIGWINCH)
     wait_text('WORKSTREAMS'); send('q'); process.wait(timeout=5)

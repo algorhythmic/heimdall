@@ -16,6 +16,9 @@ func workspaceCLI(ctx context.Context, o options, verb string, args []string, ou
 		return fmt.Errorf("%s requires ACTION TASK", verb)
 	}
 	action, target := args[0], args[1]
+	if verb == "workspace" && model.Contains([]string{"list", "diff", "preview", "validate"}, action) {
+		return previewCLI(ctx, o, action, target, args[2:], out)
+	}
 	if !model.ValidID(target) {
 		return fmt.Errorf("workspace/session requires an explicit task ID")
 	}

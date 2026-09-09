@@ -29,6 +29,7 @@ jobs:
       - run: node scripts/dependency-smoke.cjs
       - run: node scripts/viewport-smoke.cjs
       - run: node scripts/snapshot-smoke.cjs
+      - run: node scripts/preview-smoke.cjs
       - run: node scripts/artifact-smoke.cjs
         if: runner.os == 'Linux'
       - run: node scripts/mcp-smoke.cjs

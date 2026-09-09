@@ -127,14 +127,17 @@ The TUI is a local human CLI client. It reads the selected data directory's CLI
 endpoint, rediscovers the daemon after restart and uses the same authority as
 other CLI commands. A task argument filters the display; it is not an access
 grant. Scoped MCP/agent credentials and extension credentials gain no new powers.
-Database schema remains 11. Historical UI-v2 reviews still replay with their
+Current database schema is 15. Historical UI-v2 reviews still replay with their
 original provenance, but there is no live browser-session authority.
 
 The screenshots include later roadmap capabilities. Current binding counts are
 recorded identities, not live working/blocked/idle agent telemetry. Workspace
-preview performs available Herdr checks and labels missing observations. Durable
-compositor snapshots, application recovery, agent pane jumping and a native
-Omarchy bar module remain future stages. No desktop configuration or login hook
+preview compares the current saved point with fresh owned windows and Herdr
+readback, including age, autosave policy, layout changes and review requirements.
+Press `s` to review an explicit capture/pin request; Enter submits the retained
+request and Escape cancels. See [workspace preview](WORKSPACE-PREVIEW.md).
+Application recovery, agent pane jumping and a native Omarchy bar module remain
+future stages. No desktop configuration or login hook
 is installed. The [reference design notes](design/TUI.md) map these boundaries.
 
 Run `go test ./internal/tui` and `node scripts/tui-smoke.cjs` for simulation and

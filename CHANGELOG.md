@@ -1,5 +1,12 @@
 # Development milestones
 
+## Unreleased — W04 workspace preview (2026-09-09)
+
+- Scoped live List/Diff and explicit current-manifest/retained-snapshot previews with reattach, launch, move, leave-open, unavailable and review-required dispositions.
+- Fresh owned-window and Herdr observation, explicit source/display/ownership limits, protected-point/age diagnostics and deterministic scoped comparisons.
+- Private review files with a 30-second daemon-lifetime seal; validation refuses changed, tampered, expired or restarted previews and reobserves inputs without effects.
+- TUI workspace comparison, saved-point/autosave details and explicit retained-request point capture. No application dispatch or database schema change.
+
 ## Unreleased — W03 durable workspace snapshots (2026-09-09)
 
 - Immutable scoped snapshot payloads, indexed history, atomic event/receipt/head publication and complete/partial capture boundaries under schema 15.

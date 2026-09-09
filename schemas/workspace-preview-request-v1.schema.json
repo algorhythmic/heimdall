@@ -1,0 +1,15 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "heimdall/workspace-preview-request-v1",
+  "title": "Read-only workspace preview selection",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["version", "target", "manifest_id", "snapshot_id"],
+  "properties": {
+    "version": {"const": 1},
+    "target": {"type": "string", "pattern": "^[a-z0-9][a-z0-9-]{1,22}[a-z0-9]$"},
+    "manifest_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "snapshot_id": {"type": "string", "pattern": "^[a-f0-9]{32}$"},
+    "max_snapshot_age_seconds": {"type": "integer", "minimum": 0, "maximum": 31536000}
+  }
+}

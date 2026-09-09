@@ -73,7 +73,7 @@ func (a *App) drawDialog(w, h int) {
 	case "draft":
 		hint = "enter / ctrl-s save   tab field   e edit in $EDITOR   n new draft"
 	case "workspace":
-		hint = "r re-observe   b bind terminal   preview only"
+		hint = "r re-observe   s save point   b bind terminal   preview only"
 	case "bind", "capture", "evaluate":
 		hint = "enter / ctrl-s submit   tab next field   esc leave field"
 	case "confirm":

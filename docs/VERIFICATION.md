@@ -1,4 +1,18 @@
-# Verification — terminal/editor continuity, initial W01/T02/P01/P02/P03/P04/W02/W03, schema 15
+# Verification — terminal/editor continuity, initial W01/T02/P01/P02/P03/P04/W02/W03/W04, schema 15
+
+
+## W04 scoped workspace preview — 2026-09-09
+
+- Full Go tests/vet and affected workspace/store/TUI/daemon race checks pass. Linux and Windows/amd64 builds pass with Go 1.27.1; Windows is cross-built, not run locally. Linux SHA-256: `8bc43799c257dbecd2762cf86ecea50d3167984ec303f9d3902c25958855dfff`; Windows: `53666837040472ccd06f75f969d9252c5fa2079aeaf388571d8619e71573f1f8`.
+- Deterministic List/Diff/preview tests cover scoped ownership, unowned/foreign exclusions, duplicate titles/address reuse, moved/missing windows, removed membership, missing/pruned/unprotected snapshots, task edits and pruning during IPC. State and retained payloads share one locked read; external observation remains outside the writer. Preview/list/validate leave events and projection unchanged.
+- Fresh Herdr readback distinguishes a surviving session from changed terminal identity. A compositor epoch change is unavailable until explicit reselection; any reattachment remains a proposal requiring a reviewed recipe and unique new-window/attachment verification. Changed displays, missing topology, unusable placement and unsupported tiled split geometry remain review-required.
+- Thirty-second daemon-lifetime seals cover complete review artifacts and deadlines. Tests reject altered rows/scope/deadlines, clock reversal, expiry and previous-daemon files. Validation reobserves and recomputes scoped semantics. Unrelated titles/PIDs and fresh capture timestamps do not invalidate an unchanged plan. Validation is not execution authority.
+- Final compiled synthetic-compositor acceptance passes in `.tools/preview-test-zUfIFh`: explicit private output/no overwrite, list/diff/preview/validate, scope/credential negatives, moved/missing window/display diagnostics, unchanged durable state and restart invalidation. The IPC audit contains only the four fixed read commands.
+- TUI simulation and compiled PTY acceptance pass, including the new saved-point/autosave content, preserved capture preconditions and explicit confirmation, existing review/progress flows, resize and terminal restoration. No new native application movement, launch, close, reboot or VM acceptance is claimed.
+- Schema remains 15: no new event family or migration. Existing migration/replay/backup tests pass; the final binary is retained as `.tools/heimdall-schema15` for subsequent stage rollback checks. CI now includes the preview smoke on Linux and Windows; non-Linux checks report native coverage unavailable.
+
+See [workspace preview setup and boundaries](WORKSPACE-PREVIEW.md).
+
 
 ## W03 durable snapshots — 2026-09-09
 

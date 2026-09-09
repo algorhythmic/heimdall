@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"heimdall/internal/adapters/herdr"
 	"heimdall/internal/adapters/hyprland"
 	"heimdall/internal/checks"
 	"heimdall/internal/core"
@@ -35,6 +36,7 @@ type Request struct {
 	Now     string       `json:"now,omitempty"`
 }
 type Server struct {
+	Previews          *workspace.PreviewService
 	Snapshots         *workspace.SnapshotService
 	Viewport          *workspace.ViewportService
 	EvaluationContext context.Context
@@ -105,6 +107,7 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 		return err
 	}
 	service.Snapshots = &workspace.SnapshotService{Store: e.Store, Observer: service.Viewport.Observer}
+	service.Previews = &workspace.PreviewService{Store: e.Store, Observer: service.Viewport.Observer, Herdr: herdr.Adapter{}}
 	snapshotDone := make(chan struct{})
 	go func() { defer close(snapshotDone); service.Snapshots.Run(localCtx, clock) }()
 	viewportDone := make(chan struct{})

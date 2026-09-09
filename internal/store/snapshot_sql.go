@@ -160,6 +160,23 @@ func snapshotCapacity(ctx context.Context, tx *sql.Tx) error {
 func (s *Store) WorkspacePoint(ctx context.Context, target, id string) (PointView, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	return s.workspacePoint(ctx, target, id)
+}
+
+// WorkspacePreviewInputs samples retention metadata/payload and current heads
+// under the same writer lock. No external observation runs inside this read.
+func (s *Store) WorkspacePreviewInputs(ctx context.Context, target, id string) (model.State, PointView, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	st, err := readState(ctx, s.db)
+	if err != nil || id == "" {
+		return st, PointView{}, err
+	}
+	point, err := s.workspacePoint(ctx, target, id)
+	return st, point, err
+}
+
+func (s *Store) workspacePoint(ctx context.Context, target, id string) (PointView, error) {
 	var v PointView
 	var raw []byte
 	if err := s.db.QueryRowContext(ctx, "SELECT metadata,pruned,event_id FROM workspace_snapshots WHERE id=? AND target=?", id, target).Scan(&raw, &v.Pruned, &v.EventID); err != nil {

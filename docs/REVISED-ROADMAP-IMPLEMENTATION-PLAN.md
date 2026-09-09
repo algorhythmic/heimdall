@@ -116,6 +116,8 @@ R4 restores selected tasks. A daemon restart should rediscover existing surfaces
 
 Monitor recovery prioritizes named workspace/task membership and usable logical coordinates. Record scale/transform and clamp geometry under an explicit fallback policy; otherwise report review required. Exact tiled split ratios and pixel-identical layouts are deferred. Browser native-to-compositor mapping still requires fresh nonce pairing; duplicate URLs, counts and ordinary titles cannot establish ownership.
 
+W04 delivery, 2026-09-09: scoped live List/Diff, explicit selected-point previews and daemon-lifetime sealed validation are implemented under schema 15. Read-only comparisons expose ownership, source, display and snapshot uncertainty; the TUI shows these details and supports explicit point capture. See [workspace preview](WORKSPACE-PREVIEW.md) and [verification](VERIFICATION.md). Next: C12 shared actions and C13 browser verification before W05–W07 recovery. No preview disposition grants dispatch authority.
+
 ## 6. Shared actions and WCU integration
 
 C12 is a shared substrate, not a second browser stack. Add a task-bound action record with request ID, logical target, manifest/contract/resource revisions as applicable, adapter/runtime epoch, authority reference, intended postcondition, attempt identity and observation references. Preserve separate execution and verification states from the earlier plan. Existing browser success remains API-reported and unverified when migrated; keep browser IDs, extension identity, pairing rules and retry receipts compatible.

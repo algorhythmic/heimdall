@@ -1,0 +1,120 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Heimdall artifact observation command v1",
+  "description": "CLI-only local Linux file observation. Runtime checks exact resource/target scope, environment/host, previous head and confined clean POSIX selector. Digests and Git observations are derived by the daemon. UTF-8 byte limits and duplicate JSON keys are checked at runtime.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "id",
+    "target",
+    "expected_task_revision",
+    "artifact"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "$ref": "#/$defs/id"
+    },
+    "target": {
+      "type": "string",
+      "minLength": 1
+    },
+    "expected_task_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "artifact_id",
+        "previous",
+        "environment",
+        "resource_id",
+        "path",
+        "git"
+      ],
+      "properties": {
+        "artifact_id": {
+          "oneOf": [
+            {
+              "const": "new"
+            },
+            {
+              "$ref": "#/$defs/id"
+            }
+          ]
+        },
+        "previous": {
+          "oneOf": [
+            {
+              "const": "none"
+            },
+            {
+              "$ref": "#/$defs/id"
+            }
+          ]
+        },
+        "name": {
+          "type": "string",
+          "pattern": "\\S",
+          "maxLength": 256
+        },
+        "environment": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9._-]{0,63}$"
+        },
+        "resource_id": {
+          "$ref": "#/$defs/id"
+        },
+        "path": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "git": {
+          "type": "boolean"
+        }
+      },
+      "oneOf": [
+        {
+          "properties": {
+            "artifact_id": {
+              "const": "new"
+            },
+            "previous": {
+              "const": "none"
+            }
+          },
+          "required": [
+            "name"
+          ]
+        },
+        {
+          "properties": {
+            "artifact_id": {
+              "$ref": "#/$defs/id"
+            },
+            "previous": {
+              "$ref": "#/$defs/id"
+            }
+          },
+          "not": {
+            "required": [
+              "name"
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    }
+  }
+}

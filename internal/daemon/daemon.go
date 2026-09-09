@@ -182,6 +182,14 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		s.continuityHTTP(w, r)
 		return
 	}
+	if strings.HasPrefix(r.URL.Path, "/artifact/") {
+		s.artifactHTTP(w, r)
+		return
+	}
+	if strings.HasPrefix(r.URL.Path, "/workspace/") {
+		s.workspaceHTTP(w, r)
+		return
+	}
 	if strings.HasPrefix(r.URL.Path, "/evidence/") {
 		s.evidenceHTTP(w, r)
 		return
@@ -197,7 +205,7 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
 		switch r.URL.Path {
 		case "/health":
-			writeJSON(w, map[string]any{"status": "running", "task_file_error": s.Engine.ViewError(), "capabilities": []string{"core", "capture", "manual_completion", "aggregate_proposals", "review_timers", "replay", "browser_metadata", "browser_commands", "continuity_cli_v1", "database_backup", "scoped_client_reads_v1", "scoped_checkpoint_writes_v1", "mcp_stdio_v1", "evidence_cli_v1", "evidence_revalidation_v1"}})
+			writeJSON(w, map[string]any{"status": "running", "task_file_error": s.Engine.ViewError(), "capabilities": []string{"core", "capture", "manual_completion", "aggregate_proposals", "review_timers", "replay", "browser_metadata", "browser_commands", "continuity_cli_v1", "workspace_declarations_cli_v1", "herdr_bindings_linux_v1", "database_backup", "scoped_client_reads_v1", "scoped_checkpoint_writes_v1", "mcp_stdio_v1", "evidence_cli_v1", "evidence_revalidation_v1"}})
 		case "/state":
 			st, err := s.Engine.Store.State(r.Context())
 			if err != nil {

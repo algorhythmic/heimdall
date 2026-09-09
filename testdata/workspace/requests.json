@@ -1,0 +1,57 @@
+[
+  {
+    "version": 1,
+    "target": "alpha",
+    "expected_task_revision": 1,
+    "id": "11111111111111111111111111111111",
+    "op": "workspace.accept",
+    "manifest": {
+      "previous": "none",
+      "name": "Planning",
+      "surfaces": [
+        {
+          "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "kind": "terminal",
+          "label": "Planning shell",
+          "required": true,
+          "restore_policy": "manual"
+        }
+      ]
+    }
+  },
+  {
+    "version": 1,
+    "target": "alpha",
+    "expected_task_revision": 1,
+    "id": "22222222222222222222222222222222",
+    "op": "session.bind",
+    "session": {
+      "previous": "none",
+      "manifest_id": "11111111111111111111111111111111",
+      "surface_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "locator": {
+        "adapter": "generic",
+        "environment": "local",
+        "host": "synthetic-host",
+        "source_epoch": "server-epoch-1",
+        "session_id": "planning",
+        "workspace_id": "workspace-1",
+        "pane_id": "pane-1",
+        "platform": "linux",
+        "cwd": "/synthetic/shared-worktree"
+      }
+    }
+  },
+  {
+    "version": 1,
+    "target": "alpha",
+    "expected_task_revision": 1,
+    "id": "33333333333333333333333333333333",
+    "op": "session.unbind",
+    "session": {
+      "previous": "22222222222222222222222222222222",
+      "manifest_id": "11111111111111111111111111111111",
+      "surface_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+    }
+  }
+]

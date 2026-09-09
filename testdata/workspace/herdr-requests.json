@@ -1,0 +1,21 @@
+{
+  "bind": {
+    "version": 1,
+    "id": "22222222222222222222222222222222",
+    "target": "alpha",
+    "surface_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "manifest_id": "11111111111111111111111111111111",
+    "previous": "none",
+    "expected_task_revision": 1,
+    "socket": "/tmp/synthetic-herdr.sock",
+    "pane_id": "w1:p1"
+  },
+  "publish": {
+    "version": 1,
+    "id": "33333333333333333333333333333333",
+    "target": "alpha",
+    "surface_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "binding_id": "22222222222222222222222222222222",
+    "workspace_summary": true
+  }
+}

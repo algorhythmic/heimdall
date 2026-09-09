@@ -1,0 +1,43 @@
+[
+  {
+    "id": 2,
+    "event_version": 1,
+    "ts": "2026-09-08T18:00:00Z",
+    "subject": "session",
+    "verb": "bound",
+    "actor": "cli",
+    "entity_id": "22222222222222222222222222222222",
+    "command_id": "workspace-22222222222222222222222222222222",
+    "payload": {
+      "version": 2,
+      "id": "22222222222222222222222222222222",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "actor": "cli",
+      "at": "2026-09-08T18:00:00Z",
+      "manifest_id": "11111111111111111111111111111111",
+      "surface_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "active": true,
+      "locator": {
+        "adapter": "herdr",
+        "environment": "local",
+        "host": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "source_epoch": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "session_id": "/tmp/synthetic-herdr.sock",
+        "workspace_id": "w1",
+        "pane_id": "w1:p1",
+        "platform": "linux",
+        "cwd": "/synthetic/shared-worktree"
+      },
+      "herdr": {
+        "protocol": 20,
+        "server_version": "0.8.2",
+        "terminal_id": "term_fixture",
+        "tab_id": "w1:t1",
+        "shell_pid": 1234,
+        "shell_start": "12345"
+      }
+    }
+  }
+]

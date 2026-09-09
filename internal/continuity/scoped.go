@@ -36,7 +36,9 @@ func ScopedContext(ctx context.Context, st model.State, g model.Grant, target st
 	if budget < 1 || budget > MaxReadBytes/4 {
 		return Bundle{}, fmt.Errorf("budget must be 1..%d", MaxReadBytes/4)
 	}
-	return buildContext(ctx, st, target, budget)
+	// Existing read grants expose checkpoint references, not new artifact/Git
+	// observation authority. Keep that explicit instead of dropping references.
+	return buildContextArtifacts(ctx, st, target, budget, false)
 }
 
 type Page struct {

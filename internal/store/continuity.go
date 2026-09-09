@@ -1,6 +1,7 @@
 package store
 
 import (
+	"encoding/json"
 	"fmt"
 	"heimdall/internal/model"
 	"reflect"
@@ -116,6 +117,13 @@ func applyContinuity(st *model.State, e Event) error {
 		if err := model.ValidCheckpoint(v); err != nil {
 			return err
 		}
+		if v.Version < 3 {
+			var fields map[string]json.RawMessage
+			_ = json.Unmarshal(e.Payload, &fields)
+			if _, ok := fields["artifacts"]; ok {
+				return fmt.Errorf("legacy checkpoint payload cannot carry artifacts")
+			}
+		}
 		if v.Actor != e.Actor || !v.At.Equal(e.TS) {
 			return fmt.Errorf("checkpoint author/time differs from envelope")
 		}
@@ -158,6 +166,9 @@ func applyContinuity(st *model.State, e Event) error {
 			if err != nil || !slices.Equal(ids, c.ResourceIDs) || !slices.Equal(ids, current) {
 				return fmt.Errorf("checkpoint resource scope differs from contract")
 			}
+		}
+		if err := validateCheckpointArtifacts(*st, v); err != nil {
+			return err
 		}
 		st.Checkpoints[v.ID] = v
 		st.CheckpointHeads[v.Target] = v.ID

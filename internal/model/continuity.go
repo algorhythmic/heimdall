@@ -83,6 +83,7 @@ type ContextVersion struct {
 	ContractID   string `json:"contract_id,omitempty"`
 }
 type Checkpoint struct {
+	Artifacts    []ArtifactRef     `json:"artifacts,omitempty"`
 	GrantID      string            `json:"grant_id,omitempty"`
 	Version      int               `json:"version"`
 	ID           string            `json:"id"`
@@ -103,6 +104,18 @@ type Checkpoint struct {
 }
 
 func ValidCheckpoint(c Checkpoint) error {
+	if c.Version == 3 {
+		if c.GrantID != "" {
+			return fmt.Errorf("artifact checkpoints require CLI provenance")
+		}
+		if err := ValidArtifactRefs(c.Artifacts); err != nil {
+			return err
+		}
+		return ValidRecord(1, c.ID, c.Target, c.Actor, c.At)
+	}
+	if c.Artifacts != nil {
+		return fmt.Errorf("legacy checkpoint cannot carry artifact references")
+	}
 	if c.Version == 1 {
 		if c.GrantID != "" {
 			return fmt.Errorf("legacy checkpoint cannot declare grant")

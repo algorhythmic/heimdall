@@ -24,6 +24,7 @@ type ResourceCheck struct {
 	Detail   string          `json:"detail,omitempty"`
 }
 type Bundle struct {
+	Artifacts       []ArtifactCheck    `json:"artifacts,omitempty"`
 	Version         int                `json:"version"`
 	SourceEvent     int64              `json:"source_event"`
 	Target          string             `json:"target"`
@@ -56,6 +57,9 @@ func (s Service) Context(ctx context.Context, target string, budget int) (Bundle
 	return buildContext(ctx, st, target, budget)
 }
 func buildContext(ctx context.Context, st model.State, target string, budget int) (Bundle, error) {
+	return buildContextArtifacts(ctx, st, target, budget, true)
+}
+func buildContextArtifacts(ctx context.Context, st model.State, target string, budget int, observeArtifacts bool) (Bundle, error) {
 	out := Bundle{Version: 1, SourceEvent: st.LastEventID, Target: target, Ancestors: []model.TaskRecord{}, Contracts: []model.Contract{}, Decisions: []model.Decision{}, Resources: []ResourceCheck{}, Issues: []Issue{}, ResumeStatus: "ready", Coverage: map[string]string{"resources": "two-pass file/tree observation; exclusions apply; no filesystem lock", "git": "commit/ref identity not captured", "browser_actions": "not task-bound; outcomes not evaluated", "retrieval": "not integrated", "execution": "no runner or execution authorization implied", "budget": "ceil(serialized UTF-8 bytes/4), an estimate, not a tokenizer"}}
 	if budget < 0 {
 		return out, fmt.Errorf("budget must be nonnegative")
@@ -165,6 +169,24 @@ func buildContext(ctx context.Context, st model.State, target string, budget int
 	sort.Strings(removed)
 	for _, id := range removed {
 		issue("resource_removed", id, "A checkpoint resource is no longer bound in the current lineage")
+	}
+	if out.Checkpoint != nil && len(out.Checkpoint.Artifacts) > 0 {
+		out.Coverage["git"] = "optional per-artifact raw input/index/HEAD identity; no whole-repository status or retained bytes"
+		if !observeArtifacts {
+			issue("artifact_checks_require_cli", target, "Artifact references are retained; live artifact/Git checks require the CLI")
+		} else {
+			for _, ref := range out.Checkpoint.Artifacts {
+				v, err := artifactSelection(st, target, ref.ArtifactID, ref.VersionID)
+				if err != nil {
+					return out, err
+				}
+				check := checkArtifact(ctx, st, v, time.Now())
+				out.Artifacts = append(out.Artifacts, check)
+				if check.Status != "matched" {
+					issue("artifact_"+check.Status, target, "Artifact "+check.Artifact.Name+": "+check.Status)
+				}
+			}
+		}
 	}
 	// Fixed-point estimate includes the estimate field itself. Required context is never packed away.
 	for i := 0; i < 8; i++ {

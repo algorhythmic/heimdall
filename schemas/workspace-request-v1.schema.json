@@ -1,0 +1,312 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Heimdall workspace command v1",
+  "description": "CLI-only declarations; no observation, launch recipe, or delegated authority. Runtime also enforces byte/control limits, platform-specific absolute path syntax, repository/worktree pairing, unique keys/surface IDs, immutable task ownership, revision/head preconditions and current pane exclusivity.",
+  "type": "object",
+  "additionalProperties": false,
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "$ref": "#/$defs/id"
+    },
+    "op": {
+      "enum": [
+        "workspace.accept",
+        "session.bind",
+        "session.unbind"
+      ]
+    },
+    "target": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,22}[a-z0-9]$"
+    },
+    "expected_task_revision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "manifest": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/manifest"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "session": {
+      "oneOf": [
+        {
+          "$ref": "#/$defs/session"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  },
+  "required": [
+    "version",
+    "id",
+    "op",
+    "target",
+    "expected_task_revision"
+  ],
+  "oneOf": [
+    {
+      "properties": {
+        "op": {
+          "const": "workspace.accept"
+        },
+        "manifest": {
+          "$ref": "#/$defs/manifest"
+        },
+        "session": {
+          "type": "null"
+        }
+      },
+      "required": [
+        "manifest"
+      ]
+    },
+    {
+      "properties": {
+        "op": {
+          "const": "session.bind"
+        },
+        "manifest": {
+          "type": "null"
+        },
+        "session": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/session"
+            },
+            {
+              "required": [
+                "locator"
+              ],
+              "properties": {
+                "locator": {
+                  "$ref": "#/$defs/locator"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "session"
+      ]
+    },
+    {
+      "properties": {
+        "op": {
+          "const": "session.unbind"
+        },
+        "manifest": {
+          "type": "null"
+        },
+        "session": {
+          "allOf": [
+            {
+              "$ref": "#/$defs/session"
+            },
+            {
+              "properties": {
+                "locator": {
+                  "type": "null"
+                }
+              }
+            }
+          ]
+        }
+      },
+      "required": [
+        "session"
+      ]
+    }
+  ],
+  "$defs": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    },
+    "head": {
+      "oneOf": [
+        {
+          "const": "none"
+        },
+        {
+          "$ref": "#/$defs/id"
+        }
+      ]
+    },
+    "surface": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "$ref": "#/$defs/id"
+        },
+        "kind": {
+          "enum": [
+            "terminal",
+            "editor",
+            "browser",
+            "native"
+          ]
+        },
+        "label": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "restore_policy": {
+          "const": "manual"
+        }
+      },
+      "required": [
+        "id",
+        "kind",
+        "label",
+        "restore_policy"
+      ]
+    },
+    "locator": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "environment": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "host": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "source_epoch": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "session_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "workspace_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "pane_id": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "adapter": {
+          "const": "generic"
+        },
+        "platform": {
+          "enum": [
+            "linux",
+            "darwin",
+            "windows"
+          ]
+        },
+        "cwd": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 4096
+        },
+        "repository": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "worktree": {
+          "type": "string",
+          "maxLength": 4096
+        },
+        "agent_session_id": {
+          "type": "string",
+          "maxLength": 256
+        }
+      },
+      "required": [
+        "adapter",
+        "environment",
+        "host",
+        "source_epoch",
+        "session_id",
+        "workspace_id",
+        "pane_id",
+        "platform",
+        "cwd"
+      ]
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "previous": {
+          "$ref": "#/$defs/head"
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 256
+        },
+        "surfaces": {
+          "type": "array",
+          "maxItems": 32,
+          "items": {
+            "$ref": "#/$defs/surface"
+          }
+        }
+      },
+      "required": [
+        "previous",
+        "name",
+        "surfaces"
+      ]
+    },
+    "session": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "previous": {
+          "$ref": "#/$defs/head"
+        },
+        "manifest_id": {
+          "$ref": "#/$defs/id"
+        },
+        "surface_id": {
+          "$ref": "#/$defs/id"
+        },
+        "locator": {
+          "oneOf": [
+            {
+              "$ref": "#/$defs/locator"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "previous",
+        "manifest_id",
+        "surface_id"
+      ]
+    }
+  }
+}

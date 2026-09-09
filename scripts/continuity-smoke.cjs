@@ -6,11 +6,8 @@ const {randomBytes} = require('node:crypto');
 const assert = require('node:assert/strict');
 const id = () => randomBytes(16).toString('hex');
 (async () => {
-  const root = resolve(__dirname, '..');
-  fs.mkdirSync(join(root, '.tools'), {recursive: true});
-  const exe = join(root, 'bin', 'heimdall.exe');
+  const {root, exe, dir} = require('./smoke-paths.cjs').smokePaths('continuity');
   const legacy = process.argv[2] && resolve(process.argv[2]);
-  const dir = fs.mkdtempSync(join(root, '.tools', 'continuity-test-'));
   let data = join(dir, 'data');
   let daemon;
   let previousContract = 'none', previousCheckpoint = 'none';
@@ -29,10 +26,7 @@ const id = () => randomBytes(16).toString('hex');
       daemon.once('exit', code => { clearTimeout(timer); rej(Error('daemon exit ' + code + ': ' + stderr)); });
     });
   }
-  async function stop() {
-    if (!daemon || daemon.exitCode !== null) return;
-    await new Promise(res => { daemon.once('exit', res); daemon.kill(); });
-  }
+  const stop = () => require('./smoke-paths.cjs').stopProcess(daemon);
   try {
     cli(['init'], legacy || exe);
     await start(legacy || exe);
@@ -61,7 +55,7 @@ const id = () => randomBytes(16).toString('hex');
       if (oldContract.version === 1) assert(upgradedContext.issues.some(i=>i.code==='contract_scope_changed'));
       else assert.equal(upgradedContext.resume_status,'ready');
     }
-    if (legacy) assert.equal(fs.readdirSync(join(data, 'backups')).filter(n => n.startsWith('pre-schema-6-')).length, 1);
+    if (legacy) assert.equal(fs.readdirSync(join(data, 'backups')).filter(n => n.startsWith('pre-schema-9-')).length, 1);
     const rev = String(originalTask.revision);
     const mutate = (verb, action, file, request = id()) => cli([verb, action, 'fixture', '--expected-task-revision', rev, '--file', file, '--request-id', request]);
 
@@ -110,7 +104,7 @@ const id = () => randomBytes(16).toString('hex');
     await stop();
     if (legacy) {
       const refused = spawnSync(legacy, ['init', '--data-dir', data], {encoding: 'utf8', windowsHide: true});
-      assert.notEqual(refused.status, 0); assert.match(refused.stderr, /unsupported database schema version 6/);
+      assert.notEqual(refused.status, 0); assert.match(refused.stderr, /unsupported database schema version 9/);
     }
     const source = data;
     data = join(dir, 'restored'); fs.mkdirSync(data);
@@ -120,7 +114,7 @@ const id = () => randomBytes(16).toString('hex');
     cli(['replay']); assert.deepEqual(cli(['state']), saved); await stop();
     if (legacy) {
       data = join(dir, 'legacy-restored'); fs.mkdirSync(data);
-      const pre = fs.readdirSync(join(source, 'backups')).find(n => n.startsWith('pre-schema-6-'));
+      const pre = fs.readdirSync(join(source, 'backups')).find(n => n.startsWith('pre-schema-9-'));
       fs.copyFileSync(join(source, 'backups', pre), join(data, 'heimdall.db'));
       fs.copyFileSync(join(source, 'types.yaml'), join(data, 'types.yaml'));
       await start(legacy); assert.deepEqual(cli(['state', 'fixture'], legacy), originalTask);

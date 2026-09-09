@@ -33,12 +33,13 @@ type ResourceInput struct {
 	Exclude []string `json:"exclude,omitempty"`
 }
 type CheckpointInput struct {
-	Previous    string   `json:"previous"`
-	ContractID  string   `json:"contract_id"`
-	Summary     string   `json:"summary"`
-	CurrentStep string   `json:"current_step,omitempty"`
-	NextAction  string   `json:"next_action"`
-	Blockers    []string `json:"blockers"`
+	Artifacts   []model.ArtifactRef `json:"artifacts,omitempty"`
+	Previous    string              `json:"previous"`
+	ContractID  string              `json:"contract_id"`
+	Summary     string              `json:"summary"`
+	CurrentStep string              `json:"current_step,omitempty"`
+	NextAction  string              `json:"next_action"`
+	Blockers    []string            `json:"blockers"`
 }
 type Request struct {
 	Version              int              `json:"version"`
@@ -60,6 +61,15 @@ func Decode(body []byte) (Request, error) {
 	}
 	if err := model.StrictJSON(body, &r); err != nil {
 		return r, err
+	}
+	if r.Version == 1 {
+		var envelope map[string]json.RawMessage
+		_ = json.Unmarshal(body, &envelope)
+		var checkpoint map[string]json.RawMessage
+		_ = json.Unmarshal(envelope["checkpoint"], &checkpoint)
+		if _, ok := checkpoint["artifacts"]; ok {
+			return r, fmt.Errorf("artifact references require request version 2")
+		}
 	}
 	return r, r.Validate()
 }
@@ -85,8 +95,18 @@ func linesValid(lines []string) bool {
 	return true
 }
 func (r Request) Validate() error {
-	if r.Version != 1 || !model.OpaqueID.MatchString(r.ID) || r.ExpectedTaskRevision == nil || *r.ExpectedTaskRevision < 1 {
+	if (r.Version != 1 && r.Version != 2) || !model.OpaqueID.MatchString(r.ID) || r.ExpectedTaskRevision == nil || *r.ExpectedTaskRevision < 1 {
 		return fmt.Errorf("version, request ID and expected task revision required")
+	}
+	if r.Version == 2 {
+		if r.Op != "checkpoint.record" || r.Checkpoint == nil {
+			return fmt.Errorf("request v2 is only for artifact checkpoints")
+		}
+		if err := model.ValidArtifactRefs(r.Checkpoint.Artifacts); err != nil {
+			return err
+		}
+	} else if r.Checkpoint != nil && r.Checkpoint.Artifacts != nil {
+		return fmt.Errorf("artifact references require request version 2")
 	}
 	n := 0
 	for _, yes := range []bool{r.Contract != nil, r.Decision != nil, r.Resource != nil, r.Checkpoint != nil, r.ResourceID != ""} {
@@ -161,7 +181,7 @@ func (s Service) ExecuteClient(ctx context.Context, r Request, token string, clo
 		if err != nil {
 			return err
 		}
-		if current.ID != g.ID || r.Op != "checkpoint.record" || r.Checkpoint == nil || !current.PermitsCheckpoint(st, r.Target, r.Checkpoint.ContractID) {
+		if current.ID != g.ID || r.Version != 1 || r.Op != "checkpoint.record" || r.Checkpoint == nil || r.Checkpoint.Artifacts != nil || !current.PermitsCheckpoint(st, r.Target, r.Checkpoint.ContractID) {
 			return authz.ErrDenied
 		}
 		if saved, ok := st.Checkpoints[r.ID]; ok {
@@ -315,6 +335,10 @@ func (s Service) execute(ctx context.Context, r Request, actor string, now time.
 				v.Version = 2
 				v.GrantID = grantID
 			}
+			if r.Version == 2 {
+				v.Version = 3
+				v.Artifacts = append([]model.ArtifactRef{}, c.Artifacts...)
+			}
 			bound := resources(st, targets)
 			if contract.Version != 2 || !slices.Equal(contract.ResourceIDs, resourceIDs(st, targets)) {
 				return change, fmt.Errorf("resource scope changed or unreviewed; reaccept contract: %w", store.ErrConflict)
@@ -328,6 +352,9 @@ func (s Service) execute(ctx context.Context, r Request, actor string, now time.
 					return change, fmt.Errorf("resource %s: %w", resource.ID, err)
 				}
 				v.Resources = append(v.Resources, model.ResourceVersion{ID: resource.ID, Snapshot: snapshot})
+			}
+			if err = validateLiveArtifactRefs(ctx, st, r.Target, v.Artifacts, contract.ResourceIDs); err != nil {
+				return change, err
 			}
 			return emit("checkpoint", "recorded", v.ID, v)
 		}

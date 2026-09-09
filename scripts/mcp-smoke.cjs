@@ -3,12 +3,12 @@ const {spawn,execFileSync,spawnSync}=require('node:child_process');
 const fs=require('node:fs'),{join,resolve}=require('node:path'),{randomBytes}=require('node:crypto'),assert=require('node:assert/strict');
 const id=()=>randomBytes(16).toString('hex');
 (async()=>{
- const root=resolve(__dirname,'..'),exe=join(root,'bin','heimdall.exe');fs.mkdirSync(join(root,'.tools'),{recursive:true});
- const dir=fs.mkdtempSync(join(root,'.tools','mcp-test-')),data=join(dir,'data');let daemon;const adapters=[];
+ const {root,exe,dir}=require('./smoke-paths.cjs').smokePaths('mcp');
+ const data=join(dir,'data');let daemon;const adapters=[];
  const cli=(...args)=>JSON.parse(execFileSync(exe,[...args,'--data-dir',data],{encoding:'utf8',windowsHide:true}));
  const input=(name,body)=>{const path=join(dir,name+'.json');fs.writeFileSync(path,JSON.stringify(body));return path;};
  async function start(){daemon=spawn(exe,['start','--data-dir',data],{windowsHide:true,stdio:['ignore','pipe','pipe']});await new Promise((res,rej)=>{const t=setTimeout(()=>rej(Error('daemon startup timeout')),10000);daemon.stdout.once('data',()=>{clearTimeout(t);res()});daemon.once('error',e=>{clearTimeout(t);rej(e)});daemon.once('exit',c=>{clearTimeout(t);rej(Error('daemon exit '+c))});});}
- async function stop(p){if(!p||p.exitCode!==null)return;await new Promise(res=>{p.once('exit',res);p.kill();});}
+ const stop=require('./smoke-paths.cjs').stopProcess;
  function adapter(credential){
   const p=spawn(exe,['mcp','--credential',credential],{windowsHide:true,stdio:['pipe','pipe','pipe']});adapters.push(p);
   let sequence=0,buffer='',stderr='';const pending=new Map();p.stderr.on('data',b=>stderr+=b);

@@ -130,6 +130,14 @@ type Timer struct {
 	Outcome string    `json:"outcome,omitempty"`
 }
 type State struct {
+	Artifacts             map[string]Artifact             `json:"artifacts"`
+	ArtifactVersions      map[string]ArtifactVersion      `json:"artifact_versions"`
+	ArtifactHeads         map[string]string               `json:"artifact_heads"`
+	WorkspaceManifests    map[string]WorkspaceManifest    `json:"workspace_manifests"`
+	WorkspaceHeads        map[string]string               `json:"workspace_heads"`
+	WorkspaceSurfaces     map[string]SurfaceIdentity      `json:"workspace_surfaces"`
+	SessionBindings       map[string]SessionBinding       `json:"session_bindings"`
+	SessionHeads          map[string]string               `json:"session_heads"`
 	Evaluators            map[string]Evaluator            `json:"evaluators"`
 	EvaluatorHeads        map[string]string               `json:"evaluator_heads"`
 	Evidence              map[string]Evidence             `json:"evidence"`

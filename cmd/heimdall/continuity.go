@@ -59,6 +59,9 @@ func continuityCLI(ctx context.Context, o options, verb string, args []string, o
 	}
 	action, target := args[0], args[1]
 	rest := args[2:]
+	if verb == "checkpoint" && (action == "draft" || action == "submit") {
+		return checkpointDraftCLI(ctx, o, action, target, rest, out)
+	}
 	if action == "list" || action == "show" {
 		selectedID := ""
 		if verb == "checkpoint" && action == "show" {
@@ -184,6 +187,9 @@ func continuityCLI(ctx context.Context, o options, verb string, args []string, o
 			req.Op = "checkpoint.record"
 			req.Checkpoint = &continuity.CheckpointInput{}
 			err = model.StrictJSON(body, req.Checkpoint)
+			if req.Checkpoint.Artifacts != nil {
+				req.Version = 2
+			}
 		default:
 			return fmt.Errorf("unsupported %s action", verb)
 		}

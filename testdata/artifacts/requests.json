@@ -1,0 +1,55 @@
+{
+  "artifact": [
+    {
+      "version": 1,
+      "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "target": "alpha",
+      "expected_task_revision": 1,
+      "artifact": {
+        "artifact_id": "new",
+        "previous": "none",
+        "name": "Planning notes",
+        "environment": "local-test",
+        "resource_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "notes.md",
+        "git": false
+      }
+    },
+    {
+      "version": 1,
+      "id": "cccccccccccccccccccccccccccccccc",
+      "target": "alpha",
+      "expected_task_revision": 1,
+      "artifact": {
+        "artifact_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "previous": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "environment": "local-test",
+        "resource_id": "bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbb",
+        "path": "moved.md",
+        "git": false
+      }
+    }
+  ],
+  "checkpoint": [
+    {
+      "version": 2,
+      "id": "dddddddddddddddddddddddddddddddd",
+      "op": "checkpoint.record",
+      "target": "alpha",
+      "expected_task_revision": 1,
+      "checkpoint": {
+        "previous": "none",
+        "contract_id": "eeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
+        "summary": "Reviewed planning notes",
+        "next_action": "Review the design decision",
+        "blockers": [],
+        "artifacts": [
+          {
+            "artifact_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "version_id": "cccccccccccccccccccccccccccccccc"
+          }
+        ]
+      }
+    }
+  ]
+}

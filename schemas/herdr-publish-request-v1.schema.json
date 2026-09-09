@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Heimdall Herdr publish request v1",
+  "description": "CLI-only. Runtime validates exact task/surface/head ownership and the local Herdr 0.8.2 protocol-20 identity. Callers cannot supply verified observations or actor provenance.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "version",
+    "id",
+    "target",
+    "surface_id",
+    "binding_id"
+  ],
+  "properties": {
+    "version": {
+      "const": 1
+    },
+    "id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    },
+    "target": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9-]{1,22}[a-z0-9]$"
+    },
+    "surface_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    },
+    "binding_id": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{32}$"
+    },
+    "workspace_summary": {
+      "type": "boolean"
+    }
+  }
+}

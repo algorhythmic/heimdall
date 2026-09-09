@@ -14,7 +14,7 @@ jobs:
           cache: true
       - run: go test ./...
       - run: go vet ./...
-      - run: go build ./cmd/heimdall
+      - run: go build -trimpath -o bin/ ./cmd/heimdall
       - uses: actions/setup-node@v4
         with:
           node-version: '24'
@@ -24,16 +24,15 @@ jobs:
         working-directory: web
       - run: git diff --exit-code -- internal/webui/assets/app.js
       - run: node --test extension/test/*.test.js
-      - if: runner.os == 'Windows'
-        run: go build -trimpath -o bin/heimdall.exe ./cmd/heimdall
-      - if: runner.os == 'Windows'
-        run: node scripts/continuity-smoke.cjs
-      - if: runner.os == 'Windows'
-        run: node scripts/mcp-smoke.cjs
-      - if: runner.os == 'Windows'
-        run: node scripts/evidence-smoke.cjs
-      - if: runner.os == 'Windows'
-        run: npx playwright install chromium
+      - run: node scripts/core-smoke.cjs
+      - run: node scripts/native-smoke.cjs
+      - run: node scripts/continuity-smoke.cjs
+      - run: node scripts/resume-smoke.cjs
+      - run: node scripts/workspace-smoke.cjs
+      - run: node scripts/artifact-smoke.cjs
+        if: runner.os == 'Linux'
+      - run: node scripts/mcp-smoke.cjs
+      - run: node scripts/evidence-smoke.cjs
+      - run: npx playwright install chromium
         working-directory: web
-      - if: runner.os == 'Windows'
-        run: node scripts/gui-smoke.cjs
+      - run: node scripts/gui-smoke.cjs

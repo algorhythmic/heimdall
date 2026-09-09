@@ -1,0 +1,840 @@
+[
+  {
+    "id": 1,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.130148721Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "0f4fa6d214c572bd1488fe9d712cd5dd",
+    "command_id": "0f4fa6d214c572bd1488fe9d712cd5dd",
+    "payload": {
+      "request_hash": "3e6ead87a5ce5517cb8be55ab7bd191814380d5762b1d52e44a2b7db094d12f2",
+      "revision": 1,
+      "result": {
+        "id": "0f4fa6d214c572bd1488fe9d712cd5dd",
+        "revision": 1,
+        "data": {
+          "task_id": "alpha"
+        }
+      }
+    }
+  },
+  {
+    "id": 2,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.130148721Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "alpha",
+    "command_id": "0f4fa6d214c572bd1488fe9d712cd5dd",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "alpha",
+          "title": "Planning alpha",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T04:06:57.130148721Z",
+        "updated_at": "2026-09-09T04:06:57.130148721Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 3,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.139206146Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-cded609b6144cb5f7f50156c46278764",
+    "command_id": "continuity-cded609b6144cb5f7f50156c46278764",
+    "payload": {
+      "request_hash": "a6914102dcfc55367096ffd1604ca62d9b13fe41602841d9d88f6a551bea2715",
+      "revision": 1,
+      "result": {
+        "version": 1,
+        "id": "cded609b6144cb5f7f50156c46278764",
+        "target": "alpha",
+        "kind": "tree",
+        "root": "/synthetic/heimdall-artifacts/work",
+        "path": ".",
+        "exclude": [
+          ".git"
+        ],
+        "active": true,
+        "initial": {
+          "digest": "0bf3a9fb33362e76c5fdb52685b00c5c65cda856209eb80f5c110bdc0f273236",
+          "files": 1,
+          "bytes": 30
+        },
+        "actor": "cli",
+        "at": "2026-09-09T04:06:57.139206146Z"
+      }
+    }
+  },
+  {
+    "id": 4,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.139206146Z",
+    "subject": "resource",
+    "verb": "bound",
+    "actor": "cli",
+    "entity_id": "cded609b6144cb5f7f50156c46278764",
+    "command_id": "continuity-cded609b6144cb5f7f50156c46278764",
+    "payload": {
+      "version": 1,
+      "id": "cded609b6144cb5f7f50156c46278764",
+      "target": "alpha",
+      "kind": "tree",
+      "root": "/synthetic/heimdall-artifacts/work",
+      "path": ".",
+      "exclude": [
+        ".git"
+      ],
+      "active": true,
+      "initial": {
+        "digest": "0bf3a9fb33362e76c5fdb52685b00c5c65cda856209eb80f5c110bdc0f273236",
+        "files": 1,
+        "bytes": 30
+      },
+      "actor": "cli",
+      "at": "2026-09-09T04:06:57.139206146Z"
+    }
+  },
+  {
+    "id": 5,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.146053928Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-37946bab59111bdc982273798adde107",
+    "command_id": "continuity-37946bab59111bdc982273798adde107",
+    "payload": {
+      "request_hash": "5b8824f8f9570700c31f079c3cdd0695e5fc77c00b97aba4aba32030c627d00f",
+      "revision": 1,
+      "result": {
+        "version": 2,
+        "id": "37946bab59111bdc982273798adde107",
+        "target": "alpha",
+        "task_revision": 1,
+        "previous": "",
+        "objective": "Continue alpha",
+        "constraints": [],
+        "acceptance": {
+          "text": ""
+        },
+        "resource_ids": [
+          "cded609b6144cb5f7f50156c46278764"
+        ],
+        "actor": "cli",
+        "at": "2026-09-09T04:06:57.146053928Z"
+      }
+    }
+  },
+  {
+    "id": 6,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.146053928Z",
+    "subject": "contract",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "37946bab59111bdc982273798adde107",
+    "command_id": "continuity-37946bab59111bdc982273798adde107",
+    "payload": {
+      "version": 2,
+      "id": "37946bab59111bdc982273798adde107",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "objective": "Continue alpha",
+      "constraints": [],
+      "acceptance": {
+        "text": ""
+      },
+      "resource_ids": [
+        "cded609b6144cb5f7f50156c46278764"
+      ],
+      "actor": "cli",
+      "at": "2026-09-09T04:06:57.146053928Z"
+    }
+  },
+  {
+    "id": 7,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.15303874Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "c9e7b63cb6e64ce23a49f7267a936c5b",
+    "command_id": "c9e7b63cb6e64ce23a49f7267a936c5b",
+    "payload": {
+      "request_hash": "cb642d687cfbe910f4b9f3b2f91c8fa839c9a17dd48a75538deb7b4eff684d54",
+      "revision": 2,
+      "result": {
+        "id": "c9e7b63cb6e64ce23a49f7267a936c5b",
+        "revision": 2,
+        "data": {
+          "task_id": "beta"
+        }
+      }
+    }
+  },
+  {
+    "id": 8,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.15303874Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "beta",
+    "command_id": "c9e7b63cb6e64ce23a49f7267a936c5b",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "beta",
+          "title": "Planning beta",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T04:06:57.15303874Z",
+        "updated_at": "2026-09-09T04:06:57.15303874Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 9,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.161417123Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-3ae15ed508b57bcd75a9378d287a59cf",
+    "command_id": "continuity-3ae15ed508b57bcd75a9378d287a59cf",
+    "payload": {
+      "request_hash": "47f023e8e89abe6580acc6fa8b2195f36d61008274d267dd9cb3f8ee35397d2f",
+      "revision": 2,
+      "result": {
+        "version": 1,
+        "id": "3ae15ed508b57bcd75a9378d287a59cf",
+        "target": "beta",
+        "kind": "tree",
+        "root": "/synthetic/heimdall-artifacts/work",
+        "path": ".",
+        "exclude": [
+          ".git"
+        ],
+        "active": true,
+        "initial": {
+          "digest": "0bf3a9fb33362e76c5fdb52685b00c5c65cda856209eb80f5c110bdc0f273236",
+          "files": 1,
+          "bytes": 30
+        },
+        "actor": "cli",
+        "at": "2026-09-09T04:06:57.161417123Z"
+      }
+    }
+  },
+  {
+    "id": 10,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.161417123Z",
+    "subject": "resource",
+    "verb": "bound",
+    "actor": "cli",
+    "entity_id": "3ae15ed508b57bcd75a9378d287a59cf",
+    "command_id": "continuity-3ae15ed508b57bcd75a9378d287a59cf",
+    "payload": {
+      "version": 1,
+      "id": "3ae15ed508b57bcd75a9378d287a59cf",
+      "target": "beta",
+      "kind": "tree",
+      "root": "/synthetic/heimdall-artifacts/work",
+      "path": ".",
+      "exclude": [
+        ".git"
+      ],
+      "active": true,
+      "initial": {
+        "digest": "0bf3a9fb33362e76c5fdb52685b00c5c65cda856209eb80f5c110bdc0f273236",
+        "files": 1,
+        "bytes": 30
+      },
+      "actor": "cli",
+      "at": "2026-09-09T04:06:57.161417123Z"
+    }
+  },
+  {
+    "id": 11,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.168164479Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-fc1b8a55df7c8d7c2e5e18ab97780680",
+    "command_id": "continuity-fc1b8a55df7c8d7c2e5e18ab97780680",
+    "payload": {
+      "request_hash": "d3e3d97e6e8a1f345abc15a9614dfa48fd288f91bbf91cbd33b24aec128b5189",
+      "revision": 2,
+      "result": {
+        "version": 2,
+        "id": "fc1b8a55df7c8d7c2e5e18ab97780680",
+        "target": "beta",
+        "task_revision": 1,
+        "previous": "",
+        "objective": "Continue beta",
+        "constraints": [],
+        "acceptance": {
+          "text": ""
+        },
+        "resource_ids": [
+          "3ae15ed508b57bcd75a9378d287a59cf"
+        ],
+        "actor": "cli",
+        "at": "2026-09-09T04:06:57.168164479Z"
+      }
+    }
+  },
+  {
+    "id": 12,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.168164479Z",
+    "subject": "contract",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "fc1b8a55df7c8d7c2e5e18ab97780680",
+    "command_id": "continuity-fc1b8a55df7c8d7c2e5e18ab97780680",
+    "payload": {
+      "version": 2,
+      "id": "fc1b8a55df7c8d7c2e5e18ab97780680",
+      "target": "beta",
+      "task_revision": 1,
+      "previous": "",
+      "objective": "Continue beta",
+      "constraints": [],
+      "acceptance": {
+        "text": ""
+      },
+      "resource_ids": [
+        "3ae15ed508b57bcd75a9378d287a59cf"
+      ],
+      "actor": "cli",
+      "at": "2026-09-09T04:06:57.168164479Z"
+    }
+  },
+  {
+    "id": 13,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.17530233Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "artifact-605bcf0d5c26beade060e26dd5215366",
+    "command_id": "artifact-605bcf0d5c26beade060e26dd5215366",
+    "payload": {
+      "request_hash": "0b4ca41ef0cecedadf67036a51e59206c816184bd90905399a581c51404617f0",
+      "revision": 2,
+      "result": {
+        "artifact": {
+          "version": 1,
+          "id": "605bcf0d5c26beade060e26dd5215366",
+          "target": "alpha",
+          "name": "Planning notes",
+          "environment": "local-test",
+          "host": "0000000000000000000000000000000000000000000000000000000000000000",
+          "platform": "linux",
+          "actor": "cli",
+          "at": "2026-09-09T04:06:57.17530233Z"
+        },
+        "head": "605bcf0d5c26beade060e26dd5215366",
+        "record": {
+          "version": 1,
+          "id": "605bcf0d5c26beade060e26dd5215366",
+          "artifact_id": "605bcf0d5c26beade060e26dd5215366",
+          "target": "alpha",
+          "task_revision": 1,
+          "previous": "",
+          "resource_id": "cded609b6144cb5f7f50156c46278764",
+          "path": "notes.md",
+          "observation": {
+            "digest": "7e798f0a2cbf03b379934e32dc6222ac738fe14896eb6ba7468bce6a72caa7f9",
+            "bytes": 30,
+            "mode": 384
+          },
+          "actor": "cli",
+          "at": "2026-09-09T04:06:57.17530233Z"
+        }
+      }
+    }
+  },
+  {
+    "id": 14,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.17530233Z",
+    "subject": "artifact",
+    "verb": "registered",
+    "actor": "cli",
+    "entity_id": "605bcf0d5c26beade060e26dd5215366",
+    "command_id": "artifact-605bcf0d5c26beade060e26dd5215366",
+    "payload": {
+      "version": 1,
+      "id": "605bcf0d5c26beade060e26dd5215366",
+      "target": "alpha",
+      "name": "Planning notes",
+      "environment": "local-test",
+      "host": "0000000000000000000000000000000000000000000000000000000000000000",
+      "platform": "linux",
+      "actor": "cli",
+      "at": "2026-09-09T04:06:57.17530233Z"
+    }
+  },
+  {
+    "id": 15,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.17530233Z",
+    "subject": "artifact",
+    "verb": "versioned",
+    "actor": "cli",
+    "entity_id": "605bcf0d5c26beade060e26dd5215366",
+    "command_id": "artifact-605bcf0d5c26beade060e26dd5215366",
+    "payload": {
+      "version": 1,
+      "id": "605bcf0d5c26beade060e26dd5215366",
+      "artifact_id": "605bcf0d5c26beade060e26dd5215366",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "resource_id": "cded609b6144cb5f7f50156c46278764",
+      "path": "notes.md",
+      "observation": {
+        "digest": "7e798f0a2cbf03b379934e32dc6222ac738fe14896eb6ba7468bce6a72caa7f9",
+        "bytes": 30,
+        "mode": 384
+      },
+      "actor": "cli",
+      "at": "2026-09-09T04:06:57.17530233Z"
+    }
+  },
+  {
+    "id": 16,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.198737504Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "artifact-f451a24a3847a63505bdf8d0916f8e5c",
+    "command_id": "artifact-f451a24a3847a63505bdf8d0916f8e5c",
+    "payload": {
+      "request_hash": "f7cdda000b906945e6cf4e1369bd402746f56419e9bb348454431031f8f6c580",
+      "revision": 2,
+      "result": {
+        "artifact": {
+          "version": 1,
+          "id": "f451a24a3847a63505bdf8d0916f8e5c",
+          "target": "beta",
+          "name": "Planning notes",
+          "environment": "local-test",
+          "host": "0000000000000000000000000000000000000000000000000000000000000000",
+          "platform": "linux",
+          "actor": "cli",
+          "at": "2026-09-09T04:06:57.198737504Z"
+        },
+        "head": "f451a24a3847a63505bdf8d0916f8e5c",
+        "record": {
+          "version": 1,
+          "id": "f451a24a3847a63505bdf8d0916f8e5c",
+          "artifact_id": "f451a24a3847a63505bdf8d0916f8e5c",
+          "target": "beta",
+          "task_revision": 1,
+          "previous": "",
+          "resource_id": "3ae15ed508b57bcd75a9378d287a59cf",
+          "path": "notes.md",
+          "observation": {
+            "digest": "7e798f0a2cbf03b379934e32dc6222ac738fe14896eb6ba7468bce6a72caa7f9",
+            "bytes": 30,
+            "mode": 384
+          },
+          "actor": "cli",
+          "at": "2026-09-09T04:06:57.198737504Z"
+        }
+      }
+    }
+  },
+  {
+    "id": 17,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.198737504Z",
+    "subject": "artifact",
+    "verb": "registered",
+    "actor": "cli",
+    "entity_id": "f451a24a3847a63505bdf8d0916f8e5c",
+    "command_id": "artifact-f451a24a3847a63505bdf8d0916f8e5c",
+    "payload": {
+      "version": 1,
+      "id": "f451a24a3847a63505bdf8d0916f8e5c",
+      "target": "beta",
+      "name": "Planning notes",
+      "environment": "local-test",
+      "host": "0000000000000000000000000000000000000000000000000000000000000000",
+      "platform": "linux",
+      "actor": "cli",
+      "at": "2026-09-09T04:06:57.198737504Z"
+    }
+  },
+  {
+    "id": 18,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.198737504Z",
+    "subject": "artifact",
+    "verb": "versioned",
+    "actor": "cli",
+    "entity_id": "f451a24a3847a63505bdf8d0916f8e5c",
+    "command_id": "artifact-f451a24a3847a63505bdf8d0916f8e5c",
+    "payload": {
+      "version": 1,
+      "id": "f451a24a3847a63505bdf8d0916f8e5c",
+      "artifact_id": "f451a24a3847a63505bdf8d0916f8e5c",
+      "target": "beta",
+      "task_revision": 1,
+      "previous": "",
+      "resource_id": "3ae15ed508b57bcd75a9378d287a59cf",
+      "path": "notes.md",
+      "observation": {
+        "digest": "7e798f0a2cbf03b379934e32dc6222ac738fe14896eb6ba7468bce6a72caa7f9",
+        "bytes": 30,
+        "mode": 384
+      },
+      "actor": "cli",
+      "at": "2026-09-09T04:06:57.198737504Z"
+    }
+  },
+  {
+    "id": 19,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.268719857Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-cd5fcb4d61b2ba75dee87b17d49201b9",
+    "command_id": "continuity-cd5fcb4d61b2ba75dee87b17d49201b9",
+    "payload": {
+      "request_hash": "12a2727a17f079402a0d75303eb897ac59a897cf9e68fec7e093681b362fe674",
+      "revision": 2,
+      "result": {
+        "artifacts": [
+          {
+            "artifact_id": "605bcf0d5c26beade060e26dd5215366",
+            "version_id": "605bcf0d5c26beade060e26dd5215366"
+          }
+        ],
+        "version": 3,
+        "id": "cd5fcb4d61b2ba75dee87b17d49201b9",
+        "target": "alpha",
+        "task_revision": 1,
+        "contract_id": "37946bab59111bdc982273798adde107",
+        "previous": "",
+        "source_event": 18,
+        "summary": "Reviewed exact notes",
+        "next_action": "Review the design decision",
+        "blockers": [],
+        "resources": [
+          {
+            "id": "cded609b6144cb5f7f50156c46278764",
+            "snapshot": {
+              "digest": "0bf3a9fb33362e76c5fdb52685b00c5c65cda856209eb80f5c110bdc0f273236",
+              "files": 1,
+              "bytes": 30
+            }
+          }
+        ],
+        "context": [
+          {
+            "target": "alpha",
+            "task_revision": 1,
+            "contract_id": "37946bab59111bdc982273798adde107"
+          }
+        ],
+        "decisions": [],
+        "actor": "cli",
+        "at": "2026-09-09T04:06:57.268719857Z"
+      }
+    }
+  },
+  {
+    "id": 20,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.268719857Z",
+    "subject": "checkpoint",
+    "verb": "recorded",
+    "actor": "cli",
+    "entity_id": "cd5fcb4d61b2ba75dee87b17d49201b9",
+    "command_id": "continuity-cd5fcb4d61b2ba75dee87b17d49201b9",
+    "payload": {
+      "artifacts": [
+        {
+          "artifact_id": "605bcf0d5c26beade060e26dd5215366",
+          "version_id": "605bcf0d5c26beade060e26dd5215366"
+        }
+      ],
+      "version": 3,
+      "id": "cd5fcb4d61b2ba75dee87b17d49201b9",
+      "target": "alpha",
+      "task_revision": 1,
+      "contract_id": "37946bab59111bdc982273798adde107",
+      "previous": "",
+      "source_event": 18,
+      "summary": "Reviewed exact notes",
+      "next_action": "Review the design decision",
+      "blockers": [],
+      "resources": [
+        {
+          "id": "cded609b6144cb5f7f50156c46278764",
+          "snapshot": {
+            "digest": "0bf3a9fb33362e76c5fdb52685b00c5c65cda856209eb80f5c110bdc0f273236",
+            "files": 1,
+            "bytes": 30
+          }
+        }
+      ],
+      "context": [
+        {
+          "target": "alpha",
+          "task_revision": 1,
+          "contract_id": "37946bab59111bdc982273798adde107"
+        }
+      ],
+      "decisions": [],
+      "actor": "cli",
+      "at": "2026-09-09T04:06:57.268719857Z"
+    }
+  },
+  {
+    "id": 21,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.377979802Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "continuity-4d888442d89686ffea8e4a70d8a06f9d",
+    "command_id": "continuity-4d888442d89686ffea8e4a70d8a06f9d",
+    "payload": {
+      "request_hash": "26550d0abcd2bb670770f5a9a97787b7db96847667ccb7b7e683a64b2234a180",
+      "revision": 2,
+      "result": {
+        "artifacts": [
+          {
+            "artifact_id": "605bcf0d5c26beade060e26dd5215366",
+            "version_id": "605bcf0d5c26beade060e26dd5215366"
+          }
+        ],
+        "version": 3,
+        "id": "4d888442d89686ffea8e4a70d8a06f9d",
+        "target": "alpha",
+        "task_revision": 1,
+        "contract_id": "37946bab59111bdc982273798adde107",
+        "previous": "cd5fcb4d61b2ba75dee87b17d49201b9",
+        "source_event": 20,
+        "summary": "Pinned draft survives restart",
+        "next_action": "Continue reviewing notes",
+        "blockers": [],
+        "resources": [
+          {
+            "id": "cded609b6144cb5f7f50156c46278764",
+            "snapshot": {
+              "digest": "0bf3a9fb33362e76c5fdb52685b00c5c65cda856209eb80f5c110bdc0f273236",
+              "files": 1,
+              "bytes": 30
+            }
+          }
+        ],
+        "context": [
+          {
+            "target": "alpha",
+            "task_revision": 1,
+            "contract_id": "37946bab59111bdc982273798adde107"
+          }
+        ],
+        "decisions": [],
+        "actor": "cli",
+        "at": "2026-09-09T04:06:57.377979802Z"
+      }
+    }
+  },
+  {
+    "id": 22,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.377979802Z",
+    "subject": "checkpoint",
+    "verb": "recorded",
+    "actor": "cli",
+    "entity_id": "4d888442d89686ffea8e4a70d8a06f9d",
+    "command_id": "continuity-4d888442d89686ffea8e4a70d8a06f9d",
+    "payload": {
+      "artifacts": [
+        {
+          "artifact_id": "605bcf0d5c26beade060e26dd5215366",
+          "version_id": "605bcf0d5c26beade060e26dd5215366"
+        }
+      ],
+      "version": 3,
+      "id": "4d888442d89686ffea8e4a70d8a06f9d",
+      "target": "alpha",
+      "task_revision": 1,
+      "contract_id": "37946bab59111bdc982273798adde107",
+      "previous": "cd5fcb4d61b2ba75dee87b17d49201b9",
+      "source_event": 20,
+      "summary": "Pinned draft survives restart",
+      "next_action": "Continue reviewing notes",
+      "blockers": [],
+      "resources": [
+        {
+          "id": "cded609b6144cb5f7f50156c46278764",
+          "snapshot": {
+            "digest": "0bf3a9fb33362e76c5fdb52685b00c5c65cda856209eb80f5c110bdc0f273236",
+            "files": 1,
+            "bytes": 30
+          }
+        }
+      ],
+      "context": [
+        {
+          "target": "alpha",
+          "task_revision": 1,
+          "contract_id": "37946bab59111bdc982273798adde107"
+        }
+      ],
+      "decisions": [],
+      "actor": "cli",
+      "at": "2026-09-09T04:06:57.377979802Z"
+    }
+  },
+  {
+    "id": 23,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.401731541Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "artifact-634320e773522231f374dfe655baec6d",
+    "command_id": "artifact-634320e773522231f374dfe655baec6d",
+    "payload": {
+      "request_hash": "f9cf0ef4260232f9bd0c67bdc7f0c8af3b7f0a722e8edda96a4c77463c6fc231",
+      "revision": 2,
+      "result": {
+        "artifact": {
+          "version": 1,
+          "id": "605bcf0d5c26beade060e26dd5215366",
+          "target": "alpha",
+          "name": "Planning notes",
+          "environment": "local-test",
+          "host": "0000000000000000000000000000000000000000000000000000000000000000",
+          "platform": "linux",
+          "actor": "cli",
+          "at": "2026-09-09T04:06:57.17530233Z"
+        },
+        "head": "634320e773522231f374dfe655baec6d",
+        "record": {
+          "version": 1,
+          "id": "634320e773522231f374dfe655baec6d",
+          "artifact_id": "605bcf0d5c26beade060e26dd5215366",
+          "target": "alpha",
+          "task_revision": 1,
+          "previous": "605bcf0d5c26beade060e26dd5215366",
+          "resource_id": "cded609b6144cb5f7f50156c46278764",
+          "path": "moved.md",
+          "observation": {
+            "digest": "7e798f0a2cbf03b379934e32dc6222ac738fe14896eb6ba7468bce6a72caa7f9",
+            "bytes": 30,
+            "mode": 384
+          },
+          "actor": "cli",
+          "at": "2026-09-09T04:06:57.401731541Z"
+        }
+      }
+    }
+  },
+  {
+    "id": 24,
+    "event_version": 1,
+    "ts": "2026-09-09T04:06:57.401731541Z",
+    "subject": "artifact",
+    "verb": "versioned",
+    "actor": "cli",
+    "entity_id": "634320e773522231f374dfe655baec6d",
+    "command_id": "artifact-634320e773522231f374dfe655baec6d",
+    "payload": {
+      "version": 1,
+      "id": "634320e773522231f374dfe655baec6d",
+      "artifact_id": "605bcf0d5c26beade060e26dd5215366",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "605bcf0d5c26beade060e26dd5215366",
+      "resource_id": "cded609b6144cb5f7f50156c46278764",
+      "path": "moved.md",
+      "observation": {
+        "digest": "7e798f0a2cbf03b379934e32dc6222ac738fe14896eb6ba7468bce6a72caa7f9",
+        "bytes": 30,
+        "mode": 384
+      },
+      "actor": "cli",
+      "at": "2026-09-09T04:06:57.401731541Z"
+    }
+  }
+]

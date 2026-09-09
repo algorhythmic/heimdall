@@ -1,0 +1,86 @@
+[
+  {
+    "id": 1,
+    "event_version": 1,
+    "ts": "2026-09-08T18:00:00Z",
+    "subject": "workspace",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "11111111111111111111111111111111",
+    "command_id": "workspace-11111111111111111111111111111111",
+    "payload": {
+      "version": 1,
+      "id": "11111111111111111111111111111111",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "actor": "cli",
+      "at": "2026-09-08T18:00:00Z",
+      "name": "Planning",
+      "surfaces": [
+        {
+          "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+          "kind": "terminal",
+          "label": "Planning shell",
+          "required": true,
+          "restore_policy": "manual"
+        }
+      ]
+    }
+  },
+  {
+    "id": 2,
+    "event_version": 1,
+    "ts": "2026-09-08T18:00:00Z",
+    "subject": "session",
+    "verb": "bound",
+    "actor": "cli",
+    "entity_id": "22222222222222222222222222222222",
+    "command_id": "workspace-22222222222222222222222222222222",
+    "payload": {
+      "version": 1,
+      "id": "22222222222222222222222222222222",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "actor": "cli",
+      "at": "2026-09-08T18:00:00Z",
+      "manifest_id": "11111111111111111111111111111111",
+      "surface_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "active": true,
+      "locator": {
+        "adapter": "generic",
+        "environment": "local",
+        "host": "synthetic-host",
+        "source_epoch": "server-epoch-1",
+        "session_id": "planning",
+        "workspace_id": "workspace-1",
+        "pane_id": "pane-1",
+        "platform": "linux",
+        "cwd": "/synthetic/shared-worktree"
+      }
+    }
+  },
+  {
+    "id": 3,
+    "event_version": 1,
+    "ts": "2026-09-08T18:00:00Z",
+    "subject": "session",
+    "verb": "unbound",
+    "actor": "cli",
+    "entity_id": "33333333333333333333333333333333",
+    "command_id": "workspace-33333333333333333333333333333333",
+    "payload": {
+      "version": 1,
+      "id": "33333333333333333333333333333333",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "22222222222222222222222222222222",
+      "actor": "cli",
+      "at": "2026-09-08T18:00:00Z",
+      "manifest_id": "11111111111111111111111111111111",
+      "surface_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "active": false
+    }
+  }
+]

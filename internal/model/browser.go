@@ -40,6 +40,30 @@ type BrowserOperation struct {
 }
 
 func (s *State) Normalize() {
+	if s.Artifacts == nil {
+		s.Artifacts = map[string]Artifact{}
+	}
+	if s.ArtifactVersions == nil {
+		s.ArtifactVersions = map[string]ArtifactVersion{}
+	}
+	if s.ArtifactHeads == nil {
+		s.ArtifactHeads = map[string]string{}
+	}
+	if s.WorkspaceManifests == nil {
+		s.WorkspaceManifests = map[string]WorkspaceManifest{}
+	}
+	if s.WorkspaceHeads == nil {
+		s.WorkspaceHeads = map[string]string{}
+	}
+	if s.WorkspaceSurfaces == nil {
+		s.WorkspaceSurfaces = map[string]SurfaceIdentity{}
+	}
+	if s.SessionBindings == nil {
+		s.SessionBindings = map[string]SessionBinding{}
+	}
+	if s.SessionHeads == nil {
+		s.SessionHeads = map[string]string{}
+	}
 	if s.Evaluators == nil {
 		s.Evaluators = map[string]Evaluator{}
 	}

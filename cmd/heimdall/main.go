@@ -46,6 +46,7 @@ func main() {
 type options struct {
 	dir, now, requestID string
 	args                []string
+	json                bool
 }
 
 func globals(args []string) (options, error) {
@@ -55,6 +56,7 @@ func globals(args []string) (options, error) {
 		name, val, has := strings.Cut(a, "=")
 		switch name {
 		case "--json":
+			o.json = true
 			continue
 		case "--data-dir", "--now", "--request-id":
 			if !has {
@@ -111,10 +113,19 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 		return err
 	}
 	if len(o.args) == 0 {
-		return fmt.Errorf("usage: heimdall init|start|doctor|ls|state|add|update|import-tasks|capture|assign|complete|reopen|drop|ratify|checks|tick|sync|fmt|events|replay|browser|contract|decision|resource|checkpoint|context|backup|grant|client|mcp|evidence [--data-dir PATH] [--json]")
+		return fmt.Errorf("usage: heimdall init|start|doctor|ls|state|add|update|import-tasks|capture|assign|complete|reopen|drop|ratify|checks|tick|sync|fmt|events|replay|browser|contract|decision|resource|artifact|checkpoint|context|resume|workspace|session|backup|grant|client|mcp|evidence|ui [--data-dir PATH] [--json]")
 	}
 	verb := o.args[0]
 	rest := o.args[1:]
+	if verb == "artifact" {
+		return artifactCLI(ctx, o, rest, out)
+	}
+	if verb == "workspace" || verb == "session" {
+		return workspaceCLI(ctx, o, verb, rest, out)
+	}
+	if verb == "resume" {
+		return resumeCLI(ctx, o, rest, out)
+	}
 	if verb == "ui" {
 		return uiCLI(ctx, o, rest, out)
 	}

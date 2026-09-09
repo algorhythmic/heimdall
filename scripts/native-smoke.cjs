@@ -6,12 +6,12 @@ const {randomBytes}=require('node:crypto');
 const assert=require('node:assert/strict');
 const id=()=>randomBytes(16).toString('hex');
 (async()=>{
- const root=resolve(__dirname,'..'),exe=resolve(process.argv[2]??join(root,'bin','heimdall.exe'));mkdirSync(join(root,'.tools'),{recursive:true});const dir=mkdtempSync(join(root,'.tools','native-test-'));const data=join(dir,'data');
+ const {root,exe,dir}=require('./smoke-paths.cjs').smokePaths('native',process.argv[2]);const data=join(dir,'data');
  const cli=(...args)=>JSON.parse(execFileSync(exe,[...args,'--data-dir',data],{encoding:'utf8',windowsHide:true}));
  const extension=readFileSync(join(root,'extension','extension-id.txt'),'utf8').trim();cli('init');const setup=cli('browser','setup','--extension-id',extension,'--output',join(dir,'host'));assert.equal(setup.status,'prepared_not_registered');
  let daemon,host;
  async function start(){daemon=spawn(exe,['start','--data-dir',data],{windowsHide:true,stdio:['ignore','pipe','pipe']});await new Promise((res,rej)=>{daemon.stdout.once('data',res);daemon.once('error',rej);daemon.once('exit',code=>rej(Error('daemon exit '+code)));});}
- async function stop(p){if(!p||p.exitCode!==null)return;await new Promise(res=>{p.once('exit',res);p.kill();});}
+ const stop=require('./smoke-paths.cjs').stopProcess;
  try{
   await start();const a=JSON.parse(readFileSync(join(data,'endpoint.json'))),b=JSON.parse(readFileSync(join(data,'browser-endpoint.json')));assert.notEqual(a.token,b.token);
   host=spawn(join(dir,'host','heimdall-browser-host'+(process.platform==='win32'?'.exe':'')),[`chrome-extension://${extension}/`],{windowsHide:true,stdio:['pipe','pipe','pipe']});

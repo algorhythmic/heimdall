@@ -1,6 +1,6 @@
 // Whole worker/daemon test with real Chromium APIs and compiled native framing.
 // Only Chrome's OS registry discovery/launch is replaced by an in-memory native-port shim.
-const {chromium}=require('playwright');
+const {chromium}=require(require.resolve('playwright',{paths:[require('node:path').resolve(__dirname,'../web')]}));
 const {spawn,execFileSync}=require('node:child_process');
 const {mkdtempSync,mkdirSync,readFileSync}=require('node:fs');
 const {join,resolve}=require('node:path');
@@ -10,12 +10,12 @@ const assert=require('node:assert/strict');
 const wait=ms=>new Promise(r=>setTimeout(r,ms));
 async function until(fn){for(let i=0;i<100;i++){const r=await fn();if(r)return r;await wait(200);}throw Error('Condition timed out');}
 (async()=>{
- const root=resolve(__dirname,'..'),exe=join(root,'bin','heimdall.exe');mkdirSync(join(root,'.tools'),{recursive:true});const dir=mkdtempSync(join(root,'.tools','worker-test-')),data=join(dir,'data');
+ const {root,exe,dir,suffix}=require('./smoke-paths.cjs').smokePaths('worker'),data=join(dir,'data');
  const cli=(...args)=>JSON.parse(execFileSync(exe,[...args,'--data-dir',data],{encoding:'utf8',windowsHide:true}));
  const extension=readFileSync(join(root,'extension','extension-id.txt'),'utf8').trim();cli('init');cli('browser','setup','--extension-id',extension,'--output',join(dir,'host'));
  let daemon,host,context;const replies=new Map();let buffer=Buffer.alloc(0);
  async function start(){daemon=spawn(exe,['start','--data-dir',data],{windowsHide:true,stdio:['ignore','pipe','pipe']});await new Promise((r,j)=>{daemon.stdout.once('data',r);daemon.once('error',j);daemon.once('exit',c=>j(Error('daemon exit '+c)));});}
- async function stop(p){if(p&&p.exitCode===null)await new Promise(r=>{p.once('exit',r);p.kill();});}
+ const stop=require('./smoke-paths.cjs').stopProcess;
  const secret=randomBytes(20).toString('hex');
  const server=http.createServer(async(req,res)=>{
   res.setHeader('Access-Control-Allow-Origin',`chrome-extension://${extension}`);res.setHeader('Access-Control-Allow-Headers','content-type');
@@ -29,7 +29,7 @@ async function until(fn){for(let i=0;i<100;i++){const r=await fn();if(r)return r
  });
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const url=`http://127.0.0.1:${server.address().port}/`;
  try{
-  await start();host=spawn(join(dir,'host','heimdall-browser-host.exe'),[`chrome-extension://${extension}/`],{windowsHide:true,stdio:['pipe','pipe','pipe']});
+  await start();host=spawn(join(dir,'host','heimdall-browser-host'+suffix),[`chrome-extension://${extension}/`],{windowsHide:true,stdio:['pipe','pipe','pipe']});
   host.stdout.on('data',chunk=>{buffer=Buffer.concat([buffer,chunk]);while(buffer.length>=4&&buffer.length>=buffer.readUInt32LE(0)+4){const n=buffer.readUInt32LE(0),reply=JSON.parse(buffer.subarray(4,n+4));buffer=buffer.subarray(n+4);replies.get(reply.id)?.(reply);replies.delete(reply.id);}});
   context=await chromium.launchPersistentContext(join(dir,'profile'),{channel:'chromium',headless:true,args:[`--disable-extensions-except=${join(root,'extension')}`,`--load-extension=${join(root,'extension')}`]});
   const worker=context.serviceWorkers()[0]??await context.waitForEvent('serviceworker');

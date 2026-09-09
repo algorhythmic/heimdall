@@ -1,0 +1,15 @@
+# Optional Herdr 0.8.2 configuration fragment. Merge deliberately into your own
+# configuration; Heimdall never installs it. Requires publish --workspace-summary.
+# The summary names one selected pane, not ownership of the whole workspace.
+[ui.sidebar.spaces]
+rows = [
+  ["state_icon", "workspace"],
+  ["$heimdall_summary"],
+  ["$heimdall_next"],
+  ["$heimdall_checked_at"],
+]
+
+# Pane tokens are also available to custom agent rows while Herdr recognizes an
+# agent. They do not change agent runtime state or mark work complete.
+# Available: $heimdall_task, $heimdall_title, $heimdall_next, $heimdall_review,
+# $heimdall_direction, $heimdall_checked_at, $heimdall_binding, $heimdall_state.

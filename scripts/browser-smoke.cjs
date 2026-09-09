@@ -1,12 +1,11 @@
 // Isolated real Chromium API test. Does not register a native host in any user browser.
-const {chromium}=require('playwright');
+const {chromium}=require(require.resolve('playwright',{paths:[require('node:path').resolve(__dirname,'../web')]}));
 const {mkdtempSync,readFileSync,mkdirSync}=require('node:fs');
 const {join,resolve}=require('node:path');
 const http=require('node:http');
 const assert=require('node:assert/strict');
 (async()=>{
- const root=resolve(__dirname,'..');mkdirSync(join(root,'.tools'),{recursive:true});
- const profile=mkdtempSync(join(root,'.tools','browser-test-'));
+ const {root,dir:profile}=require('./smoke-paths.cjs').smokePaths('browser');
  const server=http.createServer((req,res)=>{res.setHeader('Content-Type','text/html');res.end('<title>Heimdall browser fixture</title><p>Local test page</p>');});
  await new Promise(r=>server.listen(0,'127.0.0.1',r));const url=`http://127.0.0.1:${server.address().port}/`;
  let context;

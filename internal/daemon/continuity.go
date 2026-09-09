@@ -17,13 +17,17 @@ func (s *Server) continuityHTTP(w http.ResponseWriter, r *http.Request) {
 	var result any
 	var err error
 	switch {
-	case r.Method == "GET" && r.URL.Path == "/continuity/context":
+	case r.Method == "GET" && (r.URL.Path == "/continuity/context" || r.URL.Path == "/continuity/resume"):
 		budget := 16000
 		if value := r.URL.Query().Get("budget"); value != "" {
 			budget, err = strconv.Atoi(value)
 		}
 		if err == nil {
-			result, err = service.Context(r.Context(), r.URL.Query().Get("target"), budget)
+			if r.URL.Path == "/continuity/resume" {
+				result, err = service.Resume(r.Context(), r.URL.Query().Get("target"), budget)
+			} else {
+				result, err = service.Context(r.Context(), r.URL.Query().Get("target"), budget)
+			}
 		}
 	case r.Method == "GET" && r.URL.Path == "/continuity/state":
 		result, err = service.View(r.Context(), r.URL.Query().Get("target"))

@@ -1,6 +1,14 @@
 # Verification — terminal/editor continuity, initial W01/T02/P01, schema 9
 
-Current R0/T01–T03 and initial W01/T02/P01 work was verified on Linux/amd64. Historical Windows results below retain their original milestone scope; the revised remote CI matrix has not been run from this working tree.
+Current R0/T01–T03 and initial W01/T02/P01 work was verified locally on Linux/amd64. Historical results below retain their original milestone scope. Published checks run on Windows and Ubuntu; [GitHub Actions](https://github.com/algorhythmic/heimdall/actions) records subsequent runs.
+
+## Herdr socket replacement fix — 2026-09-08 Pacific / September 9 UTC
+
+The first schema-9 publication [failed on Ubuntu](https://github.com/algorhythmic/heimdall/actions/runs/34311175097) in `TestReportRefusesSocketReplacementBeforeWrite`; matrix fail-fast cancelled Windows. The replacement fixture runs in the same process as the original listener. Reusing its filesystem inode made PID/start time and device/inode insufficient to distinguish the new socket, allowing stale metadata through. This was an adapter identity defect. Local `/tmp` is tmpfs and showed no immediate inode reuse in 200 listener creations, explaining why the existing test did not expose it locally.
+
+The source fingerprint now includes the socket inode's full change timestamp, with a new fingerprint domain. The same identity is compared before/after connection. A deterministic reused-inode regression fails against the old calculation and passes with the fix; ordinary access-time changes remain irrelevant. Both it and the original real socket-replacement test pass 100 repetitions. The full Go suite, vet, Linux build and Herdr/workspace race checks pass. Installed Herdr 0.8.2/protocol-20 acceptance passes in `.tools/herdr-test-NBuIeR`, including pane moves, metadata readback/expiry, server replacement, explicit rebinding, exact retries and inert replay.
+
+Pre-fix Herdr bindings require explicit live rebinding. Stored records and receipts remain unchanged and replayable under schema 9; no user configuration or database was migrated during validation. See [Herdr setup](HERDR-SETUP.md) for reconciliation commands.
 
 ## P01 local artifact versions — 2026-09-08 Pacific / September 9 UTC
 

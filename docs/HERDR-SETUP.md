@@ -37,9 +37,16 @@ Heimdall checks:
 
 - A canonical, user-owned Unix socket and the same-user Linux peer. Every RPC
   checks the socket and server instance. The source epoch includes boot identity,
-  peer PID/start time and socket device/inode; a reconnect never silently adopts
-  another server. Host identity is a hash of the local machine ID. These checks
+  peer PID/start time and socket device/inode/change timestamp; a reconnect never
+  silently adopts another server. Host identity is a hash of the local machine ID. These checks
   establish a local endpoint identity, not remote authentication or binary attestation.
+
+  The socket fingerprint now includes the full change timestamp because a
+  same-process listener replacement can reuse an inode. Bindings recorded before
+  this fix report `stale`/`source_changed`; explicitly rebind after checking the
+  live pane. Socket metadata changes also require revalidation. Historical
+  records and exact command retries retain their original observations; database
+  schema remains 9.
 - Exact pane, terminal, workspace and tab IDs from the installed API. A second
   observation must agree. The terminal ID prevents a moved pane from being
   adopted by a second task through its newly assigned public pane ID.

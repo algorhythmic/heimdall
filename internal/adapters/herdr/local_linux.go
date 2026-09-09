@@ -16,6 +16,13 @@ import (
 
 func digest(s string) string { return fmt.Sprintf("%x", sha256.Sum256([]byte(s))) }
 
+func socketIdentity(stat unix.Stat_t) string {
+	// A same-process listener replacement can immediately reuse the pathname's
+	// inode. Include inode change time at its full precision to distinguish that
+	// generation, both across RPCs and across the connect/stat race below.
+	return fmt.Sprintf("%d/%d/%d/%d", stat.Dev, stat.Ino, stat.Ctim.Sec, stat.Ctim.Nsec)
+}
+
 func processStart(pid int) (string, error) {
 	b, err := os.ReadFile(fmt.Sprintf("/proc/%d/stat", pid))
 	if err != nil {
@@ -85,10 +92,10 @@ func dial(ctx context.Context, path string) (net.Conn, string, string, string, e
 		return failed(fail("host_unavailable", "local machine identity unavailable"))
 	}
 	var after unix.Stat_t
-	if err := unix.Stat(path, &after); err != nil || before.Dev != after.Dev || before.Ino != after.Ino {
+	if err := unix.Stat(path, &after); err != nil || socketIdentity(before) != socketIdentity(after) {
 		return failed(fail("source_changed", "Herdr socket replaced during connection"))
 	}
 	host := digest(strings.TrimSpace(string(machine)))
-	epoch := digest(fmt.Sprintf("%s/%s/%d/%s/%d/%d", host, strings.TrimSpace(string(boot)), cred.Pid, start, after.Dev, after.Ino))
+	epoch := digest(fmt.Sprintf("herdr-source-v2/%s/%s/%d/%s/%s", host, strings.TrimSpace(string(boot)), cred.Pid, start, socketIdentity(after)))
 	return conn, path, epoch, host, nil
 }

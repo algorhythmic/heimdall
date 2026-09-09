@@ -1,5 +1,7 @@
 # Implementation plan: work continuity and verified progress
 
+Roadmap revision, 2026-09-08: use [REVISED-ROADMAP-IMPLEMENTATION-PLAN.md](REVISED-ROADMAP-IMPLEMENTATION-PLAN.md) for the current execution sequence. R0's Linux technical baseline and T01 resume/checkpoint helpers now extend the 0.7.0 foundation. This document retains the seven-improvement architecture, C-series requirements and historical delivery sequence; its opening baseline and first-increment recommendation are historical, not work to restart.
+
 Updated 2026-09-05. Status: development build 0.7.0 adds scoped GUI inspection and completion review to continuity, scoped MCP and CLI evidence evaluation/revalidation. The design below began from build 0.2.0 and retains later milestone requirements. See [BACKLOG.md](BACKLOG.md) for remaining gaps, [GUI-SETUP.md](GUI-SETUP.md) and [EVIDENCE-SETUP.md](EVIDENCE-SETUP.md) for usage, and [STATUS.md](STATUS.md) for runtime capabilities. Development is stopped at the requested documentation/commit/push checkpoint. No integrations or agent runs are installed by this plan.
 
 ## 1. Outcome and scope
@@ -21,6 +23,8 @@ Keep Go for the daemon, event store, CLI, native helper, MCP adapter, checks, re
 This plan does not require completing mail, every conversation adapter, Linux desktop restoration, or the full ranked planner before checkpoints become useful. Those existing roadmap items remain open and retain their original acceptance gates.
 
 ## 2. Baseline and changes to the previous roadmap
+
+The comparison below records the original 0.2.0 starting point. The current schema-6 baseline and remaining work are recorded in the revised plan and STATUS.
 
 | Area | Existing implementation | Required extension |
 |---|---|---|

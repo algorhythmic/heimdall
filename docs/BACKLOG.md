@@ -1,16 +1,24 @@
-# Continuity implementation backlog
+# Implementation backlog
 
-Date: 2026-09-05. **Development build 0.7.0 adds scoped GUI inspection and completion review to the evidence backend.** The controlling design is [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md). Development is stopped at the requested documentation/commit/push checkpoint, including the GUI.
+Updated 2026-09-08. **The Linux technical baseline, T01 terminal continuity and initial W01/T02 identity and live Herdr adapter are implemented on the 0.7.0 foundation.** The [revised implementation plan](REVISED-ROADMAP-IMPLEMENTATION-PLAN.md) defines the execution order, retaining the contracts in [IMPLEMENTATION-PLAN.md](IMPLEMENTATION-PLAN.md). Evidence is recorded in [VERIFICATION.md](VERIFICATION.md). Generic declarations, the local Linux Herdr workflow, initial Neovim commands and initial P01 artifact versions are delivered; automatic refresh and workspace recovery remain open.
+
+Related proposal, 2026-09-08: [Workspace recovery roadmap](WORKSPACE-RECOVERY-ROADMAP.md) recommends Hyprflow-inspired capture, durable snapshots, application reattachment/relaunch, and verified recovery after restart or crash. It defines proposed W01–W09 additions to M1b and their C-series dependencies; current completion status is unchanged.
 
 ## Current progress
 
 | Items | State | Delivered / remaining |
 |---|---|---|
+| R0 | Technical baseline complete | Linux Go/vet/build, UI build, extension and compiled core/native/continuity/MCP/evidence/GUI checks pass; portable harness and schema-6 fixture delivered. Native registration and user-measured workflow timing remain open; revised remote CI has not run. |
+| T01 | Initial slice complete | Readable/JSON resume and explicit draft/edit/submit workflow; control escaping, scope/review counts, budgets, no writes from resume, conflict/transport file retention, abrupt restart and exact retry tested. WCU inspected the Linux terminal output. |
+| W01 | Identity foundation complete; broader slice partial | Versioned manifests, stable task-owned surfaces, generic bind/show/unbind, scoped CLI lookups, strict reducers, schema-7 upgrade/backup/replay and actual old-binary refusal/rollback pass. Observed snapshots/topology and recovery/action envelopes remain open. |
+| T02 | Initial Linux CLI slice complete | Herdr 0.8.2/protocol-20 identity checks, canonical cwd/Git, explicit refresh/rebind and expiring metadata pass installed move/restart/readback tests. WCU verified optional pane-labelled sidebar text. Automatic refresh, background publication and other hosts/versions remain open. |
+| T03 | Initial Linux editor slice complete | Explicit task/step selection, resume, retained checkpoint drafts/submission, bound artifact opening, session checks and GUI handoff. Neovim 0.12.5, isolated restart/conflict/path tests, lazy.nvim example loading and WCU rendering verified. Full user-config/LazyVim distribution acceptance and workflow timing remain open. |
+| P01 | Initial Linux slice complete | Stable task/environment/host-owned artifact IDs, immutable file versions, optional Git identity, v3 checkpoint pins and v2 drafts. Scope, drift/relocation, exact retry/replay/restore and schema-8→9 upgrade/rollback pass. File retention and other platforms remain open; see [artifact setup](ARTIFACT-SETUP.md). |
 | C01 | Initial slice complete | Request schemas/fixtures, golden events for old/new contracts, decisions, resources, CLI/client checkpoints and read/write grants; schema-6 migration, replay and actual 0.5.0 upgrade/backup/restore pass without elevating read credentials. Future record types need their own fixtures. |
 | C02 | Policy documented | [Capability ledger](CAPABILITY-LEDGER.md) ties CLI/browser boundaries to tests and defines required principal/grant policy. Actual scoped credentials and grants belong to C06. |
-| C03 | Partial | Accepted contracts/decisions, supersession, revision checks, canonical file/tree registration and bounded observations work. Version-2 contracts freeze explicitly supplied, reviewed resource IDs; changed scope requires reacceptance. Proposed/rejected decision workflow and Git/source identity remain open. |
+| C03 | Partial | Accepted contracts/decisions, supersession, revision checks, canonical file/tree registration and bounded observations work. Version-2 contracts freeze explicitly supplied, reviewed resource IDs; changed scope requires reacceptance. Proposed/rejected decision workflow remains open; initial P01 adds explicit local artifact/Git identity. |
 | C04 | Initial slice complete | Immutable append/list/get-by-ID, explicit previous head, retry, competing-write, restart and replay checks pass. Run/evidence links will arrive with their consuming slices. |
-| C05 | Initial slice complete | CLI context includes mandatory task/ancestor contracts, decisions, checkpoint and resource drift without retrieval; small budget fails explicitly. Estimate is UTF-8 bytes/4; Git identity and exact tokenizer accounting are not claimed. |
+| C05 | Initial slice complete | CLI context includes mandatory task/ancestor contracts, decisions, checkpoint and resource drift without retrieval; small budget fails explicitly. Estimate is UTF-8 bytes/4. CLI artifact pins add optional selected-file Git identity; exact tokenizer accounting is not claimed. |
 | C06 | Initial slice complete | Scoped reads plus explicit checkpoint-write grants. Authority is checked inside the writer transaction before dedupe and commit; records carry authenticated grant/author provenance. Tests cover read-only denial, cross-target/cross-grant denial, expiry, revoked retries, conflict, rollback and replay. Broader machine mutations are not delegated. |
 | C07 | Initial slice complete | Official Go SDK v1.7.0 stdio adapter; task/context/history/checkpoint tools, structured errors, stable request IDs and daemon restart rediscovery. Official SDK client uses 2026-07-28; compiled stdio smoke uses 2025-11-25. User-host registration and Linux desktop deployment remain open. |
 | C08 | Initial CLI slice complete | Artifact existence/digest, exact-root repository predicates and configured test execution; accepted definitions, durable attempts, complete declared resource observations, lineage/decision binding, bounded output/executable/environment digests, retry/restart/replay and malformed/forged/partial/stale negatives. Raw-output retention, broader evidence tools and stronger external-input/process-tree coverage remain open. |
@@ -19,9 +27,11 @@ Date: 2026-09-05. **Development build 0.7.0 adds scoped GUI inspection and compl
 | C11 | Initial slice complete | Responsive task/step, checkpoint, accepted direction, drift and evidence inspection; explicit completion accept/reject with live revalidation. Compiled Chromium keyboard, desktop/mobile, isolation and logout tests pass. Task editing, proposed decision review and run controls remain open. |
 | C12–C21 | Planned | Verified actions, retrieval, execution-host slices and broader GUI run controls remain unimplemented. |
 
-Remaining development starts with C03/evidence acceptance gaps and C12 onward when resumed. Evidence observations include Git identity; general checkpoint Git identity remains open. Current usage is in [GUI-SETUP.md](GUI-SETUP.md), [EVIDENCE-SETUP.md](EVIDENCE-SETUP.md), [MCP-SETUP.md](MCP-SETUP.md), [SCOPED-ACCESS.md](SCOPED-ACCESS.md) and [CONTINUITY-SETUP.md](CONTINUITY-SETUP.md).
+Next implementation is P02 progress/decision review on the delivered terminal/editor and initial P01 artifact foundation, alongside user workflow baseline measurements. C03/evidence gaps are completed where the new slices consume them; C12 becomes shared infrastructure for verified recovery and WCU. P01 checkpoint pins include optional local Linux artifact/Git identity; file-content preservation and remote/platform expansion remain open. Editor usage is in [NEOVIM-SETUP.md](NEOVIM-SETUP.md); other interfaces are documented in [GUI-SETUP.md](GUI-SETUP.md), [EVIDENCE-SETUP.md](EVIDENCE-SETUP.md), [MCP-SETUP.md](MCP-SETUP.md), [SCOPED-ACCESS.md](SCOPED-ACCESS.md) and [CONTINUITY-SETUP.md](CONTINUITY-SETUP.md).
 
-## Ordered deliverables
+## Existing C-series deliverables and dependencies
+
+These identifiers and completion requirements are retained. Their numeric order is not the revised execution order; use the R increments below. C17 reuses shared action/operation primitives from W05, while its agent-run coordination remains separate.
 
 | ID | Slice / improvement | Deliverable | Depends on | Completion evidence |
 |---|---|---|---|---|
@@ -47,7 +57,24 @@ Remaining development starts with C03/evidence acceptance gaps and C12 onward wh
 | C20 | S8 / #5 | One verified real execution-host adapter | C18 + actual host capability contract | Launch/attach-or-reconcile/status/cancel acceptance with installed host; publish supported limitations |
 | C21 | S8 / all | Full interrupted-task acceptance and release package | C07, C09, C13, C15, C19, C20 | Stop after side effect/before ACK, recover without duplicate action, revalidate evidence, user-complete task, reproducible release notes |
 
-## First patch series
+## Revised delivery order
+
+R0's technical work, T01 and the initial W01 identity foundation are delivered as recorded above; W01's remaining observed/recovery schemas and other new items remain open. Detailed code boundaries, acceptance scenarios, capability gates and the patch sequence are in [REVISED-ROADMAP-IMPLEMENTATION-PLAN.md](REVISED-ROADMAP-IMPLEMENTATION-PLAN.md).
+
+| Increment | IDs / deliverable | Dependencies and release gate |
+|---|---|---|
+| R0 | Linux build/compiled smoke baseline, schema-6 fixture, installed capability record | Current build; portable compiled checks and documented platform gaps |
+| R1 | T01 readable resume/checkpoint helper; W01 workspace/session schema; T02 explicit herdr bindings/metadata; T03 thin LazyVim integration | R0; T02 uses W01, T03 uses T01/T02; correct task context after same-repo session switching |
+| R2 | P01 artifact/Git references; P02 progress/decision review; P03 optional dotprivate preservation; P04 scoped cross-project dependencies/view | R1; P02/P03 use P01, P04 uses P02; P03 dispatch also requires C12; planning without code commits and version-bound review |
+| R3 | W02 Hyprland observation; W03 durable autosnapshots; W04 live List/Diff/preview | W01/T02, then W02 → W03 → W04; retained complete restore point and current scoped preview |
+| R4 | C12 shared actions; C13 browser verification; W05 journaled operations; W06 application adapters; W07 recovery verification | W04+C12 for W05; browser W06 also needs C13; manual recovery without blind duplicate dispatch |
+| R5 | A01 durable manually initiated WCU intent/results; A02 reconciliation and evidence links | C12/W05 shared primitives, T02, C08/C09 and P01 artifact links; interrupted input remains uncertain until fresh verification |
+| R6 | W08 optional login restore, packaging and restart/crash acceptance | W03–W07; one coordinator, readiness/policy gates, actual restart and controlled VM tests |
+| Later | W09 optional Hyprflow import; C14–C16 retrieval; C17–C21 continuation and broader integrated release | Original acceptance gates retained; no retrieval/agent-host prerequisite for manual workspace recovery |
+
+C12 can begin after R0 alongside the terminal/planning/capture work. P03 uses its shared journal for programmatic preservation; preview/manual handoff can ship earlier. R5 can start once its shared action dependencies exist without waiting for every application adapter. R6 does not require WCU. The preferred order validates manual use before startup automation. Remaining C03/C08/C09 and broader M-series gaps stay open unless a slice supplies their completion evidence.
+
+## Historical initial patch series (C01–C05)
 
 1. **C01:** add schema documents and golden payloads; add a stopped/consistent backup fixture; freeze migration from schema marker 2. No model host, MCP library or browser permission changes.
 2. **C02–C03:** define principals/authority provenance, accepted task contract/decision and resource identities. Extend reducers and domain commands with strict revision preconditions. Existing CLI behavior remains covered.

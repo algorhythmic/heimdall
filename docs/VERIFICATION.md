@@ -1,6 +1,128 @@
-# Verification — GUI daemon 0.7.0, extension 0.2.0
+# Verification — terminal/editor continuity, initial W01/T02/P01, schema 9
 
-Verified on Windows/amd64 with Go 1.27.1 and the pinned module graph. Historical results below retain their original milestone scope.
+Current R0/T01–T03 and initial W01/T02/P01 work was verified on Linux/amd64. Historical Windows results below retain their original milestone scope; the revised remote CI matrix has not been run from this working tree.
+
+## P01 local artifact versions — 2026-09-08 Pacific / September 9 UTC
+
+- Full Go tests and vet pass with Go 1.27.1; race tests pass for `internal/continuity` and `internal/store`. Linux build and Windows/amd64 cross-build pass. Fresh artifact observations are Linux-only; the Windows artifact was not executed. Current Linux binary SHA-256: `5791ab3ac72d28212a930f0b55790b348cede4054ae7b00f6c484eb5803eb113`.
+- Go acceptance covers non-Git exact byte digests, Git unborn/clean/staged/changed input, linked worktrees, helper/filter non-execution, exclusion/traversal/symlink/nonregular/size refusal, same-file task/environment separation, four competing version writers with one winner, stale checkpoint refusal, immutable pins and scope/grant boundaries. Golden artifact/v3 checkpoint events replay without filesystem access; malformed versions, unknown fields, forged provenance, duplicate records and legacy payload extensions fail without mutating state. JSON request fixtures pass Go decoding and `fastjsonschema` validation.
+- `node scripts/artifact-smoke.cjs` passes in `.tools/artifact-test-7C9PLR`: compiled daemon/CLI record/list/show/check, v3 checkpoint and v2 draft pins, read-only budgeted resume, content change, missing original and explicit relocation. SIGKILL/restart, exact historic receipts, replay and fresh-directory database restore pass after the synthetic original files are deleted. Task completion stays unchanged. File bytes are not retained or restored.
+- Actual stopped schema-6, W01 schema-7 and T03 schema-8 fixtures upgrade to marker 9 with original events, receipts, projections and pre-upgrade backup integrity preserved. [Fixture provenance and checksums](../testdata/artifacts/README.md) record the genuine schema-8 source. The retained schema-8 binary passes compiled upgrade/read-grant retention/newer-schema refusal/rollback in `.tools/continuity-test-9KkP8q`; the retained 0.7.0/schema-6 binary passes the same direct upgrade gate in `.tools/continuity-test-nGwPSR`. No user database was migrated.
+- Neovim 0.12.5 and the installed lazy.nvim loader pass in `.tools/neovim-test-hpD4mQ`, including P01 pinned artifact display, request-v2 draft submission and refusal of edited artifact references. Original v1 draft/conflict/editor-daemon restart tests still pass. Configuration, clipboard and browser opening are isolated/stubbed as described in the T03 gate. No fresh WCU visual inspection is claimed for P01.
+- Compiled legacy resume (`.tools/resume-test-HkX7gy`), workspace/recovery of recorded identity (`.tools/workspace-test-CUzjel`) and MCP (`.tools/mcp-test-W458Wd`) regressions pass. Chromium GUI acceptance with an actual v3 artifact checkpoint passes in `.tools/gui-test-icfvgu`: the session retains opaque pins, receives no expanded artifact metadata, renders the CLI-check requirement, and preserves its existing explicit completion-review behavior. Desktop/mobile screenshots are retained in that scratch directory.
+- The portable CI matrix adds the artifact smoke only on Linux. It does not claim Windows/macOS observation or installed desktop restoration. No TypeScript production change or GUI asset rebuild is required for the opaque checkpoint references. File preservation, P02 decision review, remote/platform expansion, user timing measurements and workspace recovery remain open.
+
+```sh
+go test ./...
+go test -race ./internal/continuity ./internal/store
+go vet ./...
+go build -trimpath -o bin/ ./cmd/heimdall
+node scripts/artifact-smoke.cjs
+node scripts/continuity-smoke.cjs /path/to/heimdall-schema8 --legacy-continuity --legacy-grants
+HEIMDALL_LAZY_PATH=/path/to/lazy.nvim node scripts/neovim-smoke.cjs
+```
+
+See [artifact setup](ARTIFACT-SETUP.md) for commands, observation bounds, version compatibility and backup recovery.
+
+## T03 Neovim integration — 2026-09-08 Pacific / September 9 UTC
+
+- The final installed editor gate passes in `.tools/neovim-test-tMMib3` with **Neovim 0.12.5**, Node 24.20.0 and the schema-8 binary. It uses real CLI/daemon operations and isolated config/state/cache. Two tasks share a repository; explicit picker selection and delayed-response delivery preserve the chosen task. Resume/selection do not write events.
+- Draft acceptance covers saved submission, competing checkpoint conflict, wrong selected target, unsaved edits, renamed buffers, changed on-disk content/preconditions, daemon SIGKILL, fresh editor/daemon restart, retained files and exact retry without a second checkpoint. Artifact tests open a filename containing Ex metacharacters literally and refuse outside paths, symlink paths and excluded `.git` content. Modelines remain disabled. Task completion and replay remain unchanged.
+- The Herdr display check uses a stopped **synthetic protocol-20 socket** with independently observed local PID/cwd/Git identity, then verifies the editor renders `disconnected`. This is editor acceptance of T02's structured status; actual Herdr runtime movement/restart/expiry acceptance remains in the T02 section below.
+- GUI handoff resolves a child to its root workstream, copies only the single-use GUI sign-in code and opens the credential-free URL. Clipboard writes and browser opening are intercepted in this gate; the code is absent from buffers and message/notification history. Missing clipboard support is refused without a code display. The editor adds no completion ratification or credential capability. Actual browser sign-in and completion review retain the separate compiled GUI acceptance recorded below.
+- The shipped lazy.nvim example was exercised with installed loader revision `85c7ff3711b730b4030d03144f6db6375044ae82`. Installs, updates, project-local specs and package/rock loading were disabled. Commands trigger lazy loading and setup correctly. This does not certify every LazyVim distribution plugin or the user's full configuration. Neovim 0.11+ is the API requirement; only 0.12.5/Linux was run.
+- WCU visually verified the isolated Ghostty/Neovim view loaded through that example: explicit alpha identity, escaped literal task text, accepted direction, saved checkpoint/next action, matching resource and check timestamp. The scratch viewer auto-closed; no global editor configuration or clipboard was changed during verification. Subsequent renderer cleanup removes blank acceptance text and adds explicit step/check labels; final headless acceptance passes.
+- WCU runtime revision remains `fb4ac4da6ab03192d99ca4b8e26963a3eb60e9f8e5748350adbc0badad1957ab`, `wcu-tools-2`, context schema 1. Loaded skill SHA-256: `a09384f3c2baec4bf4e9a9053b5c131d3895babcece3cf9cefc2d94d6e25210e`; runtime-published skill SHA-256: `b1bb77b49d09948340babaa9603962d27195eec86615728b26feede6e5c345bf`. These are recorded separately. No WCU keyboard/pointer input was needed for this editor view.
+- The subprocess gate checks oversized output, malformed JSON and timeout through actual child processes. Final full Go regressions and Lua formatting checks pass. T03 changes no Go/backend code, schema, routes or existing grants; earlier migration/race results retain their T02 scope. The editor gate is separate from portable CI and does not download an editor.
+
+```sh
+node scripts/neovim-smoke.cjs
+# Optional installed loader; no network or plugin installation:
+HEIMDALL_LAZY_PATH=/path/to/lazy.nvim node scripts/neovim-smoke.cjs
+```
+
+See [Neovim setup](NEOVIM-SETUP.md) for commands, clipboard handoff and retained-draft recovery. User workflow timing, broader editor-configuration acceptance, P01 artifact versions and workspace recovery remain open.
+
+## T02 local Herdr integration — 2026-09-08 Pacific / September 9 UTC
+
+- Full Go tests and vet pass with Go 1.27.1. Race checks pass for `internal/adapters/herdr` and `internal/workspace`. Linux build and Windows/amd64 cross-build pass; live Herdr support is Linux-only and the Windows artifact was not run. Protocol fixtures own their Git repository boundary so unrelated ancestor `.git` entries cannot mask the intended assertions.
+- The installed **Herdr 0.8.2 / protocol 20** gate passes in `.tools/herdr-test-7BaXkn`: two tasks sharing a repository retain separate surfaces/panes; canonical cwd/worktree/common-directory identity is checked; moving a pane changes its public ID while preserving its terminal ID; cross-task adoption and stale publication are refused. Explicit rebinding preserves the logical surface. A stopped/replaced server produces disconnected/stale checks and requires a new binding.
+- Pane metadata and the optional pane-labelled workspace summary pass write/readback and 30-second expiry checks. The bounded expiry gate waits for both independent publications to disappear. Committed retries and event replay do not re-emit metadata, including after source replacement. Heimdall SIGKILL/restart preserves state. These are display-only effects: there is no process restoration, automatic refresh or execution-action journal. A failed database commit after a metadata write can reapply the same scalar display values.
+- Adapter/service/reducer tests cover socket replacement, peer/source identity, unsupported protocol/version, response size, unstable process/cwd/pane observations, canonical linked Git worktrees, malformed Git metadata, metadata readback failure, immutable ownership, forged v1 observations, exact retries and replay. Direction tests reject checkpoint next actions after recorded task, contract or decision drift. Browser and issued scoped credentials explicitly fail all three Herdr routes.
+- The original stopped schema-6 fixture and an actual stopped W01 schema-7 fixture upgrade to marker 8, preserving events, receipts, projections and authority. Fixture provenance is recorded in [testdata/workspace](../testdata/workspace/README.md). Compiled compatibility checks pass with the retained 0.7.0/schema-6 binary (`.tools/continuity-test-V7jzpv`) and the retained W01/schema-7 binary (`.tools/continuity-test-TR7VV4`): grants retain read-only authority, old binaries refuse schema 8, and each pre-upgrade backup opens with its original binary.
+- Compiled workspace, resume, scoped MCP and Chromium GUI regressions pass against schema 8. The Herdr installed gate remains separate from portable CI because CI does not install Herdr. All application state used in these checks is synthetic.
+- WCU visually verified the optional sidebar in an isolated Herdr configuration: `w1:p1 | Heimdall alpha`, `Review the plan` and a check timestamp rendered in Ghostty on Hyprland. Default plain-shell pane metadata was not visible, which led to the explicit `--workspace-summary` option and [configuration example](../examples/herdr-sidebar.toml). The test viewer closed and owned scratch servers were stopped; no global Herdr configuration was changed.
+- WCU runtime revision was `fb4ac4da6ab03192d99ca4b8e26963a3eb60e9f8e5748350adbc0badad1957ab`, tool contract `wcu-tools-2`, context schema 1. The loaded skill SHA-256 was `a09384f3c2baec4bf4e9a9053b5c131d3895babcece3cf9cefc2d94d6e25210e`; the runtime reported published skill SHA-256 `b1bb77b49d09948340babaa9603962d27195eec86615728b26feede6e5c345bf`. These differed and are recorded separately; only advertised/common capabilities were used.
+
+Reproduce with Go and Node 24 on PATH, plus installed Herdr 0.8.2 for its gate:
+
+```sh
+go test ./...
+go test -race ./internal/adapters/herdr ./internal/workspace
+go vet ./...
+go build -trimpath -o bin/ ./cmd/heimdall
+node scripts/herdr-smoke.cjs
+node scripts/workspace-smoke.cjs
+node scripts/resume-smoke.cjs
+node scripts/mcp-smoke.cjs
+node scripts/gui-smoke.cjs
+# Optional: independently retained binaries, never relabelled fixtures.
+node scripts/continuity-smoke.cjs /path/to/heimdall-0.7.0 --legacy-continuity --legacy-grants
+node scripts/continuity-smoke.cjs /path/to/heimdall-w01-schema7 --legacy-continuity --legacy-grants
+```
+
+See [Herdr setup](HERDR-SETUP.md) for exact selectors, migration/rollback and the current version/platform limits. T03 editor commands, observed workspace snapshots and recovery remain open. Earlier milestone sections below retain their original implementation and acceptance scope.
+
+## W01 identity foundation — 2026-09-08
+
+- Full Go tests, vet and Linux build pass with Go 1.27.1. New CLI, service, model and reducer tests cover manifest and binding revisions, concurrent head changes, same-cwd task separation, cross-task/surface lookups, runtime-pane collisions after declared moves, permanent ownership of retired surface IDs, explicit unbind/rebind, stale task/manifest diagnostics, input retention, strict payloads, unknown versions and no mutation from rejected events. Declared POSIX and Windows paths are validated without filesystem access.
+- Request and golden event fixtures freeze all three operations. Request fixtures pass the Go decoder and the installed `fastjsonschema` validator against the published JSON Schema. Schema request/record limits and current/individual read limits are enforced; there is no history enumeration or desktop payload retention in this slice.
+- The unchanged stopped schema-6 SQL fixture upgrades to marker 7 while preserving exact events, command hashes/results, checkpoint heads and original read-grant permissions. Tests verify the pre-schema-7 backup is still marker 6, has an intact original projection and passes SQLite integrity checking. An obstructed backup directory prevents migration and leaves marker 6 and command receipts intact.
+- `node scripts/workspace-smoke.cjs` passes through the compiled binary: explicit same-cwd task declarations, cross-target denial, pane collision, head conflict, read-only/unverified views, SIGKILL/restart, exact retries, pure replay, explicit source-epoch replacement retaining the logical surface ID, immutable binding history, task staleness and restore into a fresh directory. It is now in the Windows/Ubuntu CI matrix; only the local Linux result is claimed here.
+- `node scripts/continuity-smoke.cjs .tools/heimdall-0.7.0 --legacy-continuity --legacy-grants` passes using the unchanged 0.7.0 binary saved before implementation. Its synthetic task/contract/checkpoint/read grant survives upgrade, read credentials still refuse writes, the old binary refuses marker 7, and the pre-upgrade backup opens correctly with the old binary. The schema-7 live backup also restores and replays correctly.
+- Compiled resume, scoped MCP and Chromium GUI regression smokes pass against the schema-7 build. Browser and issued scoped credentials cannot reach the new CLI workspace routes. Existing checkpoint/contract/grant versions and their authority are unchanged.
+- All checks use isolated synthetic data. No native UI behavior changed in W01, so an additional WCU run was unnecessary. Generic locators remain declarations: canonical Git/worktree checks, actual herdr assigned IDs, live source restart/movement detection, metadata publication, observed desktop snapshots and recovery actions have **not** been implemented or verified. Earlier R0/T01 desktop inspection below retains its original scope.
+
+Reproduce with Go and Node 24 on PATH:
+
+```sh
+go test ./...
+go vet ./...
+go build -trimpath -o bin/ ./cmd/heimdall
+node scripts/workspace-smoke.cjs
+# Optional compatibility gate requires a separately retained 0.7.0 binary:
+node scripts/continuity-smoke.cjs /path/to/heimdall-0.7.0 --legacy-continuity --legacy-grants
+```
+
+## Linux baseline and terminal continuity — 2026-09-08
+
+- Full Go tests, vet and Linux build pass with Go 1.27.1. TypeScript build/check and extension tests pass; embedded generated JavaScript is unchanged. Compiled core, native helper, continuity, MCP, evidence, resume, GUI, browser and worker checks pass against synthetic data. The smoke harness uses platform-specific executable names, optional `HEIMDALL_BIN`/`HEIMDALL_TEST_TMP`, and bounded child shutdown that closes native stdin. A temp path containing spaces and an explicit baseline executable were tested.
+- Test host: Omarchy 4.0.3, kernel 7.1.9-arch1-2, Hyprland 0.56.2, Ghostty 1.3.1. Go 1.27.1, Node 24.20.0, TypeScript 7.0.2, Playwright 1.62.1 and its Chromium 151.0.7922.34 were used. Go and Node archives were checked against official SHA-256 manifests and installed only under ignored `.tools/` paths. Playwright uses its Ubuntu 24.04 fallback build on this Arch-based host.
+- The installed Node 26.8.1 binary is 150,425,704 bytes and exceeds the evaluator's existing 128 MiB executable limit. Its evidence smoke correctly returned `unknown/executable_unavailable`. The suite passes with CI-matching Node 24; the evaluator boundary was retained. Initial listener failures were sandbox restrictions, resolved by running the isolated tests with loopback access.
+- `resume` tests cover missing/stale context, full-response budget accounting, unchanged legacy context JSON, no event writes, relevant review counts and terminal control/bidi escaping. Draft/submit tests cover blank-summary refusal, exclusive draft creation, explicit target, original preconditions, exact retry and unchanged files on competing-head or transport failure. The compiled resume scenario uses two tasks observing the same worktree, modifies a resource, kills the daemon, and retries after restart without a duplicate checkpoint.
+- The [schema-6 fixture](../testdata/continuity/README.md) was produced through the unchanged `60175d1` binary. It preserves tasks, accepted direction, checkpoint, a read-only grant and command receipts through current open/replay. This slice adds no database migration or grant capability.
+- WCU inspected the actual Ghostty output on Hyprland: alpha showed its reviewed changed artifact and matching resource, while beta retained its own next action and showed resource drift. The inspection prompted a shorter review section and removal of opaque resource IDs from ordinary warnings. The test window contained only synthetic task data; no workspace restoration, herdr binding or automatic execution was exercised.
+- WCU runtime revision: `fb4ac4da6ab03192d99ca4b8e26963a3eb60e9f8e5748350adbc0badad1957ab`, tool contract `wcu-tools-2`, context schema 1. Loaded skill SHA-256: `b1bb77b49d09948340babaa9603962d27195eec86615728b26feede6e5c345bf`, matching the published skill. The installed runtime was inspected separately from the sibling source checkout.
+
+Reproduce with Go and Node 24 on PATH:
+
+```sh
+go test ./...
+go vet ./...
+go build -trimpath -o bin/ ./cmd/heimdall
+node --test extension/test/*.test.js
+node scripts/core-smoke.cjs
+node scripts/native-smoke.cjs
+node scripts/continuity-smoke.cjs
+node scripts/resume-smoke.cjs
+node scripts/mcp-smoke.cjs
+node scripts/evidence-smoke.cjs
+node scripts/gui-smoke.cjs
+node scripts/browser-smoke.cjs
+node scripts/worker-smoke.cjs
+```
+
+Build the UI and install Playwright Chromium using the README instructions before browser checks. The CI configuration now runs core/native/continuity/resume/MCP/evidence/GUI compiled checks on both Windows and Ubuntu. Browser and worker scripts are portable optional checks; the worker still substitutes native-port discovery. Actual browser native-host registration, native workspace recovery, reboot/power-loss acceptance and user-measured productivity baselines remain open. Process-kill recovery is not power-loss evidence.
 
 ## GUI verification in 0.7.0 — 2026-09-05
 

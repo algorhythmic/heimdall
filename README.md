@@ -2,13 +2,19 @@
 
 Heimdall is a local task and continuity system for work shared between people and assistants. It records changes as events, preserves accepted decisions and progress checkpoints, and supplies scoped resume context. Retrieval belongs to the separate Braid project.
 
-**Current build: local task and evidence GUI (0.7.0).** The daemon and CLI provide contracts/decisions, reviewed resource scopes, checkpoints, resume context, scoped MCP and independently observed artifact/repository/test evidence. The browser GUI shows scoped tasks, saved progress and evidence, and lets you explicitly review completion proposals with live revalidation. The extension remains at 0.2.0; Braid integration and automatic continuation remain future work. Start with [GUI setup](docs/GUI-SETUP.md), [evidence setup](docs/EVIDENCE-SETUP.md) or [MCP setup](docs/MCP-SETUP.md); see [STATUS.md](docs/STATUS.md) for boundaries.
+**Current development: terminal/editor continuity, Herdr bindings and Linux artifact versions, extending 0.7.0 with database schema 9.** Resume an explicit task with its accepted direction, saved progress, blockers and file drift. Save progress through editable checkpoint drafts that preserve their original task, revision and retry identity.
+
+The [Neovim integration](docs/NEOVIM-SETUP.md) brings that workflow into the editor. [Workspace/session records](docs/WORKSPACE-SETUP.md) keep tasks distinct even when they share a repository. The [Linux Herdr adapter](docs/HERDR-SETUP.md) verifies selected panes and publishes expiring task metadata. [Artifact versions](docs/ARTIFACT-SETUP.md) pin exact file identity, with optional Git metadata, to checkpoints; they detect changed or missing files and explicitly recorded relocations. They retain metadata and digests, not file contents.
+
+Scoped MCP clients can read context and, with an explicit write grant, save progress. The browser GUI shows tasks, checkpoints and independently observed evidence for explicit completion review. Start with [terminal setup](docs/CONTINUITY-SETUP.md), [GUI setup](docs/GUI-SETUP.md), [evidence setup](docs/EVIDENCE-SETUP.md) or [MCP setup](docs/MCP-SETUP.md). The extension remains at 0.2.0. P02 progress/decision review is next; file preservation, workspace restoration, Braid integration and automatic continuation remain planned. See [STATUS.md](docs/STATUS.md) for the supported boundaries.
 
 ## Progress
 
-| Improvement | Status in 0.7.0 |
+| Improvement | Current development status |
 |---|---|
-| Durable checkpoints and context | Initial implementation delivered: immutable checkpoints, contracts, decisions, resource drift and resume context. Decision review, Git identity and evidence/run links remain open. |
+| Durable checkpoints and context | Delivered: immutable checkpoints, contracts, decisions, resource drift, readable resume and draft/submit helpers. [Linux artifact/version pins](docs/ARTIFACT-SETUP.md) include optional Git identity. Decision review and evidence/run links remain open. |
+| Workspace/session identity | Initial W01/T02 delivered: explicit manifests, generic declarations and verified local Herdr bindings with refresh/metadata. Schema-9 migration/replay tested. Automatic refresh and workspace recovery remain open. |
+| Editor continuity | Initial T03 delivered: [Neovim commands and LazyVim example](docs/NEOVIM-SETUP.md) for task selection, resume, checkpoint drafts, artifacts, session checks and GUI review. Isolated Linux acceptance; no global configuration installed. |
 | Assistant access through MCP | Initial implementation delivered: four tools, scoped credentials and explicitly delegated checkpoint writes. Host registration remains a deployment step. |
 | Verified computer actions | Planned. Browser tab controls exist; API success does not yet verify the intended outcome. |
 | Evidence-based completion | Initial CLI implementation delivered: artifact/repo/test evaluators, durable attempts, invalidation and live revalidation of task/step proposals. Raw-output retention, broader machine tools and review notices remain open. |
@@ -47,18 +53,25 @@ Linux/macOS build command:
 go build -trimpath -o bin/heimdall ./cmd/heimdall
 ```
 
-Windows is the locally tested runtime. Ubuntu CI also passes Go tests, vet, build and extension unit tests; Linux desktop/native-browser and macOS runtime acceptance remain open. For the examples below, use `./bin/heimdall` on Unix.
+Windows has historical acceptance; Linux core, continuity, MCP, evidence, GUI and isolated browser/native-worker checks now pass locally. WCU also inspected terminal rendering on Hyprland. Actual native-host installation, workspace recovery and macOS acceptance remain open. Use `./bin/heimdall` on Unix.
 
-Built executables do not require Go at runtime. The local `bin/heimdall-linux-amd64` artifact is a CGO-disabled cross-build, not a Linux-tested release.
+Built executables do not require Go at runtime. `bin/heimdall` is the locally tested Linux build; generated binaries are ignored by Git.
 
-Use a separate data directory for the example:
+Use a separate data directory for the example. On Linux:
+
+```sh
+./bin/heimdall init --data-dir ./demo-data
+./bin/heimdall start --data-dir ./demo-data
+```
+
+On Windows:
 
 ```powershell
 .\bin\heimdall.exe init --data-dir .\demo-data
 .\bin\heimdall.exe start --data-dir .\demo-data
 ```
 
-Leave `start` running. In another terminal:
+Leave `start` running. The following PowerShell example uses the Windows executable; on Linux, use `./bin/heimdall` and forward-slash paths. For the resume/draft workflow, follow [terminal continuity setup](docs/CONTINUITY-SETUP.md).
 
 ```powershell
 .\bin\heimdall.exe import-tasks .\testdata\tasks.yaml --data-dir .\demo-data
@@ -81,7 +94,7 @@ Stop with Ctrl+C. No hooks, browser extension, system service, remote provider, 
 
 For extension installation, use [Browser setup](docs/BROWSER-SETUP.md). The extension and daemon run together; the browser launches the native helper. Load `extension/` unpacked, or extract `bin/heimdall-extension-0.2.0.zip`. Native-host registration is a separate local installation step.
 
-All commands accept `--data-dir PATH`, `--json`, and `--now RFC3339`. JSON is the default output except `export-tasks`, which emits YAML. Global flags can occur anywhere; command-specific flags follow the title/target.
+All commands accept `--data-dir PATH`, `--json`, and `--now RFC3339`. JSON is the default output except `export-tasks` (YAML) and `resume` (readable text unless `--json` is supplied). Global flags can occur anywhere; command-specific flags follow the title/target.
 
 | Command | Behavior |
 |---|---|
@@ -100,8 +113,14 @@ All commands accept `--data-dir PATH`, `--json`, and `--now RFC3339`. JSON is th
 | `replay` | Rebuild state and command dedupe from events; no external side effects |
 | `contract accept\|show\|list TARGET` / `decision accept\|list TARGET` | Accepted continuity records; mutations require JSON `--file` and explicit `--expected-task-revision` |
 | `resource bind\|unbind\|list TARGET` | Register or deactivate bounded file/tree observations |
+| `artifact record\|list\|show\|check TARGET` | Explicit local Linux file identity, immutable versions, optional Git metadata and fresh checks; see [artifact setup](docs/ARTIFACT-SETUP.md) |
 | `checkpoint create\|show\|list TARGET` | Immutable progress checkpoints; create requires explicit contract and previous head; show supports `--id` |
+| `checkpoint draft TARGET --output FILE` / `checkpoint submit TARGET --file FILE` | Prepare a new editable request with fixed revision/head/ID; submit after editing; preserve the file on retry or conflict |
+| `resume TARGET [--budget N] [--json]` | Readable accepted direction, saved progress, drift and recorded review needs; does not execute work |
 | `context TARGET --budget N` | Mandatory task/ancestor context and checkpoint drift checks; explicit budget error |
+| `workspace accept\|show TASK` | Accept a desired manifest or inspect its task-owned surfaces and bindings; acceptance requires explicit revision and JSON input |
+| `session bind\|unbind\|show TASK` | Explicit generic session declarations with immutable history; declarations are unverified |
+| `session bind-herdr\|refresh\|publish TASK` | Bind/check an actual local Herdr pane or publish expiring task metadata; see [Herdr setup](docs/HERDR-SETUP.md) for required identities |
 | `backup --output FILE` | Consistent database-only snapshot with no-overwrite publication |
 | `grant issue TARGET --name NAME --expires TIME --output FILE` | New private read credential; optional `--subtree` and `--resources ID1,ID2` |
 | `grant activate --credential FILE` / `grant list` / `grant revoke ID` | Retry issuance exactly, inspect or revoke grants |
@@ -131,6 +150,8 @@ If a command races with an editor save, the command's event remains durable whil
 
 The prototype keeps `tasks.yaml`, `types.yaml`, SQLite and endpoint metadata together under `--data-dir`. It defaults to `$XDG_DATA_HOME/heimdall`, otherwise `~/.local/share/heimdall`. The full XDG config/state split and `config.toml` are future work. On Windows, access control follows the chosen directory's ACL; Unix file mode bits are not a substitute for Windows ACL hardening.
 
+The current binary upgrades database markers 1–8 to **9**, publishing a consistent `backups/pre-schema-9-*.db` before migration. Older binaries refuse marker 9. Database backups preserve recorded state and receipts; external working files require separate preservation. Follow [backup, upgrade and restore](docs/CONTINUITY-SETUP.md#backup-upgrade-and-restore) for fresh-directory recovery or rollback.
+
 ## Develop
 
 Go language baseline 1.25, tested toolchain 1.27.1. Direct libraries are the pinned official Go MCP SDK v1.7.0, YAML parser and pure-Go SQLite driver. Retained dependency notices are in [docs/licenses](docs/licenses/INDEX.txt).
@@ -147,22 +168,36 @@ Extension unit tests require Node.js 24 and no npm packages:
 node --test extension/test/*.test.js
 ```
 
-After building `bin/heimdall.exe`, Windows integration checks exercise the compiled daemon and MCP adapter against synthetic data:
+After building `bin/heimdall` on Unix or `bin/heimdall.exe` on Windows, compiled integration checks use isolated synthetic data (Node 24):
 
-```powershell
-.\scripts\smoke.ps1
+```sh
+node scripts/core-smoke.cjs
 node scripts/native-smoke.cjs
 node scripts/continuity-smoke.cjs
+node scripts/resume-smoke.cjs
+node scripts/workspace-smoke.cjs
 node scripts/mcp-smoke.cjs
 node scripts/evidence-smoke.cjs
 node scripts/gui-smoke.cjs
 ```
 
+Additional Linux gates cover artifact observations and installed integrations:
+
+```sh
+node scripts/artifact-smoke.cjs
+node scripts/herdr-smoke.cjs
+node scripts/neovim-smoke.cjs
+```
+
+The installed targets tested locally are Herdr **0.8.2 / protocol 20** and Neovim **0.12.5**, with an optional lazy.nvim loader gate. These checks use isolated data and configuration. See [Herdr setup](docs/HERDR-SETUP.md#compatibility-and-acceptance) and [Neovim setup](docs/NEOVIM-SETUP.md#reproduce-acceptance) for prerequisites and limits. Fresh artifact and live Herdr observations currently require Linux; Windows cross-build success does not establish those runtime capabilities.
+
+Set `HEIMDALL_BIN` to an explicit executable and `HEIMDALL_TEST_TMP` to a scratch parent when needed. The harness closes child stdin and bounds shutdown on Unix; test data remains for inspection. The old PowerShell core smoke remains available.
+
 GUI development uses `npm ci --ignore-scripts --no-audit --no-fund` and `npm run build` in `web/`. Commit the generated `internal/webui/assets/app.js`; a fresh Go-only build embeds it without requiring Node at runtime. Install the test browser with `npx playwright install chromium` in `web/` before running the GUI smoke.
 
-CI runs Go tests/vet/build, TypeScript build/generated-file checks and extension unit tests on Windows and Ubuntu, plus compiled continuity/MCP/evidence and Chromium GUI checks on Windows. See [verification notes](docs/VERIFICATION.md) for their limits and historical results.
+CI runs Go tests/vet/build, TypeScript build/generated-file checks and extension unit tests on Windows and Ubuntu, plus compiled core/native/continuity/resume/workspace/MCP/evidence and Chromium GUI checks on both platforms. Artifact observation runs on Linux only; installed Herdr and Neovim gates remain separate. See [verification notes](docs/VERIFICATION.md) for local results and historical remote CI evidence, and [GitHub Actions](https://github.com/algorhythmic/heimdall/actions) for current runs.
 
-On this Windows workspace, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools/go`, or the already-installed sibling Braid toolchain. This is a development convenience, not a runtime dependency or import from Braid.
+On Windows, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools/go`, or the already-installed sibling Braid toolchain. This is a development convenience, not a runtime dependency or import from Braid.
 
 ```powershell
 .\scripts\dev.ps1 test ./...
@@ -172,4 +207,4 @@ On this Windows workspace, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, 
 
 [Implementation specification](docs/design/HANDOFF-heimdall-v1.1.md) · [Browser runtime design](docs/design/BROWSER-EXTENSION.md) · [Verification](docs/VERIFICATION.md).
 
-C08/C09 and C10/C11 now have initial evidence and GUI implementations. Development is stopped at the requested documentation/commit/push checkpoint. Remaining work is recorded in the [seven-improvement implementation plan](docs/IMPLEMENTATION-PLAN.md) and [dependency-ordered backlog](docs/BACKLOG.md).
+C08/C09 and C10/C11 now have initial evidence and GUI implementations. R0 technical validation, T01 resume/checkpoint helpers, initial W01/T02 bindings and T03 Neovim commands are implemented. The September 8 [revised roadmap implementation plan](docs/REVISED-ROADMAP-IMPLEMENTATION-PLAN.md) now includes initial Linux artifact versions and continues with progress/decision review and verified workspace recovery. See the [backlog](docs/BACKLOG.md) for dependencies and completion status, and the [earlier continuity plan](docs/IMPLEMENTATION-PLAN.md) for the retained seven-improvement architecture.

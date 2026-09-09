@@ -1,6 +1,23 @@
 # Development milestones
 
-This records the implementation milestones reached by 2026-09-05. Versions describe local development builds; they do not imply published releases or completed deployment acceptance. The initial Git import captured the 0.5.0 implementation together, rather than reconstructing historical source commits.
+This records implementation milestones and current development work. Versions describe local development builds; they do not imply published releases or completed deployment acceptance. The initial Git import captured the 0.5.0 implementation together, rather than reconstructing historical source commits.
+
+## Unreleased — Terminal/editor continuity, Herdr bindings and Linux artifact versions (2026-09-08)
+
+- Readable `resume TARGET` with JSON available explicitly, accepted direction, checkpoint age/next action, resource drift, blockers and recorded review needs. Existing context JSON remains compatible; terminal controls are escaped.
+- `checkpoint draft` and `checkpoint submit` preserve original revisions, heads and retry identity through explicit editing, conflicts and daemon restarts. Draft files are retained and never overwritten during creation.
+- Portable compiled smoke paths and bounded child cleanup, a core/restart smoke, a resume workflow smoke and expanded Windows/Ubuntu CI configuration. Linux Go/vet/build and compiled core/native/continuity/MCP/evidence/GUI/browser/worker acceptance pass; WCU inspected the terminal output on Hyprland.
+- A stopped schema-6 fixture from the unchanged 0.7.0 binary checks state, grants, command receipts and replay compatibility. The original fixture is retained for schema-7 migration checks. Extension version is unchanged. Workspace restoration remains future work; T02/T03 updates below add live session verification and editor commands.
+- Initial W01 workspace manifests, stable task-owned surface IDs and explicit generic session bind/show/unbind commands. Immutable history, exact retries, competing-head/pane ownership checks, stale task/manifest diagnostics and pure replay; all active declarations remain unverified.
+- Schema 7 with pre-upgrade snapshots, actual 0.7.0 refusal of newer state and successful rollback, unchanged scoped grant authority, request/event fixtures and a portable workspace restart/backup smoke. This W01 slice performs no desktop actions; T02 metadata integration follows below.
+
+- Initial T02 Linux Herdr 0.8.2/protocol-20 adapter: actual pane/server/process identity, canonical cwd/Git, explicit refresh/rebind, expiring metadata and optional pane-labelled sidebar summary. Installed move/restart/expiry checks and WCU visual inspection pass. Runtime agent status never completes tasks.
+- Schema 8 preserves generic v1 declarations and adds observed v2 bindings. Actual schema-6/7 fixtures, consistent pre-upgrade snapshots, pure replay and old-binary refusal/rollback are verified. Automatic refresh, remote sessions and workspace recovery remain open; T03 editor support follows below.
+
+- Initial T03 Neovim plugin: explicit task/step selection, resume, checkpoint drafts/reopen/submission, bound artifact opening, session checks and GUI completion-review handoff. Local argv/JSON integration retains task/request identity through conflict and restart; renamed or externally changed drafts are refused. Isolated Neovim and lazy.nvim loader tests pass; WCU verified rendering. An example spec is provided without modifying global editor configuration. Schema and existing authority remain unchanged; automatic refresh and workspace recovery remain open.
+
+- Initial P01 local Linux artifact IDs and immutable file versions, owned by explicit task/environment/host, with byte/permission identity and opt-in Git worktree/ref/index/HEAD metadata. CLI record/list/show/check distinguishes changed bytes, missing originals and declared relocation; file contents are not retained.
+- Schema 9 and CLI artifact checkpoint request-v2/persisted-v3 pins. Legacy records and grant limits survive schema-6/7/8 fixture upgrades; the actual schema-8 binary passes upgrade/refusal/rollback. CLI/Neovim drafts retain exact pins; scoped context shows references and requires CLI checks without expanding filesystem/Git authority. Compiled restart/replay/backup restore, Git/confinement/race and editor tests pass. Progress/decision review and content preservation remain open.
 
 ## 0.7.0 — Local task and evidence GUI
 
@@ -51,4 +68,4 @@ This records the implementation milestones reached by 2026-09-05. Versions descr
 
 ## Next
 
-C08/C09 have an initial CLI implementation; output retention, broader evidence tools and review notices remain open. Remaining C03 decision/Git identity work, task GUI, verified browser outcomes, Braid retrieval and execution-host coordination also remain open. See the [backlog](docs/BACKLOG.md) for dependencies and acceptance criteria, and [verification](docs/VERIFICATION.md) for what was actually tested.
+Initial W01 workspace/session identity, T02 Herdr binding and T03 Neovim integration now build on the R0/T01 foundation. Initial P01 adds stable local Linux artifact versions and optional Git identity. Remaining C03 decision review, evidence output retention, broader GUI controls, verified browser outcomes, Braid and execution-host coordination stay open. See the [backlog](docs/BACKLOG.md) for dependencies and acceptance criteria, and [verification](docs/VERIFICATION.md) for what was actually tested.

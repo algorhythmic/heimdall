@@ -14,6 +14,10 @@ type BrowserTab struct {
 	OwnerID           string `json:"owner_id,omitempty"`
 }
 type BrowserProfile struct {
+	EventGeneration      int64             `json:"event_generation,omitempty"`
+	PairingProtocol      int               `json:"pairing_protocol,omitempty"`
+	ExtensionID          string            `json:"extension_id,omitempty"`
+	Markers              []BrowserMarker   `json:"markers,omitempty"`
 	VerificationProtocol int               `json:"verification_protocol,omitempty"`
 	Challenge            *BrowserChallenge `json:"challenge,omitempty"`
 	Freshness            *BrowserFreshness `json:"freshness,omitempty"`
@@ -34,23 +38,27 @@ type BrowserProfile struct {
 	Complete             bool              `json:"complete"`
 }
 type BrowserOperation struct {
-	ActionRef   *BrowserActionRef `json:"action_ref,omitempty"`
-	ID          string            `json:"id"`
-	Profile     string            `json:"profile"`
-	Epoch       string            `json:"epoch"`
-	Action      string            `json:"action"`
-	TabID       int               `json:"tab_id,omitempty"`
-	WindowID    int               `json:"window_id,omitempty"`
-	ExpectedURL string            `json:"expected_url,omitempty"`
-	URL         string            `json:"url,omitempty"`
-	OwnerID     string            `json:"owner_id,omitempty"`
-	Status      string            `json:"status"`
-	Detail      string            `json:"detail,omitempty"`
-	CreatedAt   time.Time         `json:"created_at"`
-	ExpiresAt   time.Time         `json:"expires_at"`
+	Pairing     *BrowserPairingIntent `json:"pairing,omitempty"`
+	ActionRef   *BrowserActionRef     `json:"action_ref,omitempty"`
+	ID          string                `json:"id"`
+	Profile     string                `json:"profile"`
+	Epoch       string                `json:"epoch"`
+	Action      string                `json:"action"`
+	TabID       int                   `json:"tab_id,omitempty"`
+	WindowID    int                   `json:"window_id,omitempty"`
+	ExpectedURL string                `json:"expected_url,omitempty"`
+	URL         string                `json:"url,omitempty"`
+	OwnerID     string                `json:"owner_id,omitempty"`
+	Status      string                `json:"status"`
+	Detail      string                `json:"detail,omitempty"`
+	CreatedAt   time.Time             `json:"created_at"`
+	ExpiresAt   time.Time             `json:"expires_at"`
 }
 
 func (s *State) Normalize() {
+	if s.BrowserAssociations == nil {
+		s.BrowserAssociations = map[string]BrowserAssociation{}
+	}
 	if s.Actions == nil {
 		s.Actions = map[string]ActionRecord{}
 	}

@@ -64,6 +64,9 @@ func applyAction(st *model.State, e Event) error {
 		if !p.Paired || p.Epoch != v.Browser.Epoch || p.ActionProtocol != 1 {
 			return fmt.Errorf("paired action-capable browser epoch required")
 		}
+		if v.Browser.Pairing != nil && (p.PairingProtocol != 1 || !model.BrowserExtensionIDPattern.MatchString(p.ExtensionID)) {
+			return fmt.Errorf("pairing-capable browser required")
+		}
 		if v.Browser.Action != "open" {
 			owner, ok := st.Actions[v.Browser.OwnerID]
 			if !ok || owner.Intent.Target != v.Target || owner.Intent.SurfaceID != v.SurfaceID || owner.Intent.Browser == nil || owner.Intent.Browser.Action != "open" || owner.Intent.Browser.Profile != p.ID || owner.Intent.Browser.Epoch != p.Epoch {
@@ -87,19 +90,35 @@ func applyAction(st *model.State, e Event) error {
 		return err
 	}
 	a, exists := st.Actions[v.ActionID]
-	if !exists || (v.Version != 1 && v.Version != 2) || !model.OpaqueID.MatchString(v.ID) || v.ActionID != e.EntityID || v.AttemptID != a.Intent.AttemptID || v.PreviousRevision != a.Revision || v.Actor != e.Actor || !v.At.Equal(e.TS) || v.At.IsZero() || len(v.Reason) > 512 {
+	if !exists || (v.Version != 1 && v.Version != 2 && v.Version != 3) || !model.OpaqueID.MatchString(v.ID) || v.ActionID != e.EntityID || v.AttemptID != a.Intent.AttemptID || v.PreviousRevision != a.Revision || v.Actor != e.Actor || !v.At.Equal(e.TS) || v.At.IsZero() || len(v.Reason) > 512 {
 		return fmt.Errorf("invalid action transition identity, revision or provenance")
+	}
+	if v.PairProbe != nil && (v.Version != 3 || v.Kind != "pair_probe") {
+		return fmt.Errorf("pairing probe on another transition")
+	}
+	if v.PairReady != nil && (v.Version != 3 || v.Kind != "pair_ready") {
+		return fmt.Errorf("pairing report on another transition")
+	}
+	if v.AssociationID != "" && (v.Version != 3 || v.Kind != "pair_bound") {
+		return fmt.Errorf("association on another transition")
+	}
+	if v.ContinuationID != "" && (v.Version != 3 || !model.Contains([]string{"pair_bound", "pair_continue", "report"}, v.Kind)) {
+		return fmt.Errorf("continuation on another transition")
 	}
 	if v.Kind != "report" && v.Report != nil {
 		return fmt.Errorf("report on another transition")
 	}
-	if v.Kind != "dispatch" && v.DeliveryID != "" {
+	if v.Kind != "dispatch" && v.Kind != "pair_continue" && v.DeliveryID != "" {
 		return fmt.Errorf("delivery identity on another transition")
 	}
-	if v.Kind != "observe" && v.Kind != "dispatch" && v.Kind != "verify" && v.Observation != nil {
+	if v.Kind != "observe" && v.Kind != "dispatch" && v.Kind != "verify" && v.Kind != "pair_continue" && v.Observation != nil {
 		return fmt.Errorf("observation on another transition")
 	}
 	switch v.Kind {
+	case "pair_ready", "pair_probe", "pair_bound", "pair_continue", "pair_abandoned":
+		if err := applyActionPairing(*st, &a, v); err != nil {
+			return err
+		}
 	case "dispatch":
 		if e.Actor != "coordinator" || !model.OpaqueID.MatchString(v.DeliveryID) || a.Execution != "queued" || a.CancelRequested || v.At.Before(a.Intent.At) || !v.At.Before(a.Intent.ExpiresAt) || !model.ActionInputsCurrent(*st, a.Intent) || !model.ActionBrowserCurrent(*st, a.Intent) {
 			return fmt.Errorf("action cannot dispatch")
@@ -109,7 +128,7 @@ func applyAction(st *model.State, e Event) error {
 		if o == nil || !model.OpaqueID.MatchString(o.ID) || o.Status != "unknown" || o.SourceEpoch != p.Epoch || o.Digest != model.ContentDigest(p) || !o.ObservedAt.Equal(p.ReceivedAt) || v.At.Before(p.ReceivedAt) || v.At.Sub(p.ReceivedAt) > 5*time.Second || !p.Complete {
 			return fmt.Errorf("dispatch lacks a fresh observation reference")
 		}
-		if v.Version == 2 && (p.Freshness == nil || !p.Freshness.Stable || p.Freshness.Challenge.AfterEventID < a.LastEventID) {
+		if (v.Version >= 2 || a.Intent.Browser.Pairing != nil) && (p.Freshness == nil || !p.Freshness.Stable || p.Freshness.Challenge.AfterEventID < a.LastEventID) {
 			return fmt.Errorf("dispatch requires challenged stable readback after intent")
 		}
 		a.Execution = "dispatching"
@@ -147,6 +166,12 @@ func applyAction(st *model.State, e Event) error {
 		}
 	case "report":
 		r := v.Report
+		if a.Intent.Browser.Pairing != nil {
+			firstFailure := v.Version == 3 && v.ContinuationID == "" && a.Pairing == nil && r != nil && r.Status != "succeeded"
+			if !firstFailure && (v.Version != 3 || a.Pairing == nil || a.Pairing.ContinuationDeliveryID == "" || v.ContinuationID != a.Pairing.ContinuationID) {
+				return fmt.Errorf("final pairing result requires its dispatched continuation")
+			}
+		}
 		if e.Actor != "observer:browser" || r == nil || !model.Contains([]string{"succeeded", "refused", "failed", "uncertain"}, r.Status) || len(r.Detail) > 512 || !model.Contains([]string{"dispatching", "uncertain"}, a.Execution) {
 			return fmt.Errorf("unexpected action report")
 		}
@@ -158,7 +183,7 @@ func applyAction(st *model.State, e Event) error {
 			if v.Version == 1 || a.Observation == nil || !model.Contains([]string{"matched", "not_matched"}, a.Observation.Status) {
 				a.Verification = "pending"
 			}
-		} else if r.Status == "refused" && a.UncertainSince.IsZero() {
+		} else if r.Status == "refused" && a.UncertainSince.IsZero() && a.Pairing == nil {
 			a.Execution = "refused"
 			a.Verification = "unknown"
 		} else {
@@ -169,7 +194,7 @@ func applyAction(st *model.State, e Event) error {
 			}
 		}
 		a.Report = r
-		if v.Version == 2 {
+		if v.Version >= 2 {
 			a.VerificationAttempts = 0
 		}
 	case "source_lost":
@@ -195,7 +220,7 @@ func applyAction(st *model.State, e Event) error {
 		}
 		p := st.Browsers[a.Intent.Browser.Profile]
 		o := v.Observation
-		status, detail := model.BrowserOutcome(a, p)
+		status, detail := model.BrowserOutcomeInState(*st, a, p)
 		if !model.OpaqueID.MatchString(o.ID) || o.Status != status || o.Detail != detail || o.SourceEpoch != p.Epoch || o.Digest != model.ContentDigest(p) || !o.ObservedAt.Equal(p.ReceivedAt) || !o.ObservedAt.Equal(v.At) || p.Freshness == nil {
 			return fmt.Errorf("verification differs from independent readback")
 		}
@@ -231,6 +256,9 @@ func validateActionOperation(st model.State, op model.BrowserOperation) error {
 		return fmt.Errorf("browser action reference mismatch")
 	}
 	b := a.Intent.Browser
+	if !reflect.DeepEqual(op.Pairing, b.Pairing) {
+		return fmt.Errorf("browser pairing authority changed")
+	}
 	if op.Profile != b.Profile || op.Epoch != b.Epoch || op.Action != b.Action || op.URL != b.URL || op.OwnerID != b.OwnerID || !op.CreatedAt.Equal(a.Intent.At) || !op.ExpiresAt.Equal(a.Intent.ExpiresAt) {
 		return fmt.Errorf("browser action intent changed")
 	}

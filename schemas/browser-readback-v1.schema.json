@@ -143,6 +143,17 @@
     "challenge_id": {
       "type": "string",
       "pattern": "^[a-f0-9]{32}$"
+    },
+    "event_generation": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "markers": {
+      "type": "array",
+      "maxItems": 128,
+      "items": {
+        "$ref": "browser-pairing-v1.schema.json#/$defs/marker"
+      }
     }
   }
 }

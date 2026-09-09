@@ -1,7 +1,7 @@
 # Browser readback and recovery
 
 The first C13 slice adds independent browser postconditions and actual Linux
-Chromium native-host acceptance. Use extension **0.4.0** with schema **17**. The
+Chromium native-host acceptance. The current extension is **0.5.0**, schema **18**; the original verification slice used 0.4.0/schema 17. The
 extension ID remains `lffmpcoiimmjmacdbgnnjnegplmhiaic`. This is browser API
 verification; browser-to-Hyprland nonce association and workspace restoration
 remain the next integration work.
@@ -111,3 +111,5 @@ new database; rollback uses that backup in a fresh directory. See
 [continuity setup](CONTINUITY-SETUP.md) and [verification evidence](VERIFICATION.md).
 Actual Windows/Edge registration, normal-profile deployment, compositor pairing,
 reboot/session adoption and full workspace recovery remain separate gates.
+
+The subsequent C13 [browser pairing slice](BROWSER-PAIRING.md) delivers Linux compositor association. Earlier integration-gate notes above describe the first slice.

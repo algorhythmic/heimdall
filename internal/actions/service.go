@@ -93,7 +93,7 @@ func (s Service) Queue(ctx context.Context, r Request, actor string, now time.Ti
 		}
 		a := st.Actions[intent.ID]
 		b := intent.Browser
-		op := model.BrowserOperation{ID: r.ID, Profile: b.Profile, Epoch: b.Epoch, Action: b.Action, TabID: b.TabID, WindowID: b.WindowID, OwnerID: b.OwnerID, ExpectedURL: b.ExpectedURL, URL: b.URL, Status: "pending", CreatedAt: intent.At, ExpiresAt: intent.ExpiresAt, ActionRef: a.BrowserRef()}
+		op := model.BrowserOperation{Pairing: b.Pairing, ID: r.ID, Profile: b.Profile, Epoch: b.Epoch, Action: b.Action, TabID: b.TabID, WindowID: b.WindowID, OwnerID: b.OwnerID, ExpectedURL: b.ExpectedURL, URL: b.URL, Status: "pending", CreatedAt: intent.At, ExpiresAt: intent.ExpiresAt, ActionRef: a.BrowserRef()}
 		c.Events = []store.Pending{queued, {Subject: "browser", Verb: "command_queued", EntityID: op.ID, Payload: op}}
 		c.Result = a
 		return c, nil

@@ -1,0 +1,4158 @@
+[
+  {
+    "id": 1,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:18.188815347Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "viewport-f8ee98a1e7348d92b31c5895cc6ff33d",
+    "command_id": "viewport-f8ee98a1e7348d92b31c5895cc6ff33d",
+    "payload": {
+      "request_hash": "17c9e73d7ef1e4a94e62a7bb1c8630ca9056914aaadeca75a6fa9e242855b8da",
+      "revision": 0,
+      "result": {
+        "version": 1,
+        "id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+        "previous": "",
+        "active": true,
+        "socket_dir": "/tmp/heimdall-browser-pair-blNGOq",
+        "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+        "epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+        "compositor_version": "0.56.2",
+        "actor": "cli",
+        "at": "2026-09-09T11:58:18.188815347Z"
+      }
+    }
+  },
+  {
+    "id": 2,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:18.188815347Z",
+    "subject": "desktop",
+    "verb": "selected",
+    "actor": "cli",
+    "entity_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+    "command_id": "viewport-f8ee98a1e7348d92b31c5895cc6ff33d",
+    "payload": {
+      "version": 1,
+      "id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+      "previous": "",
+      "active": true,
+      "socket_dir": "/tmp/heimdall-browser-pair-blNGOq",
+      "host": "2b5226fbefae0cd00af5055abc2bce6ccf8987a5ffbaab2123fab85733c4011d",
+      "epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+      "compositor_version": "0.56.2",
+      "actor": "cli",
+      "at": "2026-09-09T11:58:18.188815347Z"
+    }
+  },
+  {
+    "id": 3,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:19.062534314Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-5f39c5a2ebd54a60af0ac0c831a2b463",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-5f39c5a2ebd54a60af0ac0c831a2b463",
+    "payload": {
+      "request_hash": "b6f768637dfe4275bc922af0e3e522662f9d65ade7f6534cb1baaea746b307f5",
+      "revision": 0,
+      "result": {
+        "v": 1,
+        "type": "pairing_required",
+        "id": "5f39c5a2ebd54a60af0ac0c831a2b463",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": false
+      }
+    }
+  },
+  {
+    "id": 4,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:19.062534314Z",
+    "subject": "browser",
+    "verb": "profile_seen",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-5f39c5a2ebd54a60af0ac0c831a2b463",
+    "payload": {
+      "pairing_protocol": 1,
+      "extension_id": "lffmpcoiimmjmacdbgnnjnegplmhiaic",
+      "verification_protocol": 1,
+      "action_protocol": 1,
+      "received_at": "0001-01-01T00:00:00Z",
+      "id": "d07aae5bcc544c95ac860e6b7df520aa",
+      "label": "Browser profile",
+      "extension_version": "0.5.0",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "2824d4501ec54045b2b4150424fb9c50",
+      "paired": false,
+      "last_sequence": 0,
+      "last_observed_at": "0001-01-01T00:00:00Z",
+      "tabs": [],
+      "focused_window": -1,
+      "complete": false
+    }
+  },
+  {
+    "id": 5,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:19.292105727Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "browser-control-937e28cc62a937282c4b63664afa9db1",
+    "command_id": "browser-control-937e28cc62a937282c4b63664afa9db1",
+    "payload": {
+      "request_hash": "810dc9217656096fdd365cb11a1056ebcbaaf0b9a0b945c98bc751c40d338f57",
+      "revision": 0,
+      "result": {
+        "paired": true,
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa"
+      }
+    }
+  },
+  {
+    "id": 6,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:19.292105727Z",
+    "subject": "browser",
+    "verb": "pairing_changed",
+    "actor": "cli",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-control-937e28cc62a937282c4b63664afa9db1",
+    "payload": {
+      "pairing_protocol": 1,
+      "extension_id": "lffmpcoiimmjmacdbgnnjnegplmhiaic",
+      "verification_protocol": 1,
+      "action_protocol": 1,
+      "received_at": "0001-01-01T00:00:00Z",
+      "id": "d07aae5bcc544c95ac860e6b7df520aa",
+      "label": "Browser profile",
+      "extension_version": "0.5.0",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "2824d4501ec54045b2b4150424fb9c50",
+      "paired": true,
+      "last_sequence": 0,
+      "last_observed_at": "0001-01-01T00:00:00Z",
+      "tabs": [],
+      "focused_window": -1,
+      "complete": false
+    }
+  },
+  {
+    "id": 7,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:19.329787411Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "a18a619b7139d56c6aae30669c217b2d",
+    "command_id": "a18a619b7139d56c6aae30669c217b2d",
+    "payload": {
+      "request_hash": "800a375f1be4e566b1f3f30944a2a946f0193e072057d9c8ae4142dafdad1cbf",
+      "revision": 1,
+      "result": {
+        "id": "a18a619b7139d56c6aae30669c217b2d",
+        "revision": 1,
+        "data": {
+          "task_id": "alpha"
+        }
+      }
+    }
+  },
+  {
+    "id": 8,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:19.329787411Z",
+    "subject": "task",
+    "verb": "created",
+    "actor": "cli",
+    "entity_id": "alpha",
+    "command_id": "a18a619b7139d56c6aae30669c217b2d",
+    "payload": {
+      "record": {
+        "task": {
+          "id": "alpha",
+          "title": "Browser pairing",
+          "type": "project",
+          "status": "active",
+          "importance": 3,
+          "done": {
+            "text": ""
+          }
+        },
+        "revision": 1,
+        "workflow": {
+          "version": 1,
+          "statuses": [
+            "backlog",
+            "active",
+            "blocked",
+            "review",
+            "done",
+            "dropped"
+          ],
+          "initial_status": "backlog",
+          "success_statuses": [
+            "done"
+          ],
+          "dropped_statuses": [
+            "dropped"
+          ]
+        },
+        "created_at": "2026-09-09T11:58:19.329787411Z",
+        "updated_at": "2026-09-09T11:58:19.329787411Z",
+        "completed": {}
+      },
+      "fields": [
+        "*"
+      ]
+    }
+  },
+  {
+    "id": 9,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:19.357943243Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "workspace-30db0fe132b877a2a73a1a1751e0d81c",
+    "command_id": "workspace-30db0fe132b877a2a73a1a1751e0d81c",
+    "payload": {
+      "request_hash": "17806a7ed1590b9ce782d1c1813791b6e9be21cdd378f7278fb59eb1c23dcd49",
+      "revision": 1,
+      "result": {
+        "version": 1,
+        "id": "30db0fe132b877a2a73a1a1751e0d81c",
+        "target": "alpha",
+        "task_revision": 1,
+        "previous": "",
+        "name": "Browser pairing",
+        "surfaces": [
+          {
+            "id": "a2e8ffab2120adbb10f90b8967e9cd06",
+            "kind": "browser",
+            "label": "Browser",
+            "required": true,
+            "restore_policy": "manual"
+          }
+        ],
+        "actor": "cli",
+        "at": "2026-09-09T11:58:19.357943243Z"
+      }
+    }
+  },
+  {
+    "id": 10,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:19.357943243Z",
+    "subject": "workspace",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "30db0fe132b877a2a73a1a1751e0d81c",
+    "command_id": "workspace-30db0fe132b877a2a73a1a1751e0d81c",
+    "payload": {
+      "version": 1,
+      "id": "30db0fe132b877a2a73a1a1751e0d81c",
+      "target": "alpha",
+      "task_revision": 1,
+      "previous": "",
+      "name": "Browser pairing",
+      "surfaces": [
+        {
+          "id": "a2e8ffab2120adbb10f90b8967e9cd06",
+          "kind": "browser",
+          "label": "Browser",
+          "required": true,
+          "restore_policy": "manual"
+        }
+      ],
+      "actor": "cli",
+      "at": "2026-09-09T11:58:19.357943243Z"
+    }
+  },
+  {
+    "id": 11,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:19.406221062Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "action-dfe70ff5ae481a26e4735918ff82adb6",
+    "command_id": "action-dfe70ff5ae481a26e4735918ff82adb6",
+    "payload": {
+      "request_hash": "5ca40afe5c663baf91af77ac5c216f2d4e9fbc529391a32dbf891aedd456bec8",
+      "revision": 1,
+      "result": {
+        "intent": {
+          "version": 2,
+          "id": "dfe70ff5ae481a26e4735918ff82adb6",
+          "target": "alpha",
+          "task_revision": 1,
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06",
+          "context_digest": "6c9426cc6af05d3821532ced339637b91e1b0f3d55eab7c47caf401cd88c8ead",
+          "adapter": "browser",
+          "attempt_id": "0154ce50f9259169de030fc026336b3c",
+          "authority": "cli",
+          "authority_ref": "action-dfe70ff5ae481a26e4735918ff82adb6",
+          "browser": {
+            "pairing": {
+              "version": 1,
+              "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+              "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+              "previous_viewport": "none"
+            },
+            "load_condition": "complete",
+            "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+            "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+            "action": "open",
+            "url": "http://127.0.0.1:44965/paired"
+          },
+          "expected": {
+            "kind": "owned_instance_exists",
+            "url": "http://127.0.0.1:44965/paired",
+            "redirect_policy": "exact",
+            "load_condition": "complete"
+          },
+          "at": "2026-09-09T11:58:19.406221062Z",
+          "expires_at": "2026-09-09T11:58:49.406221062Z"
+        },
+        "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+        "revision": 1,
+        "execution": "queued",
+        "verification": "pending",
+        "cancel_requested": false,
+        "uncertain_since": "0001-01-01T00:00:00Z",
+        "updated_at": "2026-09-09T11:58:19.406221062Z",
+        "last_reason": "",
+        "last_event_id": 12
+      }
+    }
+  },
+  {
+    "id": 12,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:19.406221062Z",
+    "subject": "action",
+    "verb": "queued",
+    "actor": "cli",
+    "entity_id": "dfe70ff5ae481a26e4735918ff82adb6",
+    "command_id": "action-dfe70ff5ae481a26e4735918ff82adb6",
+    "payload": {
+      "version": 2,
+      "id": "dfe70ff5ae481a26e4735918ff82adb6",
+      "target": "alpha",
+      "task_revision": 1,
+      "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+      "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06",
+      "context_digest": "6c9426cc6af05d3821532ced339637b91e1b0f3d55eab7c47caf401cd88c8ead",
+      "adapter": "browser",
+      "attempt_id": "0154ce50f9259169de030fc026336b3c",
+      "authority": "cli",
+      "authority_ref": "action-dfe70ff5ae481a26e4735918ff82adb6",
+      "browser": {
+        "pairing": {
+          "version": 1,
+          "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+          "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+          "previous_viewport": "none"
+        },
+        "load_condition": "complete",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "action": "open",
+        "url": "http://127.0.0.1:44965/paired"
+      },
+      "expected": {
+        "kind": "owned_instance_exists",
+        "url": "http://127.0.0.1:44965/paired",
+        "redirect_policy": "exact",
+        "load_condition": "complete"
+      },
+      "at": "2026-09-09T11:58:19.406221062Z",
+      "expires_at": "2026-09-09T11:58:49.406221062Z"
+    }
+  },
+  {
+    "id": 13,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:19.406221062Z",
+    "subject": "browser",
+    "verb": "command_queued",
+    "actor": "cli",
+    "entity_id": "dfe70ff5ae481a26e4735918ff82adb6",
+    "command_id": "action-dfe70ff5ae481a26e4735918ff82adb6",
+    "payload": {
+      "pairing": {
+        "version": 1,
+        "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+        "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+        "previous_viewport": "none"
+      },
+      "action_ref": {
+        "version": 1,
+        "id": "dfe70ff5ae481a26e4735918ff82adb6",
+        "attempt_id": "0154ce50f9259169de030fc026336b3c",
+        "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+        "target": "alpha",
+        "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+        "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+      },
+      "id": "dfe70ff5ae481a26e4735918ff82adb6",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "action": "open",
+      "url": "http://127.0.0.1:44965/paired",
+      "status": "pending",
+      "created_at": "2026-09-09T11:58:19.406221062Z",
+      "expires_at": "2026-09-09T11:58:49.406221062Z"
+    }
+  },
+  {
+    "id": 14,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:21.025124855Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-9ff1a7f5d9694b7b9200d8638529cfa0",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-9ff1a7f5d9694b7b9200d8638529cfa0",
+    "payload": {
+      "request_hash": "cee4e10dd9134c4aa19741d67414689527d1a02e7a1e2b07946e9cc5152f1559",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "welcome",
+        "id": "9ff1a7f5d9694b7b9200d8638529cfa0",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true
+      }
+    }
+  },
+  {
+    "id": 15,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:21.025124855Z",
+    "subject": "browser",
+    "verb": "profile_seen",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-9ff1a7f5d9694b7b9200d8638529cfa0",
+    "payload": {
+      "pairing_protocol": 1,
+      "extension_id": "lffmpcoiimmjmacdbgnnjnegplmhiaic",
+      "verification_protocol": 1,
+      "action_protocol": 1,
+      "received_at": "0001-01-01T00:00:00Z",
+      "id": "d07aae5bcc544c95ac860e6b7df520aa",
+      "label": "Browser profile",
+      "extension_version": "0.5.0",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "paired": true,
+      "last_sequence": 0,
+      "last_observed_at": "0001-01-01T00:00:00Z",
+      "tabs": [],
+      "focused_window": -1,
+      "complete": false
+    }
+  },
+  {
+    "id": 16,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:21.035059432Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-d0e7fbdff25c40248982e51aca975170",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-d0e7fbdff25c40248982e51aca975170",
+    "payload": {
+      "request_hash": "1d2577282caebc9351bc19814b1687c12086c78f749563aa9266ce279b7711e3",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "9c412200d6935a1a3132a59197dceaea",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 15,
+          "issued_at": "2026-09-09T11:58:21.035059432Z",
+          "expires_at": "2026-09-09T11:58:26.035059432Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "dfe70ff5ae481a26e4735918ff82adb6",
+              "attempt_id": "0154ce50f9259169de030fc026336b3c",
+              "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "d0e7fbdff25c40248982e51aca975170",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true
+      }
+    }
+  },
+  {
+    "id": 17,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:21.035059432Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-d0e7fbdff25c40248982e51aca975170",
+    "payload": {
+      "version": 1,
+      "id": "9c412200d6935a1a3132a59197dceaea",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 15,
+      "issued_at": "2026-09-09T11:58:21.035059432Z",
+      "expires_at": "2026-09-09T11:58:26.035059432Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "dfe70ff5ae481a26e4735918ff82adb6",
+          "attempt_id": "0154ce50f9259169de030fc026336b3c",
+          "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 18,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:21.064200804Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-1ced7ce2f6d24affbd8c576b355a598b",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-1ced7ce2f6d24affbd8c576b355a598b",
+    "payload": {
+      "request_hash": "ae4d998bf130d8117740b2734011b836e6f1961ed4c045d2f6b7b3134d0514fe",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "1ced7ce2f6d24affbd8c576b355a598b",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 1
+      }
+    }
+  },
+  {
+    "id": 19,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:21.064200804Z",
+    "subject": "browser",
+    "verb": "readback_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-1ced7ce2f6d24affbd8c576b355a598b",
+    "payload": {
+      "version": 1,
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "challenge_id": "9c412200d6935a1a3132a59197dceaea",
+      "sequence": 1,
+      "observed_at": "2026-09-09T11:58:21.062Z",
+      "received_at": "2026-09-09T11:58:21.064200804Z",
+      "complete": true,
+      "stable": true,
+      "tabs": null,
+      "present_tabs": [
+        2015148192,
+        2015148193
+      ],
+      "instances": null,
+      "focused_window": 2015148191
+    }
+  },
+  {
+    "id": 20,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:23.013349047Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-3bf4c87132144934a213eb618139e0b5",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-3bf4c87132144934a213eb618139e0b5",
+    "payload": {
+      "request_hash": "c7835f1f93db56302cec9446f69b787984c672d9f6c2b293535974c51567e051",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "commands",
+        "id": "3bf4c87132144934a213eb618139e0b5",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 1,
+        "commands": [
+          {
+            "pairing": {
+              "version": 1,
+              "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+              "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+              "previous_viewport": "none"
+            },
+            "action_ref": {
+              "version": 1,
+              "id": "dfe70ff5ae481a26e4735918ff82adb6",
+              "attempt_id": "0154ce50f9259169de030fc026336b3c",
+              "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            },
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+            "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+            "action": "open",
+            "url": "http://127.0.0.1:44965/paired",
+            "status": "pending",
+            "created_at": "2026-09-09T11:58:19.406221062Z",
+            "expires_at": "2026-09-09T11:58:49.406221062Z"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 21,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:23.013349047Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "coordinator",
+    "entity_id": "dfe70ff5ae481a26e4735918ff82adb6",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-3bf4c87132144934a213eb618139e0b5",
+    "payload": {
+      "version": 2,
+      "id": "a223a6b667207ceea9ae336e9d0e3c8a",
+      "action_id": "dfe70ff5ae481a26e4735918ff82adb6",
+      "attempt_id": "0154ce50f9259169de030fc026336b3c",
+      "previous_revision": 1,
+      "kind": "dispatch",
+      "reason": "fresh paired browser transport delivery",
+      "delivery_id": "3bf4c87132144934a213eb618139e0b5",
+      "observation": {
+        "id": "dd73d227462da1fe0ff3a65713f67cca",
+        "status": "unknown",
+        "source_epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "digest": "2b8cb97356bf285a83c4ed8c2ab7ed1bbee1bbb9d6aaeb4804a9c88097448dfe",
+        "observed_at": "2026-09-09T11:58:21.064200804Z",
+        "detail": "Complete browser inventory used as dispatch precondition"
+      },
+      "actor": "coordinator",
+      "at": "2026-09-09T11:58:23.013349047Z"
+    }
+  },
+  {
+    "id": 22,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:23.018920849Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-ba1174753b384eb69ba45590275d65c0",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-ba1174753b384eb69ba45590275d65c0",
+    "payload": {
+      "request_hash": "39de3bdf4ab6500975416fbd3ba91049f2900d20710a504018db12764009d8a4",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "ba1174753b384eb69ba45590275d65c0",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 2
+      }
+    }
+  },
+  {
+    "id": 23,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:23.018920849Z",
+    "subject": "browser",
+    "verb": "inventory_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-ba1174753b384eb69ba45590275d65c0",
+    "payload": {
+      "pairing_protocol": 1,
+      "extension_id": "lffmpcoiimmjmacdbgnnjnegplmhiaic",
+      "verification_protocol": 1,
+      "challenge": {
+        "version": 1,
+        "id": "9c412200d6935a1a3132a59197dceaea",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "connection": "0b7c20a6668242e39003bb3a0513e041",
+        "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+        "after_event_id": 15,
+        "issued_at": "2026-09-09T11:58:21.035059432Z",
+        "expires_at": "2026-09-09T11:58:26.035059432Z",
+        "actions": [
+          {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        ]
+      },
+      "action_protocol": 1,
+      "received_at": "2026-09-09T11:58:23.018920849Z",
+      "received_epoch": "2558de77aee14acf2379d5e273906cdb",
+      "id": "d07aae5bcc544c95ac860e6b7df520aa",
+      "label": "Browser profile",
+      "extension_version": "0.5.0",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "paired": true,
+      "last_sequence": 2,
+      "last_observed_at": "2026-09-09T11:58:21.067Z",
+      "tabs": [],
+      "focused_window": 2015148191,
+      "complete": true
+    }
+  },
+  {
+    "id": 24,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.014490543Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-b5cd8d44e99c41b7909034f68a23354e",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-b5cd8d44e99c41b7909034f68a23354e",
+    "payload": {
+      "request_hash": "163dc8911264c496c36f325298168c4894dd414df296d356d3d136a82f57369c",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "57cc3eae69f88b2c49863cd26e14526e",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 23,
+          "issued_at": "2026-09-09T11:58:25.014490543Z",
+          "expires_at": "2026-09-09T11:58:30.014490543Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "dfe70ff5ae481a26e4735918ff82adb6",
+              "attempt_id": "0154ce50f9259169de030fc026336b3c",
+              "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "b5cd8d44e99c41b7909034f68a23354e",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 2
+      }
+    }
+  },
+  {
+    "id": 25,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.014490543Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-b5cd8d44e99c41b7909034f68a23354e",
+    "payload": {
+      "version": 1,
+      "id": "57cc3eae69f88b2c49863cd26e14526e",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 23,
+      "issued_at": "2026-09-09T11:58:25.014490543Z",
+      "expires_at": "2026-09-09T11:58:30.014490543Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "dfe70ff5ae481a26e4735918ff82adb6",
+          "attempt_id": "0154ce50f9259169de030fc026336b3c",
+          "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 26,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.052685682Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-a8f4841109bb4c3db27ee68cf9a09ede",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-a8f4841109bb4c3db27ee68cf9a09ede",
+    "payload": {
+      "request_hash": "76fd9a8a770dca869f6c2c1be922adb95868f8ef2b58bff05ecb1b4ef56c4d55",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "a8f4841109bb4c3db27ee68cf9a09ede",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 2
+      }
+    }
+  },
+  {
+    "id": 27,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.052685682Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "observer:browser",
+    "entity_id": "dfe70ff5ae481a26e4735918ff82adb6",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-a8f4841109bb4c3db27ee68cf9a09ede",
+    "payload": {
+      "pair_ready": {
+        "action_ref": {
+          "version": 1,
+          "id": "dfe70ff5ae481a26e4735918ff82adb6",
+          "attempt_id": "0154ce50f9259169de030fc026336b3c",
+          "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        },
+        "marker_tab_id": 2015148195,
+        "window_id": 2015148194
+      },
+      "version": 3,
+      "id": "751ca0bf848eeda9fb94b416bda3e770",
+      "action_id": "dfe70ff5ae481a26e4735918ff82adb6",
+      "attempt_id": "0154ce50f9259169de030fc026336b3c",
+      "previous_revision": 2,
+      "kind": "pair_ready",
+      "reason": "Temporary pairing page created; native association pending",
+      "actor": "observer:browser",
+      "at": "2026-09-09T11:58:25.052685682Z"
+    }
+  },
+  {
+    "id": 28,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.094969026Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-2241ad0b29e546d8b99804e172390646",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-2241ad0b29e546d8b99804e172390646",
+    "payload": {
+      "request_hash": "024fda13bd812ebb20951a0e323d93958f55fa863717df756628b469e01dbfe7",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "2241ad0b29e546d8b99804e172390646",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 3
+      }
+    }
+  },
+  {
+    "id": 29,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.094969026Z",
+    "subject": "browser",
+    "verb": "inventory_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-2241ad0b29e546d8b99804e172390646",
+    "payload": {
+      "pairing_protocol": 1,
+      "extension_id": "lffmpcoiimmjmacdbgnnjnegplmhiaic",
+      "verification_protocol": 1,
+      "challenge": {
+        "version": 1,
+        "id": "57cc3eae69f88b2c49863cd26e14526e",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "connection": "0b7c20a6668242e39003bb3a0513e041",
+        "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+        "after_event_id": 23,
+        "issued_at": "2026-09-09T11:58:25.014490543Z",
+        "expires_at": "2026-09-09T11:58:30.014490543Z",
+        "actions": [
+          {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        ]
+      },
+      "action_protocol": 1,
+      "received_at": "2026-09-09T11:58:25.094969026Z",
+      "received_epoch": "2558de77aee14acf2379d5e273906cdb",
+      "id": "d07aae5bcc544c95ac860e6b7df520aa",
+      "label": "Browser profile",
+      "extension_version": "0.5.0",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "paired": true,
+      "last_sequence": 3,
+      "last_observed_at": "2026-09-09T11:58:23.114Z",
+      "tabs": [],
+      "focused_window": 2015148194,
+      "complete": true
+    }
+  },
+  {
+    "id": 30,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.099154396Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-32305bed2a5245ff8901cda655004d9b",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-32305bed2a5245ff8901cda655004d9b",
+    "payload": {
+      "request_hash": "266caddda827a08a1fcd38e79ce87d6ba5196ededfd038ccd33304cee2a228c1",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "32305bed2a5245ff8901cda655004d9b",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 4
+      }
+    }
+  },
+  {
+    "id": 31,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.099154396Z",
+    "subject": "browser",
+    "verb": "inventory_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-32305bed2a5245ff8901cda655004d9b",
+    "payload": {
+      "pairing_protocol": 1,
+      "extension_id": "lffmpcoiimmjmacdbgnnjnegplmhiaic",
+      "verification_protocol": 1,
+      "challenge": {
+        "version": 1,
+        "id": "57cc3eae69f88b2c49863cd26e14526e",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "connection": "0b7c20a6668242e39003bb3a0513e041",
+        "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+        "after_event_id": 23,
+        "issued_at": "2026-09-09T11:58:25.014490543Z",
+        "expires_at": "2026-09-09T11:58:30.014490543Z",
+        "actions": [
+          {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        ]
+      },
+      "action_protocol": 1,
+      "received_at": "2026-09-09T11:58:25.099154396Z",
+      "received_epoch": "2558de77aee14acf2379d5e273906cdb",
+      "id": "d07aae5bcc544c95ac860e6b7df520aa",
+      "label": "Browser profile",
+      "extension_version": "0.5.0",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "paired": true,
+      "last_sequence": 4,
+      "last_observed_at": "2026-09-09T11:58:25.011Z",
+      "tabs": [],
+      "focused_window": 2015148194,
+      "complete": true
+    }
+  },
+  {
+    "id": 32,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.106225026Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-b9e4d162e9eb492a81cdcd3efc390035",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-b9e4d162e9eb492a81cdcd3efc390035",
+    "payload": {
+      "request_hash": "031010c84bf2d1ea2fd4dfb8d6d28da01be5cac7af293ee8a510683149f531d5",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "356ccc5eff6636be66981680ad4934fe",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 31,
+          "issued_at": "2026-09-09T11:58:25.106225026Z",
+          "expires_at": "2026-09-09T11:58:30.106225026Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "dfe70ff5ae481a26e4735918ff82adb6",
+              "attempt_id": "0154ce50f9259169de030fc026336b3c",
+              "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "b9e4d162e9eb492a81cdcd3efc390035",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 4
+      }
+    }
+  },
+  {
+    "id": 33,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.106225026Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-b9e4d162e9eb492a81cdcd3efc390035",
+    "payload": {
+      "version": 1,
+      "id": "356ccc5eff6636be66981680ad4934fe",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 31,
+      "issued_at": "2026-09-09T11:58:25.106225026Z",
+      "expires_at": "2026-09-09T11:58:30.106225026Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "dfe70ff5ae481a26e4735918ff82adb6",
+          "attempt_id": "0154ce50f9259169de030fc026336b3c",
+          "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 34,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.112715013Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-beb4b2c958864e39810bba27582876f2",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-beb4b2c958864e39810bba27582876f2",
+    "payload": {
+      "request_hash": "7668e945335c97fa8a7f696ff54a0f259240965e83c14650415387f99647781d",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "beb4b2c958864e39810bba27582876f2",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 5
+      }
+    }
+  },
+  {
+    "id": 35,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.112715013Z",
+    "subject": "browser",
+    "verb": "readback_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-beb4b2c958864e39810bba27582876f2",
+    "payload": {
+      "event_generation": 8,
+      "markers": [
+        {
+          "action_ref": {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          },
+          "tab_id": 2015148195,
+          "window_id": 2015148194,
+          "active": true
+        }
+      ],
+      "version": 1,
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "challenge_id": "356ccc5eff6636be66981680ad4934fe",
+      "sequence": 5,
+      "observed_at": "2026-09-09T11:58:25.111Z",
+      "received_at": "2026-09-09T11:58:25.112715013Z",
+      "complete": true,
+      "stable": true,
+      "tabs": null,
+      "present_tabs": [
+        2015148192,
+        2015148193,
+        2015148195
+      ],
+      "instances": [
+        {
+          "tab_id": 2015148195,
+          "action_ref": {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        }
+      ],
+      "focused_window": 2015148194
+    }
+  },
+  {
+    "id": 36,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.287358016Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-association-daea90f78c7f4adc14a2e14a5a7de20b",
+    "command_id": "browser-association-daea90f78c7f4adc14a2e14a5a7de20b",
+    "payload": {
+      "request_hash": "f9224d08de73f049a8a41c9d58b55aee025e43bd013e46706860ecb754c11774",
+      "revision": 1,
+      "result": {
+        "pair_probe": {
+          "id": "daea90f78c7f4adc14a2e14a5a7de20b",
+          "browser_digest": "dea8dd4f1ea8b185dbf24848e5a7b544379b0376cb9bf1225848dabcb091c9fb",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "event_generation": 8,
+          "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+          "window": {
+            "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+            "stable_id": "18000001"
+          },
+          "snapshot_id": "9b49b23d12fd634d9f1dc36cd07653abf681511124ca91f68fd741375e688a64",
+          "captured_at": "2026-09-09T11:58:25.287333288Z",
+          "marker_title": "Heimdall pairing dfe70ff5ae481a26e4735918ff82adb6 - Chromium",
+          "matching_windows": 1
+        },
+        "version": 3,
+        "id": "1a22ecea631063d44b3b478247207227",
+        "action_id": "dfe70ff5ae481a26e4735918ff82adb6",
+        "attempt_id": "0154ce50f9259169de030fc026336b3c",
+        "previous_revision": 3,
+        "kind": "pair_probe",
+        "reason": "First unique nonce window observed; requesting second browser read",
+        "actor": "coordinator",
+        "at": "2026-09-09T11:58:25.287358016Z"
+      }
+    }
+  },
+  {
+    "id": 37,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:25.287358016Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "coordinator",
+    "entity_id": "dfe70ff5ae481a26e4735918ff82adb6",
+    "command_id": "browser-association-daea90f78c7f4adc14a2e14a5a7de20b",
+    "payload": {
+      "pair_probe": {
+        "id": "daea90f78c7f4adc14a2e14a5a7de20b",
+        "browser_digest": "dea8dd4f1ea8b185dbf24848e5a7b544379b0376cb9bf1225848dabcb091c9fb",
+        "connection": "0b7c20a6668242e39003bb3a0513e041",
+        "event_generation": 8,
+        "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+        "window": {
+          "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+          "stable_id": "18000001"
+        },
+        "snapshot_id": "9b49b23d12fd634d9f1dc36cd07653abf681511124ca91f68fd741375e688a64",
+        "captured_at": "2026-09-09T11:58:25.287333288Z",
+        "marker_title": "Heimdall pairing dfe70ff5ae481a26e4735918ff82adb6 - Chromium",
+        "matching_windows": 1
+      },
+      "version": 3,
+      "id": "1a22ecea631063d44b3b478247207227",
+      "action_id": "dfe70ff5ae481a26e4735918ff82adb6",
+      "attempt_id": "0154ce50f9259169de030fc026336b3c",
+      "previous_revision": 3,
+      "kind": "pair_probe",
+      "reason": "First unique nonce window observed; requesting second browser read",
+      "actor": "coordinator",
+      "at": "2026-09-09T11:58:25.287358016Z"
+    }
+  },
+  {
+    "id": 38,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:27.010262836Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-8a3d39585d9a4980a3d4a17045c8a6f2",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-8a3d39585d9a4980a3d4a17045c8a6f2",
+    "payload": {
+      "request_hash": "ac3c5a7b785c5b2a219628d76949a65ffd0f137fac530e10932787015c4b9690",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "39ad9adc2f65192e555424be5b6476cf",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 37,
+          "issued_at": "2026-09-09T11:58:27.010262836Z",
+          "expires_at": "2026-09-09T11:58:32.010262836Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "dfe70ff5ae481a26e4735918ff82adb6",
+              "attempt_id": "0154ce50f9259169de030fc026336b3c",
+              "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "8a3d39585d9a4980a3d4a17045c8a6f2",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 5
+      }
+    }
+  },
+  {
+    "id": 39,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:27.010262836Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-8a3d39585d9a4980a3d4a17045c8a6f2",
+    "payload": {
+      "version": 1,
+      "id": "39ad9adc2f65192e555424be5b6476cf",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 37,
+      "issued_at": "2026-09-09T11:58:27.010262836Z",
+      "expires_at": "2026-09-09T11:58:32.010262836Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "dfe70ff5ae481a26e4735918ff82adb6",
+          "attempt_id": "0154ce50f9259169de030fc026336b3c",
+          "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 40,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:27.058317408Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-e658326098c840d1b8fe183d716a98e3",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-e658326098c840d1b8fe183d716a98e3",
+    "payload": {
+      "request_hash": "81a8f481f0455e0959f7799525c277a813b62ac93fef43bb7b82884e105370c1",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "e658326098c840d1b8fe183d716a98e3",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 6
+      }
+    }
+  },
+  {
+    "id": 41,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:27.058317408Z",
+    "subject": "browser",
+    "verb": "readback_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-e658326098c840d1b8fe183d716a98e3",
+    "payload": {
+      "event_generation": 8,
+      "markers": [
+        {
+          "action_ref": {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          },
+          "tab_id": 2015148195,
+          "window_id": 2015148194,
+          "active": true
+        }
+      ],
+      "version": 1,
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "challenge_id": "39ad9adc2f65192e555424be5b6476cf",
+      "sequence": 6,
+      "observed_at": "2026-09-09T11:58:27.056Z",
+      "received_at": "2026-09-09T11:58:27.058317408Z",
+      "complete": true,
+      "stable": true,
+      "tabs": null,
+      "present_tabs": [
+        2015148192,
+        2015148193,
+        2015148195
+      ],
+      "instances": [
+        {
+          "tab_id": 2015148195,
+          "action_ref": {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        }
+      ],
+      "focused_window": 2015148194
+    }
+  },
+  {
+    "id": 42,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:27.287094839Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-association-c923b6b1d016fb18bdf1fe63c4588ada",
+    "command_id": "browser-association-c923b6b1d016fb18bdf1fe63c4588ada",
+    "payload": {
+      "request_hash": "5a7857a6e624c8bb45139d447e9ae47df79c45ac3b520a4fd7151ffa5bb99c03",
+      "revision": 1,
+      "result": {
+        "probe_id": "daea90f78c7f4adc14a2e14a5a7de20b",
+        "version": 1,
+        "id": "c923b6b1d016fb18bdf1fe63c4588ada",
+        "action_ref": {
+          "version": 1,
+          "id": "dfe70ff5ae481a26e4735918ff82adb6",
+          "attempt_id": "0154ce50f9259169de030fc026336b3c",
+          "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        },
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "window_id": 2015148194,
+        "marker_tab_id": 2015148195,
+        "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+        "window": {
+          "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+          "stable_id": "18000001"
+        },
+        "snapshot_id": "9b49b23d12fd634d9f1dc36cd07653abf681511124ca91f68fd741375e688a64",
+        "captured_at": "2026-09-09T11:58:27.287071478Z",
+        "browser_digest": "1b07c977f1e631e4a421202fca42dba4a9e68795cf9e5eef227b4588f3429258",
+        "matching_windows": 1,
+        "marker_title": "Heimdall pairing dfe70ff5ae481a26e4735918ff82adb6 - Chromium",
+        "continuation_id": "c81a96a2148e6516dcf39071eaed361b",
+        "at": "2026-09-09T11:58:27.287094839Z"
+      }
+    }
+  },
+  {
+    "id": 43,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:27.287094839Z",
+    "subject": "browser",
+    "verb": "association_observed",
+    "actor": "coordinator",
+    "entity_id": "c923b6b1d016fb18bdf1fe63c4588ada",
+    "command_id": "browser-association-c923b6b1d016fb18bdf1fe63c4588ada",
+    "payload": {
+      "probe_id": "daea90f78c7f4adc14a2e14a5a7de20b",
+      "version": 1,
+      "id": "c923b6b1d016fb18bdf1fe63c4588ada",
+      "action_ref": {
+        "version": 1,
+        "id": "dfe70ff5ae481a26e4735918ff82adb6",
+        "attempt_id": "0154ce50f9259169de030fc026336b3c",
+        "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+        "target": "alpha",
+        "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+        "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+      },
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "window_id": 2015148194,
+      "marker_tab_id": 2015148195,
+      "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+      "window": {
+        "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+        "stable_id": "18000001"
+      },
+      "snapshot_id": "9b49b23d12fd634d9f1dc36cd07653abf681511124ca91f68fd741375e688a64",
+      "captured_at": "2026-09-09T11:58:27.287071478Z",
+      "browser_digest": "1b07c977f1e631e4a421202fca42dba4a9e68795cf9e5eef227b4588f3429258",
+      "matching_windows": 1,
+      "marker_title": "Heimdall pairing dfe70ff5ae481a26e4735918ff82adb6 - Chromium",
+      "continuation_id": "c81a96a2148e6516dcf39071eaed361b",
+      "at": "2026-09-09T11:58:27.287094839Z"
+    }
+  },
+  {
+    "id": 44,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:27.287094839Z",
+    "subject": "viewport",
+    "verb": "bound",
+    "actor": "coordinator",
+    "entity_id": "c923b6b1d016fb18bdf1fe63c4588ada",
+    "command_id": "browser-association-c923b6b1d016fb18bdf1fe63c4588ada",
+    "payload": {
+      "browser_association_id": "c923b6b1d016fb18bdf1fe63c4588ada",
+      "version": 2,
+      "id": "c923b6b1d016fb18bdf1fe63c4588ada",
+      "target": "alpha",
+      "task_revision": 1,
+      "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+      "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06",
+      "previous": "",
+      "active": true,
+      "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+      "snapshot_id": "9b49b23d12fd634d9f1dc36cd07653abf681511124ca91f68fd741375e688a64",
+      "window": {
+        "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+        "stable_id": "18000001"
+      },
+      "actor": "coordinator",
+      "at": "2026-09-09T11:58:27.287094839Z"
+    }
+  },
+  {
+    "id": 45,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:27.287094839Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "coordinator",
+    "entity_id": "dfe70ff5ae481a26e4735918ff82adb6",
+    "command_id": "browser-association-c923b6b1d016fb18bdf1fe63c4588ada",
+    "payload": {
+      "association_id": "c923b6b1d016fb18bdf1fe63c4588ada",
+      "continuation_id": "c81a96a2148e6516dcf39071eaed361b",
+      "version": 3,
+      "id": "18bad26a0b17e58bb3ad5f3d6cfb6138",
+      "action_id": "dfe70ff5ae481a26e4735918ff82adb6",
+      "attempt_id": "0154ce50f9259169de030fc026336b3c",
+      "previous_revision": 4,
+      "kind": "pair_bound",
+      "reason": "Browser window associated through two ordered nonce observations",
+      "actor": "coordinator",
+      "at": "2026-09-09T11:58:27.287094839Z"
+    }
+  },
+  {
+    "id": 46,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:29.010208082Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-fcb59f3ef1bf47f99bb7ef416e933f2a",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-fcb59f3ef1bf47f99bb7ef416e933f2a",
+    "payload": {
+      "request_hash": "a6107fa5cfd96e386b97befe552f5d1e6d262b0868d7bbe02f39f86d75b6c3f9",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "e133a3e9f44e540c438792fd5a687a2f",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 45,
+          "issued_at": "2026-09-09T11:58:29.010208082Z",
+          "expires_at": "2026-09-09T11:58:34.010208082Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "dfe70ff5ae481a26e4735918ff82adb6",
+              "attempt_id": "0154ce50f9259169de030fc026336b3c",
+              "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "fcb59f3ef1bf47f99bb7ef416e933f2a",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 6
+      }
+    }
+  },
+  {
+    "id": 47,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:29.010208082Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-fcb59f3ef1bf47f99bb7ef416e933f2a",
+    "payload": {
+      "version": 1,
+      "id": "e133a3e9f44e540c438792fd5a687a2f",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 45,
+      "issued_at": "2026-09-09T11:58:29.010208082Z",
+      "expires_at": "2026-09-09T11:58:34.010208082Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "dfe70ff5ae481a26e4735918ff82adb6",
+          "attempt_id": "0154ce50f9259169de030fc026336b3c",
+          "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 48,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:29.018324001Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-28492e3b2a1e44a8903de99c1c525587",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-28492e3b2a1e44a8903de99c1c525587",
+    "payload": {
+      "request_hash": "b043bab7bedc4cbb557ca45c81dcb870f7a8da10f098728e6ee3ce4a1cefc0ae",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "28492e3b2a1e44a8903de99c1c525587",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 7
+      }
+    }
+  },
+  {
+    "id": 49,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:29.018324001Z",
+    "subject": "browser",
+    "verb": "readback_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-28492e3b2a1e44a8903de99c1c525587",
+    "payload": {
+      "event_generation": 8,
+      "markers": [
+        {
+          "action_ref": {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          },
+          "tab_id": 2015148195,
+          "window_id": 2015148194,
+          "active": true
+        }
+      ],
+      "version": 1,
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "challenge_id": "e133a3e9f44e540c438792fd5a687a2f",
+      "sequence": 7,
+      "observed_at": "2026-09-09T11:58:29.017Z",
+      "received_at": "2026-09-09T11:58:29.018324001Z",
+      "complete": true,
+      "stable": true,
+      "tabs": null,
+      "present_tabs": [
+        2015148192,
+        2015148193,
+        2015148195
+      ],
+      "instances": [
+        {
+          "tab_id": 2015148195,
+          "action_ref": {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        }
+      ],
+      "focused_window": 2015148194
+    }
+  },
+  {
+    "id": 50,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:31.010287044Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-8b23dce1e1ae4b8da7d8831b187b5291",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-8b23dce1e1ae4b8da7d8831b187b5291",
+    "payload": {
+      "request_hash": "ecf9fc2456763ae4c94231b285d21f3dad2b2f3c71aabbf60d22dfadbb3c6329",
+      "revision": 1,
+      "result": {
+        "continuations": [
+          {
+            "version": 1,
+            "id": "c81a96a2148e6516dcf39071eaed361b",
+            "action_ref": {
+              "version": 1,
+              "id": "dfe70ff5ae481a26e4735918ff82adb6",
+              "attempt_id": "0154ce50f9259169de030fc026336b3c",
+              "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            },
+            "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+            "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+            "marker_tab_id": 2015148195,
+            "window_id": 2015148194,
+            "action": "open",
+            "url": "http://127.0.0.1:44965/paired",
+            "expires_at": "2026-09-09T11:58:49.406221062Z"
+          }
+        ],
+        "v": 1,
+        "type": "commands",
+        "id": "8b23dce1e1ae4b8da7d8831b187b5291",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 7
+      }
+    }
+  },
+  {
+    "id": 51,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:31.010287044Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "coordinator",
+    "entity_id": "dfe70ff5ae481a26e4735918ff82adb6",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-8b23dce1e1ae4b8da7d8831b187b5291",
+    "payload": {
+      "continuation_id": "c81a96a2148e6516dcf39071eaed361b",
+      "version": 3,
+      "id": "db89aca8e7fa51ba4cb54237cf5c6195",
+      "action_id": "dfe70ff5ae481a26e4735918ff82adb6",
+      "attempt_id": "0154ce50f9259169de030fc026336b3c",
+      "previous_revision": 5,
+      "kind": "pair_continue",
+      "reason": "Native association verified; one-time marker continuation delivered",
+      "delivery_id": "8b23dce1e1ae4b8da7d8831b187b5291",
+      "observation": {
+        "id": "c8d624b6a61a42b244199a9742909211",
+        "status": "unknown",
+        "source_epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "digest": "83224f1668e747b5503a286ef0fbf7509aec6587e26db2fe7eb7ed5619e3f93b",
+        "observed_at": "2026-09-09T11:58:29.018324001Z",
+        "detail": "Fresh marker before independently journaled continuation"
+      },
+      "actor": "coordinator",
+      "at": "2026-09-09T11:58:31.010287044Z"
+    }
+  },
+  {
+    "id": 52,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.012146102Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-92561c4e1bc6457fa1cbf411f1a943fc",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-92561c4e1bc6457fa1cbf411f1a943fc",
+    "payload": {
+      "request_hash": "6978d93dbc850440fa57fd0ef27817e3e076f0064721a37d3148eb4d691bd87f",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "b1180e194a56cca1bd2eaff01218bf39",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 51,
+          "issued_at": "2026-09-09T11:58:33.012146102Z",
+          "expires_at": "2026-09-09T11:58:38.012146102Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "dfe70ff5ae481a26e4735918ff82adb6",
+              "attempt_id": "0154ce50f9259169de030fc026336b3c",
+              "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "92561c4e1bc6457fa1cbf411f1a943fc",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 7
+      }
+    }
+  },
+  {
+    "id": 53,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.012146102Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-92561c4e1bc6457fa1cbf411f1a943fc",
+    "payload": {
+      "version": 1,
+      "id": "b1180e194a56cca1bd2eaff01218bf39",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 51,
+      "issued_at": "2026-09-09T11:58:33.012146102Z",
+      "expires_at": "2026-09-09T11:58:38.012146102Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "dfe70ff5ae481a26e4735918ff82adb6",
+          "attempt_id": "0154ce50f9259169de030fc026336b3c",
+          "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 54,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.054161807Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-335cc077cdc34457a5b0dc9bde6c9ae3",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-335cc077cdc34457a5b0dc9bde6c9ae3",
+    "payload": {
+      "request_hash": "aee02cac0831daa264fbf345dd2eb7ce518ded00ff4cc25b4e06ba83dcf79602",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "335cc077cdc34457a5b0dc9bde6c9ae3",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 7
+      }
+    }
+  },
+  {
+    "id": 55,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.054161807Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "observer:browser",
+    "entity_id": "dfe70ff5ae481a26e4735918ff82adb6",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-335cc077cdc34457a5b0dc9bde6c9ae3",
+    "payload": {
+      "continuation_id": "c81a96a2148e6516dcf39071eaed361b",
+      "version": 3,
+      "id": "82bd3689747df12554b9026ee2d0bbf5",
+      "action_id": "dfe70ff5ae481a26e4735918ff82adb6",
+      "attempt_id": "0154ce50f9259169de030fc026336b3c",
+      "previous_revision": 6,
+      "kind": "report",
+      "reason": "browser API report; postcondition unverified",
+      "report": {
+        "status": "succeeded",
+        "detail": "",
+        "tab_id": 2015148195,
+        "window_id": 2015148194,
+        "url": "http://127.0.0.1:44965/paired"
+      },
+      "actor": "observer:browser",
+      "at": "2026-09-09T11:58:33.054161807Z"
+    }
+  },
+  {
+    "id": 56,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.054161807Z",
+    "subject": "browser",
+    "verb": "command_finished",
+    "actor": "observer:browser",
+    "entity_id": "dfe70ff5ae481a26e4735918ff82adb6",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-335cc077cdc34457a5b0dc9bde6c9ae3",
+    "payload": {
+      "pairing": {
+        "version": 1,
+        "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+        "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+        "previous_viewport": "none"
+      },
+      "action_ref": {
+        "version": 1,
+        "id": "dfe70ff5ae481a26e4735918ff82adb6",
+        "attempt_id": "0154ce50f9259169de030fc026336b3c",
+        "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+        "target": "alpha",
+        "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+        "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+      },
+      "id": "dfe70ff5ae481a26e4735918ff82adb6",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "action": "open",
+      "tab_id": 2015148195,
+      "window_id": 2015148194,
+      "expected_url": "http://127.0.0.1:44965/paired",
+      "url": "http://127.0.0.1:44965/paired",
+      "status": "succeeded",
+      "created_at": "2026-09-09T11:58:19.406221062Z",
+      "expires_at": "2026-09-09T11:58:49.406221062Z"
+    }
+  },
+  {
+    "id": 57,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.070774642Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-31c4072bd10a4aeda5a36df1912ccb39",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-31c4072bd10a4aeda5a36df1912ccb39",
+    "payload": {
+      "request_hash": "99b818240c947c53300767d7e50e6f0d05467aa811a6d42d76f43eda4ef6d6c7",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "31c4072bd10a4aeda5a36df1912ccb39",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 8
+      }
+    }
+  },
+  {
+    "id": 58,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.070774642Z",
+    "subject": "browser",
+    "verb": "inventory_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-31c4072bd10a4aeda5a36df1912ccb39",
+    "payload": {
+      "event_generation": 8,
+      "pairing_protocol": 1,
+      "extension_id": "lffmpcoiimmjmacdbgnnjnegplmhiaic",
+      "verification_protocol": 1,
+      "challenge": {
+        "version": 1,
+        "id": "b1180e194a56cca1bd2eaff01218bf39",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "connection": "0b7c20a6668242e39003bb3a0513e041",
+        "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+        "after_event_id": 51,
+        "issued_at": "2026-09-09T11:58:33.012146102Z",
+        "expires_at": "2026-09-09T11:58:38.012146102Z",
+        "actions": [
+          {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        ]
+      },
+      "action_protocol": 1,
+      "received_at": "2026-09-09T11:58:33.070774642Z",
+      "received_epoch": "2558de77aee14acf2379d5e273906cdb",
+      "id": "d07aae5bcc544c95ac860e6b7df520aa",
+      "label": "Browser profile",
+      "extension_version": "0.5.0",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "paired": true,
+      "last_sequence": 8,
+      "last_observed_at": "2026-09-09T11:58:31.032Z",
+      "tabs": [],
+      "focused_window": 2015148194,
+      "complete": true
+    }
+  },
+  {
+    "id": 59,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.074375158Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-0b5500df6f6a427fb46debca425a01d6",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-0b5500df6f6a427fb46debca425a01d6",
+    "payload": {
+      "request_hash": "791bb67581362df5597f05566d44a7781215d6d1188d5f75b2f51d1ffb191203",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "0b5500df6f6a427fb46debca425a01d6",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 9
+      }
+    }
+  },
+  {
+    "id": 60,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.074375158Z",
+    "subject": "browser",
+    "verb": "inventory_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-0b5500df6f6a427fb46debca425a01d6",
+    "payload": {
+      "event_generation": 8,
+      "pairing_protocol": 1,
+      "extension_id": "lffmpcoiimmjmacdbgnnjnegplmhiaic",
+      "verification_protocol": 1,
+      "challenge": {
+        "version": 1,
+        "id": "b1180e194a56cca1bd2eaff01218bf39",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "connection": "0b7c20a6668242e39003bb3a0513e041",
+        "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+        "after_event_id": 51,
+        "issued_at": "2026-09-09T11:58:33.012146102Z",
+        "expires_at": "2026-09-09T11:58:38.012146102Z",
+        "actions": [
+          {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        ]
+      },
+      "action_protocol": 1,
+      "received_at": "2026-09-09T11:58:33.074375158Z",
+      "received_epoch": "2558de77aee14acf2379d5e273906cdb",
+      "id": "d07aae5bcc544c95ac860e6b7df520aa",
+      "label": "Browser profile",
+      "extension_version": "0.5.0",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "paired": true,
+      "last_sequence": 9,
+      "last_observed_at": "2026-09-09T11:58:33.01Z",
+      "tabs": [
+        {
+          "load_status": "complete",
+          "id": 2015148195,
+          "window_id": 2015148194,
+          "url": "http://127.0.0.1:44965/paired",
+          "title": "Heimdall pairing acceptance",
+          "active": true,
+          "owner_id": "dfe70ff5ae481a26e4735918ff82adb6"
+        }
+      ],
+      "focused_window": 2015148194,
+      "complete": true
+    }
+  },
+  {
+    "id": 61,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.080595405Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-6b9f9af89cac4cebb64bf17596f46837",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-6b9f9af89cac4cebb64bf17596f46837",
+    "payload": {
+      "request_hash": "23d7beebcf14967e051eeface37120d07cbdc8f50ec4e5eb1677fec22529fbfb",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "8e9a86405389e0e9c7b3a6350f7f54f1",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 60,
+          "issued_at": "2026-09-09T11:58:33.080595405Z",
+          "expires_at": "2026-09-09T11:58:38.080595405Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "dfe70ff5ae481a26e4735918ff82adb6",
+              "attempt_id": "0154ce50f9259169de030fc026336b3c",
+              "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "6b9f9af89cac4cebb64bf17596f46837",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 9
+      }
+    }
+  },
+  {
+    "id": 62,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.080595405Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-6b9f9af89cac4cebb64bf17596f46837",
+    "payload": {
+      "version": 1,
+      "id": "8e9a86405389e0e9c7b3a6350f7f54f1",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 60,
+      "issued_at": "2026-09-09T11:58:33.080595405Z",
+      "expires_at": "2026-09-09T11:58:38.080595405Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "dfe70ff5ae481a26e4735918ff82adb6",
+          "attempt_id": "0154ce50f9259169de030fc026336b3c",
+          "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 63,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.085646238Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-21312918ed0d45ef85e5dd6290311835",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-21312918ed0d45ef85e5dd6290311835",
+    "payload": {
+      "request_hash": "22eeb745c97639d45f878f55da6b34ae43706fc4f81d782bd76f5525451817ec",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "21312918ed0d45ef85e5dd6290311835",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 10
+      }
+    }
+  },
+  {
+    "id": 64,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.085646238Z",
+    "subject": "browser",
+    "verb": "readback_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-21312918ed0d45ef85e5dd6290311835",
+    "payload": {
+      "event_generation": 11,
+      "version": 1,
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "challenge_id": "8e9a86405389e0e9c7b3a6350f7f54f1",
+      "sequence": 10,
+      "observed_at": "2026-09-09T11:58:33.084Z",
+      "received_at": "2026-09-09T11:58:33.085646238Z",
+      "complete": true,
+      "stable": true,
+      "tabs": [
+        {
+          "load_status": "complete",
+          "id": 2015148195,
+          "window_id": 2015148194,
+          "url": "http://127.0.0.1:44965/paired",
+          "title": "Heimdall pairing acceptance",
+          "active": true
+        }
+      ],
+      "present_tabs": [
+        2015148192,
+        2015148193,
+        2015148195
+      ],
+      "instances": [
+        {
+          "tab_id": 2015148195,
+          "action_ref": {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        }
+      ],
+      "focused_window": 2015148194
+    }
+  },
+  {
+    "id": 65,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.085646238Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "observer:browser",
+    "entity_id": "dfe70ff5ae481a26e4735918ff82adb6",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-21312918ed0d45ef85e5dd6290311835",
+    "payload": {
+      "version": 2,
+      "id": "e761ce46f62dcd4936ae48e6ef7a3e9c",
+      "action_id": "dfe70ff5ae481a26e4735918ff82adb6",
+      "attempt_id": "0154ce50f9259169de030fc026336b3c",
+      "previous_revision": 7,
+      "kind": "verify",
+      "reason": "Independent challenged browser readback",
+      "observation": {
+        "id": "03bf5814c5d5679bb02704ff4b12a83b",
+        "status": "matched",
+        "source_epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "digest": "f7d53a26647f5081e76a3b0f0ccd84fc45624a8a2526fb824fa5c5b8b404096f",
+        "observed_at": "2026-09-09T11:58:33.085646238Z",
+        "detail": "Requested browser postcondition observed in challenged readback"
+      },
+      "actor": "observer:browser",
+      "at": "2026-09-09T11:58:33.085646238Z"
+    }
+  },
+  {
+    "id": 66,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.125108515Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "cli",
+    "entity_id": "action-02a1ab71abc6b10ed21efc345aa223eb",
+    "command_id": "action-02a1ab71abc6b10ed21efc345aa223eb",
+    "payload": {
+      "request_hash": "e53ccbf6a06e4a2265b37017393f8a563b44f8a9bc07384b95eb6769be3c4009",
+      "revision": 1,
+      "result": {
+        "intent": {
+          "version": 2,
+          "id": "02a1ab71abc6b10ed21efc345aa223eb",
+          "target": "alpha",
+          "task_revision": 1,
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06",
+          "context_digest": "6c9426cc6af05d3821532ced339637b91e1b0f3d55eab7c47caf401cd88c8ead",
+          "adapter": "browser",
+          "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+          "authority": "cli",
+          "authority_ref": "action-02a1ab71abc6b10ed21efc345aa223eb",
+          "browser": {
+            "pairing": {
+              "version": 1,
+              "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+              "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+              "previous_viewport": "c923b6b1d016fb18bdf1fe63c4588ada"
+            },
+            "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+            "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+            "action": "associate",
+            "tab_id": 2015148195,
+            "window_id": 2015148194,
+            "owner_id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "expected_url": "http://127.0.0.1:44965/paired"
+          },
+          "expected": {
+            "kind": "native_window_association",
+            "redirect_policy": "exact",
+            "load_condition": "not_requested"
+          },
+          "at": "2026-09-09T11:58:33.125108515Z",
+          "expires_at": "2026-09-09T11:59:03.125108515Z"
+        },
+        "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+        "revision": 1,
+        "execution": "queued",
+        "verification": "pending",
+        "cancel_requested": false,
+        "uncertain_since": "0001-01-01T00:00:00Z",
+        "updated_at": "2026-09-09T11:58:33.125108515Z",
+        "last_reason": "",
+        "last_event_id": 67
+      }
+    }
+  },
+  {
+    "id": 67,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.125108515Z",
+    "subject": "action",
+    "verb": "queued",
+    "actor": "cli",
+    "entity_id": "02a1ab71abc6b10ed21efc345aa223eb",
+    "command_id": "action-02a1ab71abc6b10ed21efc345aa223eb",
+    "payload": {
+      "version": 2,
+      "id": "02a1ab71abc6b10ed21efc345aa223eb",
+      "target": "alpha",
+      "task_revision": 1,
+      "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+      "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06",
+      "context_digest": "6c9426cc6af05d3821532ced339637b91e1b0f3d55eab7c47caf401cd88c8ead",
+      "adapter": "browser",
+      "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+      "authority": "cli",
+      "authority_ref": "action-02a1ab71abc6b10ed21efc345aa223eb",
+      "browser": {
+        "pairing": {
+          "version": 1,
+          "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+          "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+          "previous_viewport": "c923b6b1d016fb18bdf1fe63c4588ada"
+        },
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "action": "associate",
+        "tab_id": 2015148195,
+        "window_id": 2015148194,
+        "owner_id": "dfe70ff5ae481a26e4735918ff82adb6",
+        "expected_url": "http://127.0.0.1:44965/paired"
+      },
+      "expected": {
+        "kind": "native_window_association",
+        "redirect_policy": "exact",
+        "load_condition": "not_requested"
+      },
+      "at": "2026-09-09T11:58:33.125108515Z",
+      "expires_at": "2026-09-09T11:59:03.125108515Z"
+    }
+  },
+  {
+    "id": 68,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:33.125108515Z",
+    "subject": "browser",
+    "verb": "command_queued",
+    "actor": "cli",
+    "entity_id": "02a1ab71abc6b10ed21efc345aa223eb",
+    "command_id": "action-02a1ab71abc6b10ed21efc345aa223eb",
+    "payload": {
+      "pairing": {
+        "version": 1,
+        "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+        "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+        "previous_viewport": "c923b6b1d016fb18bdf1fe63c4588ada"
+      },
+      "action_ref": {
+        "version": 1,
+        "id": "02a1ab71abc6b10ed21efc345aa223eb",
+        "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+        "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+        "target": "alpha",
+        "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+        "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+      },
+      "id": "02a1ab71abc6b10ed21efc345aa223eb",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "action": "associate",
+      "tab_id": 2015148195,
+      "window_id": 2015148194,
+      "expected_url": "http://127.0.0.1:44965/paired",
+      "owner_id": "dfe70ff5ae481a26e4735918ff82adb6",
+      "status": "pending",
+      "created_at": "2026-09-09T11:58:33.125108515Z",
+      "expires_at": "2026-09-09T11:59:03.125108515Z"
+    }
+  },
+  {
+    "id": 69,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:35.010227253Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-6a5d854df362454d93c4debf6347d506",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-6a5d854df362454d93c4debf6347d506",
+    "payload": {
+      "request_hash": "ba47badc465dd154542aeab73713a004c3fafe887a994778ca05a142b1c4f56b",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "bffc401eb25dd3751b5d9d4e562d6053",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 68,
+          "issued_at": "2026-09-09T11:58:35.010227253Z",
+          "expires_at": "2026-09-09T11:58:40.010227253Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "02a1ab71abc6b10ed21efc345aa223eb",
+              "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+              "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "6a5d854df362454d93c4debf6347d506",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 10
+      }
+    }
+  },
+  {
+    "id": 70,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:35.010227253Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-6a5d854df362454d93c4debf6347d506",
+    "payload": {
+      "version": 1,
+      "id": "bffc401eb25dd3751b5d9d4e562d6053",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 68,
+      "issued_at": "2026-09-09T11:58:35.010227253Z",
+      "expires_at": "2026-09-09T11:58:40.010227253Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "02a1ab71abc6b10ed21efc345aa223eb",
+          "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+          "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 71,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:35.042793143Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-fbee01c04b924585a6144ddb4e975b6a",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-fbee01c04b924585a6144ddb4e975b6a",
+    "payload": {
+      "request_hash": "541e602633e3a6ebdfb5d255705bf01c1d63373c07ac1b69dc82d495aa2f8765",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "fbee01c04b924585a6144ddb4e975b6a",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 11
+      }
+    }
+  },
+  {
+    "id": 72,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:35.042793143Z",
+    "subject": "browser",
+    "verb": "readback_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-fbee01c04b924585a6144ddb4e975b6a",
+    "payload": {
+      "event_generation": 11,
+      "version": 1,
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "challenge_id": "bffc401eb25dd3751b5d9d4e562d6053",
+      "sequence": 11,
+      "observed_at": "2026-09-09T11:58:35.041Z",
+      "received_at": "2026-09-09T11:58:35.042793143Z",
+      "complete": true,
+      "stable": true,
+      "tabs": [
+        {
+          "load_status": "complete",
+          "id": 2015148195,
+          "window_id": 2015148194,
+          "url": "http://127.0.0.1:44965/paired",
+          "title": "Heimdall pairing acceptance",
+          "active": true
+        }
+      ],
+      "present_tabs": [
+        2015148192,
+        2015148193,
+        2015148195
+      ],
+      "instances": [
+        {
+          "tab_id": 2015148195,
+          "action_ref": {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        }
+      ],
+      "focused_window": 2015148194
+    }
+  },
+  {
+    "id": 73,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:37.010253834Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-25989408f8fd400285e2a5155b70283f",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-25989408f8fd400285e2a5155b70283f",
+    "payload": {
+      "request_hash": "186f16d00b35841f440ed92f5960a96654948d3bd8173d0fb8b53f29f838c43f",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "commands",
+        "id": "25989408f8fd400285e2a5155b70283f",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 11,
+        "commands": [
+          {
+            "pairing": {
+              "version": 1,
+              "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+              "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+              "previous_viewport": "c923b6b1d016fb18bdf1fe63c4588ada"
+            },
+            "action_ref": {
+              "version": 1,
+              "id": "02a1ab71abc6b10ed21efc345aa223eb",
+              "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+              "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            },
+            "id": "02a1ab71abc6b10ed21efc345aa223eb",
+            "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+            "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+            "action": "associate",
+            "tab_id": 2015148195,
+            "window_id": 2015148194,
+            "expected_url": "http://127.0.0.1:44965/paired",
+            "owner_id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "status": "pending",
+            "created_at": "2026-09-09T11:58:33.125108515Z",
+            "expires_at": "2026-09-09T11:59:03.125108515Z"
+          }
+        ]
+      }
+    }
+  },
+  {
+    "id": 74,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:37.010253834Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "coordinator",
+    "entity_id": "02a1ab71abc6b10ed21efc345aa223eb",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-25989408f8fd400285e2a5155b70283f",
+    "payload": {
+      "version": 2,
+      "id": "b4bf60172247ba68a7cad0a83d5ddcae",
+      "action_id": "02a1ab71abc6b10ed21efc345aa223eb",
+      "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+      "previous_revision": 1,
+      "kind": "dispatch",
+      "reason": "fresh paired browser transport delivery",
+      "delivery_id": "25989408f8fd400285e2a5155b70283f",
+      "observation": {
+        "id": "954c6b599847d944ba149e3dd5f8c346",
+        "status": "unknown",
+        "source_epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "digest": "a715fb04b062dc69f81d5688a14c359a91877d121933a4899da52f796d369525",
+        "observed_at": "2026-09-09T11:58:35.042793143Z",
+        "detail": "Complete browser inventory used as dispatch precondition"
+      },
+      "actor": "coordinator",
+      "at": "2026-09-09T11:58:37.010253834Z"
+    }
+  },
+  {
+    "id": 75,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.01259618Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-3c2eca67878f432fbd0a54c30c39c30c",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-3c2eca67878f432fbd0a54c30c39c30c",
+    "payload": {
+      "request_hash": "ea5d7cb17aac8f4c223494f8610fb3550f5bc90cc31efa92e127fd552fc278d9",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "957c1e91cc1dd514cc0662be9eb1c401",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 74,
+          "issued_at": "2026-09-09T11:58:39.01259618Z",
+          "expires_at": "2026-09-09T11:58:44.01259618Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "02a1ab71abc6b10ed21efc345aa223eb",
+              "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+              "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "3c2eca67878f432fbd0a54c30c39c30c",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 11
+      }
+    }
+  },
+  {
+    "id": 76,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.01259618Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-3c2eca67878f432fbd0a54c30c39c30c",
+    "payload": {
+      "version": 1,
+      "id": "957c1e91cc1dd514cc0662be9eb1c401",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 74,
+      "issued_at": "2026-09-09T11:58:39.01259618Z",
+      "expires_at": "2026-09-09T11:58:44.01259618Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "02a1ab71abc6b10ed21efc345aa223eb",
+          "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+          "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 77,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.070711006Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-fc9c397aad37425aa7842402a07508cb",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-fc9c397aad37425aa7842402a07508cb",
+    "payload": {
+      "request_hash": "89d17922b639a7fb5cd685b11a7a64bd9c27d0355fac4fb2324c6c5a5fbb5558",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "fc9c397aad37425aa7842402a07508cb",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 11
+      }
+    }
+  },
+  {
+    "id": 78,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.070711006Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "observer:browser",
+    "entity_id": "02a1ab71abc6b10ed21efc345aa223eb",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-fc9c397aad37425aa7842402a07508cb",
+    "payload": {
+      "pair_ready": {
+        "action_ref": {
+          "version": 1,
+          "id": "02a1ab71abc6b10ed21efc345aa223eb",
+          "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+          "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        },
+        "marker_tab_id": 2015148196,
+        "window_id": 2015148194,
+        "original_tab_id": 2015148195
+      },
+      "version": 3,
+      "id": "979f9d58c24a9fb0f417b6057c6a2d32",
+      "action_id": "02a1ab71abc6b10ed21efc345aa223eb",
+      "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+      "previous_revision": 2,
+      "kind": "pair_ready",
+      "reason": "Temporary pairing page created; native association pending",
+      "actor": "observer:browser",
+      "at": "2026-09-09T11:58:39.070711006Z"
+    }
+  },
+  {
+    "id": 79,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.074531378Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-1a5de4c50cd94f378669bdc51b7e9ecd",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-1a5de4c50cd94f378669bdc51b7e9ecd",
+    "payload": {
+      "request_hash": "9dfe7a04fac69d5666efbf3731880a335758b40837f0567fde23ac1d9484ef3f",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "1a5de4c50cd94f378669bdc51b7e9ecd",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 12
+      }
+    }
+  },
+  {
+    "id": 80,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.074531378Z",
+    "subject": "browser",
+    "verb": "inventory_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-1a5de4c50cd94f378669bdc51b7e9ecd",
+    "payload": {
+      "event_generation": 11,
+      "pairing_protocol": 1,
+      "extension_id": "lffmpcoiimmjmacdbgnnjnegplmhiaic",
+      "verification_protocol": 1,
+      "challenge": {
+        "version": 1,
+        "id": "957c1e91cc1dd514cc0662be9eb1c401",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "connection": "0b7c20a6668242e39003bb3a0513e041",
+        "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+        "after_event_id": 74,
+        "issued_at": "2026-09-09T11:58:39.01259618Z",
+        "expires_at": "2026-09-09T11:58:44.01259618Z",
+        "actions": [
+          {
+            "version": 1,
+            "id": "02a1ab71abc6b10ed21efc345aa223eb",
+            "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+            "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        ]
+      },
+      "action_protocol": 1,
+      "received_at": "2026-09-09T11:58:39.074531378Z",
+      "received_epoch": "2558de77aee14acf2379d5e273906cdb",
+      "id": "d07aae5bcc544c95ac860e6b7df520aa",
+      "label": "Browser profile",
+      "extension_version": "0.5.0",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "paired": true,
+      "last_sequence": 12,
+      "last_observed_at": "2026-09-09T11:58:37.04Z",
+      "tabs": [
+        {
+          "load_status": "complete",
+          "id": 2015148195,
+          "window_id": 2015148194,
+          "url": "http://127.0.0.1:44965/paired",
+          "title": "Heimdall pairing acceptance",
+          "active": false,
+          "owner_id": "dfe70ff5ae481a26e4735918ff82adb6"
+        }
+      ],
+      "focused_window": 2015148194,
+      "complete": true
+    }
+  },
+  {
+    "id": 81,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.078535266Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-734d96eae0c7492db745ec33f1973d21",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-734d96eae0c7492db745ec33f1973d21",
+    "payload": {
+      "request_hash": "4b0b8d54398fd5d5c373e0d72eb663f4647c8d92813ba29168580504f75c1cf7",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "734d96eae0c7492db745ec33f1973d21",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 13
+      }
+    }
+  },
+  {
+    "id": 82,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.078535266Z",
+    "subject": "browser",
+    "verb": "inventory_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-734d96eae0c7492db745ec33f1973d21",
+    "payload": {
+      "event_generation": 11,
+      "pairing_protocol": 1,
+      "extension_id": "lffmpcoiimmjmacdbgnnjnegplmhiaic",
+      "verification_protocol": 1,
+      "challenge": {
+        "version": 1,
+        "id": "957c1e91cc1dd514cc0662be9eb1c401",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "connection": "0b7c20a6668242e39003bb3a0513e041",
+        "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+        "after_event_id": 74,
+        "issued_at": "2026-09-09T11:58:39.01259618Z",
+        "expires_at": "2026-09-09T11:58:44.01259618Z",
+        "actions": [
+          {
+            "version": 1,
+            "id": "02a1ab71abc6b10ed21efc345aa223eb",
+            "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+            "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        ]
+      },
+      "action_protocol": 1,
+      "received_at": "2026-09-09T11:58:39.078535266Z",
+      "received_epoch": "2558de77aee14acf2379d5e273906cdb",
+      "id": "d07aae5bcc544c95ac860e6b7df520aa",
+      "label": "Browser profile",
+      "extension_version": "0.5.0",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "paired": true,
+      "last_sequence": 13,
+      "last_observed_at": "2026-09-09T11:58:39.01Z",
+      "tabs": [
+        {
+          "load_status": "complete",
+          "id": 2015148195,
+          "window_id": 2015148194,
+          "url": "http://127.0.0.1:44965/paired",
+          "title": "Heimdall pairing acceptance",
+          "active": false,
+          "owner_id": "dfe70ff5ae481a26e4735918ff82adb6"
+        }
+      ],
+      "focused_window": 2015148194,
+      "complete": true
+    }
+  },
+  {
+    "id": 83,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.084428412Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-88d1e7728f1c4ba59326ca2ff35990cd",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-88d1e7728f1c4ba59326ca2ff35990cd",
+    "payload": {
+      "request_hash": "a5cc33741533a0f4bee800bb70e289d458cd39afca03f7ad43800c93795ce00e",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "790503c2fdf26884bfaa253b674a87e3",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 82,
+          "issued_at": "2026-09-09T11:58:39.084428412Z",
+          "expires_at": "2026-09-09T11:58:44.084428412Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "02a1ab71abc6b10ed21efc345aa223eb",
+              "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+              "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "88d1e7728f1c4ba59326ca2ff35990cd",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 13
+      }
+    }
+  },
+  {
+    "id": 84,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.084428412Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-88d1e7728f1c4ba59326ca2ff35990cd",
+    "payload": {
+      "version": 1,
+      "id": "790503c2fdf26884bfaa253b674a87e3",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 82,
+      "issued_at": "2026-09-09T11:58:39.084428412Z",
+      "expires_at": "2026-09-09T11:58:44.084428412Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "02a1ab71abc6b10ed21efc345aa223eb",
+          "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+          "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 85,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.09019725Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-b7db986517af43648d87c57a474cf89a",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-b7db986517af43648d87c57a474cf89a",
+    "payload": {
+      "request_hash": "d2f38a3ef0e8f9304a9af05d8fd83be0cb09ab3d9f5d1b46667b592c9e1d95f0",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "b7db986517af43648d87c57a474cf89a",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 14
+      }
+    }
+  },
+  {
+    "id": 86,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.09019725Z",
+    "subject": "browser",
+    "verb": "readback_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-b7db986517af43648d87c57a474cf89a",
+    "payload": {
+      "event_generation": 17,
+      "markers": [
+        {
+          "action_ref": {
+            "version": 1,
+            "id": "02a1ab71abc6b10ed21efc345aa223eb",
+            "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+            "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          },
+          "tab_id": 2015148196,
+          "window_id": 2015148194,
+          "active": true
+        }
+      ],
+      "version": 1,
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "challenge_id": "790503c2fdf26884bfaa253b674a87e3",
+      "sequence": 14,
+      "observed_at": "2026-09-09T11:58:39.088Z",
+      "received_at": "2026-09-09T11:58:39.09019725Z",
+      "complete": true,
+      "stable": true,
+      "tabs": [
+        {
+          "load_status": "complete",
+          "id": 2015148195,
+          "window_id": 2015148194,
+          "url": "http://127.0.0.1:44965/paired",
+          "title": "Heimdall pairing acceptance",
+          "active": false
+        }
+      ],
+      "present_tabs": [
+        2015148192,
+        2015148193,
+        2015148195,
+        2015148196
+      ],
+      "instances": [
+        {
+          "tab_id": 2015148195,
+          "action_ref": {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        }
+      ],
+      "focused_window": 2015148194
+    }
+  },
+  {
+    "id": 87,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.286986506Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-association-1c261c9687889af561f734d174fb67bb",
+    "command_id": "browser-association-1c261c9687889af561f734d174fb67bb",
+    "payload": {
+      "request_hash": "1503bae4b94a11e6e73159b7e63f0e299450de162f0a6221b8f1820ee3b4a25b",
+      "revision": 1,
+      "result": {
+        "pair_probe": {
+          "id": "1c261c9687889af561f734d174fb67bb",
+          "browser_digest": "7e614daab7fa178f5cf897dd4cdf9cc48e4f3c4f3a878956464ffb836844309e",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "event_generation": 17,
+          "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+          "window": {
+            "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+            "stable_id": "18000001"
+          },
+          "snapshot_id": "63a30e4d3402ab74302a0b1874f290281ef566f013261b275607a2f8c9999898",
+          "captured_at": "2026-09-09T11:58:39.286964809Z",
+          "marker_title": "Heimdall pairing 02a1ab71abc6b10ed21efc345aa223eb - Chromium",
+          "matching_windows": 1
+        },
+        "version": 3,
+        "id": "db23d418463f7c0b6381b0e7dea24e1a",
+        "action_id": "02a1ab71abc6b10ed21efc345aa223eb",
+        "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+        "previous_revision": 3,
+        "kind": "pair_probe",
+        "reason": "First unique nonce window observed; requesting second browser read",
+        "actor": "coordinator",
+        "at": "2026-09-09T11:58:39.286986506Z"
+      }
+    }
+  },
+  {
+    "id": 88,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:39.286986506Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "coordinator",
+    "entity_id": "02a1ab71abc6b10ed21efc345aa223eb",
+    "command_id": "browser-association-1c261c9687889af561f734d174fb67bb",
+    "payload": {
+      "pair_probe": {
+        "id": "1c261c9687889af561f734d174fb67bb",
+        "browser_digest": "7e614daab7fa178f5cf897dd4cdf9cc48e4f3c4f3a878956464ffb836844309e",
+        "connection": "0b7c20a6668242e39003bb3a0513e041",
+        "event_generation": 17,
+        "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+        "window": {
+          "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+          "stable_id": "18000001"
+        },
+        "snapshot_id": "63a30e4d3402ab74302a0b1874f290281ef566f013261b275607a2f8c9999898",
+        "captured_at": "2026-09-09T11:58:39.286964809Z",
+        "marker_title": "Heimdall pairing 02a1ab71abc6b10ed21efc345aa223eb - Chromium",
+        "matching_windows": 1
+      },
+      "version": 3,
+      "id": "db23d418463f7c0b6381b0e7dea24e1a",
+      "action_id": "02a1ab71abc6b10ed21efc345aa223eb",
+      "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+      "previous_revision": 3,
+      "kind": "pair_probe",
+      "reason": "First unique nonce window observed; requesting second browser read",
+      "actor": "coordinator",
+      "at": "2026-09-09T11:58:39.286986506Z"
+    }
+  },
+  {
+    "id": 89,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:41.010271116Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-4533bfc249064e5aab955a82fddcb5c8",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-4533bfc249064e5aab955a82fddcb5c8",
+    "payload": {
+      "request_hash": "de80c33da97da5be990f211e277e6ee3fc4aaaf063068cd26643f1e5aa4e5e98",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "f6c4cb649d439028d4db12ea642c943b",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 88,
+          "issued_at": "2026-09-09T11:58:41.010271116Z",
+          "expires_at": "2026-09-09T11:58:46.010271116Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "02a1ab71abc6b10ed21efc345aa223eb",
+              "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+              "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "4533bfc249064e5aab955a82fddcb5c8",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 14
+      }
+    }
+  },
+  {
+    "id": 90,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:41.010271116Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-4533bfc249064e5aab955a82fddcb5c8",
+    "payload": {
+      "version": 1,
+      "id": "f6c4cb649d439028d4db12ea642c943b",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 88,
+      "issued_at": "2026-09-09T11:58:41.010271116Z",
+      "expires_at": "2026-09-09T11:58:46.010271116Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "02a1ab71abc6b10ed21efc345aa223eb",
+          "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+          "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 91,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:41.057849914Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-10d018743d4d4641ac9869d808865fc0",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-10d018743d4d4641ac9869d808865fc0",
+    "payload": {
+      "request_hash": "18260da754ff8a3fedf74b13076b23404664323d60ba85bbbbb01203cb4eefe3",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "10d018743d4d4641ac9869d808865fc0",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 15
+      }
+    }
+  },
+  {
+    "id": 92,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:41.057849914Z",
+    "subject": "browser",
+    "verb": "readback_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-10d018743d4d4641ac9869d808865fc0",
+    "payload": {
+      "event_generation": 17,
+      "markers": [
+        {
+          "action_ref": {
+            "version": 1,
+            "id": "02a1ab71abc6b10ed21efc345aa223eb",
+            "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+            "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          },
+          "tab_id": 2015148196,
+          "window_id": 2015148194,
+          "active": true
+        }
+      ],
+      "version": 1,
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "challenge_id": "f6c4cb649d439028d4db12ea642c943b",
+      "sequence": 15,
+      "observed_at": "2026-09-09T11:58:41.056Z",
+      "received_at": "2026-09-09T11:58:41.057849914Z",
+      "complete": true,
+      "stable": true,
+      "tabs": [
+        {
+          "load_status": "complete",
+          "id": 2015148195,
+          "window_id": 2015148194,
+          "url": "http://127.0.0.1:44965/paired",
+          "title": "Heimdall pairing acceptance",
+          "active": false
+        }
+      ],
+      "present_tabs": [
+        2015148192,
+        2015148193,
+        2015148195,
+        2015148196
+      ],
+      "instances": [
+        {
+          "tab_id": 2015148195,
+          "action_ref": {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        }
+      ],
+      "focused_window": 2015148194
+    }
+  },
+  {
+    "id": 93,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:41.286394307Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-association-f0b476265b3fd5b72115b8332e37f3d3",
+    "command_id": "browser-association-f0b476265b3fd5b72115b8332e37f3d3",
+    "payload": {
+      "request_hash": "3a710f75aab7da0ddf2c4d52914ddc49dd2548ab46b729a0583d4c2c3abc6ab2",
+      "revision": 1,
+      "result": {
+        "probe_id": "1c261c9687889af561f734d174fb67bb",
+        "version": 1,
+        "id": "f0b476265b3fd5b72115b8332e37f3d3",
+        "action_ref": {
+          "version": 1,
+          "id": "02a1ab71abc6b10ed21efc345aa223eb",
+          "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+          "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        },
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "window_id": 2015148194,
+        "marker_tab_id": 2015148196,
+        "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+        "window": {
+          "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+          "stable_id": "18000001"
+        },
+        "snapshot_id": "63a30e4d3402ab74302a0b1874f290281ef566f013261b275607a2f8c9999898",
+        "captured_at": "2026-09-09T11:58:41.286373714Z",
+        "browser_digest": "3041440a1649d8e9cc9389526a61a57ba7b9ab830d831a974af6976da5b360f2",
+        "matching_windows": 1,
+        "marker_title": "Heimdall pairing 02a1ab71abc6b10ed21efc345aa223eb - Chromium",
+        "continuation_id": "8965bd4b42b5c1adaeb2b94703c6e0d7",
+        "at": "2026-09-09T11:58:41.286394307Z"
+      }
+    }
+  },
+  {
+    "id": 94,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:41.286394307Z",
+    "subject": "browser",
+    "verb": "association_observed",
+    "actor": "coordinator",
+    "entity_id": "f0b476265b3fd5b72115b8332e37f3d3",
+    "command_id": "browser-association-f0b476265b3fd5b72115b8332e37f3d3",
+    "payload": {
+      "probe_id": "1c261c9687889af561f734d174fb67bb",
+      "version": 1,
+      "id": "f0b476265b3fd5b72115b8332e37f3d3",
+      "action_ref": {
+        "version": 1,
+        "id": "02a1ab71abc6b10ed21efc345aa223eb",
+        "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+        "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+        "target": "alpha",
+        "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+        "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+      },
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "window_id": 2015148194,
+      "marker_tab_id": 2015148196,
+      "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+      "window": {
+        "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+        "stable_id": "18000001"
+      },
+      "snapshot_id": "63a30e4d3402ab74302a0b1874f290281ef566f013261b275607a2f8c9999898",
+      "captured_at": "2026-09-09T11:58:41.286373714Z",
+      "browser_digest": "3041440a1649d8e9cc9389526a61a57ba7b9ab830d831a974af6976da5b360f2",
+      "matching_windows": 1,
+      "marker_title": "Heimdall pairing 02a1ab71abc6b10ed21efc345aa223eb - Chromium",
+      "continuation_id": "8965bd4b42b5c1adaeb2b94703c6e0d7",
+      "at": "2026-09-09T11:58:41.286394307Z"
+    }
+  },
+  {
+    "id": 95,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:41.286394307Z",
+    "subject": "viewport",
+    "verb": "bound",
+    "actor": "coordinator",
+    "entity_id": "f0b476265b3fd5b72115b8332e37f3d3",
+    "command_id": "browser-association-f0b476265b3fd5b72115b8332e37f3d3",
+    "payload": {
+      "browser_association_id": "f0b476265b3fd5b72115b8332e37f3d3",
+      "version": 2,
+      "id": "f0b476265b3fd5b72115b8332e37f3d3",
+      "target": "alpha",
+      "task_revision": 1,
+      "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+      "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06",
+      "previous": "c923b6b1d016fb18bdf1fe63c4588ada",
+      "active": true,
+      "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+      "snapshot_id": "63a30e4d3402ab74302a0b1874f290281ef566f013261b275607a2f8c9999898",
+      "window": {
+        "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+        "stable_id": "18000001"
+      },
+      "actor": "coordinator",
+      "at": "2026-09-09T11:58:41.286394307Z"
+    }
+  },
+  {
+    "id": 96,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:41.286394307Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "coordinator",
+    "entity_id": "02a1ab71abc6b10ed21efc345aa223eb",
+    "command_id": "browser-association-f0b476265b3fd5b72115b8332e37f3d3",
+    "payload": {
+      "association_id": "f0b476265b3fd5b72115b8332e37f3d3",
+      "continuation_id": "8965bd4b42b5c1adaeb2b94703c6e0d7",
+      "version": 3,
+      "id": "1c714aa17f05e93a5892fa7842c80d34",
+      "action_id": "02a1ab71abc6b10ed21efc345aa223eb",
+      "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+      "previous_revision": 4,
+      "kind": "pair_bound",
+      "reason": "Browser window associated through two ordered nonce observations",
+      "actor": "coordinator",
+      "at": "2026-09-09T11:58:41.286394307Z"
+    }
+  },
+  {
+    "id": 97,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:43.010152552Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-bcfdae16ec784c21803b4177715daf6f",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-bcfdae16ec784c21803b4177715daf6f",
+    "payload": {
+      "request_hash": "5fe4c231d4dc875d185b24f1fd459457deeb9e6866141da0b27e6a8cecba409e",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "315b06f6a0c932af6caa4d5dc10c207b",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 96,
+          "issued_at": "2026-09-09T11:58:43.010152552Z",
+          "expires_at": "2026-09-09T11:58:48.010152552Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "02a1ab71abc6b10ed21efc345aa223eb",
+              "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+              "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "bcfdae16ec784c21803b4177715daf6f",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 15
+      }
+    }
+  },
+  {
+    "id": 98,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:43.010152552Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-bcfdae16ec784c21803b4177715daf6f",
+    "payload": {
+      "version": 1,
+      "id": "315b06f6a0c932af6caa4d5dc10c207b",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 96,
+      "issued_at": "2026-09-09T11:58:43.010152552Z",
+      "expires_at": "2026-09-09T11:58:48.010152552Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "02a1ab71abc6b10ed21efc345aa223eb",
+          "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+          "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 99,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:43.022222856Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-ba1153a86c7344f593018277dce56a94",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-ba1153a86c7344f593018277dce56a94",
+    "payload": {
+      "request_hash": "dd8c5d1323d5dd76044da5a4964f905a99424643bdc77aefa267654fd8d64b79",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "ba1153a86c7344f593018277dce56a94",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 16
+      }
+    }
+  },
+  {
+    "id": 100,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:43.022222856Z",
+    "subject": "browser",
+    "verb": "readback_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-ba1153a86c7344f593018277dce56a94",
+    "payload": {
+      "event_generation": 17,
+      "markers": [
+        {
+          "action_ref": {
+            "version": 1,
+            "id": "02a1ab71abc6b10ed21efc345aa223eb",
+            "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+            "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          },
+          "tab_id": 2015148196,
+          "window_id": 2015148194,
+          "active": true
+        }
+      ],
+      "version": 1,
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "challenge_id": "315b06f6a0c932af6caa4d5dc10c207b",
+      "sequence": 16,
+      "observed_at": "2026-09-09T11:58:43.021Z",
+      "received_at": "2026-09-09T11:58:43.022222856Z",
+      "complete": true,
+      "stable": true,
+      "tabs": [
+        {
+          "load_status": "complete",
+          "id": 2015148195,
+          "window_id": 2015148194,
+          "url": "http://127.0.0.1:44965/paired",
+          "title": "Heimdall pairing acceptance",
+          "active": false
+        }
+      ],
+      "present_tabs": [
+        2015148192,
+        2015148193,
+        2015148195,
+        2015148196
+      ],
+      "instances": [
+        {
+          "tab_id": 2015148195,
+          "action_ref": {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        }
+      ],
+      "focused_window": 2015148194
+    }
+  },
+  {
+    "id": 101,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:45.010194408Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-d3dc33fb49694481b19ba65f69b02070",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-d3dc33fb49694481b19ba65f69b02070",
+    "payload": {
+      "request_hash": "d8bb0a5c1ad52ab80ee080144d0c46a84d315449a181c689a98b8d57bc8ca98b",
+      "revision": 1,
+      "result": {
+        "continuations": [
+          {
+            "version": 1,
+            "id": "8965bd4b42b5c1adaeb2b94703c6e0d7",
+            "action_ref": {
+              "version": 1,
+              "id": "02a1ab71abc6b10ed21efc345aa223eb",
+              "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+              "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            },
+            "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+            "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+            "marker_tab_id": 2015148196,
+            "window_id": 2015148194,
+            "original_tab_id": 2015148195,
+            "action": "associate",
+            "expires_at": "2026-09-09T11:59:03.125108515Z"
+          }
+        ],
+        "v": 1,
+        "type": "commands",
+        "id": "d3dc33fb49694481b19ba65f69b02070",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 16
+      }
+    }
+  },
+  {
+    "id": 102,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:45.010194408Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "coordinator",
+    "entity_id": "02a1ab71abc6b10ed21efc345aa223eb",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-d3dc33fb49694481b19ba65f69b02070",
+    "payload": {
+      "continuation_id": "8965bd4b42b5c1adaeb2b94703c6e0d7",
+      "version": 3,
+      "id": "74d37d2a54b4d5ffdbfcd460a17c571b",
+      "action_id": "02a1ab71abc6b10ed21efc345aa223eb",
+      "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+      "previous_revision": 5,
+      "kind": "pair_continue",
+      "reason": "Native association verified; one-time marker continuation delivered",
+      "delivery_id": "d3dc33fb49694481b19ba65f69b02070",
+      "observation": {
+        "id": "c444e1608b622718a2d1ffc7c8ea887d",
+        "status": "unknown",
+        "source_epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "digest": "503cd1dc2f8a2935a1c79df4e7687370aedf8b680daf28cfe9a4eed6891701d5",
+        "observed_at": "2026-09-09T11:58:43.022222856Z",
+        "detail": "Fresh marker before independently journaled continuation"
+      },
+      "actor": "coordinator",
+      "at": "2026-09-09T11:58:45.010194408Z"
+    }
+  },
+  {
+    "id": 103,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:47.010294756Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-298c664295234e8abf79bf45d2828cba",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-298c664295234e8abf79bf45d2828cba",
+    "payload": {
+      "request_hash": "b29ee4985d3476eec1e7b8e7d7e105fca1f9286ee3f259e6f73aef86efe11890",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "aa4219682a609171bd5706e1ee4615ed",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 102,
+          "issued_at": "2026-09-09T11:58:47.010294756Z",
+          "expires_at": "2026-09-09T11:58:52.010294756Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "02a1ab71abc6b10ed21efc345aa223eb",
+              "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+              "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "298c664295234e8abf79bf45d2828cba",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 16
+      }
+    }
+  },
+  {
+    "id": 104,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:47.010294756Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-298c664295234e8abf79bf45d2828cba",
+    "payload": {
+      "version": 1,
+      "id": "aa4219682a609171bd5706e1ee4615ed",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 102,
+      "issued_at": "2026-09-09T11:58:47.010294756Z",
+      "expires_at": "2026-09-09T11:58:52.010294756Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "02a1ab71abc6b10ed21efc345aa223eb",
+          "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+          "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 105,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:47.071264412Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-16d3cdc1c145460eaf4f6ee09afbc7b5",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-16d3cdc1c145460eaf4f6ee09afbc7b5",
+    "payload": {
+      "request_hash": "ae894de1b8d5f0b773110c7bfd308d563a6d16a1f9c87d410912bf526b01df6e",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "16d3cdc1c145460eaf4f6ee09afbc7b5",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 16
+      }
+    }
+  },
+  {
+    "id": 106,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:47.071264412Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "observer:browser",
+    "entity_id": "02a1ab71abc6b10ed21efc345aa223eb",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-16d3cdc1c145460eaf4f6ee09afbc7b5",
+    "payload": {
+      "continuation_id": "8965bd4b42b5c1adaeb2b94703c6e0d7",
+      "version": 3,
+      "id": "43130fd7ed6610b48319e1dcf1c15db3",
+      "action_id": "02a1ab71abc6b10ed21efc345aa223eb",
+      "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+      "previous_revision": 6,
+      "kind": "report",
+      "reason": "browser API report; postcondition unverified",
+      "report": {
+        "status": "succeeded",
+        "detail": ""
+      },
+      "actor": "observer:browser",
+      "at": "2026-09-09T11:58:47.071264412Z"
+    }
+  },
+  {
+    "id": 107,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:47.071264412Z",
+    "subject": "browser",
+    "verb": "command_finished",
+    "actor": "observer:browser",
+    "entity_id": "02a1ab71abc6b10ed21efc345aa223eb",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-16d3cdc1c145460eaf4f6ee09afbc7b5",
+    "payload": {
+      "pairing": {
+        "version": 1,
+        "source_id": "f8ee98a1e7348d92b31c5895cc6ff33d",
+        "source_epoch": "6230bbf9ddcac7c7e78195527507fc47f16b7cc3a2ec35e6b91a21d9bf6078ee",
+        "previous_viewport": "c923b6b1d016fb18bdf1fe63c4588ada"
+      },
+      "action_ref": {
+        "version": 1,
+        "id": "02a1ab71abc6b10ed21efc345aa223eb",
+        "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+        "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+        "target": "alpha",
+        "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+        "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+      },
+      "id": "02a1ab71abc6b10ed21efc345aa223eb",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "action": "associate",
+      "tab_id": 2015148195,
+      "window_id": 2015148194,
+      "expected_url": "http://127.0.0.1:44965/paired",
+      "owner_id": "dfe70ff5ae481a26e4735918ff82adb6",
+      "status": "succeeded",
+      "created_at": "2026-09-09T11:58:33.125108515Z",
+      "expires_at": "2026-09-09T11:59:03.125108515Z"
+    }
+  },
+  {
+    "id": 108,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:47.075123685Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-1c239fee80d24b7bb2fc107de2f061d1",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-1c239fee80d24b7bb2fc107de2f061d1",
+    "payload": {
+      "request_hash": "7c146440af21bb8318beae975999e62dc02f3bd80480b014b849b1b2a72e403e",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "1c239fee80d24b7bb2fc107de2f061d1",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 17
+      }
+    }
+  },
+  {
+    "id": 109,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:47.075123685Z",
+    "subject": "browser",
+    "verb": "inventory_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-1c239fee80d24b7bb2fc107de2f061d1",
+    "payload": {
+      "event_generation": 17,
+      "pairing_protocol": 1,
+      "extension_id": "lffmpcoiimmjmacdbgnnjnegplmhiaic",
+      "verification_protocol": 1,
+      "challenge": {
+        "version": 1,
+        "id": "aa4219682a609171bd5706e1ee4615ed",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "connection": "0b7c20a6668242e39003bb3a0513e041",
+        "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+        "after_event_id": 102,
+        "issued_at": "2026-09-09T11:58:47.010294756Z",
+        "expires_at": "2026-09-09T11:58:52.010294756Z",
+        "actions": [
+          {
+            "version": 1,
+            "id": "02a1ab71abc6b10ed21efc345aa223eb",
+            "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+            "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        ]
+      },
+      "action_protocol": 1,
+      "received_at": "2026-09-09T11:58:47.075123685Z",
+      "received_epoch": "2558de77aee14acf2379d5e273906cdb",
+      "id": "d07aae5bcc544c95ac860e6b7df520aa",
+      "label": "Browser profile",
+      "extension_version": "0.5.0",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "paired": true,
+      "last_sequence": 17,
+      "last_observed_at": "2026-09-09T11:58:45.053Z",
+      "tabs": [
+        {
+          "load_status": "complete",
+          "id": 2015148195,
+          "window_id": 2015148194,
+          "url": "http://127.0.0.1:44965/paired",
+          "title": "Heimdall pairing acceptance",
+          "active": true,
+          "owner_id": "dfe70ff5ae481a26e4735918ff82adb6"
+        }
+      ],
+      "focused_window": 2015148194,
+      "complete": true
+    }
+  },
+  {
+    "id": 110,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:47.081838862Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "coordinator",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-e429db533d3c4fe2856372c22e3c3387",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-e429db533d3c4fe2856372c22e3c3387",
+    "payload": {
+      "request_hash": "df72046339556383d08adc793d9afa2b379c6224f0bf0cac9d6ee54cca972f22",
+      "revision": 1,
+      "result": {
+        "challenge": {
+          "version": 1,
+          "id": "ae3bbad0c6ce045a29e41da37274daf4",
+          "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+          "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+          "connection": "0b7c20a6668242e39003bb3a0513e041",
+          "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+          "after_event_id": 109,
+          "issued_at": "2026-09-09T11:58:47.081838862Z",
+          "expires_at": "2026-09-09T11:58:52.081838862Z",
+          "actions": [
+            {
+              "version": 1,
+              "id": "02a1ab71abc6b10ed21efc345aa223eb",
+              "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+              "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+              "target": "alpha",
+              "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+              "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+            }
+          ]
+        },
+        "v": 1,
+        "type": "commands",
+        "id": "e429db533d3c4fe2856372c22e3c3387",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 17
+      }
+    }
+  },
+  {
+    "id": 111,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:47.081838862Z",
+    "subject": "browser",
+    "verb": "challenge_issued",
+    "actor": "coordinator",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-e429db533d3c4fe2856372c22e3c3387",
+    "payload": {
+      "version": 1,
+      "id": "ae3bbad0c6ce045a29e41da37274daf4",
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+      "connection": "0b7c20a6668242e39003bb3a0513e041",
+      "runtime_id": "2558de77aee14acf2379d5e273906cdb",
+      "after_event_id": 109,
+      "issued_at": "2026-09-09T11:58:47.081838862Z",
+      "expires_at": "2026-09-09T11:58:52.081838862Z",
+      "actions": [
+        {
+          "version": 1,
+          "id": "02a1ab71abc6b10ed21efc345aa223eb",
+          "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+          "intent_digest": "45797dcd14d4fcfd251d65172a42dcee7e65c149b22748c4483f0a9757a0623c",
+          "target": "alpha",
+          "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+          "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+        }
+      ]
+    }
+  },
+  {
+    "id": 112,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:47.086867744Z",
+    "subject": "command",
+    "verb": "accepted",
+    "actor": "observer:browser",
+    "entity_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-956d32e7cf244839b49d1971af8e3f5a",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-956d32e7cf244839b49d1971af8e3f5a",
+    "payload": {
+      "request_hash": "547bf880d1600c850f24d7391a1492a2bf7a638281e835cf25ff5074c36ea28e",
+      "revision": 1,
+      "result": {
+        "v": 1,
+        "type": "ack",
+        "id": "956d32e7cf244839b49d1971af8e3f5a",
+        "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+        "paired": true,
+        "last_sequence": 18
+      }
+    }
+  },
+  {
+    "id": 113,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:47.086867744Z",
+    "subject": "browser",
+    "verb": "readback_observed",
+    "actor": "observer:browser",
+    "entity_id": "d07aae5bcc544c95ac860e6b7df520aa",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-956d32e7cf244839b49d1971af8e3f5a",
+    "payload": {
+      "event_generation": 19,
+      "version": 1,
+      "profile": "d07aae5bcc544c95ac860e6b7df520aa",
+      "challenge_id": "ae3bbad0c6ce045a29e41da37274daf4",
+      "sequence": 18,
+      "observed_at": "2026-09-09T11:58:47.085Z",
+      "received_at": "2026-09-09T11:58:47.086867744Z",
+      "complete": true,
+      "stable": true,
+      "tabs": [
+        {
+          "load_status": "complete",
+          "id": 2015148195,
+          "window_id": 2015148194,
+          "url": "http://127.0.0.1:44965/paired",
+          "title": "Heimdall pairing acceptance",
+          "active": true
+        }
+      ],
+      "present_tabs": [
+        2015148192,
+        2015148193,
+        2015148195
+      ],
+      "instances": [
+        {
+          "tab_id": 2015148195,
+          "action_ref": {
+            "version": 1,
+            "id": "dfe70ff5ae481a26e4735918ff82adb6",
+            "attempt_id": "0154ce50f9259169de030fc026336b3c",
+            "intent_digest": "fab6a6c5e6b0a9fcfcc1ab90d0637695608a774fa755aad48f61af97080a084b",
+            "target": "alpha",
+            "manifest_id": "30db0fe132b877a2a73a1a1751e0d81c",
+            "surface_id": "a2e8ffab2120adbb10f90b8967e9cd06"
+          }
+        }
+      ],
+      "focused_window": 2015148194
+    }
+  },
+  {
+    "id": 114,
+    "event_version": 1,
+    "ts": "2026-09-09T11:58:47.086867744Z",
+    "subject": "action",
+    "verb": "transitioned",
+    "actor": "observer:browser",
+    "entity_id": "02a1ab71abc6b10ed21efc345aa223eb",
+    "command_id": "browser-d07aae5bcc544c95ac860e6b7df520aa-956d32e7cf244839b49d1971af8e3f5a",
+    "payload": {
+      "version": 2,
+      "id": "79fc317b27cb4cf6c82660f21a393ea9",
+      "action_id": "02a1ab71abc6b10ed21efc345aa223eb",
+      "attempt_id": "a0e7e37249c24faf4ca7c866793321fd",
+      "previous_revision": 7,
+      "kind": "verify",
+      "reason": "Independent challenged browser readback",
+      "observation": {
+        "id": "462cc49628e1ced3423bc3e96509c12c",
+        "status": "matched",
+        "source_epoch": "5c62f3412c2940a99d4f6e25586c36a4",
+        "digest": "be783c215912657d2f51102cd0c2c5a90d58d43320e79573f0e9ee6cc476a7fe",
+        "observed_at": "2026-09-09T11:58:47.086867744Z",
+        "detail": "Requested browser postcondition observed in challenged readback"
+      },
+      "actor": "observer:browser",
+      "at": "2026-09-09T11:58:47.086867744Z"
+    }
+  }
+]

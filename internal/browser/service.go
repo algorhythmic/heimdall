@@ -13,8 +13,9 @@ import (
 )
 
 type Service struct {
-	Store   *store.Store
-	Runtime *Runtime
+	AssociationCheck func(model.BrowserAssociation) error
+	Store            *store.Store
+	Runtime          *Runtime
 }
 
 func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.RawMessage, error) {
@@ -34,7 +35,7 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 		if !ok || p.Epoch != m.Epoch || p.Connection != m.Connection {
 			return fmt.Errorf("stale_connection: reconnect before sending messages")
 		}
-		if (m.Type == "poll" || m.Type == "command_result" || m.Type == "readback") && !p.Paired {
+		if (m.Type == "poll" || m.Type == "command_result" || m.Type == "readback" || m.Type == "pairing_ready") && !p.Paired {
 			return fmt.Errorf("profile_unpaired")
 		}
 		if m.Type == "readback" {
@@ -44,7 +45,13 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 		}
 		if m.Type == "poll" {
 			for _, a := range st.Actions {
+				if a.Pairing != nil && a.Pairing.ContinuationDeliveryID == m.ID && !s.continuationAllowed(st, a, now, 0) {
+					return fmt.Errorf("cached continuation no longer authorized")
+				}
 				if a.DeliveryID == m.ID && a.Intent.Browser.Profile == m.Profile {
+					if a.Pairing != nil && a.Pairing.Ready != nil {
+						return fmt.Errorf("first pairing phase already reported")
+					}
 					if a.Execution != "dispatching" || a.CancelRequested || !model.ActionInputsCurrent(st, a.Intent) || !model.ActionBrowserCurrent(st, a.Intent) || !now.Before(a.Intent.ExpiresAt) || !s.fresh(p, 0, now) {
 						return fmt.Errorf("cached action delivery no longer authorized")
 					}
@@ -74,6 +81,10 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			p.ExtensionVersion = m.ExtensionVersion
 			p.ActionProtocol = m.ActionProtocol
 			p.VerificationProtocol = m.VerificationProtocol
+			p.PairingProtocol = m.PairingProtocol
+			p.ExtensionID = m.ExtensionID
+			p.EventGeneration = 0
+			p.Markers = nil
 			p.Challenge = nil
 			p.Freshness = nil
 			p.PresentTabs = nil
@@ -154,6 +165,7 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			p.LastObservedAt, _ = time.Parse(time.RFC3339Nano, m.ObservedAt)
 			p.Freshness = nil
 			p.PresentTabs = nil
+			p.Markers = nil
 			p.ReceivedAt = now.UTC()
 			p.ReceivedEpoch = s.Store.RuntimeID()
 			p.FocusedWindow = *m.FocusedWindow
@@ -177,6 +189,9 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 				change.Result = reply
 				return change, nil
 			}
+			var continuationEvents []store.Pending
+			reply.Continuations, continuationEvents = s.continuations(st, m, now)
+			change.Events = append(change.Events, continuationEvents...)
 			keys := []string{}
 			for id := range st.BrowserOperations {
 				keys = append(keys, id)
@@ -226,10 +241,32 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 					change.Events = append(change.Events, store.Pending{Subject: "browser", Verb: "command_finished", EntityID: o.ID, Payload: o})
 					continue
 				}
+				pairingActive := false
+				for _, a := range st.Actions {
+					if a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Pairing != nil && model.ActionHolds(a) {
+						pairingActive = true
+					}
+				}
+				if pairingActive {
+					continue
+				}
 				if len(reply.Commands) < 8 {
 					reply.Commands = append(reply.Commands, o)
 				}
 			}
+		case "pairing_ready":
+			a, ok := st.Actions[m.PairReady.ActionRef.ID]
+			if !ok || a.Intent.Browser.Profile != p.ID || a.Intent.Browser.Epoch != p.Epoch || !reflect.DeepEqual(&m.PairReady.ActionRef, a.BrowserRef()) {
+				return change, fmt.Errorf("pairing report scope differs from issued attempt")
+			}
+			if a.Pairing != nil && reflect.DeepEqual(a.Pairing.Ready, m.PairReady) {
+				change.Result = reply
+				return change, nil
+			}
+			v := actions.Transition(a, "pair_ready", "Temporary pairing page created; native association pending", actor, now)
+			v.Version = 3
+			v.PairReady = m.PairReady
+			change.Events = append(change.Events, actions.Pending(v))
 		case "command_result":
 			r := m.Result
 			o, ok := st.BrowserOperations[r.OperationID]
@@ -243,6 +280,19 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 				v := actions.Transition(st.Actions[o.ActionRef.ID], "report", "browser API report; postcondition unverified", actor, now)
 				if s.Runtime != nil {
 					v.Version = 2
+				}
+				if st.Actions[o.ActionRef.ID].Intent.Browser.Pairing != nil {
+					v.Version = 3
+					v.ContinuationID = r.ContinuationID
+					a := st.Actions[o.ActionRef.ID]
+					if r.ContinuationID != "" && (a.Pairing == nil || a.Pairing.ContinuationDeliveryID == "" || a.Pairing.ContinuationID != r.ContinuationID) {
+						return change, fmt.Errorf("result continuation differs from issued delivery")
+					}
+					if r.ContinuationID == "" && a.Pairing != nil {
+						return change, fmt.Errorf("first pairing phase already reported")
+					}
+				} else if r.ContinuationID != "" {
+					return change, fmt.Errorf("continuation on an ordinary browser result")
 				}
 				v.Report = &model.ActionReport{Status: r.Status, Detail: r.Detail, TabID: r.TabID, WindowID: r.WindowID, URL: r.URL}
 
@@ -324,6 +374,11 @@ func (s Service) Control(ctx context.Context, c Control, now time.Time) (json.Ra
 		}
 		if !p.Paired || c.Epoch != p.Epoch {
 			return change, fmt.Errorf("unpaired profile or stale epoch")
+		}
+		for _, a := range st.Actions {
+			if a.Intent.Browser.Profile == p.ID && a.Intent.Browser.Pairing != nil && model.ActionHolds(a) {
+				return change, fmt.Errorf("profile has an unresolved pairing action")
+			}
 		}
 		if _, exists := st.BrowserOperations[c.ID]; exists {
 			return change, fmt.Errorf("browser operation ID already used: %w", store.ErrConflict)

@@ -20,7 +20,7 @@ import (
 
 var ErrConflict = errors.New("revision or idempotency conflict")
 
-const SchemaVersion = 17
+const SchemaVersion = 18
 
 type Event struct {
 	ID        int64           `json:"id"`
@@ -115,7 +115,7 @@ func Open(dir string) (*Store, error) {
  CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,event_version INTEGER NOT NULL,ts TEXT NOT NULL,subject TEXT NOT NULL,verb TEXT NOT NULL,actor TEXT NOT NULL,entity_id TEXT NOT NULL,command_id TEXT NOT NULL,payload TEXT NOT NULL CHECK(json_valid(payload)),idempotency_key TEXT NOT NULL UNIQUE);
  CREATE TABLE IF NOT EXISTS projection_state(id INTEGER PRIMARY KEY CHECK(id=1),body TEXT NOT NULL CHECK(json_valid(body)));
  CREATE TABLE IF NOT EXISTS commands(id TEXT PRIMARY KEY,request_hash TEXT NOT NULL,result TEXT NOT NULL);
- ` + snapshotTables + `CREATE INDEX IF NOT EXISTS events_subject_entity ON events(subject,entity_id,id); PRAGMA user_version=17;`)
+ ` + snapshotTables + `CREATE INDEX IF NOT EXISTS events_subject_entity ON events(subject,entity_id,id); PRAGMA user_version=18;`)
 	if err != nil {
 		s.Close()
 		return nil, err
@@ -290,6 +290,10 @@ func Apply(st *model.State, e Event) error {
 		return fmt.Errorf("unsupported event version %d at %d", e.Version, e.ID)
 	}
 	switch e.Subject + "." + e.Verb {
+	case "browser.association_observed":
+		if err := applyBrowserAssociation(st, e); err != nil {
+			return err
+		}
 	case "snapshot.captured", "snapshot.policy", "snapshot.pin", "snapshot.pruned":
 		if err := applySnapshot(st, e); err != nil {
 			return err
@@ -346,7 +350,7 @@ func Apply(st *model.State, e Event) error {
 		// Earlier event shapes may carry unchanged challenge metadata through a
 		// pairing update, but cannot introduce independently verified observations.
 		old := st.Browsers[p.ID]
-		if p.Freshness != nil && (e.Verb != "pairing_changed" || !reflect.DeepEqual(p.Freshness, old.Freshness) || !reflect.DeepEqual(p.Tabs, old.Tabs) || !reflect.DeepEqual(p.PresentTabs, old.PresentTabs) || !p.ReceivedAt.Equal(old.ReceivedAt)) {
+		if p.Freshness != nil && (e.Verb != "pairing_changed" || !reflect.DeepEqual(p.Freshness, old.Freshness) || !reflect.DeepEqual(p.Tabs, old.Tabs) || !reflect.DeepEqual(p.PresentTabs, old.PresentTabs) || !reflect.DeepEqual(p.Markers, old.Markers) || p.EventGeneration != old.EventGeneration || !p.ReceivedAt.Equal(old.ReceivedAt)) {
 			return fmt.Errorf("fresh browser proof requires the readback event")
 		}
 		if p.Challenge != nil && !reflect.DeepEqual(p.Challenge, old.Challenge) {

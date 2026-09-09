@@ -15,15 +15,16 @@ func ValidActionVerification(s string) bool {
 }
 
 type BrowserIntent struct {
-	LoadCondition string `json:"load_condition,omitempty"`
-	Profile       string `json:"profile"`
-	Epoch         string `json:"epoch"`
-	Action        string `json:"action"`
-	TabID         int    `json:"tab_id,omitempty"`
-	WindowID      int    `json:"window_id,omitempty"`
-	OwnerID       string `json:"owner_id,omitempty"`
-	ExpectedURL   string `json:"expected_url,omitempty"`
-	URL           string `json:"url,omitempty"`
+	Pairing       *BrowserPairingIntent `json:"pairing,omitempty"`
+	LoadCondition string                `json:"load_condition,omitempty"`
+	Profile       string                `json:"profile"`
+	Epoch         string                `json:"epoch"`
+	Action        string                `json:"action"`
+	TabID         int                   `json:"tab_id,omitempty"`
+	WindowID      int                   `json:"window_id,omitempty"`
+	OwnerID       string                `json:"owner_id,omitempty"`
+	ExpectedURL   string                `json:"expected_url,omitempty"`
+	URL           string                `json:"url,omitempty"`
 }
 type ActionPostcondition struct {
 	Kind           string `json:"kind"`
@@ -65,23 +66,28 @@ type ActionObservation struct {
 	Detail      string    `json:"detail"`
 }
 type ActionRecord struct {
-	VerificationAttempts int                `json:"verification_attempts,omitempty"`
-	Intent               ActionIntent       `json:"intent"`
-	IntentDigest         string             `json:"intent_digest"`
-	Revision             int64              `json:"revision"`
-	Execution            string             `json:"execution"`
-	Verification         string             `json:"verification"`
-	CancelRequested      bool               `json:"cancel_requested"`
-	DeliveryID           string             `json:"delivery_id,omitempty"`
-	UncertainSince       time.Time          `json:"uncertain_since"`
-	Report               *ActionReport      `json:"report,omitempty"`
-	Observation          *ActionObservation `json:"observation,omitempty"`
-	DispatchObservation  *ActionObservation `json:"dispatch_observation,omitempty"`
-	UpdatedAt            time.Time          `json:"updated_at"`
-	LastReason           string             `json:"last_reason"`
-	LastEventID          int64              `json:"last_event_id"`
+	Pairing              *BrowserPairingState `json:"pairing,omitempty"`
+	VerificationAttempts int                  `json:"verification_attempts,omitempty"`
+	Intent               ActionIntent         `json:"intent"`
+	IntentDigest         string               `json:"intent_digest"`
+	Revision             int64                `json:"revision"`
+	Execution            string               `json:"execution"`
+	Verification         string               `json:"verification"`
+	CancelRequested      bool                 `json:"cancel_requested"`
+	DeliveryID           string               `json:"delivery_id,omitempty"`
+	UncertainSince       time.Time            `json:"uncertain_since"`
+	Report               *ActionReport        `json:"report,omitempty"`
+	Observation          *ActionObservation   `json:"observation,omitempty"`
+	DispatchObservation  *ActionObservation   `json:"dispatch_observation,omitempty"`
+	UpdatedAt            time.Time            `json:"updated_at"`
+	LastReason           string               `json:"last_reason"`
+	LastEventID          int64                `json:"last_event_id"`
 }
 type ActionTransition struct {
+	PairProbe        *BrowserPairProbe  `json:"pair_probe,omitempty"`
+	PairReady        *BrowserPairReady  `json:"pair_ready,omitempty"`
+	AssociationID    string             `json:"association_id,omitempty"`
+	ContinuationID   string             `json:"continuation_id,omitempty"`
 	Version          int                `json:"version"`
 	ID               string             `json:"id"`
 	ActionID         string             `json:"action_id"`
@@ -124,10 +130,21 @@ func BrowserURL(s string) bool {
 	return err == nil && (u.Scheme == "https" || u.Scheme == "http") && u.Host != "" && u.User == nil && len(s) <= 8192
 }
 func (b BrowserIntent) Validate() error {
+	if b.Pairing != nil {
+		if err := b.Pairing.Validate(); err != nil {
+			return err
+		}
+		if b.Action != "open" && b.Action != "associate" {
+			return fmt.Errorf("pairing is supported only for open or explicit association")
+		}
+	}
+	if b.Action == "associate" && b.Pairing == nil {
+		return fmt.Errorf("association requires explicit pairing authority")
+	}
 	if b.LoadCondition != "" && (b.LoadCondition != "complete" || (b.Action != "open" && b.Action != "navigate")) {
 		return fmt.Errorf("only open/navigation accept complete load condition")
 	}
-	if !OpaqueID.MatchString(b.Profile) || !OpaqueID.MatchString(b.Epoch) || !Contains([]string{"open", "navigate", "focus", "move", "close"}, b.Action) {
+	if !OpaqueID.MatchString(b.Profile) || !OpaqueID.MatchString(b.Epoch) || !Contains([]string{"open", "navigate", "focus", "move", "close", "associate"}, b.Action) {
 		return fmt.Errorf("invalid browser intent identity/action")
 	}
 	if b.Action == "open" {
@@ -141,7 +158,7 @@ func (b BrowserIntent) Validate() error {
 		if (b.Action == "navigate") != (b.URL != "") || (b.URL != "" && !BrowserURL(b.URL)) {
 			return fmt.Errorf("only navigation accepts a destination URL")
 		}
-		if (b.Action == "move" && b.WindowID < 1) || (b.Action != "move" && b.WindowID != 0) {
+		if ((b.Action == "move" || b.Action == "associate") && b.WindowID < 1) || (b.Action != "move" && b.Action != "associate" && b.WindowID != 0) {
 			return fmt.Errorf("only move requires a destination window")
 		}
 	}
@@ -153,6 +170,8 @@ func BrowserPostcondition(b BrowserIntent) ActionPostcondition {
 		p.LoadCondition = b.LoadCondition
 	}
 	switch b.Action {
+	case "associate":
+		p.Kind = "native_window_association"
 	case "open":
 		p.Kind = "owned_instance_exists"
 		p.URL = b.URL
@@ -169,7 +188,7 @@ func BrowserPostcondition(b BrowserIntent) ActionPostcondition {
 	return p
 }
 func (v ActionIntent) Validate() error {
-	if v.Version != 1 || !ValidID(v.Target) || v.TaskRevision < 1 || !TokenHashPattern.MatchString(v.ContextDigest) || v.Adapter != "browser" || v.Authority != "cli" || v.AuthorityRef != "action-"+v.ID || v.At.IsZero() || v.ExpiresAt.Sub(v.At) != 30*time.Second {
+	if (v.Version != 1 && v.Version != 2) || !ValidID(v.Target) || v.TaskRevision < 1 || !TokenHashPattern.MatchString(v.ContextDigest) || v.Adapter != "browser" || v.Authority != "cli" || v.AuthorityRef != "action-"+v.ID || v.At.IsZero() || v.ExpiresAt.Sub(v.At) != 30*time.Second {
 		return fmt.Errorf("invalid action intent envelope")
 	}
 	for _, id := range []string{v.ID, v.ManifestID, v.SurfaceID, v.AttemptID} {
@@ -182,6 +201,9 @@ func (v ActionIntent) Validate() error {
 	}
 	if v.Browser == nil {
 		return fmt.Errorf("browser intent required")
+	}
+	if (v.Version == 2) != (v.Browser.Pairing != nil) {
+		return fmt.Errorf("pairing requires intent version 2")
 	}
 	if err := v.Browser.Validate(); err != nil {
 		return err
@@ -229,7 +251,7 @@ func ActionContextDigest(st State, target string) string {
 }
 
 func ActionHolds(a ActionRecord) bool {
-	if a.Execution == "cancelled" || a.Execution == "refused" {
+	if a.Execution == "cancelled" || a.Execution == "refused" || (a.Pairing != nil && a.Pairing.Abandoned) {
 		return false
 	}
 	// An uncertain failed postcondition is not permission to duplicate a possible effect.
@@ -239,6 +261,10 @@ func ActionConflict(st State, v ActionIntent) string {
 	ids := []string{}
 	for id, a := range st.Actions {
 		if !ActionHolds(a) {
+			continue
+		}
+		if a.Intent.Browser != nil && v.Browser != nil && ((a.Intent.Browser.Pairing != nil && v.Browser.Pairing != nil) || ((a.Intent.Browser.Pairing != nil || v.Browser.Pairing != nil) && a.Intent.Browser.Profile == v.Browser.Profile)) {
+			ids = append(ids, id)
 			continue
 		}
 		if a.Intent.SurfaceID == v.SurfaceID || (a.Intent.Browser != nil && v.Browser != nil && a.Intent.Browser.Profile == v.Browser.Profile && a.Intent.Browser.Epoch == v.Browser.Epoch && v.Browser.OwnerID != "" && (a.Intent.ID == v.Browser.OwnerID || a.Intent.Browser.OwnerID == v.Browser.OwnerID)) {
@@ -252,6 +278,24 @@ func ActionConflict(st State, v ActionIntent) string {
 	return ""
 }
 func ActionInputsCurrent(st State, v ActionIntent) bool {
+	if v.Browser != nil && v.Browser.Pairing != nil {
+		p := v.Browser.Pairing
+		s := st.DesktopSources[p.SourceID]
+		if !s.Active || st.DesktopSourceHead != p.SourceID || s.Epoch != p.SourceEpoch {
+			return false
+		}
+		previous := p.PreviousViewport
+		if previous == "none" {
+			previous = ""
+		}
+		if st.ViewportHeads[v.SurfaceID] != previous {
+			b := st.ViewportBindings[st.ViewportHeads[v.SurfaceID]]
+			proof := st.BrowserAssociations[b.BrowserAssociationID]
+			if proof.ActionRef.ID != v.ID || proof.ActionRef.IntentDigest != ContentDigest(v) {
+				return false
+			}
+		}
+	}
 	return st.Tasks[v.Target].Revision == v.TaskRevision && st.WorkspaceHeads[v.Target] == v.ManifestID && ActionContextDigest(st, v.Target) == v.ContextDigest
 }
 
@@ -262,6 +306,9 @@ func ActionBrowserCurrent(st State, v ActionIntent) bool {
 	b := v.Browser
 	p := st.Browsers[b.Profile]
 	if !p.Paired || p.Epoch != b.Epoch || p.ActionProtocol != 1 {
+		return false
+	}
+	if b.Pairing != nil && (p.PairingProtocol != 1 || p.VerificationProtocol != 1 || !BrowserExtensionIDPattern.MatchString(p.ExtensionID)) {
 		return false
 	}
 
@@ -287,7 +334,7 @@ func ActionBrowserCurrent(st State, v ActionIntent) bool {
 		return true
 	}
 	for _, tab := range p.Tabs {
-		if tab.ID == b.TabID && tab.OwnerID == b.OwnerID && tab.URL == b.ExpectedURL && !tab.NavigationPending {
+		if tab.ID == b.TabID && tab.OwnerID == b.OwnerID && tab.URL == b.ExpectedURL && !tab.NavigationPending && (b.Action != "associate" || tab.WindowID == b.WindowID) {
 			return true
 		}
 	}

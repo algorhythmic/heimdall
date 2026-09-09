@@ -161,6 +161,9 @@ func planPreview(st model.State, r PreviewRequest, point store.PointView, observ
 			if v.Fresh {
 				for _, w := range live.Windows {
 					if w.Identity == *b.Window {
+						if _, allowed := model.ScopedBrowserWindow(st, b, w); !allowed {
+							continue
+						}
 						id := w.Identity
 						row.Window = &id
 						row.ObservationStatus = "observed"
@@ -179,7 +182,11 @@ func planPreview(st model.State, r PreviewRequest, point store.PointView, observ
 			row.Disposition = "unavailable"
 		case surface.Kind == "browser":
 			row.Disposition = "review-required"
-			row.Issues = append(row.Issues, "browser_window_pairing_required")
+			if b.BrowserAssociationID == "" {
+				row.Issues = append(row.Issues, "browser_window_pairing_required")
+			} else {
+				row.Issues = append(row.Issues, "browser_restore_recipe_and_fresh_membership_required")
+			}
 		case row.Desired == nil:
 			row.Disposition = "review-required"
 			row.Issues = append(row.Issues, "saved_layout_missing")

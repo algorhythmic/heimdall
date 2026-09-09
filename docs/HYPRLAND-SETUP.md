@@ -103,7 +103,7 @@ the window displays that pane. A moved/rebound pane invalidates that link visibl
 `session refresh` remains the separate Herdr liveness check. No class/title/cwd
 matching joins Herdr panes to native windows.
 
-Browser surfaces are refused pending C13's nonce/profile/window handshake. A
+Direct CLI browser bindings remain refused; use [C13 nonce/profile/window pairing](BROWSER-PAIRING.md). A
 native window binding does not identify a browser profile or authorize tab actions.
 
 To unbind, save a new envelope with `op: "unbind"`, `previous` equal to the binding

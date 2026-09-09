@@ -81,6 +81,25 @@ func applyBrowserVerification(st *model.State, e Event) error {
 			tabs[i.TabID] = t
 		}
 	}
+
+	if r.EventGeneration < 0 || r.EventGeneration < p.EventGeneration || len(r.Markers) > 128 || (p.PairingProtocol != 1 && len(r.Markers) > 0) {
+		return fmt.Errorf("invalid browser event/marker coverage")
+	}
+	markerIDs := map[int]bool{}
+	markerActions := map[string]bool{}
+	for _, m := range r.Markers {
+		a, ok := st.Actions[m.ActionRef.ID]
+		if !ok || a.Intent.Browser.Profile != p.ID || a.Intent.Browser.Epoch != p.Epoch || a.Intent.Browser.Pairing == nil || a.Pairing == nil || a.Pairing.Ready == nil || !reflect.DeepEqual(&m.ActionRef, a.BrowserRef()) || m.TabID != a.Pairing.Ready.MarkerTabID || m.WindowID != a.Pairing.Ready.WindowID || !present[m.TabID] || markerIDs[m.TabID] || markerActions[m.ActionRef.ID] {
+			return fmt.Errorf("marker does not match its issued browser attempt")
+		}
+		markerIDs[m.TabID] = true
+		markerActions[m.ActionRef.ID] = true
+	}
+	p.Markers = slices.Clone(r.Markers)
+	if len(p.Markers) == 0 {
+		p.Markers = nil
+	}
+	p.EventGeneration = r.EventGeneration
 	p.Tabs = []model.BrowserTab{}
 	for _, t := range tabs {
 		p.Tabs = append(p.Tabs, t)

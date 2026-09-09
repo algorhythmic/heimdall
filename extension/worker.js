@@ -1,5 +1,6 @@
 import {Outbox} from './outbox.js';
 import {readback,retainedResults} from './readback.js';
+import {retainedPairings} from './pairing.js';
 let inventoryGeneration=0;
 import {Actions,id,inventory} from './controller.js';
 const queue=new Outbox(); let port,profile,epoch,connection,paired=false,authorized=false,busy=false,dirty=true,actions,failures=0,nextAttempt=0;
@@ -23,7 +24,7 @@ async function connect(){
  const current=port;
  port.onMessage.addListener(reply=>{const p=pending.get(reply.id);if(p){pending.delete(reply.id);p.resolve(reply);}});
  port.onDisconnect.addListener(()=>{const reason=chrome.runtime.lastError?.message??'Native host disconnected';if(port===current)port=undefined;paired=false;for(const p of pending.values())p.reject(Error(reason));pending.clear();status({connected:false,detail:reason});});
- const reply=await rpc({type:'hello',label:'Browser profile',extension_version:chrome.runtime.getManifest().version,action_protocol:1,verification_protocol:1});paired=reply.paired;
+ const reply=await rpc({type:'hello',label:'Browser profile',extension_version:chrome.runtime.getManifest().version,action_protocol:1,verification_protocol:1,pairing_protocol:1,extension_id:chrome.runtime.id});paired=reply.paired;
  const s=await chrome.storage.session.get(['sequence']);await chrome.storage.session.set({sequence:Math.max(s.sequence??0,reply.last_sequence??0)});
  dirty=true;
 }
@@ -45,12 +46,13 @@ async function cycle(){
   failures=0;nextAttempt=0;
   await status({connected:true,paused,detail:paired?'Connected':'Pair this profile using the local CLI'});
   if(!paired){await queue.clear();return;}
-  if(paused){await queue.clear();for(const op of poll.commands??[])await rpc({type:'command_result',result:await actions.execute(op,true)});return;}
+  if(paused){await queue.clear();for(const op of poll.commands??[])await rpc({type:'command_result',result:await actions.execute(op,true)});for(const c of poll.continuations??[])await rpc({type:'command_result',result:await actions.pairing.continue(c,true)});return;}
   for(const row of (await queue.all()).sort((a,b)=>(a.order??a.created)-(b.order??b.created))){
     if(row.epoch!==epoch||Date.now()-row.created>86400000){await queue.remove(row.id);await chrome.storage.local.set({gap:'Older browser-session observations discarded'});continue;}
     try{await rpc(row.body);await queue.remove(row.id);}catch(e){if(/stale_sequence|already finalized/.test(e.message)){await queue.remove(row.id);}else throw e;}
   }
   if(poll.challenge){
+   for(const pair_ready of await retainedPairings(chrome,poll.challenge.actions??[]))await rpc({type:'pairing_ready',pair_ready});
    // Replay stored results, not browser input, before asking for a new observation.
    for(const result of await retainedResults(chrome,poll.challenge.actions??[])){
     try{await rpc({type:'command_result',result});}catch(e){if(!/already finalized|unexpected action report/.test(e.message))throw e;}
@@ -62,7 +64,8 @@ async function cycle(){
     try{await rpc(body);}catch(e){if(!/stale_challenge/.test(e.message))throw e;}
    }
   }
-  for(const op of poll.commands??[]){const result=await actions.execute(op);await enqueue({type:'command_result',result});dirty=true;}
+  for(const op of poll.commands??[]){const result=await actions.execute(op);await enqueue(result.pair_ready?{type:'pairing_ready',pair_ready:result.pair_ready}:{type:'command_result',result});dirty=true;}
+  for(const c of poll.continuations??[]){const result=await actions.pairing.continue(c);await enqueue({type:'command_result',result});dirty=true;}
   await collect(paused);
  }catch(e){failures++;nextAttempt=Date.now()+Math.min(30000,1000*2**Math.min(failures,5))*(0.8+Math.random()*0.2);await status({connected:false,detail:String(e.message)});if(port){const old=port;port=undefined;old.disconnect();}}
  finally{busy=false;}

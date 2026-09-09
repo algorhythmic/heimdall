@@ -130,6 +130,7 @@ type Timer struct {
 	Outcome string    `json:"outcome,omitempty"`
 }
 type State struct {
+	BrowserAssociations   map[string]BrowserAssociation   `json:"browser_associations"`
 	Actions               map[string]ActionRecord         `json:"actions"`
 	SnapshotHeads         map[string]WorkspacePoint       `json:"snapshot_heads"`
 	SnapshotPolicies      map[string]SnapshotPolicy       `json:"snapshot_policies"`

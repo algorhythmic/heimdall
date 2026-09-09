@@ -148,7 +148,10 @@ func pointPayload(st model.State, target string, observed hyprland.Status) (mode
 				row.Status = "missing"
 				for _, w := range live.Windows {
 					if w.Identity == *b.Window {
-						copy := w
+						copy, allowed := model.ScopedBrowserWindow(st, b, w)
+						if !allowed {
+							continue
+						}
 						row.Window = &copy
 						row.Status = "observed"
 						workspaces[w.WorkspaceID] = true

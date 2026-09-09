@@ -16,6 +16,11 @@ var IDPattern = regexp.MustCompile(`^[a-f0-9]{32}$`)
 var ExtensionPattern = regexp.MustCompile(`^[a-p]{32}$`)
 
 type Message struct {
+	PairingProtocol      int                     `json:"pairing_protocol,omitempty"`
+	ExtensionID          string                  `json:"extension_id,omitempty"`
+	PairReady            *model.BrowserPairReady `json:"pair_ready,omitempty"`
+	Markers              []model.BrowserMarker   `json:"markers,omitempty"`
+	EventGeneration      *int64                  `json:"event_generation,omitempty"`
 	VerificationProtocol int                     `json:"verification_protocol,omitempty"`
 	ChallengeID          string                  `json:"challenge_id,omitempty"`
 	Stable               *bool                   `json:"stable,omitempty"`
@@ -38,24 +43,26 @@ type Message struct {
 	Result               *OperationResult        `json:"result,omitempty"`
 }
 type OperationResult struct {
-	ActionRef   *model.BrowserActionRef `json:"action_ref,omitempty"`
-	OperationID string                  `json:"operation_id"`
-	Status      string                  `json:"status"`
-	TabID       int                     `json:"tab_id,omitempty"`
-	WindowID    int                     `json:"window_id,omitempty"`
-	URL         string                  `json:"url,omitempty"`
-	Detail      string                  `json:"detail,omitempty"`
+	ContinuationID string                  `json:"continuation_id,omitempty"`
+	ActionRef      *model.BrowserActionRef `json:"action_ref,omitempty"`
+	OperationID    string                  `json:"operation_id"`
+	Status         string                  `json:"status"`
+	TabID          int                     `json:"tab_id,omitempty"`
+	WindowID       int                     `json:"window_id,omitempty"`
+	URL            string                  `json:"url,omitempty"`
+	Detail         string                  `json:"detail,omitempty"`
 }
 type Reply struct {
-	Challenge    *model.BrowserChallenge  `json:"challenge,omitempty"`
-	V            int                      `json:"v"`
-	Type         string                   `json:"type"`
-	ID           string                   `json:"id"`
-	Profile      string                   `json:"profile,omitempty"`
-	Paired       bool                     `json:"paired"`
-	LastSequence int64                    `json:"last_sequence,omitempty"`
-	Commands     []model.BrowserOperation `json:"commands,omitempty"`
-	Error        string                   `json:"error,omitempty"`
+	Continuations []model.BrowserContinuation `json:"continuations,omitempty"`
+	Challenge     *model.BrowserChallenge     `json:"challenge,omitempty"`
+	V             int                         `json:"v"`
+	Type          string                      `json:"type"`
+	ID            string                      `json:"id"`
+	Profile       string                      `json:"profile,omitempty"`
+	Paired        bool                        `json:"paired"`
+	LastSequence  int64                       `json:"last_sequence,omitempty"`
+	Commands      []model.BrowserOperation    `json:"commands,omitempty"`
+	Error         string                      `json:"error,omitempty"`
 }
 type Control struct {
 	ID          string `json:"id"`
@@ -112,6 +119,18 @@ func (m Message) Validate() error {
 	} else if m.ChallengeID != "" || m.Stable != nil || m.PresentTabs != nil || m.Instances != nil {
 		return fmt.Errorf("readback fields on another message")
 	}
+	if (m.PairingProtocol != 0 && m.PairingProtocol != 1) || (m.Type != "hello" && (m.PairingProtocol != 0 || m.ExtensionID != "")) || (m.PairingProtocol == 1 && (!model.BrowserExtensionIDPattern.MatchString(m.ExtensionID) || m.VerificationProtocol != 1 || m.ActionProtocol != 1)) || (m.PairingProtocol == 0 && m.ExtensionID != "") {
+		return fmt.Errorf("invalid pairing capability")
+	}
+	if m.Type != "pairing_ready" && m.PairReady != nil {
+		return fmt.Errorf("pairing report on another message")
+	}
+	if m.Type != "readback" && (m.Markers != nil || m.EventGeneration != nil) {
+		return fmt.Errorf("marker fields on another message")
+	}
+	if len(m.Markers) > 128 || (m.EventGeneration != nil && *m.EventGeneration < 0) {
+		return fmt.Errorf("invalid marker readback")
+	}
 	if m.Type != "command_result" && m.Result != nil {
 		return fmt.Errorf("result on another message")
 	}
@@ -120,6 +139,11 @@ func (m Message) Validate() error {
 		if m.ExtensionVersion == "" {
 			return fmt.Errorf("extension version required")
 		}
+	case "pairing_ready":
+		if m.PairReady == nil || m.PairReady.MarkerTabID < 1 || m.PairReady.WindowID < 1 {
+			return fmt.Errorf("invalid pairing ready report")
+		}
+		return m.PairReady.ActionRef.Validate()
 	case "poll":
 	case "inventory", "readback":
 		if m.Sequence < 1 || m.FocusedWindow == nil || m.Complete == nil || len(m.Tabs) > 2048 {
@@ -138,6 +162,9 @@ func (m Message) Validate() error {
 	case "command_result":
 		if m.Result == nil || !IDPattern.MatchString(m.Result.OperationID) || !model.Contains([]string{"succeeded", "refused", "failed", "uncertain"}, m.Result.Status) || len(m.Result.Detail) > 512 {
 			return fmt.Errorf("invalid command result")
+		}
+		if m.Result.ContinuationID != "" && !model.OpaqueID.MatchString(m.Result.ContinuationID) {
+			return fmt.Errorf("invalid continuation reference")
 		}
 		if m.Result.ActionRef != nil {
 			if m.Result.OperationID != m.Result.ActionRef.ID {

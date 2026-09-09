@@ -1,8 +1,8 @@
-# Browser setup — extension 0.4.0 / schema 17
+# Browser setup — extension 0.5.0 / schema 18
 
 Run the extension and daemon together. Chrome/Edge launches the small native helper as needed. Braid remains a separate retrieval component; neither Braid nor the task engine is bundled into the extension.
 
-Shared task-bound browser actions use [the C12 journal](ACTIONS-SETUP.md). API success remains unverified until C13 independently checks the postcondition. This extension advertises action protocol 1, retains exact attempt references in its pre-input journal and preserves the existing development extension ID.
+Shared task-bound browser actions use [the C12 journal](ACTIONS-SETUP.md). API success remains separate from C13’s independent challenged postcondition readback. Explicit Linux window association uses [browser pairing](BROWSER-PAIRING.md). This extension advertises action protocol 1, retains exact attempt references in its pre-input journal and preserves the existing development extension ID.
 
 ## Windows
 
@@ -16,12 +16,12 @@ From the Heimdall project, choose a private, persistent local data directory. Ke
 In a second terminal, prepare the native helper in its final location. The output directory must be empty; use a new version directory for an upgrade.
 
 ```powershell
-.\bin\heimdall.exe browser setup --extension-id lffmpcoiimmjmacdbgnnjnegplmhiaic --output "$env:LOCALAPPDATA\Heimdall\browser-host-0.4.0" --data-dir "$env:LOCALAPPDATA\Heimdall\data"
+.\bin\heimdall.exe browser setup --extension-id lffmpcoiimmjmacdbgnnjnegplmhiaic --output "$env:LOCALAPPDATA\Heimdall\browser-host-0.5.0" --data-dir "$env:LOCALAPPDATA\Heimdall\data"
 ```
 
 Inspect the generated `host-config.json`, `dev.heimdall.browser.json`, and `SETUP.txt`. Import `register-chrome.reg` for Chrome or `register-edge.reg` for Edge. This registers a current-user native host; it does not install a background service. Do not move the host directory afterward. Registration is not performed by the build or setup command.
 
-Open the browser's extension management page, enable developer mode, select **Load unpacked**, and choose the project's `extension` folder. Alternatively extract `bin/heimdall-extension-0.4.0.zip` and select the extracted directory containing `manifest.json`. Keep that directory in place. The included public development key fixes the ID at `lffmpcoiimmjmacdbgnnjnegplmhiaic`; verify the displayed ID matches. This is not a signed Web Store release.
+Open the browser's extension management page, enable developer mode, select **Load unpacked**, and choose the project's `extension` folder. Alternatively extract `bin/heimdall-extension-0.5.0.zip` and select the extracted directory containing `manifest.json`. Keep that directory in place. The included public development key fixes the ID at `lffmpcoiimmjmacdbgnnjnegplmhiaic`; verify the displayed ID matches. This is not a signed Web Store release.
 
 Open the Heimdall popup. It displays a profile ID and pairing command. Run that command with the same data directory:
 

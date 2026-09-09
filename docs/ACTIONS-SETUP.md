@@ -2,12 +2,12 @@
 
 C12 introduced task-bound authorized intent, one immutable attempt identity and separate
 execution/verification states. The first consumer is the browser bridge. Schema
-16 introduced this history; the current schema 17 preserves it. Older browser operations remain unchanged; `browser status` exposes them in
+16 introduced this history; the current schema 18 preserves it. Older browser operations remain unchanged; `browser status` exposes them in
 `legacy_actions` as unscoped and unverified. A historical `succeeded` result maps
 to `api_reported`, with verification `unsupported`. No task or surface ownership
 is invented for that history.
 
-Use extension 0.4.0 with this daemon. C13 adds [challenged browser verification](BROWSER-VERIFICATION.md) and `action reconcile`; the C12 historical contract below remains readable. The public development key and extension ID
+Use extension 0.5.0 with this daemon. C13 adds [challenged browser verification](BROWSER-VERIFICATION.md) and `action reconcile`; the C12 historical contract below remains readable. The public development key and extension ID
 are unchanged. Its hello advertises `action_protocol: 1`; older extensions can
 continue their existing protocol but cannot receive shared task-bound actions.
 Native-host installation remains the separate [browser setup](BROWSER-SETUP.md)
@@ -126,7 +126,7 @@ pin is released. A known queued cancellation/refusal releases this reference;
 uncertainty keeps it protected. Replay performs no external I/O or dispatch.
 Database backup includes actions, receipts and referenced snapshot payloads.
 
-Current upgrades from schema 1–16 publish `backups/pre-schema-17-*.db` before
+Current upgrades from schema 1–17 publish `backups/pre-schema-18-*.db` before
 migration. Older binaries refuse marker 17. Roll back only into a fresh directory from the
 pre-upgrade backup, following [continuity setup](CONTINUITY-SETUP.md). Do not lower
 the marker on an upgraded database. Browser identity, existing grants, operation

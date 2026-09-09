@@ -25,6 +25,8 @@ jobs:
         if: runner.os == 'Linux'
       - run: node scripts/browser-verification-smoke.cjs
         if: runner.os == 'Linux'
+      - run: node scripts/browser-pairing-smoke.cjs
+        if: runner.os == 'Linux'
       - run: node scripts/core-smoke.cjs
       - run: node scripts/native-smoke.cjs
       - run: node scripts/actions-smoke.cjs

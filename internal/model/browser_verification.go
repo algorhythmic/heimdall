@@ -2,6 +2,17 @@ package model
 
 import "time"
 
+func BrowserOutcomeInState(st State, a ActionRecord, p BrowserProfile) (string, string) {
+	if a.Intent.Browser.Pairing != nil && a.Pairing != nil && a.Pairing.AssociationID != "" {
+		proof := st.BrowserAssociations[a.Pairing.AssociationID]
+		binding := st.ViewportBindings[st.ViewportHeads[a.Intent.SurfaceID]]
+		if proof.ID == "" || binding.BrowserAssociationID != proof.ID || !binding.Active || st.DesktopSourceHead != proof.SourceID || !st.DesktopSources[proof.SourceID].Active || st.DesktopSources[proof.SourceID].Epoch != proof.Window.SourceEpoch {
+			return "unknown", "Native association source or viewport changed; explicit recovery required"
+		}
+	}
+	return BrowserOutcome(a, p)
+}
+
 // A nonce requests a new read after this event cursor. It is usable only in the
 // issuing daemon and connection; the transport additionally enforces monotonic TTL.
 type BrowserChallenge struct {
@@ -21,18 +32,20 @@ type BrowserInstance struct {
 	ActionRef BrowserActionRef `json:"action_ref"`
 }
 type BrowserReadback struct {
-	Version       int               `json:"version"`
-	Profile       string            `json:"profile"`
-	ChallengeID   string            `json:"challenge_id"`
-	Sequence      int64             `json:"sequence"`
-	ObservedAt    time.Time         `json:"observed_at"`
-	ReceivedAt    time.Time         `json:"received_at"`
-	Complete      bool              `json:"complete"`
-	Stable        bool              `json:"stable"`
-	Tabs          []BrowserTab      `json:"tabs"`
-	PresentTabs   []int             `json:"present_tabs"`
-	Instances     []BrowserInstance `json:"instances"`
-	FocusedWindow int               `json:"focused_window"`
+	EventGeneration int64             `json:"event_generation,omitempty"`
+	Markers         []BrowserMarker   `json:"markers,omitempty"`
+	Version         int               `json:"version"`
+	Profile         string            `json:"profile"`
+	ChallengeID     string            `json:"challenge_id"`
+	Sequence        int64             `json:"sequence"`
+	ObservedAt      time.Time         `json:"observed_at"`
+	ReceivedAt      time.Time         `json:"received_at"`
+	Complete        bool              `json:"complete"`
+	Stable          bool              `json:"stable"`
+	Tabs            []BrowserTab      `json:"tabs"`
+	PresentTabs     []int             `json:"present_tabs"`
+	Instances       []BrowserInstance `json:"instances"`
+	FocusedWindow   int               `json:"focused_window"`
 }
 type BrowserFreshness struct {
 	Challenge BrowserChallenge `json:"challenge"`
@@ -54,6 +67,9 @@ func BrowserOutcome(a ActionRecord, p BrowserProfile) (string, string) {
 	// An unfinished API call can still change the app after this observation.
 	if a.Report == nil {
 		return "unknown", "Attempt result is missing; retained journal reconciliation required"
+	}
+	if b.Pairing != nil && (a.Pairing == nil || a.Pairing.AssociationID == "" || a.Pairing.ContinuationDeliveryID == "") {
+		return "unknown", "Native window association and continuation are incomplete"
 	}
 	owner, tabID := b.OwnerID, b.TabID
 	if b.Action == "open" {
@@ -91,6 +107,21 @@ func BrowserOutcome(a ActionRecord, p BrowserProfile) (string, string) {
 			return "unknown", "Tab exists outside verified URL/ownership coverage"
 		}
 		return "not_matched", "Exact owned tab is absent"
+	}
+	if b.Pairing != nil {
+		if tab.WindowID != a.Pairing.Ready.WindowID {
+			return "not_matched", "Owned tab moved out of the associated browser window"
+		}
+		if b.Action == "associate" {
+			for _, id := range p.PresentTabs {
+				if id == a.Pairing.Ready.MarkerTabID {
+					return "not_matched", "Temporary pairing tab remains open"
+				}
+			}
+			if tab.URL != b.ExpectedURL || tab.NavigationPending {
+				return "not_matched", "Associated original tab navigation changed"
+			}
+		}
 	}
 	if b.Action == "open" || b.Action == "navigate" {
 		if tab.NavigationPending {

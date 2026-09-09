@@ -1,9 +1,10 @@
 import {inventory} from './controller.js';
 import {validActionRef} from './action-protocol.js';
+import {pairURL} from './pairing.js';
 const equivalent=(a,b)=>['version','id','attempt_id','intent_digest','target','manifest_id','surface_id'].every(k=>a?.[k]===b?.[k]);
 export async function retainedResults(api,refs){
  const {journal={}}=await api.storage.session.get('journal');
- return refs.flatMap(ref=>{const row=journal[ref.id];return validActionRef(ref)&&equivalent(row?.action_ref,ref)&&row?.result?[row.result]:[];});
+ return refs.flatMap(ref=>{const row=journal[ref.id],result=row?.pairing?.continuation?.result??row?.result;return validActionRef(ref)&&equivalent(row?.action_ref,ref)&&result?[result]:[];});
 }
 // This is direct challenged readback, never an offline outbox observation.
 export async function readback(api,challenge,generation=()=>0){
@@ -22,11 +23,17 @@ export async function readback(api,challenge,generation=()=>0){
    return owner&&validActionRef(row?.action_ref)&&row.action_ref.id===owner?[{tab_id:t.id,action_ref:row.action_ref}]:[];
   }).sort((a,b)=>a.tab_id-b.tab_id);
   if(body.instances.length>128){body.instances=body.instances.slice(0,128);body.complete=false;}
+  body.markers=publicTabs.flatMap(t=>Object.values(journal).flatMap(row=>{
+   const r=row.pairing?.ready;
+   return r&&r.marker_tab_id===t.id&&r.window_id===t.windowId&&t.url===pairURL(api,row.action_ref.id)&&!t.pendingUrl?[{action_ref:row.action_ref,tab_id:t.id,window_id:t.windowId,active:!!t.active}]:[];
+  })).sort((a,b)=>a.tab_id-b.tab_id);
+  if(body.markers.length>128){body.markers=body.markers.slice(0,128);body.complete=false;}
   return body;
  };
  const before=generation(),first=await sample(),second=await sample();
  const semantic=b=>JSON.stringify({...b,observed_at:undefined});
  second.stable=before===generation()&&semantic(first)===semantic(second);
+ second.event_generation=generation();
  second.type='readback';second.challenge_id=challenge.id;
  // Native frame bounds apply to the complete census and ownership references too.
  while(new TextEncoder().encode(JSON.stringify(second)).length>240*1024&&second.tabs.length){second.tabs.pop();second.complete=false;}

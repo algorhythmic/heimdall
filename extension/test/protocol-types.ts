@@ -18,3 +18,10 @@ void retainedResults(api,validActionRef(candidate)?[candidate]:[]);
 // @ts-expect-error independent verification has no succeeded state
 const invalidVerification:VerificationState='succeeded';
 void invalidVerification;
+
+import {PairActions,retainedPairings,type BrowserContinuation} from '../pairing.js';
+if(validActionRef(candidate)){
+ const continuation:BrowserContinuation={version:1,id:candidate.id,action_ref:candidate,profile:'fixture',epoch:'fixture',marker_tab_id:7,window_id:3,action:'open',url:'https://example.test/',expires_at:'fixture'};
+ const result:Promise<BrowserOperationResult>=new PairActions(api,'fixture').continue(continuation);
+ void [result,retainedPairings(api,[candidate])];
+}

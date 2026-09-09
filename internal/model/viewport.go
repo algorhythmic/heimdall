@@ -37,17 +37,18 @@ func (w WindowIdentity) Validate() error {
 }
 
 type ViewportBinding struct {
-	Version      int             `json:"version"`
-	ID           string          `json:"id"`
-	Target       string          `json:"target"`
-	TaskRevision int64           `json:"task_revision"`
-	ManifestID   string          `json:"manifest_id"`
-	SurfaceID    string          `json:"surface_id"`
-	Previous     string          `json:"previous"`
-	Active       bool            `json:"active"`
-	SourceID     string          `json:"source_id"`
-	SnapshotID   string          `json:"snapshot_id"`
-	Window       *WindowIdentity `json:"window,omitempty"`
+	BrowserAssociationID string          `json:"browser_association_id,omitempty"`
+	Version              int             `json:"version"`
+	ID                   string          `json:"id"`
+	Target               string          `json:"target"`
+	TaskRevision         int64           `json:"task_revision"`
+	ManifestID           string          `json:"manifest_id"`
+	SurfaceID            string          `json:"surface_id"`
+	Previous             string          `json:"previous"`
+	Active               bool            `json:"active"`
+	SourceID             string          `json:"source_id"`
+	SnapshotID           string          `json:"snapshot_id"`
+	Window               *WindowIdentity `json:"window,omitempty"`
 	// This joins two explicit declarations; it does not prove that a terminal
 	// window currently displays the bound pane. Herdr refresh supplies pane facts.
 	SessionBindingID string    `json:"session_binding_id,omitempty"`
@@ -69,7 +70,17 @@ func (s DesktopSource) Validate() error {
 	return nil
 }
 func (b ViewportBinding) Validate() error {
-	if err := ValidWorkspaceRecord(b.Version, b.ID, b.Target, b.Previous, b.Actor, b.At, b.TaskRevision); err != nil {
+
+	version, actor := b.Version, b.Actor
+	if b.Version == 2 {
+		if !b.Active || b.Actor != "coordinator" || !OpaqueID.MatchString(b.BrowserAssociationID) {
+			return fmt.Errorf("browser viewport requires a coordinator association")
+		}
+		version, actor = 1, "cli"
+	} else if b.BrowserAssociationID != "" {
+		return fmt.Errorf("association requires viewport version 2")
+	}
+	if err := ValidWorkspaceRecord(version, b.ID, b.Target, b.Previous, actor, b.At, b.TaskRevision); err != nil {
 		return err
 	}
 	if !OpaqueID.MatchString(b.ManifestID) || !OpaqueID.MatchString(b.SurfaceID) {

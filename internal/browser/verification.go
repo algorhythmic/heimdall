@@ -84,6 +84,9 @@ func (s Service) fresh(p model.BrowserProfile, after int64, now time.Time) bool 
 	return lease.ID == f.Challenge.ID && elapsed >= 0 && elapsed <= 5*time.Second
 }
 func (s Service) readbackAllowed(p model.BrowserProfile, m Message, now time.Time) error {
+	if m.Type == "readback" && p.PairingProtocol == 1 && m.EventGeneration == nil {
+		return fmt.Errorf("pairing readback requires event generation")
+	}
 	if s.Runtime == nil || p.VerificationProtocol != 1 || p.Challenge == nil || p.Challenge.ID != m.ChallengeID || p.Challenge.RuntimeID != s.Store.RuntimeID() || now.Before(p.Challenge.IssuedAt) || !now.Before(p.Challenge.ExpiresAt) {
 		return fmt.Errorf("stale_challenge: request a fresh browser read")
 	}
@@ -129,6 +132,10 @@ func (s Service) challenge(st model.State, p model.BrowserProfile, now time.Time
 func (s Service) readback(st model.State, m Message, now time.Time) ([]store.Pending, error) {
 	observed, _ := time.Parse(time.RFC3339Nano, m.ObservedAt)
 	r := model.BrowserReadback{Version: 1, Profile: m.Profile, ChallengeID: m.ChallengeID, Sequence: m.Sequence, ObservedAt: observed, ReceivedAt: now.UTC(), Complete: *m.Complete, Stable: *m.Stable, Tabs: m.Tabs, PresentTabs: m.PresentTabs, Instances: m.Instances, FocusedWindow: *m.FocusedWindow}
+	if m.EventGeneration != nil {
+		r.EventGeneration = *m.EventGeneration
+	}
+	r.Markers = m.Markers
 	pending := store.Pending{Subject: "browser", Verb: "readback_observed", EntityID: m.Profile, Payload: r}
 	if err := actions.ApplyPending(&st, pending, "browser-"+m.Profile+"-"+m.ID, "observer:browser", now); err != nil {
 		return nil, err
@@ -143,8 +150,28 @@ func (s Service) readback(st model.State, m Message, now time.Time) ([]store.Pen
 	}
 	slices.Sort(ids)
 	for _, id := range ids {
+
 		a := st.Actions[id]
-		status, detail := model.BrowserOutcome(a, p)
+		if a.Intent.Browser.Pairing != nil && (a.Pairing == nil || a.Pairing.ContinuationDeliveryID == "") {
+			if a.Pairing != nil && a.Pairing.Ready != nil && p.Complete && p.Freshness.Stable && p.Freshness.Challenge.AfterEventID >= a.LastEventID {
+				present := false
+				for _, tabID := range p.PresentTabs {
+					if tabID == a.Pairing.Ready.MarkerTabID {
+						present = true
+					}
+				}
+				if !present {
+					v := actions.Transition(a, "pair_abandoned", "Temporary marker disappeared before any continuation was dispatched", "observer:browser", now)
+					v.Version = 3
+					events = append(events, actions.Pending(v))
+					continue
+				}
+			}
+			if now.Before(a.Intent.ExpiresAt) {
+				continue
+			}
+		}
+		status, detail := model.BrowserOutcomeInState(st, a, p)
 		v := actions.Transition(a, "verify", "Independent challenged browser readback", "observer:browser", now)
 		v.Version = 2
 		v.Observation = &model.ActionObservation{ID: model.NewID(), Status: status, SourceEpoch: p.Epoch, Digest: model.ContentDigest(p), ObservedAt: p.ReceivedAt, Detail: detail}

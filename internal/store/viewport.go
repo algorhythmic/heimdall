@@ -6,7 +6,8 @@ import (
 )
 
 func applyViewport(st *model.State, e Event) error {
-	if e.Actor != "cli" || e.CommandID != "viewport-"+e.EntityID {
+	cli := e.Actor == "cli" && e.CommandID == "viewport-"+e.EntityID
+	if !cli && !(e.Subject == "viewport" && e.Verb == "bound" && e.Actor == "coordinator" && e.CommandID == "browser-association-"+e.EntityID) {
 		return fmt.Errorf("invalid viewport command authority")
 	}
 	if _, ok := st.DesktopSources[e.EntityID]; ok {
@@ -40,6 +41,9 @@ func applyViewport(st *model.State, e Event) error {
 	if err := v.Validate(); err != nil {
 		return err
 	}
+	if (v.Version == 1) != cli {
+		return fmt.Errorf("viewport version does not match authority")
+	}
 	if v.ID != e.EntityID || !v.At.Equal(e.TS) || v.TaskRevision != st.Tasks[v.Target].Revision || v.Previous != st.ViewportHeads[v.SurfaceID] || v.Active != (e.Verb == "bound") {
 		return fmt.Errorf("invalid viewport envelope, revision or head")
 	}
@@ -58,7 +62,12 @@ func applyViewport(st *model.State, e Event) error {
 	}
 	if v.Active {
 		if kind == "browser" {
-			return fmt.Errorf("browser viewport pairing requires the C13 profile/window handshake")
+			proof, ok := st.BrowserAssociations[v.BrowserAssociationID]
+			if !ok || v.Version != 2 || v.ID != proof.ID || proof.ActionRef.Target != v.Target || proof.ActionRef.ManifestID != v.ManifestID || proof.ActionRef.SurfaceID != v.SurfaceID || proof.Window != *v.Window || proof.SourceID != v.SourceID || proof.SnapshotID != v.SnapshotID || !proof.At.Equal(v.At) || v.SessionBindingID != "" {
+				return fmt.Errorf("browser viewport requires its exact C13 observed association")
+			}
+		} else if v.Version != 1 {
+			return fmt.Errorf("browser association cannot bind another surface kind")
 		}
 		source := st.DesktopSources[v.SourceID]
 		if !source.Active || st.DesktopSourceHead != v.SourceID || v.Window.SourceEpoch != source.Epoch || m.TaskRevision != v.TaskRevision {

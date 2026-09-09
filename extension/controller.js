@@ -1,4 +1,5 @@
 import {validActionRef,actionResult,requestFingerprint} from './action-protocol.js';
+import {PairActions} from './pairing.js';
 export const id = () => crypto.randomUUID().replaceAll('-','');
 export function validURL(value){try{const u=new URL(value);return ['http:','https:'].includes(u.protocol)&&!u.username&&!u.password&&value.length<=8192;}catch{return false;}}
 function utf8Trim(s,max){while(new TextEncoder().encode(s).length>max)s=s.slice(0,Math.floor(s.length*0.9));return s;}
@@ -11,8 +12,9 @@ export function inventory(tabs,focusedWindow){
   }return result;
 }
 export class Actions {
-  constructor(api,epoch){this.api=api;this.epoch=epoch;}
+  constructor(api,epoch){this.api=api;this.epoch=epoch;this.pairing=new PairActions(api,epoch);}
   async execute(op,paused=false){
+	if(op.pairing)return this.pairing.execute(op,paused);
 	const wrap=result=>actionResult(op,result);
 	if(op.action_ref&&(!validActionRef(op.action_ref)||op.action_ref.id!==op.id))return wrap({operation_id:op.id,status:'refused',detail:'Invalid task/action/attempt reference'});
     const {journal={},owners={}}=await this.api.storage.session.get(['journal','owners']);

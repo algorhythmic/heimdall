@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Browser pairing protocol v1",
+  "$defs": {
+    "intent": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "source_id",
+        "source_epoch",
+        "previous_viewport"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "source_id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "source_epoch": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{64}$"
+        },
+        "previous_viewport": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-f0-9]{32}$"
+            },
+            {
+              "const": "none"
+            }
+          ]
+        }
+      }
+    },
+    "ready": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action_ref",
+        "marker_tab_id",
+        "window_id"
+      ],
+      "properties": {
+        "action_ref": {
+          "$ref": "action-reference-v1.schema.json"
+        },
+        "marker_tab_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "window_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "original_tab_id": {
+          "type": "integer",
+          "minimum": 1
+        }
+      }
+    },
+    "marker": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "action_ref",
+        "tab_id",
+        "window_id",
+        "active"
+      ],
+      "properties": {
+        "action_ref": {
+          "$ref": "action-reference-v1.schema.json"
+        },
+        "tab_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "window_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "active": {
+          "type": "boolean"
+        }
+      }
+    },
+    "continuation": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "version",
+        "id",
+        "action_ref",
+        "profile",
+        "epoch",
+        "marker_tab_id",
+        "window_id",
+        "action",
+        "expires_at"
+      ],
+      "properties": {
+        "version": {
+          "const": 1
+        },
+        "id": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "action_ref": {
+          "$ref": "action-reference-v1.schema.json"
+        },
+        "profile": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "epoch": {
+          "type": "string",
+          "pattern": "^[a-f0-9]{32}$"
+        },
+        "marker_tab_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "window_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "original_tab_id": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "action": {
+          "enum": [
+            "open",
+            "associate"
+          ]
+        },
+        "url": {
+          "type": "string",
+          "maxLength": 8192
+        },
+        "expires_at": {
+          "type": "string",
+          "format": "date-time"
+        }
+      }
+    }
+  }
+}

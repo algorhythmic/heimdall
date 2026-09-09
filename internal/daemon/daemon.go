@@ -114,6 +114,10 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	}
 	service.Snapshots = &workspace.SnapshotService{Store: e.Store, Observer: service.Viewport.Observer}
 	service.Previews = &workspace.PreviewService{Store: e.Store, Observer: service.Viewport.Observer, Herdr: herdr.Adapter{}}
+	service.Browser.AssociationCheck = func(p model.BrowserAssociation) error { return service.Viewport.Observer.Check(p.SnapshotID) }
+	pairings := &workspace.BrowserPairingService{Store: e.Store, Browser: service.Browser, Observer: service.Viewport.Observer, Clock: clock}
+	pairingDone := make(chan struct{})
+	go func() { defer close(pairingDone); pairings.Run(localCtx) }()
 	snapshotDone := make(chan struct{})
 	go func() { defer close(snapshotDone); service.Snapshots.Run(localCtx, clock) }()
 	viewportDone := make(chan struct{})
@@ -136,6 +140,7 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	err = server.Serve(listener)
 	cancel()
 	<-snapshotDone
+	<-pairingDone
 	<-viewportDone
 	<-watchDone
 	<-stopped

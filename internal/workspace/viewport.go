@@ -233,7 +233,10 @@ func (s *ViewportService) View(ctx context.Context, target string, fresh bool) (
 				for _, w := range observed.Snapshot.Windows {
 					if w.Identity == *b.Window {
 						row.Status = "observed"
-						copy := w
+						copy, allowed := model.ScopedBrowserWindow(st, b, w)
+						if !allowed {
+							continue
+						}
 						row.Window = &copy
 						break
 					}

@@ -198,7 +198,7 @@ workflow verifies empty-source restart, exact retries, pruning, and backup resto
 These tests do not simulate power loss to a VM or physical storage controller.
 No VM runtime is installed in this development environment; controlled VM power
 loss and actual compositor/reboot recovery remain the later release acceptance
-gates in [the roadmap](REVISED-ROADMAP-IMPLEMENTATION-PLAN.md).
+gates in [the roadmap](design/history/REVISED-ROADMAP-IMPLEMENTATION-PLAN.md).
 
 Reproduce the volume and commit-failure checks on the desired filesystem:
 

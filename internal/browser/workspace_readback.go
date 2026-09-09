@@ -77,7 +77,7 @@ func (s *Service) ObserveWorkspace(ctx context.Context, target string, surfaces 
 			return err
 		}
 		s.Runtime.mu.Lock()
-		at := now.Add(s.Runtime.Clock().Sub(started))
+		at := s.observationTime(now)
 		ready := true
 		for id, d := range demands {
 			p := current.Browsers[id]
@@ -106,4 +106,15 @@ func (s *Service) RecoveryFresh(p model.BrowserProfile, after int64, now time.Ti
 	s.Runtime.mu.Lock()
 	defer s.Runtime.mu.Unlock()
 	return s.fresh(p, after, now)
+}
+
+// observationTime samples the observation clock itself. Measuring elapsed time
+// from a later demand start and adding it to the caller's timestamp loses the
+// interval before that start and can make fresh readback appear to be future data.
+func (s *Service) observationTime(now time.Time) time.Time {
+	at := s.Runtime.Clock()
+	if now.After(at) {
+		return now
+	}
+	return at
 }

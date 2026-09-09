@@ -23,7 +23,8 @@
         "expected_commit": {"type": "string", "pattern": "^([a-f0-9]{40}|[a-f0-9]{64})$"},
         "require_clean": {"type": "boolean"},
         "argv": {"type": "array", "minItems": 1, "maxItems": 64, "items": {"type": "string", "maxLength": 4096}},
-        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 300}
+        "timeout_seconds": {"type": "integer", "minimum": 1, "maximum": 300},
+        "env": {"type": "array", "maxItems": 32, "uniqueItems": true, "items": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,127}$"}}
       },
       "description": "The daemon additionally enforces kind-specific parameters, an absolute test executable, exact target/contract/resource scope, and current revisions."
     }

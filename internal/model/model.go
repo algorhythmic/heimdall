@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+	"path/filepath"
 	"reflect"
 	"regexp"
 	"sort"
@@ -18,6 +19,15 @@ import (
 )
 
 type Check struct {
+	Path           string   `json:"path,omitempty" yaml:"path,omitempty"`
+	Argv           []string `json:"argv,omitempty" yaml:"argv,omitempty"`
+	TimeoutSeconds int      `json:"timeout_seconds,omitempty" yaml:"timeout_seconds,omitempty"`
+	ExpectedDigest string   `json:"expected_digest,omitempty" yaml:"expected_digest,omitempty"`
+	ExpectedCommit string   `json:"expected_commit,omitempty" yaml:"expected_commit,omitempty"`
+	RequireClean   bool     `json:"require_clean,omitempty" yaml:"require_clean,omitempty"`
+	Env            []string `json:"env,omitempty" yaml:"env,omitempty"`
+	Exclude        []string `json:"exclude,omitempty" yaml:"exclude,omitempty"`
+
 	ID            string `json:"id" yaml:"id"`
 	Kind          string `json:"kind" yaml:"kind"`
 	Days          int    `json:"days,omitempty" yaml:"days,omitempty"`
@@ -449,7 +459,7 @@ func validateDone(d Done, t Task) error {
 		seen[c.ID] = c
 		allowed := map[string]string{"manual": "", "children_done": "", "subtasks_done": "", "silence": "days after response_check", "mail.sent": "account to to_domain since after correlation", "mail.received": "account from from_domain since after correlation", "agent.released": "session", "repo.commit": "repo ref", "gh.pr_merged": "url"}
 		for _, kind := range []string{"artifact.exists", "artifact.digest", "repo.state", "test.exit"} {
-			allowed[kind] = ""
+			allowed[kind] = "path argv timeout_seconds expected_digest expected_commit require_clean env exclude"
 		}
 		fields, ok := allowed[c.Kind]
 		if !ok {
@@ -461,6 +471,23 @@ func validateDone(d Done, t Task) error {
 		for k := range m {
 			if k != "id" && k != "kind" && !Contains(strings.Fields(fields), k) {
 				return fmt.Errorf("parameter %s not valid for %s", k, c.Kind)
+			}
+		}
+		if Contains([]string{"artifact.exists", "artifact.digest", "repo.state", "test.exit"}, c.Kind) {
+			if c.Path == "" {
+				if len(c.Argv) > 0 || c.TimeoutSeconds != 0 || c.ExpectedDigest != "" || c.ExpectedCommit != "" || c.RequireClean || len(c.Env) > 0 || len(c.Exclude) > 0 {
+					return fmt.Errorf("evaluator parameters require path")
+				}
+			} else {
+				if !filepath.IsAbs(c.Path) {
+					return fmt.Errorf("check path must be absolute")
+				}
+				id := strings.Repeat("a", 32)
+				spec := EvaluatorSpec{Kind: c.Kind, ResourceID: id, Argv: c.Argv, TimeoutSeconds: c.TimeoutSeconds, ExpectedDigest: c.ExpectedDigest, ExpectedCommit: c.ExpectedCommit, RequireClean: c.RequireClean, Env: c.Env}
+				d := Evaluator{Version: 1, ID: id, Target: t.ID, CheckID: c.ID, ContractID: id, Spec: spec, Digest: ContentDigest(spec), Actor: "cli", At: time.Unix(1, 0)}
+				if err := d.Validate(); err != nil {
+					return err
+				}
 			}
 		}
 		if c.After != "" {

@@ -15,6 +15,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"strings"
 	"sync"
 	"time"
@@ -42,11 +43,16 @@ func (o *output) Write(b []byte) (int, error) {
 	o.hash.Write(b)
 	return len(b), nil
 }
-func minimalEnv() []string {
+func minimalEnv(extra ...string) []string {
 	result := []string{}
 	// No inherited API tokens, user Git configuration variables or shell startup
 	// variables. PATH permits build tools to locate their ordinary subprocesses.
-	for _, key := range []string{"PATH", "SystemRoot", "WINDIR", "TEMP", "TMP", "TMPDIR"} {
+	keys := append([]string{"PATH", "SystemRoot", "WINDIR", "TEMP", "TMP", "TMPDIR", "HOME", "XDG_CACHE_HOME", "XDG_CONFIG_HOME", "XDG_DATA_HOME", "GOCACHE", "GOPATH", "GOMODCACHE", "GOFLAGS", "LANG", "LC_ALL"}, extra...)
+	sort.Strings(keys)
+	for i, key := range keys {
+		if i > 0 && keys[i-1] == key {
+			continue
+		}
 		if value := os.Getenv(key); value != "" {
 			result = append(result, key+"="+value)
 		}
@@ -173,12 +179,12 @@ func evaluate(ctx context.Context, st model.State, d model.Evaluator, e model.Ev
 			return fail("executable_unavailable")
 		}
 		e.ExecutableDigest = executable
-		e.EnvironmentDigest = model.ContentDigest(minimalEnv())
+		e.EnvironmentDigest = model.ContentDigest(minimalEnv(d.Spec.Env...))
 		testCtx, cancel := context.WithTimeout(ctx, time.Duration(d.Spec.TimeoutSeconds)*time.Second)
 		defer cancel()
 		command := exec.CommandContext(testCtx, d.Spec.Argv[0], d.Spec.Argv[1:]...)
 		command.Dir = resource.Root
-		command.Env = minimalEnv()
+		command.Env = minimalEnv(d.Spec.Env...)
 		command.WaitDelay = time.Second
 		sink := &output{hash: sha256.New(), cancel: cancel}
 		command.Stdout = sink
@@ -239,7 +245,7 @@ func ValidateEvidence(ctx context.Context, st model.State, e model.Evidence) err
 	}
 	if d.Spec.Kind == "test.exit" {
 		exe, err := executableDigest(d.Spec.Argv[0])
-		if err != nil || exe != e.ExecutableDigest || model.ContentDigest(minimalEnv()) != e.EnvironmentDigest {
+		if err != nil || exe != e.ExecutableDigest || model.ContentDigest(minimalEnv(d.Spec.Env...)) != e.EnvironmentDigest {
 			return fmt.Errorf("evidence_execution_environment_changed")
 		}
 	}

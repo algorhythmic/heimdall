@@ -7,14 +7,18 @@ import (
 	"fmt"
 	"path/filepath"
 	"reflect"
+	"regexp"
 	"slices"
 	"sort"
 	"time"
 )
 
+var evaluatorEnvName = regexp.MustCompile(`^[A-Za-z_][A-Za-z0-9_]{0,127}$`)
+
 // Evaluator definitions are accepted through the local CLI, never from progress
 // text or a machine-supplied result. A replacement preserves its predecessor.
 type EvaluatorSpec struct {
+	Env            []string `json:"env,omitempty" yaml:"env,omitempty"`
 	Kind           string   `json:"kind"`
 	ResourceID     string   `json:"resource_id"`
 	ExpectedDigest string   `json:"expected_digest,omitempty"`
@@ -24,16 +28,17 @@ type EvaluatorSpec struct {
 	TimeoutSeconds int      `json:"timeout_seconds,omitempty"`
 }
 type Evaluator struct {
-	Version    int           `json:"version"`
-	ID         string        `json:"id"`
-	Target     string        `json:"target"`
-	CheckID    string        `json:"check_id"`
-	ContractID string        `json:"contract_id"`
-	Previous   string        `json:"previous"`
-	Spec       EvaluatorSpec `json:"spec"`
-	Digest     string        `json:"digest"`
-	Actor      string        `json:"actor"`
-	At         time.Time     `json:"at"`
+	MaterializedFrom string        `json:"materialized_from,omitempty"`
+	Version          int           `json:"version"`
+	ID               string        `json:"id"`
+	Target           string        `json:"target"`
+	CheckID          string        `json:"check_id"`
+	ContractID       string        `json:"contract_id"`
+	Previous         string        `json:"previous"`
+	Spec             EvaluatorSpec `json:"spec"`
+	Digest           string        `json:"digest"`
+	Actor            string        `json:"actor"`
+	At               time.Time     `json:"at"`
 }
 type Evidence struct {
 	Version           int               `json:"version"`
@@ -110,6 +115,19 @@ func (d Evaluator) Validate() error {
 	}
 	if !OpaqueID.MatchString(d.ContractID) || !OpaqueID.MatchString(d.Spec.ResourceID) || !localID.MatchString(d.CheckID) || d.Digest != ContentDigest(d.Spec) {
 		return fmt.Errorf("invalid evaluator identity or digest")
+	}
+	if len(d.Spec.Env) > 32 {
+		return fmt.Errorf("too many environment names")
+	}
+	seenEnv := map[string]bool{}
+	for _, key := range d.Spec.Env {
+		if !evaluatorEnvName.MatchString(key) || seenEnv[key] {
+			return fmt.Errorf("invalid or duplicate environment name")
+		}
+		seenEnv[key] = true
+	}
+	if d.Spec.Kind != "test.exit" && len(d.Spec.Env) != 0 {
+		return fmt.Errorf("environment only valid for test.exit")
 	}
 	s := d.Spec
 	switch s.Kind {

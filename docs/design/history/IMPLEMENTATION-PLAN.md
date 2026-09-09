@@ -2,7 +2,7 @@
 
 Roadmap revision, 2026-09-08: use [REVISED-ROADMAP-IMPLEMENTATION-PLAN.md](REVISED-ROADMAP-IMPLEMENTATION-PLAN.md) for the current execution sequence. R0's Linux technical baseline and T01 resume/checkpoint helpers now extend the 0.7.0 foundation. This document retains the seven-improvement architecture, C-series requirements and historical delivery sequence; its opening baseline and first-increment recommendation are historical, not work to restart.
 
-Updated 2026-09-05. Status: development build 0.7.0 adds scoped GUI inspection and completion review to continuity, scoped MCP and CLI evidence evaluation/revalidation. The design below began from build 0.2.0 and retains later milestone requirements. See [BACKLOG.md](BACKLOG.md) for remaining gaps, [GUI-SETUP.md](GUI-SETUP.md) and [EVIDENCE-SETUP.md](EVIDENCE-SETUP.md) for usage, and [STATUS.md](STATUS.md) for runtime capabilities. Development is stopped at the requested documentation/commit/push checkpoint. No integrations or agent runs are installed by this plan.
+Updated 2026-09-05. Status: development build 0.7.0 adds scoped GUI inspection and completion review to continuity, scoped MCP and CLI evidence evaluation/revalidation. The design below began from build 0.2.0 and retains later milestone requirements. See [BACKLOG.md](../../BACKLOG.md) for remaining gaps, [GUI-SETUP.md](../../GUI-SETUP.md) and [EVIDENCE-SETUP.md](../../EVIDENCE-SETUP.md) for usage, and [STATUS.md](../../STATUS.md) for runtime capabilities. Development is stopped at the requested documentation/commit/push checkpoint. No integrations or agent runs are installed by this plan.
 
 ## 1. Outcome and scope
 
@@ -37,7 +37,7 @@ The comparison below records the original 0.2.0 starting point. The current sche
 | UI | Extension connection/pause/pairing popup | Daemon-served project/task view, checkpoint/evidence inspection, review and run controls |
 | Agents | No runner adapter or automatic execution | Checkpoint handoff first; opt-in dispatch/recovery only after an actual host capability test |
 
-The [v1.1 spec](design/HANDOFF-heimdall-v1.1.md) currently places MCP and the GUI in M4 and excludes running implementation agents in §1. Proposed amendments are:
+The [v1.1 spec](../HANDOFF-heimdall-v1.1.md) currently places MCP and the GUI in M4 and excludes running implementation agents in §1. Proposed amendments are:
 
 - Move read-only MCP and the first GUI into the early continuity slices.
 - Extend agent support to an optional coordinator that requests work from an independently installed, authorized execution host. Heimdall does not implement a model loop or assume it can wake an arbitrary chat.
@@ -45,7 +45,7 @@ The [v1.1 spec](design/HANDOFF-heimdall-v1.1.md) currently places MCP and the GU
 - Add checkpoint, contract, evidence, decision, action-verification, grant and run schemas at their first consuming milestone.
 - Add a platform capability interface. Use the existing Chromium integration first. Preserve Linux/Hyprland as the target desktop; Windows remains the immediate core/browser verification environment. Windows accessibility control requires a separate adapter and acceptance gate.
 
-Do not silently rewrite the existing spec as though optional execution had already shipped. Update its relevant sections when adopting each implementation slice; use this plan for the proposed sequence and [BACKLOG.md](BACKLOG.md) for work items.
+Do not silently rewrite the existing spec as though optional execution had already shipped. Update its relevant sections when adopting each implementation slice; use this plan for the proposed sequence and [BACKLOG.md](../../BACKLOG.md) for work items.
 
 ## 3. Runtime and package boundaries
 
@@ -188,7 +188,7 @@ Acceptance: daemon and host crashes before/after job creation; lost acknowledgem
 
 ## 10. Improvement 6: project-aware memory through Braid
 
-Implement the [existing Braid contract](design/BRAID-CONTRACT.md) with current source verification before integration. Do not add a second retrieval engine or depend on unimplemented delete/attribute-filter APIs.
+Implement the [existing Braid contract](../BRAID-CONTRACT.md) with current source verification before integration. Do not add a second retrieval engine or depend on unimplemented delete/attribute-filter APIs.
 
 Load mandatory context directly from Heimdall at event boundary H: accepted contract and inherited constraints, current task/step, checkpoint, blockers, accepted decisions, grants represented as capabilities rather than secrets, and outstanding uncertain actions. Optional retrieval receives only the remaining context budget. Report incomplete optional context explicitly; never silently omit mandatory constraints to fit a budget.
 

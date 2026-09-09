@@ -4,7 +4,7 @@ Date: September 8, 2026.
 
 Status: recommended development additions. This document defines proposed scope, dependencies, and acceptance criteria; it does not claim implementation or schedule installation. Existing C01–C21 identifiers and completion status remain unchanged.
 
-Companion: [Omarchy workflow assessment](OMARCHY-WORKFLOW-ASSESSMENT.md). Governing interfaces: [Viewport and workspace manifests](design/HANDOFF-heimdall-v1.1.md), [implementation plan](IMPLEMENTATION-PLAN.md), and [backlog](BACKLOG.md).
+Companion: [Omarchy workflow assessment](OMARCHY-WORKFLOW-ASSESSMENT.md). Governing interfaces: [Viewport and workspace manifests](design/HANDOFF-heimdall-v1.1.md), [implementation plan](design/history/IMPLEMENTATION-PLAN.md), and [backlog](BACKLOG.md).
 
 ## Recommendation and intended outcome
 

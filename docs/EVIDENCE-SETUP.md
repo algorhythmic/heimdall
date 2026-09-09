@@ -76,3 +76,44 @@ Task and step evidence can produce proposals. Step prerequisites are checked at 
 - Database schema marker 6 creates a consistent `backups/pre-schema-6-*.db` snapshot before upgrading markers 1–5. Restore into a fresh directory for rollback; old binaries refuse marker 6. Backups retain user data and credential verifiers, so review grants after restoration.
 
 Reproduce the compiled acceptance test with `node scripts/evidence-smoke.cjs` after building `bin/heimdall.exe`.
+
+## YAML declarations (r4 P0)
+
+A supported evidence check can declare its inputs directly in tasks.yaml:
+
+```yaml
+done:
+  text: Check tests pass
+  checks:
+    - id: go-tests
+      kind: test.exit
+      path: /absolute/path/to/heimdall
+      argv: [/absolute/path/to/go, test, ./internal/checks/...]
+      timeout_seconds: 120
+      exclude: [.tools, bin, heimdall, demo-data, node_modules]
+```
+
+Save and run `heimdall sync`. Inspect `heimdall state` for the evaluator ID, then
+run `heimdall evidence evaluate TARGET --evaluator ID --expected-task-revision N`.
+No resource, contract or evaluator JSON files are needed. Saving materializes
+definitions only; it does not execute code or complete the task.
+
+`path` is an absolute file for artifact.exists/artifact.digest and an absolute
+working directory for repo.state/test.exit. Artifact digest uses expected_digest;
+repo.state uses require_clean and/or expected_commit. Test.exit requires an
+absolute executable, argv and a 1–300 second timeout. Tree exclude entries are
+individual file/directory names; .git is always excluded from the content scan.
+The existing resource size, file-count, symlink and confinement rules still apply.
+Checks without path retain the explicit configuration workflow above.
+
+Derived records carry `materialized_from: tasks.yaml@REVISION`; scopes include
+ancestor bindings. Existing matching bindings are reused and replaced derived
+heads retain previous IDs. Explicit CLI contract/evaluator heads take precedence;
+a later task revision can make them stale, requiring explicit review.
+
+The environment inherits PATH, SystemRoot, WINDIR, TEMP, TMP, TMPDIR, HOME,
+XDG_CACHE_HOME, XDG_CONFIG_HOME, XDG_DATA_HOME, GOCACHE, GOPATH, GOMODCACHE,
+GOFLAGS, LANG and LC_ALL. Optional `env: [NAME]` selects additional inherited
+names (also available in an explicit evaluator spec). Values are never included
+in definitions or output logs; the actual environment is digested and checked
+again before acceptance. No other environment variables are inherited.

@@ -139,14 +139,21 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 		}
 		switch m.Type {
 		case "inventory":
+			prior := p
+			if m.Delta && (m.BaseSequence != p.LastSequence || p.ReceivedAt.IsZero() || p.ReceivedEpoch != s.Store.RuntimeID() || p.InventorySnapshotAt == nil || now.Sub(*p.InventorySnapshotAt) >= 24*time.Hour) {
+				return change, fmt.Errorf("snapshot_required: inventory baseline unavailable")
+			}
 			if m.Sequence <= p.LastSequence {
 				return change, fmt.Errorf("stale_sequence: a newer inventory already committed")
 			}
 			tabs := map[int]model.BrowserTab{}
-			if !*m.Complete {
+			if m.Delta || !*m.Complete {
 				for _, t := range p.Tabs {
 					tabs[t.ID] = t
 				}
+			}
+			for _, id := range m.Removed {
+				delete(tabs, id)
 			}
 			for _, t := range m.Tabs {
 				for _, o := range st.BrowserOperations {
@@ -171,7 +178,31 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 			p.ReceivedEpoch = s.Store.RuntimeID()
 			p.FocusedWindow = *m.FocusedWindow
 			p.Complete = *m.Complete
-			change.Events = append(change.Events, store.Pending{Subject: "browser", Verb: "inventory_observed", EntityID: p.ID, Payload: p})
+			if !m.Delta && (prior.ReceivedAt.IsZero() || prior.ReceivedEpoch != s.Store.RuntimeID() || prior.InventorySnapshotAt == nil || now.Sub(*prior.InventorySnapshotAt) >= 24*time.Hour) {
+				snapshotAt := now.UTC()
+				p.InventorySnapshotAt = &snapshotAt
+				change.Events = append(change.Events, store.Pending{Subject: "browser", Verb: "inventory_observed", EntityID: p.ID, Payload: p})
+			} else {
+				delta := model.BrowserInventoryDelta{Profile: p, BaseSequence: prior.LastSequence, Removed: []int{}}
+				delta.Profile.Tabs = []model.BrowserTab{}
+				before := map[int]model.BrowserTab{}
+				after := map[int]bool{}
+				for _, tab := range prior.Tabs {
+					before[tab.ID] = tab
+				}
+				for _, tab := range p.Tabs {
+					after[tab.ID] = true
+					if old, ok := before[tab.ID]; !ok || !reflect.DeepEqual(old, tab) {
+						delta.Profile.Tabs = append(delta.Profile.Tabs, tab)
+					}
+				}
+				for _, tab := range prior.Tabs {
+					if !after[tab.ID] {
+						delta.Removed = append(delta.Removed, tab.ID)
+					}
+				}
+				change.Events = append(change.Events, store.Pending{Subject: "browser", Verb: "inventory_delta", EntityID: p.ID, Payload: delta})
+			}
 			reply.LastSequence = p.LastSequence
 		case "readback":
 			var err error
@@ -338,6 +369,9 @@ func (s Service) Control(ctx context.Context, c Control, now time.Time) (json.Ra
 			return change, fmt.Errorf("unknown browser profile; connect extension first")
 		}
 		if c.Action == "pair" || c.Action == "unpair" {
+			if p.Paired != (c.Action == "pair") {
+				p.InventorySnapshotAt = nil
+			}
 			p.Paired = c.Action == "pair"
 			change.Events = []store.Pending{{Subject: "browser", Verb: "pairing_changed", EntityID: p.ID, Payload: p}}
 			if !p.Paired {

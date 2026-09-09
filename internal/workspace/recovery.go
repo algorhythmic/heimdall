@@ -165,7 +165,6 @@ func (s *PreviewService) Verify(ctx context.Context, r RecoveryRequest, now time
 	if err := r.Validate(); err != nil {
 		return RecoveryReport{}, err
 	}
-	started := time.Now()
 	initial, err := s.Store.State(ctx)
 	if err != nil {
 		return RecoveryReport{}, err
@@ -188,7 +187,12 @@ func (s *PreviewService) Verify(ctx context.Context, r RecoveryRequest, now time
 	}
 	checks := s.sessions(ctx, st, r.Target, now)
 	processes := s.recoveryProcesses(st, ids, observed)
-	asOf := now.Add(time.Since(started)).UTC()
+	// Sample the wall clock after observation; elapsed time measured from a
+	// later start cannot advance the caller's older timestamp correctly.
+	asOf := time.Now().UTC()
+	if now.After(asOf) {
+		asOf = now.UTC()
+	}
 	v := planRecovery(st, point, r, ids, kind, observed, checks, processes, asOf)
 	after, nextPoint, err := s.Store.WorkspacePreviewInputs(ctx, r.Target, pointID)
 	if err != nil {

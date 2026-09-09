@@ -162,4 +162,4 @@ grants acquire no preservation authority. Commands require the existing local CL
 credential; the schema-12 migration preserves old events and receipts.
 
 See [request schema](../schemas/preservation-request-v1.schema.json),
-[verification](VERIFICATION.md), and [roadmap dependency gates](REVISED-ROADMAP-IMPLEMENTATION-PLAN.md).
+[verification](VERIFICATION.md), and [roadmap dependency gates](design/history/REVISED-ROADMAP-IMPLEMENTATION-PLAN.md).

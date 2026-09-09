@@ -16,6 +16,9 @@ var IDPattern = regexp.MustCompile(`^[a-f0-9]{32}$`)
 var ExtensionPattern = regexp.MustCompile(`^[a-p]{32}$`)
 
 type Message struct {
+	Delta                bool                    `json:"delta,omitempty"`
+	BaseSequence         int64                   `json:"base_seq,omitempty"`
+	Removed              []int                   `json:"removed,omitempty"`
 	RecoveryProtocol     int                     `json:"recovery_protocol,omitempty"`
 	PairingProtocol      int                     `json:"pairing_protocol,omitempty"`
 	ExtensionID          string                  `json:"extension_id,omitempty"`
@@ -90,6 +93,24 @@ func ValidURL(s string) bool {
 	return model.BrowserURL(s)
 }
 func (m Message) Validate() error {
+	if (m.Delta || m.BaseSequence != 0 || len(m.Removed) > 0) && m.Type != "inventory" {
+		return fmt.Errorf("delta fields on another message")
+	}
+	if len(m.Removed) > 2048 || (!m.Delta && (m.BaseSequence != 0 || len(m.Removed) > 0)) || (m.Delta && m.BaseSequence < 1) {
+		return fmt.Errorf("invalid inventory delta")
+	}
+	seenRemoved := map[int]bool{}
+	for _, id := range m.Removed {
+		if id < 1 || seenRemoved[id] {
+			return fmt.Errorf("invalid removed tab")
+		}
+		seenRemoved[id] = true
+	}
+	for _, tab := range m.Tabs {
+		if seenRemoved[tab.ID] {
+			return fmt.Errorf("changed and removed tab")
+		}
+	}
 	if m.V != 1 {
 		return fmt.Errorf("unsupported protocol version")
 	}

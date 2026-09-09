@@ -255,7 +255,7 @@ func (e *Engine) ReconcileFile(ctx context.Context, now time.Time) error {
 		e.viewError = err.Error()
 		return err
 	}
-	_, err = e.execute(ctx, Command{ID: "file-" + model.NewID(), Op: "replace", Document: &d}, "file", now)
+	_, err = e.execute(ctx, Command{ID: "file-" + model.NewID(), Op: "replace", Document: &d}, "cli", now)
 	if err != nil {
 		e.viewError = err.Error()
 		return err
@@ -347,7 +347,7 @@ func (b *builder) emit(subject, verb, id string, payload any) error {
 	if err != nil {
 		return err
 	}
-	if err = store.Apply(&b.state, store.Event{Version: 1, Subject: subject, Verb: verb, EntityID: id, Payload: p}); err != nil {
+	if err = store.Apply(&b.state, store.Event{Version: 1, Subject: subject, Verb: verb, EntityID: id, Payload: p, Actor: "cli", TS: b.now, CommandID: b.cmdID}); err != nil {
 		return err
 	}
 	b.events = append(b.events, store.Pending{Subject: subject, Verb: verb, EntityID: id, Payload: payload})
@@ -506,7 +506,7 @@ func (b *builder) replace(d model.Document) error {
 	if changed {
 		b.state.Revision++
 	}
-	return nil
+	return b.materialize()
 }
 func terminal(r model.TaskRecord) bool {
 	return model.Contains(r.Workflow.Success, r.Task.Status) || model.Contains(r.Workflow.Dropped, r.Task.Status)

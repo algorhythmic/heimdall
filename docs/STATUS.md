@@ -1,6 +1,8 @@
 # Implementation status
 
-2026-09-09 — Development extends the 0.7.0 daemon/GUI foundation (0.6.0 extension; schema 20). This is not a complete Heimdall v1 release. T01–T03/W01 terminal and editor continuity, P01–P04 local progress/preservation/dependencies, W02–W04 observation/snapshots/previews and W05 native operation coordination are delivered. W06 adds reviewed application adapters; W07 adds fresh scoped recovery reports with explicit capability limits. W08 startup/interruption gates and programmatic preservation remain open.
+2026-09-09 — [Handoff r4](design/HANDOFF-heimdall-v1-r4.md) supersedes prior plans.
+Baseline verified at `2f11175`, schema 20, extension 0.6.0. P0 implementation and
+verification are recorded in [P0 verification](P0-VERIFICATION.md); machine gates remain open.
 
 ## Implemented and tested
 
@@ -14,11 +16,11 @@
 
 - C12 shared action journal with a browser consumer: task/manifest/context pins, CLI authority reference, immutable attempt identity, dispatch observation references, separate execution/verification and late-result history. Surface serialization and unfinished snapshot protection prevent new-ID retries after uncertain input. Queued/in-flight cancellation, deadline sweeps, reconnect/restart, strict wire references, legacy unverified history and schema-15 upgrade/rollback are tested. See [ACTIONS-SETUP.md](ACTIONS-SETUP.md). C13 now adds independent postconditions and actual isolated Linux native-host acceptance; compositor association is delivered.
 
-- W04 scoped live List/Diff and explicit manifest/snapshot previews: deterministic dispositions, protected-point/age diagnostics, fresh Herdr readback, exact ownership, display/epoch uncertainty and daemon-sealed stale-plan detection. Preview performs no durable mutation or application action. TUI workspace details and explicit retained-request point capture are delivered. CLI, scope, forged/expired/restarted plan, race and PTY checks pass. See [WORKSPACE-PREVIEW.md](WORKSPACE-PREVIEW.md). Schema remains 15; dispatch and full recovery verification follow C12/W05–W07.
+- W04 scoped live List/Diff and explicit manifest/snapshot previews: deterministic dispositions, protected-point/age diagnostics, fresh Herdr readback, exact ownership, display/epoch uncertainty and daemon-sealed stale-plan detection. Preview performs no durable mutation or application action. TUI workspace details and explicit retained-request point capture are delivered. CLI, scope, forged/expired/restarted plan, race and PTY checks pass. See [WORKSPACE-PREVIEW.md](WORKSPACE-PREVIEW.md). W04 used schema 15; C12/W05–W07 subsequently delivered dispatch and scoped recovery verification.
 
 - W03 durable workspace snapshots: immutable payloads and indexed history in the same SQLite database, atomic event/receipt/head publication, explicit per-task autosave policies, bounded current projection, manual pins, retained/pruned history and freshness diagnostics. Empty, partial and unavailable observations preserve the last complete point. Local Btrfs process-kill/publication, allocation failure, replay, backup, schema-14 upgrade/refusal/rollback and measured 24-hour capture volume pass. See [SNAPSHOT-SETUP.md](SNAPSHOT-SETUP.md). Controlled VM power loss and actual compositor/reboot recovery remain later release gates.
 
-- W02 Linux Hyprland 0.56.2 observation: explicit persistent source selection, same-user peer/process/socket epochs, buffered event subscription, double-inventory bootstrap and periodic reconciliation. Native stable window IDs prevent address reuse; unmatched windows remain unowned. Explicit viewport bindings join task/surface declarations, with separate unverified terminal/pane attachment diagnostics. Schema-14 migration/replay/retry and stopped schema-13 rollback pass. See [HYPRLAND-SETUP.md](HYPRLAND-SETUP.md). W03 snapshots and W04 preview are delivered; browser profile pairing and recovery actions remain later stages.
+- W02 Linux Hyprland 0.56.2 observation: explicit persistent source selection, same-user peer/process/socket epochs, buffered event subscription, double-inventory bootstrap and periodic reconciliation. Native stable window IDs prevent address reuse; unmatched windows remain unowned. Explicit viewport bindings join task/surface declarations, with separate unverified terminal/pane attachment diagnostics. Schema-14 migration/replay/retry and stopped schema-13 rollback pass. See [HYPRLAND-SETUP.md](HYPRLAND-SETUP.md). W03 snapshots and W04 preview are delivered; C13 pairing and W05–W07 recovery subsequently consumed this foundation.
 
 - P04 task dependencies: immutable add/remove chains, exact endpoint revisions, cycles checked with hierarchy and atomic task edits/imports, and derived satisfaction without task mutation or dispatch. Scoped progress summaries show latest saved checkpoints, next actions, recorded blockers, unresolved decisions and prerequisites with explicit ordering/pagination. Foreign prerequisites are opaque; scope movement/revocation and cursor isolation are tested. TUI selected context shows recorded dependency status. See [DEPENDENCY-SETUP.md](DEPENDENCY-SETUP.md).
 
@@ -32,11 +34,11 @@
 
 - Initial T02: actual Herdr 0.8.2 / protocol-20 Linux bindings, peer/boot/socket epochs, canonical cwd/Git identity, explicit refresh/rebind, stale/disconnected refusal and expiring display metadata. Installed tests cover movement, source restart, same-repository isolation, metadata readback/expiry and replay; WCU verified the optional pane-labelled sidebar summary. [HERDR-SETUP.md](HERDR-SETUP.md) records commands and limits. No background publisher or automatic pane adoption.
 
-- W01 foundation: versioned desired manifests, permanently task-owned logical surfaces, immutable generic session declarations and explicit accept/bind/show/unbind CLI commands. Current views report unverified bindings and changed task/manifest preconditions. Same-cwd scope, pane collisions, concurrent heads, strict replay and restart/backup checks pass. See [WORKSPACE-SETUP.md](WORKSPACE-SETUP.md); observed snapshots and recovery remain open; initial Herdr metadata is delivered separately in T02.
+- W01 foundation: versioned desired manifests, permanently task-owned logical surfaces, immutable generic session declarations and explicit accept/bind/show/unbind CLI commands. Current views report unverified bindings and changed task/manifest preconditions. Same-cwd scope, pane collisions, concurrent heads, strict replay and restart/backup checks pass. See [WORKSPACE-SETUP.md](WORKSPACE-SETUP.md); W02–W07 subsequently added observations, snapshots and recovery; initial Herdr metadata was delivered separately in T02.
 
 - Readable `resume TARGET`, with accepted direction, checkpoint age/next action, blockers, resource drift and bounded recorded review counts; explicit JSON output and unchanged existing `context` format. Reads do not mutate state. Captured terminal controls and bidi format characters are escaped.
 - `checkpoint draft TARGET --output FILE` and `checkpoint submit TARGET --file FILE` preserve the original contract, revision, head and request ID through explicit editing, conflicts and restart retries. Draft creation refuses overwrite; failed or successful submission retains the file. These use existing CLI authority and schema-6 checkpoint events.
-- Linux Go tests/vet/build, portable compiled core/native/continuity/MCP/evidence/resume checks, TypeScript/extension checks and Chromium GUI/browser/worker acceptance pass. WCU visually inspected the synthetic terminal workflow on Hyprland. A real 0.7.0 schema-6 fixture checks compatibility, grant limits, receipts and replay. See [VERIFICATION.md](VERIFICATION.md) for versions and limits; native-host registration and workspace restoration remain untested/unimplemented respectively.
+- Linux Go tests/vet/build, portable compiled core/native/continuity/MCP/evidence/resume checks, TypeScript/extension checks and Chromium GUI/browser/worker acceptance pass. WCU visually inspected the synthetic terminal workflow on Hyprland. A real 0.7.0 schema-6 fixture checks compatibility, grant limits, receipts and replay. See [VERIFICATION.md](VERIFICATION.md) for versions and limits; daily-profile native-host registration remains a deployment gate; W05–W07 implement scoped workspace recovery.
 
 - Native Go TUI replaces the browser interface: needs-you, sorted/expandable workstreams, selected context, compact layout, retained progress drafts and explicit review/file/workspace/binding dialogs. Browser frontend assets and sign-in/session routes are removed. See [TUI-SETUP.md](TUI-SETUP.md).
 - Terminal review uses existing local CLI authority and backend revalidation. Simulation and compiled PTY checks cover stale decisions, uncertain exact retries, retained drafts/conflicts, keyboard navigation, resize and terminal restoration. Historical GUI-v2 records retain replay support under schema 11; no live GUI authority remains.
@@ -53,7 +55,7 @@
 - MV3 extension with explicit profile pairing, ordinary HTTP(S) tab inventory/focus, popup pause/connection status, browser epochs, bounded IndexedDB outbox, reconnect and command journal.
 - Compiled native helper with bounded framing and exact-origin config; browser-only daemon credential; replayable browser observations and command results.
 - CLI open/navigate/focus/move/close. Existing tabs require recorded Heimdall ownership, current epoch and exact URL. Setup prepares native-host registration artifacts without installing them.
-- Real Chromium extension/API checks and worker-to-compiled-daemon tests. The latter substitute a test native port for OS registry discovery; normal Chrome/Edge registration and Linux desktop acceptance remain open.
+- Real Chromium extension/API checks and worker-to-compiled-daemon tests. The latter substitute a test native port for OS registry discovery; daily-profile deployment remains open; later C13/W05–W07 acceptance covers isolated native-host and Linux desktop behavior.
 
 - Strict YAML task/workflow parsing: unknown and duplicate keys, document versions, IDs, status lifecycles, parent/prerequisite cycles, dates, importance/estimates, typed completion checks and anchors.
 - SQLite/WAL event transactions with command dedupe, conflict rejection, one OS-locked writer, atomic projection updates, and pure replay. Unknown event/database versions fail safely. Accepted commands preserve exact results across replay.
@@ -64,35 +66,67 @@
 - Silence-review scheduling from user-attested step completion. No mail coverage means unknown fulfillment and a review reminder, even after its deadline.
 - Authenticated loopback daemon and CLI, strict request decoding, origin/Host rejection, limited request sizes, endpoint validation, graceful shutdown, and a stable-read task watcher.
 
-## Deliberate boundaries and deviations to the full design
-
-| Area | Current decision |
-|---|---|
-| Projection layout | One versioned JSON state projection and command-dedupe table initially; event truth is unchanged. Normalize into per-entity SQL tables when query/load requirements justify it. |
-| Subtask events | Step mutations are captured inside a task event with the changed `subtasks` field, task revision and per-step completion token; separate subtask event rows are not emitted yet. |
-| Event migration | Event envelope remains version 1. Database markers 1–17 upgrade to 18 after a consistent snapshot. Contracts support v1/v2; grants and checkpoints retain old read/CLI v1 and scoped-write/client v2. Artifact checkpoints add CLI record v3 through request v2; artifact identity/version events and progress proposals use v1. Progress reviews use CLI v1 or explicitly authorized UI v2. Task dependency records and preservation handoff/observation records use v1 and confer no execution authority. Workspace/generic declarations remain v1; observed Herdr bindings use v2. Old binaries refuse marker 18. |
-| Continuity scope | Contracts and proposals remain CLI-authored; decisions and artifact progress support explicit CLI/TUI review. Evidence/run links remain open. Optional per-artifact Git identity is available through the Linux CLI. Explicit agent client writes save progress checkpoints only. `ready` is not execution authority. |
-| Local IPC | Native messaging forwards to authenticated random-port loopback HTTP using a separate browser role. Private Unix IPC is deferred. No remote listener or credential is exposed to the extension. |
-| Configuration | Co-located data files and compiled timer defaults. Full `config.toml`, config/state directory split, configurable TTLs/timezone/preferences, and permissions installation remain open. Core deadlines currently use UTC; DST-aware configured scheduling is not claimed. |
-| Workflows | Templates materialize on add, and each task event stores its workflow. Live catalog editing/migration and template-driven status proposals are not implemented. Restart loads a valid catalog for new commands; existing tasks retain materialized workflow metadata. |
-| Task edit views | History-backed no-clobber publication rather than a plain check-then-overwrite rename; hard-link support required. Unsupported filesystems leave a visible pending view. History pruning is future work. |
-| Idempotency | Request IDs identify logical commands; automatically refreshed revision preconditions are excluded from the intent hash. The first execution validates its precondition; retries return the recorded result. |
-| Check evaluation | Manual and aggregate checks plus configured artifact/repo.state/test.exit evidence work for task/step proposals. Legacy mail/repo.commit/agent/GitHub kinds still report unsupported; silence is unknown without coverage. Test outcomes cover declared inputs and recorded executable/environment, not arbitrary external services or detached subprocesses. |
-| Capture kind `task` | Recorded safely; next-action/subtask proposal synthesis is future work. It cannot mutate a task unattended. |
-| User interfaces | Native terminal dashboard and dialogs replace the browser GUI. Neovim opens a selected-target terminal tab. Workstreams sort by resume-by then saved recency; compact mode and text snapshots are available. Native bar integration, agent runtime telemetry and ranked planning remain open. |
-| Portability | Windows historical acceptance retained; Linux daemon/native helper, compiled continuity/evidence/MCP/resume and isolated Chromium GUI/browser/worker now tested. WCU inspected terminal rendering on Hyprland. Actual browser native-host installation and general native workspace recovery remain open. Expanded Windows/Ubuntu CI is configured but has not run remotely from this working tree. |
-
-These boundaries keep the first slice inspectable. They do not silently redefine the final specification's completion criteria.
-
 ## Next work
 
-Implementation resumed on 2026-09-08 under the [revised roadmap implementation plan](REVISED-ROADMAP-IMPLEMENTATION-PLAN.md). [BACKLOG.md](BACKLOG.md) maps R increments and T/P/W/A additions to C01–C21. The initial Linux technical baseline and T01 are delivered; workflow timing baselines and the rest of R1 remain open.
+| Slice | Scope | Planned schema |
+|---|---|---|
+| P0 | W07 clock repair, r4 adoption, evaluator environment, YAML check materialization, browser deltas and daily-profile pairing | 20 |
+| S2a (R5/A01/A02) | Scoped computer-use intents, action grant, reports and fresh reconciliation | 21 |
+| S1 | Observed surfaces, hooks, conversations, herdr sensors, focus spans; S1b adapter spike | 22 |
+| S2b (R6/W08) | Startup readiness, interruption/reboot recovery, optional login restore | no reserved bump |
+| S3 (C14–C16) | Braid assignment and continuity retrieval, typed checkpoint MCP records, optional intent extraction | 23 |
+| S4 | Planner, notifier, configuration/preferences and TUI views | 24 |
+| S5 (C21) | Mail, Codex/Desktop adapters, packaging and fresh-install replay | 25 |
 
-1. R0/R1: collect user workflow timing baselines and broader editor configuration acceptance on the delivered T01–T03/W01 foundation. Complete W01 observed/recovery envelopes with their consuming slices.
-2. R2/R3: initial P03 manual preservation, P04 task dependencies, W02 observation, W03 snapshots and W04 recovery previews are delivered. Programmatic preservation awaits the shared journal and a narrow upstream interface.
-3. R4/R5: C12 shared journal, W06 application adapters and W07 capability-scoped recovery reports are delivered. Unsupported attachment/editor state remains explicit; durable manually initiated WCU outcomes remain open.
-4. R6: optional login recovery after manual recovery passes its gates. Retrieval and automatic agent continuation follow their separate capability/evaluation requirements.
+Delivery order: **P0 → S2a → S1 → S2b → S3 → S4 → S5**. S-numbers are
+stable labels, not numeric execution order. S2a and all later slices remain unstarted.
 
-TUI proposal authoring, remote artifact identity, evidence output retention/review notices, configuration/catalog lifecycle, per-subtask/workflow checks, portable export/import, native-host deployment, broader interface controls, conversation ingestion, mailbox coverage, notifications and ranked planning remain open unless explicitly delivered by a new slice. The [earlier plan](IMPLEMENTATION-PLAN.md) and [design milestones](design/HANDOFF-heimdall-v1.1.md#14-milestones-and-release-gates) retain those requirements.
+**Agent execution is out of scope for Heimdall.** Agents run in Claude Code,
+Codex and herdr; desktop input runs through WCU under its MCP host's approval.
+Heimdall supplies accepted context, records scoped actions and reports, and
+verifies outcomes from its sensors. No run state machine, dispatch outbox,
+leases, fencing, resource locks, execution limits or execution-host adapter will
+be added. Checkpoint handoff/resume is built; wake conditions and deduplicated
+attention belong to the S4 notifier.
 
-The separate Braid source and databases were not changed. No hooks, extension, system service, account integration, inference provider, or background user automation was installed during implementation.
+## Boundaries and scale triggers
+
+Grants remain frozen until S2a. Focus spans and observed-surface identities remain S1.
+No sensor completes a task; evidence only proposes completion for ratification.
+No raw evaluator output, prompts, transcripts or frames enter the event log.
+Configuration remains compiled defaults until S4; Windows/macOS desktop adapters
+return unsupported. Existing historical acceptance is not a fresh platform run.
+
+| Item | Trigger |
+|---|---|
+| Normalize the projection blob into per-entity tables | blob > 1 MB, or p95 command latency > 50 ms, or `readState` > 10 ms |
+| Event compaction with projection snapshots for replay | replay > 10 s, or events > 500k |
+| Braid ANN index and Postgres backend | > 20k vectors, or a second device |
+| Postgres for Heimdall | a second device or a second user |
+| Gmail API OAuth adapter | more than one account or a Workspace that refuses app passwords |
+| Fuzzy artifact lineage via Braid | exact digests miss > 20 % of observed handoffs |
+| Learned fusion in Braid | ≥ 300 real labels and weighted RRF beaten on held-out data |
+| WCU observer as a full compositor sensor | Heimdall's own Hyprland observer proves insufficient for verification |
+| Portrait radiator page | the TUI on the landscape output proves insufficient after S4 review |
+| Windows and macOS desktop backends | two or more working days a week on those machines |
+
+
+## Historical identifiers
+
+R0 technical baseline; R1/T01–T03/W01 terminal/editor continuity; R2/P01–P04
+artifacts, progress, manual preservation and dependencies; R3/W02–W04 observation,
+snapshots and previews; R4/C12/C13/W05–W07 actions, browser verification and
+application recovery are retained identifiers for delivered work. R5/A01/A02 map
+to S2a; R6/W08 maps to S2b; C14–C16 map to S3; C21 maps to S5.
+C17–C20 are retired, not pending work. W09 Hyprflow import and automated P03
+preservation remain deferred; multi-machine replication and raw-output retention
+remain deferred. Conversation ingestion, ranked planning and mail are scheduled
+at S1, S4 and S5 respectively. Proposal authoring goes to S4; proposed MCP writes
+use typed checkpoint records at S3, not a proposal-write grant. Workflow timing
+and daily-use acceptance belong to every slice.
+
+The original C01–C21 definitions remain in
+[the archived backlog](design/history/BACKLOG-baseline-2f11175.md),
+[the original plan](design/history/IMPLEMENTATION-PLAN.md), and
+[the Sept 8 roadmap](design/history/REVISED-ROADMAP-IMPLEMENTATION-PLAN.md).
+These documents are historical, not execution instructions.

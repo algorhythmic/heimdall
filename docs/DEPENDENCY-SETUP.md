@@ -117,4 +117,4 @@ observation or execution permission is added to a read grant.
 Dependencies were introduced in schema 13. The current schema 15 preserves previous event families and exact receipts; startup publishes
 `backups/pre-schema-15-*.db` before upgrading older data. Rollback uses the stopped
 pre-upgrade snapshot and its matching old binary. See [request schema](../schemas/dependency-request-v1.schema.json),
-[verification](VERIFICATION.md) and [roadmap](REVISED-ROADMAP-IMPLEMENTATION-PLAN.md).
+[verification](VERIFICATION.md) and [roadmap](design/history/REVISED-ROADMAP-IMPLEMENTATION-PLAN.md).

@@ -56,3 +56,9 @@ export class Actions {
     result=wrap(result);journal[op.id].result=result;await this.api.storage.session.set({journal});return result;
   }
 }
+
+// Diff only public inventory containers; the last acknowledged inventory is the baseline.
+export function inventoryDelta(previous,current,baseSequence){
+ const before=new Map(previous.tabs.map(t=>[t.id,t]));const after=new Set(current.tabs.map(t=>t.id));
+ return {...current,delta:true,base_seq:baseSequence,tabs:current.tabs.filter(t=>JSON.stringify(before.get(t.id))!==JSON.stringify(t)),removed:current.complete?previous.tabs.filter(t=>!after.has(t.id)).map(t=>t.id):[]};
+}

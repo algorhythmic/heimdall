@@ -252,3 +252,15 @@ func TestRecoveryRequestAndScopedSerialization(t *testing.T) {
 		}
 	}
 }
+
+func TestRecoveryAsOfIncludesDelayBeforeVerify(t *testing.T) {
+	f := newOperationFixture(t, "alpha")
+	now := time.Now().Add(-time.Second)
+	v, err := f.service.Previews.Verify(f.ctx, RecoveryRequest{Version: 1, Target: "alpha", PlacementPolicy: "saved"}, now)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if v.AsOf.Before(time.Now().Add(-500*time.Millisecond)) || v.Coverage.Status != "matched" {
+		t.Fatalf("report clock precedes fresh observation: %+v", v)
+	}
+}

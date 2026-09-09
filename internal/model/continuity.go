@@ -15,17 +15,18 @@ const ContinuityVersion = 1
 var OpaqueID = regexp.MustCompile(`^[a-f0-9]{32}$`)
 
 type Contract struct {
-	Version      int       `json:"version"`
-	ID           string    `json:"id"`
-	Target       string    `json:"target"`
-	TaskRevision int64     `json:"task_revision"`
-	Previous     string    `json:"previous"`
-	Objective    string    `json:"objective"`
-	Constraints  []string  `json:"constraints"`
-	Acceptance   Done      `json:"acceptance"`
-	ResourceIDs  []string  `json:"resource_ids,omitempty"`
-	Actor        string    `json:"actor"`
-	At           time.Time `json:"at"`
+	MaterializedFrom string    `json:"materialized_from,omitempty"`
+	Version          int       `json:"version"`
+	ID               string    `json:"id"`
+	Target           string    `json:"target"`
+	TaskRevision     int64     `json:"task_revision"`
+	Previous         string    `json:"previous"`
+	Objective        string    `json:"objective"`
+	Constraints      []string  `json:"constraints"`
+	Acceptance       Done      `json:"acceptance"`
+	ResourceIDs      []string  `json:"resource_ids,omitempty"`
+	Actor            string    `json:"actor"`
+	At               time.Time `json:"at"`
 }
 
 // Contract v2 freezes binding identities. An empty list is a reviewed empty scope;
@@ -56,17 +57,18 @@ type Decision struct {
 	At           time.Time `json:"at"`
 }
 type Resource struct {
-	Version int       `json:"version"`
-	ID      string    `json:"id"`
-	Target  string    `json:"target"`
-	Kind    string    `json:"kind"`
-	Root    string    `json:"root"`
-	Path    string    `json:"path"`
-	Exclude []string  `json:"exclude"`
-	Active  bool      `json:"active"`
-	Initial Snapshot  `json:"initial"`
-	Actor   string    `json:"actor"`
-	At      time.Time `json:"at"`
+	MaterializedFrom string    `json:"materialized_from,omitempty"`
+	Version          int       `json:"version"`
+	ID               string    `json:"id"`
+	Target           string    `json:"target"`
+	Kind             string    `json:"kind"`
+	Root             string    `json:"root"`
+	Path             string    `json:"path"`
+	Exclude          []string  `json:"exclude"`
+	Active           bool      `json:"active"`
+	Initial          Snapshot  `json:"initial"`
+	Actor            string    `json:"actor"`
+	At               time.Time `json:"at"`
 }
 type Snapshot struct {
 	Digest string `json:"digest"`

@@ -14,6 +14,7 @@ import (
 	"os"
 	"path/filepath"
 	"reflect"
+	"sort"
 	"sync"
 	"time"
 )
@@ -350,6 +351,35 @@ func Apply(st *model.State, e Event) error {
 		if err := applyBrowserVerification(st, e); err != nil {
 			return err
 		}
+	case "browser.inventory_delta":
+		var d model.BrowserInventoryDelta
+		if err := json.Unmarshal(e.Payload, &d); err != nil {
+			return err
+		}
+		old := st.Browsers[e.EntityID]
+		p := d.Profile
+		if p.ID != e.EntityID || old.Epoch != p.Epoch || old.Connection != p.Connection || old.LastSequence != d.BaseSequence || p.LastSequence <= old.LastSequence || old.InventorySnapshotAt == nil {
+			return fmt.Errorf("inventory delta without matching snapshot")
+		}
+		if p.Freshness != nil || p.PresentTabs != nil || p.Markers != nil || !reflect.DeepEqual(p.Challenge, old.Challenge) {
+			return fmt.Errorf("delta cannot introduce readback proof")
+		}
+		tabs := map[int]model.BrowserTab{}
+		for _, tab := range old.Tabs {
+			tabs[tab.ID] = tab
+		}
+		for _, id := range d.Removed {
+			delete(tabs, id)
+		}
+		for _, tab := range p.Tabs {
+			tabs[tab.ID] = tab
+		}
+		p.Tabs = []model.BrowserTab{}
+		for _, tab := range tabs {
+			p.Tabs = append(p.Tabs, tab)
+		}
+		sort.Slice(p.Tabs, func(i, j int) bool { return p.Tabs[i].ID < p.Tabs[j].ID })
+		st.Browsers[p.ID] = p
 	case "browser.profile_seen", "browser.pairing_changed", "browser.inventory_observed":
 		var p model.BrowserProfile
 		if err := json.Unmarshal(e.Payload, &p); err != nil {

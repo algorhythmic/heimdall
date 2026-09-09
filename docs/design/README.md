@@ -1,3 +1,9 @@
+# Current design
+
+Start with [handoff r4](HANDOFF-heimdall-v1-r4.md). Its §12 defines the current
+roadmap; the diagrams compare r3 with baseline 2f11175. Everything below is
+historical background, superseded where it conflicts with r4.
+
 # Heimdall implementation packet
 
 This is a historical design packet copied into the separate Heimdall checkout. See [current implementation status](../STATUS.md) and the [project README](../../README.md) for the runnable build.

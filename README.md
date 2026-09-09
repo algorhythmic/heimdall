@@ -6,7 +6,7 @@ Heimdall is a local task and continuity system for work shared between people an
 
 The [Neovim integration](docs/NEOVIM-SETUP.md) brings that workflow into the editor. [Workspace/session records](docs/WORKSPACE-SETUP.md) keep tasks distinct even when they share a repository. The [Linux Herdr adapter](docs/HERDR-SETUP.md) verifies selected panes and publishes expiring task metadata. [Artifact versions](docs/ARTIFACT-SETUP.md) pin exact file identity, with optional Git metadata, to checkpoints; they detect changed or missing files and explicitly recorded relocations. They retain metadata and digests, not file contents.
 
-Scoped MCP clients can read context and, with an explicit write grant, save progress. The terminal interface shows needs-you, workstreams, saved context and explicit review dialogs. Start with [terminal setup](docs/CONTINUITY-SETUP.md), [TUI setup](docs/TUI-SETUP.md), [evidence setup](docs/EVIDENCE-SETUP.md) or [MCP setup](docs/MCP-SETUP.md). Extension 0.6.0 adds recovery deduplication alongside challenged browser readback and shared action/attempt references. Initial [P02 progress/decision review](docs/PROGRESS-SETUP.md) is available through the CLI and the terminal interface, with Neovim inspection and terminal handoff; [P03 manual preservation](docs/PRESERVATION-SETUP.md) adds checkpoint-linked previews and independently observed copy/commit/remote receipts. [P04 task dependencies and scoped summaries](docs/DEPENDENCY-SETUP.md) expose cross-project prerequisites and saved progress. [W02 Hyprland observation](docs/HYPRLAND-SETUP.md) adds explicitly selected desktop inventories and task-owned window bindings. [W03 durable snapshots](docs/SNAPSHOT-SETUP.md) add manual restore points, explicit autosave policies and bounded payload retention. [W04 workspace previews](docs/WORKSPACE-PREVIEW.md) compare saved points with fresh owned observations and reject stale plans. [C12 shared actions](docs/ACTIONS-SETUP.md) preserve task-bound intent, attempts and uncertain outcomes before browser dispatch. [C13 browser verification](docs/BROWSER-VERIFICATION.md) checks independent outcomes and recovers retained results through a real native-host connection. [C13 browser pairing](docs/BROWSER-PAIRING.md) joins an explicit browser window to Hyprland before continuing navigation. [W05 workspace operations](docs/WORKSPACE-OPERATIONS.md) add journaled native focus and graceful close, explicit swaps and interruption reconciliation. [W06 application recovery](docs/APPLICATION-RECOVERY.md) adds reviewed Foot/Herdr, paired-browser and saved-file Neovim adapters. [W07 recovery verification](docs/RECOVERY-VERIFICATION.md) reports fresh ownership, membership, placement and supported application state with explicit uncertainty. Startup/interruption gates, unsupported attachment/editor readback, programmatic preservation, Braid integration and automatic continuation remain planned. See [STATUS.md](docs/STATUS.md) for the supported boundaries.
+Scoped MCP clients can read context and, with an explicit write grant, save progress. The terminal interface shows needs-you, workstreams, saved context and explicit review dialogs. Start with [terminal setup](docs/CONTINUITY-SETUP.md), [TUI setup](docs/TUI-SETUP.md), [evidence setup](docs/EVIDENCE-SETUP.md) or [MCP setup](docs/MCP-SETUP.md). Extension 0.6.0 adds recovery deduplication alongside challenged browser readback and shared action/attempt references. Initial [P02 progress/decision review](docs/PROGRESS-SETUP.md) is available through the CLI and the terminal interface, with Neovim inspection and terminal handoff; [P03 manual preservation](docs/PRESERVATION-SETUP.md) adds checkpoint-linked previews and independently observed copy/commit/remote receipts. [P04 task dependencies and scoped summaries](docs/DEPENDENCY-SETUP.md) expose cross-project prerequisites and saved progress. [W02 Hyprland observation](docs/HYPRLAND-SETUP.md) adds explicitly selected desktop inventories and task-owned window bindings. [W03 durable snapshots](docs/SNAPSHOT-SETUP.md) add manual restore points, explicit autosave policies and bounded payload retention. [W04 workspace previews](docs/WORKSPACE-PREVIEW.md) compare saved points with fresh owned observations and reject stale plans. [C12 shared actions](docs/ACTIONS-SETUP.md) preserve task-bound intent, attempts and uncertain outcomes before browser dispatch. [C13 browser verification](docs/BROWSER-VERIFICATION.md) checks independent outcomes and recovers retained results through a real native-host connection. [C13 browser pairing](docs/BROWSER-PAIRING.md) joins an explicit browser window to Hyprland before continuing navigation. [W05 workspace operations](docs/WORKSPACE-OPERATIONS.md) add journaled native focus and graceful close, explicit swaps and interruption reconciliation. [W06 application recovery](docs/APPLICATION-RECOVERY.md) adds reviewed Foot/Herdr, paired-browser and saved-file Neovim adapters. [W07 recovery verification](docs/RECOVERY-VERIFICATION.md) reports fresh ownership, membership, placement and supported application state with explicit uncertainty. Startup/interruption gates, unsupported attachment/editor readback, programmatic preservation, Braid integration, sensors, planning and notifications remain planned. See [STATUS.md](docs/STATUS.md) for the supported boundaries.
 
 ## Progress
 
@@ -16,9 +16,9 @@ Scoped MCP clients can read context and, with an explicit write grant, save prog
 | Workspace/session identity | Initial W01/T02 delivered: explicit manifests, generic declarations and verified local Herdr bindings with refresh/metadata. W02 adds observation/binding, W03 durable points/autosnapshots, W04 scoped previews, W05 journaled operations/capacity and W06 application adapters. W07 adds fresh recovery reports with explicit capability limits; W08 startup/interruption gates remain open. |
 | Editor continuity | Initial T03 delivered: [Neovim commands and LazyVim example](docs/NEOVIM-SETUP.md) for task selection, resume, checkpoint drafts, artifacts, session checks and TUI review. Isolated Linux acceptance; no global configuration installed. |
 | Assistant access through MCP | Initial implementation delivered: four tools, scoped credentials and explicitly delegated checkpoint writes. Host registration remains a deployment step. |
-| Verified computer actions | Planned. Browser tab controls exist; API success does not yet verify the intended outcome. |
+| Verified computer actions | C12/C13 and W05–W07 delivered: journaled actions, independent browser/Hyprland verification and scoped recovery reports. WCU records follow at S2a. |
 | Evidence-based completion | Initial CLI implementation delivered: artifact/repo/test evaluators, durable attempts, invalidation and live revalidation of task/step proposals. Raw-output retention, broader machine tools and review notices remain open. |
-| Persistent task continuation | Planned. Saved context supports resuming work; dispatch, leases, recovery and an execution-host adapter remain open. |
+| Agent continuity | Saved context and checkpoint handoff are delivered. Agents execute in external harnesses; scoped computer-use records follow at S2a. |
 | Project-aware Braid memory | Planned; Braid is not integrated. Current mandatory context works without retrieval. |
 | Task interface | Delivered: [terminal dashboard and review dialogs](docs/TUI-SETUP.md), replacing the browser GUI. Needs-you, expandable workstreams, retained progress drafts, file checks and workspace preview. |
 
@@ -216,6 +216,29 @@ On Windows, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools
 .\scripts\dev.ps1 build -o bin/heimdall.exe ./cmd/heimdall
 ```
 
-[Implementation specification](docs/design/HANDOFF-heimdall-v1.1.md) · [Browser runtime design](docs/design/BROWSER-EXTENSION.md) · [Verification](docs/VERIFICATION.md).
+[Implementation specification](docs/design/HANDOFF-heimdall-v1-r4.md) · [Browser runtime design](docs/design/BROWSER-EXTENSION.md) · [Verification](docs/VERIFICATION.md).
 
-C08/C09 and C10/C11 now have initial evidence and terminal-interface implementations. R0 technical validation, T01 resume/checkpoint helpers, initial W01/T02 bindings and T03 Neovim commands are implemented. The September 8 [revised roadmap implementation plan](docs/REVISED-ROADMAP-IMPLEMENTATION-PLAN.md) now includes Linux artifact versions, CLI/TUI review, manual preservation and task dependencies. It continues with workspace observation and verified recovery. See the [backlog](docs/BACKLOG.md) for dependencies and completion status, and the [earlier continuity plan](docs/IMPLEMENTATION-PLAN.md) for the retained seven-improvement architecture.
+## Roadmap
+
+| Slice | Scope | Planned schema |
+|---|---|---|
+| P0 | W07 clock repair, r4 adoption, evaluator environment, YAML check materialization, browser deltas and daily-profile pairing | 20 |
+| S2a (R5/A01/A02) | Scoped computer-use intents, action grant, reports and fresh reconciliation | 21 |
+| S1 | Observed surfaces, hooks, conversations, herdr sensors, focus spans; S1b adapter spike | 22 |
+| S2b (R6/W08) | Startup readiness, interruption/reboot recovery, optional login restore | no reserved bump |
+| S3 (C14–C16) | Braid assignment and continuity retrieval, typed checkpoint MCP records, optional intent extraction | 23 |
+| S4 | Planner, notifier, configuration/preferences and TUI views | 24 |
+| S5 (C21) | Mail, Codex/Desktop adapters, packaging and fresh-install replay | 25 |
+
+Delivery order: **P0 → S2a → S1 → S2b → S3 → S4 → S5**. S-numbers are
+stable labels, not numeric execution order. S2a and all later slices remain unstarted.
+
+**Agent execution is out of scope for Heimdall.** Agents run in Claude Code,
+Codex and herdr; desktop input runs through WCU under its MCP host's approval.
+Heimdall supplies accepted context, records scoped actions and reports, and
+verifies outcomes from its sensors. No run state machine, dispatch outbox,
+leases, fencing, resource locks, execution limits or execution-host adapter will
+be added. Checkpoint handoff/resume is built; wake conditions and deduplicated
+attention belong to the S4 notifier.
+
+Historical C/T/P/W/R identifiers and their dispositions are preserved in [the backlog](docs/BACKLOG.md).

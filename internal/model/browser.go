@@ -14,6 +14,7 @@ type BrowserTab struct {
 	OwnerID           string `json:"owner_id,omitempty"`
 }
 type BrowserProfile struct {
+	InventorySnapshotAt  *time.Time        `json:"inventory_snapshot_at,omitempty"`
 	RecoveryProtocol     int               `json:"recovery_protocol,omitempty"`
 	EventGeneration      int64             `json:"event_generation,omitempty"`
 	PairingProtocol      int               `json:"pairing_protocol,omitempty"`
@@ -196,4 +197,12 @@ func (s *State) Normalize() {
 	if s.BrowserOperations == nil {
 		s.BrowserOperations = map[string]BrowserOperation{}
 	}
+}
+
+// BrowserInventoryDelta carries only changed containers and inventory metadata.
+// Profile.Tabs contains upserts; Removed contains exact container IDs.
+type BrowserInventoryDelta struct {
+	Profile      BrowserProfile `json:"profile"`
+	BaseSequence int64          `json:"base_seq"`
+	Removed      []int          `json:"removed"`
 }

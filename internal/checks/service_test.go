@@ -293,6 +293,11 @@ func TestEvaluatorProcess(t *testing.T) {
 			continue
 		}
 		switch os.Args[i+1] {
+		case "environment":
+			if os.Getenv("HEIMDALL_NAMED_INPUT") != "selected" || os.Getenv("HEIMDALL_TEST_SECRET") != "" {
+				os.Exit(9)
+			}
+			os.Exit(0)
 		case "pass":
 			os.Stdout.WriteString("observed success")
 			os.Exit(0)
@@ -366,5 +371,29 @@ func TestChangedContractAndPartialEvidenceCannotComplete(t *testing.T) {
 		if p.Status == "pending" {
 			t.Fatal("changed contract retained proposal")
 		}
+	}
+}
+
+func TestNamedEnvironmentIsObservedAndRevalidated(t *testing.T) {
+	t.Setenv("HEIMDALL_NAMED_INPUT", "selected")
+	t.Setenv("HEIMDALL_TEST_SECRET", "excluded")
+	f := setup(t, "test.exit", false)
+	exe, _ := os.Executable()
+	d := f.define(model.EvaluatorSpec{Kind: "test.exit", Argv: []string{exe, "-test.run=TestEvaluatorProcess", "--", "heimdall-evaluator", "environment"}, TimeoutSeconds: 5, Env: []string{"HEIMDALL_NAMED_INPUT"}})
+	e, _ := f.start(d)
+	if err := f.service.Execute(f.ctx, e.ID); err != nil {
+		t.Fatal(err)
+	}
+	st := f.state()
+	e = st.Evidence[e.ID]
+	if e.Outcome != "matched" {
+		t.Fatal(e)
+	}
+	if err := checks.ValidateEvidence(f.ctx, st, e); err != nil {
+		t.Fatal(err)
+	}
+	t.Setenv("HEIMDALL_NAMED_INPUT", "changed")
+	if err := checks.ValidateEvidence(f.ctx, st, e); err == nil {
+		t.Fatal("changed named environment still accepted")
 	}
 }

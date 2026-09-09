@@ -64,6 +64,15 @@ func TestRecoveryBrowserRuntimeLeaseRejectsRestartAndClockJump(t *testing.T) {
 	p := model.BrowserProfile{ID: model.NewID(), Connection: model.NewID(), VerificationProtocol: 1, Complete: true, LastSequence: 1, ReceivedAt: now}
 	p.Freshness = &model.BrowserFreshness{Stable: true, Sequence: 1, Challenge: model.BrowserChallenge{ID: id, Connection: p.Connection, RuntimeID: db.RuntimeID(), AfterEventID: 10}}
 	s.Runtime.reads[p.ID] = runtimeLease{ID: id, At: now}
+	// The supplied command time precedes demand registration/readback by a second.
+	// A fresh received timestamp must not be rejected as being in the future.
+	supplied := now.Add(-time.Second)
+	if !s.RecoveryFresh(p, 10, s.observationTime(supplied)) {
+		t.Fatal("fresh readback rejected after pre-demand delay")
+	}
+	if s.RecoveryFresh(p, 10, supplied) {
+		t.Fatal("future observation guard weakened")
+	}
 	if !s.RecoveryFresh(p, 10, now) {
 		t.Fatal("live lease refused")
 	}

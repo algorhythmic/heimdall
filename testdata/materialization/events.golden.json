@@ -1,0 +1,76 @@
+[
+  {
+    "actor": "cli",
+    "payload": {
+      "active": true,
+      "actor": "cli",
+      "at": "2026-09-04T18:00:00Z",
+      "exclude": [],
+      "id": "resource",
+      "initial": {
+        "bytes": 5,
+        "digest": "\u003cdigest\u003e",
+        "files": 1
+      },
+      "kind": "file",
+      "materialized_from": "tasks.yaml@1",
+      "path": "proof.txt",
+      "root": "\u003croot\u003e",
+      "target": "materialized",
+      "version": 1
+    },
+    "subject": "resource",
+    "verb": "bound"
+  },
+  {
+    "actor": "cli",
+    "payload": {
+      "acceptance": {
+        "checks": [
+          {
+            "id": "proof",
+            "kind": "artifact.exists",
+            "path": "\u003croot\u003e/proof.txt"
+          }
+        ],
+        "text": "File exists"
+      },
+      "actor": "cli",
+      "at": "2026-09-04T18:00:00Z",
+      "constraints": [],
+      "id": "contract",
+      "materialized_from": "tasks.yaml@1",
+      "objective": "Proof\n",
+      "previous": "",
+      "resource_ids": [
+        "resource"
+      ],
+      "target": "materialized",
+      "task_revision": 1,
+      "version": 2
+    },
+    "subject": "contract",
+    "verb": "accepted"
+  },
+  {
+    "actor": "cli",
+    "payload": {
+      "actor": "cli",
+      "at": "2026-09-04T18:00:00Z",
+      "check_id": "proof",
+      "contract_id": "contract",
+      "digest": "\u003cdigest\u003e",
+      "id": "evaluator",
+      "materialized_from": "tasks.yaml@1",
+      "previous": "",
+      "spec": {
+        "kind": "artifact.exists",
+        "resource_id": "resource"
+      },
+      "target": "materialized",
+      "version": 1
+    },
+    "subject": "evaluator",
+    "verb": "accepted"
+  }
+]

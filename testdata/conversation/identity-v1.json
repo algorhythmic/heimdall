@@ -1,0 +1,43 @@
+[
+  {
+    "domain": "conversation",
+    "fields": [
+      "namespace",
+      "native"
+    ],
+    "key": "sr1:conversation:9e5f4989195d9f336841ce63d5efd35fe340cb2d705cdc30faf22f48d3eb5772"
+  },
+  {
+    "domain": "conversation",
+    "fields": [
+      "a",
+      "bc"
+    ],
+    "key": "sr1:conversation:b5f3f8188d0a02fed577b607fdb697f273eb88cfc97a59b6a4575c309e755af1"
+  },
+  {
+    "domain": "conversation",
+    "fields": [
+      "ab",
+      "c"
+    ],
+    "key": "sr1:conversation:f4d2629788df39c50145885512c78611af6779316258282441abfbbd36b13f23"
+  },
+  {
+    "domain": "conversation",
+    "fields": [
+      "命名空間",
+      "会話:1"
+    ],
+    "key": "sr1:conversation:38c4d6746283f25ebc1574c77faa8626f4279f5b6d6bf02934d2770a116a1f71"
+  },
+  {
+    "domain": "stream",
+    "fields": [
+      "namespace",
+      "claude_code",
+      "persistent-stream"
+    ],
+    "key": "sr1:stream:6b7384448c2fc803977a227e8c647be46d4bbca4609a1f0d20f8d6afd7cd4fd6"
+  }
+]

@@ -5,8 +5,8 @@ in `cmd/heimdall`, extension 0.6.0, database schema 20, Go 1.25 / toolchain 1.27
 versions verified in that tree: herdr 0.8.2 (protocol 20), Hyprland 0.56.2 with the Lua dispatch
 provider, Neovim 0.12.5, Braid protocol 1, WCU at `10d4021`.
 
-Supersedes revision 3 (2026-09-05), the v1.1 packet in `docs/design/`, `docs/design/history/IMPLEMENTATION-PLAN.md`
-and `docs/design/history/REVISED-ROADMAP-IMPLEMENTATION-PLAN.md`; those remain as history. `docs/STATUS.md`,
+Supersedes revision 3 (2026-09-05), the v1.1 packet in `docs/design/`, `docs/history/roadmaps/IMPLEMENTATION-PLAN.md`
+and `docs/history/roadmaps/REVISED-ROADMAP-IMPLEMENTATION-PLAN.md`; those remain as history. `docs/STATUS.md`,
 `docs/BACKLOG.md` and `README.md` are maintained from this document. Any deviation edits this file
 first, in the same PR as the code. §17 lists what changed since revision 3 and why.
 
@@ -163,7 +163,7 @@ that were skipped. Nothing built is reverted; §12 resequences so the sensors co
 | herdr | Heimdall observes, binds and attaches (`herdr terminal attach` recipe, observed detach); it never creates herdr workspaces | adopted | Heimdall as second workspace manager |
 | Execution host | none inside Heimdall; agents run in Claude Code, Codex, herdr; WCU executes desktop input for them | changed | dispatch outbox, leases, fencing, resource locks, execution limits, run state machine (roadmap C17–C20, deleted in Appendix B) |
 | WCU | agent-registered intents on owned windows, per-step reports, fresh reconciliation (A01/A02) on the existing wire verbs; Desktop Observer as an accessibility-evidence source via `ActionObservation.External`; WCU's ledger and traces corroborate, never bind; Heimdall never stores frames | changed | WCU as Heimdall's window observer (Heimdall has its own); new action verbs; binding gated on WCU's uncommitted ledger |
-| Sessions | derived from transcripts and conversation JSON at session end; intent extraction when a provider exists; never typed by the user | kept, absent | structured summary input |
+| Sessions | source-referenced lifecycle and available native descriptions at any time (S1); purgeable evidence text; optional configured intent extraction (S3) | design adopted, unimplemented | archived transcript bodies or native claims as accepted state |
 | Mail | maildir inotify first, then IMAP via `github.com/emersion/go-imap/v2`; headers only | kept, S5 | Gmail DOM; hand-rolled IMAP |
 | Reference platform | Hyprland IPC; Windows/macOS desktop control return `ErrUnsupported` | built | three OSes at once |
 | Event bus | none; in-process dispatch; `/events` for local consumers | kept | MQTT/NATS |
@@ -237,7 +237,7 @@ commands(id, request_hash, result)           -- exact-retry receipts
 + receipt/history tables per family (snapshots, operations, evidence, preservation, dependencies)
 ```
 
-Schema marker 20. Markers 1–19 upgrade after a consistent backup; a newer database refuses an older
+Current schema marker 21 (S2a); baseline marker 20. Older supported markers upgrade after a consistent backup; a newer database refuses an older
 binary. Every command writes its receipt first; a retry with the same id and request hash returns
 the stored result. `replay` reduces all events into a fresh `State` in one transaction; golden tests
 assert equality across replay and restart. Authorization callbacks run inside the writer transaction
@@ -252,7 +252,7 @@ Schema ledger (one row per migration from here on; a PR that bumps the marker ad
 | 13–19 | Sept 9 | dependencies, Hyprland observation, snapshots, previews, actions, browser verification, operations |
 | 20 | Sept 9 | application recipes, recovery verification |
 | 21 | Sept 10, S2a delivered | scoped action grant; native/browser reconciliation; WCU corroboration; checkpoint/completion action references |
-| 22 | S1 | observed surfaces, conversations, agent state, focus spans; inventory snapshots + deltas |
+| 22 | Sept 10, S1 in progress | browser surface catalog/container projection, sampled focus spans and browser `state --active` delivered; conversations, agent state and compositor attention remain S1 work |
 | 23 | S3 | typed checkpoint records (capture, claim) |
 | 24 | S4 | plans, notifications |
 | 25 | S5 | mail |
@@ -289,7 +289,7 @@ Added by this revision, each at its consuming slice:
 | subject | verbs | slice |
 |---|---|---|
 | surface | observed, opened, closed, changed, focused (a span, emitted on blur with `duration_s`, debounced 2 s) — observed surfaces; `workspace.accepted` remains the desired side | S1 |
-| conversation | started, ended, summarized | S1 |
+| conversation | started, ended, description_observed (metadata/digest only); summarized | S1 lifecycle/descriptions; S3 optional extraction |
 | agent | attached, working, idle, blocked, released | S1 |
 | sensor | degraded, recovered (per sensor, once per day) | S1 |
 | plan | issued, ratified, edited | S4 |
@@ -304,8 +304,8 @@ adds `ActionObservation.External`, the `Execution: external` value and the `gran
 value; none adds a verb.
 
 Payload rules: prompt text is never stored, only content hashes; mail payloads are headers only;
-transcripts are referenced by path; a browser conversation is retained once in `session.ended` with
-its digest; evaluator output is digested, not stored (1 MiB cap); WCU frames are never stored;
+native and browser conversations retain source references and digests, never bodies or recap text;
+optional native-description bytes live only in the purgeable evidence table (§7.9); evaluator output is digested, not stored (1 MiB cap); WCU frames are never stored;
 secrets never enter the log.
 
 ### 5.2 Projection (as built)
@@ -398,6 +398,15 @@ Observability tiers, so `state` never silently reports null for a source that ca
 
 ### 7.1 Claude Code hooks (S1; `init --hooks`)
 
+Provider-specific decoding and session-record identity use the pinned Skald L0
+`sessionrecord`/`sessioncapture` contract. Heimdall reads configured native sources
+directly with Skald absent; an optional feed preserves the same origin keys.
+Apply Heimdall's existing binding/retention rules after normalization and record
+capability and adapter version. Hooks and their installation remain Heimdall-owned;
+`agent.blocked` needs a supported hook/observer signal, not an inferred transcript
+state. A recap does not imply idle, blocked or ended. L0 started 2026-09-10 in
+Skald; S1 pins its released package and fixtures, without waiting for L1–L6.
+
 Hook scripts POST `{event, session_id, cwd, transcript_path, ...}` to `/hook` with the CLI token.
 
 | hook | event | notes |
@@ -415,6 +424,9 @@ cwd → unbound (conversation recorded; classifier input at S3). `init --hooks` 
 `~/.claude/settings.json` without removing herdr's own hooks.
 
 ### 7.2 Codex (S5)
+
+Use §7.1’s shared parsing/identity boundary; Skald provider coverage does not
+advance this slice. Probe and verify Heimdall’s installed-source capabilities.
 
 As r3 §6.2: probe the installed version and trust state; chain the existing `notify` command; map
 hooks as in §7.1; transcript reference from the rollout JSONL. Where a blocked signal is missing,
@@ -499,18 +511,62 @@ WCU commit the adapter is tested against is recorded in `docs/CAPABILITY-LEDGER.
 
 ### 7.8 Claude Desktop (S5)
 
+Use §7.1’s shared parsing/identity boundary and independently verified capabilities.
+Missing or inaccessible native content remains unknown.
+
 As r3 §6.7: the Code tab is Claude Code outside herdr (§7.1, cwd/branch binding); Chat's content
 channel is MCP (`heimdall_checkpoint`, `heimdall_capture`, `heimdall_observe`), model-initiated and
 therefore lower confidence; an Electron debug-port spike decides whether §7.5 can serve Desktop chat.
 
-### 7.9 Conversation-end pipeline (S1; inference optional)
+### 7.9 Conversation lifecycle and descriptions (S1; extraction S3)
 
-`conversation.ended{kind, conversation_id, task, transcript_ref | content, turns, artifacts}` is
-deterministic. With `[inference]` configured, intent extraction produces
-`conversation.summarized{decided, next_action, resume_by, drop_if, artifacts, confidence}`; if the
-conversation is bound to a task, that becomes `proposal.created{kind: next_action}`. Without a
-provider, `conversation.ended` still lands and tier 3 stays empty; the TUI shows the gap.
-Conversations with no end signal end after `conversations.idle_end_minutes` (30) of no activity.
+`conversation.ended{kind, conversation_id, task, transcript_ref, turns, artifacts}`
+records a native end with a source reference, never a transcript body. Inactivity
+may change the display after a configurable 30-minute default; it does not emit
+provider-observed end evidence. Source loss is a coverage gap. New records with
+the same native conversation ID resume that conversation.
+
+Native titles/recaps/eligible notes can arrive at any time without inference.
+Missing or opaque descriptions remain unavailable. S3 optional configured intent
+extraction produces `conversation.summarized{decided, next_action, resume_by,
+drop_if, artifacts, confidence}` as source-derived interpretation. Proposal
+authoring/ratification stays in its owning slice; no ingestion accepts task state
+or introduces a proposal-write grant.
+
+The planned `conversation.description_observed` event is separate from S3's
+`conversation.summarized` intent-extraction event. Register its version and replay
+handling with the owning S1 migration; no new schema number is reserved here.
+The event contains the Heimdall conversation ID, source/record reference and
+revision, description digest, kind, adapter/contract version, provenance, times,
+coverage and availability (`available` or `withdrawn`). **No description text is
+stored in an event, command receipt or serialized replay projection.**
+
+A projection-side evidence table holds optional normalized description text,
+keyed by digest, with scope-checked source associations. Allowlist native types;
+retain at most 4,096 UTF-8 bytes, safely truncated and marked. Keep the exact
+source revision/digest separate from the digest of retained normalized bytes.
+Arbitrary assistant messages or prompts cannot become eligible merely because an
+adapter calls them a summary. This table is a purgeable evidence cache, not a
+second authoritative state store or a full conversation archive.
+
+Populate bytes at ingest. After deterministic event replay, a separate bounded
+hydration pass may resolve permitted native sources or an explicitly configured
+Skald feed, validate revision/digest and refill missing bytes. Replay succeeds
+with neither source installed; absent bytes are an evidence coverage diagnostic,
+not a changed historical event or a fabricated current description. Event/state
+goldens exclude evidence presence and hydration never appends semantic events.
+
+Withdrawal immediately makes the affected evidence unavailable, purges its cached
+text and derived retrieval copies, and prevents old observations from rehydrating
+that withdrawn association on replay. Authorization is checked through current
+source/scope associations, never by possession of a digest. Shared digests must
+not expose a withdrawn or out-of-scope association. Test withdrawal, replay,
+source loss, digest mismatch and scope isolation. Heimdall has no event-log purge
+policy; old events retain metadata and digests, never the recap bytes.
+
+The S1 conversation panel shows bound conversations with lifecycle and current
+available description or evidence gap. Skald owns the full archive window.
+Heimdall task summaries continue to derive from accepted task/checkpoint state.
 
 ### 7.10 Artifact lineage (built for digests; S1 for occurrences)
 
@@ -636,6 +692,16 @@ and WCU can refuse input outside the task's scope.
 `preservation` (selection, preview, request, receipts to dotprivate). Contracts v1 (no scope) and v2
 (frozen resource ids). Checkpoints require the observed previous head and the current task revision.
 Context is mandatory and deterministic; a budget too small for the mandatory part is an error.
+
+Manual preservation retains separate source, mirror, commit and remote observations;
+a local checkpoint is valid without publication. Session archives belong to Skald,
+not Heimdall or dotprivate. Selected portable exports and project documents may be
+preserved separately, but exports/groups do not become accepted tasks, artifacts
+or checkpoints without existing authorized commands. Neither daemon opens the
+other's database. Future automation pins the
+[dotprivate-owned selected-files contract](../../../dotprivate/docs/SELECTED-FILES-CONTRACT.md);
+this design adds no copy/push authority. Optional external reads retain original
+session identities or document file/version provenance and deduplicate copies.
 
 ### 9.2 Evidence (built; one P0 change)
 
@@ -782,6 +848,13 @@ snapshot, operation, viewport, herdr, session, application, preview, diff, valid
 `/client/intent` and `/client/report` (S2a, action grant), `/plan` (S4), `/notify/action` for HA
 callbacks (S4, HA token). No routes are renamed. No CORS, no remote listener.
 
+MCP response conformance (with the S1/S3 integration): every response carries a
+required `provenance` envelope with producer, authority class, scope and applicable
+source/target/index revisions; unknowns are explicit. Empty/error responses retain
+producer/scope provenance. Mixed content also carries per-item provenance so
+accepted Heimdall state and native source claims cannot be conflated. Add negative
+schema tests for omitted provenance; this is planned work, not a delivered API.
+
 ### 11.5 Notifier (S4)
 
 Classes: `needs-you` (agent.blocked, timer due, proposals ≥ 5, sensor.degraded once per day,
@@ -805,6 +878,16 @@ becomes `proposal.created{kind: assign, why}`; every ratification exports a labe
 0.7 on held-out real labels with abstention and false-positive rates reported. Only the assignment
 set has ground truth; the context set is evaluated by budget fit and by whether an agent's resume
 cites it, not by a held-out score that would have to be invented.
+
+Use Braid's current pinned exact reads, lexical retrieval, hard filters,
+revision-checked publication and context export. Heimdall owns its datasets and
+configuration independently of Skald and WCU. Native descriptions have distinct
+node types/provenance from accepted decisions/checkpoints; optional external
+sources do not cause full-archive mirroring. Enforce scope before traversal and
+expansion and retain both source and index revisions/digests. Missing/purged
+evidence is unavailable for retrieval. Braid absence preserves mandatory context,
+task operations, checkpoints and direct capture. Indexed consistency is not
+accepted-state authority; current Heimdall checks still apply.
 
 ## 12. Milestones (resequenced)
 
@@ -832,14 +915,23 @@ refuses the next report inside the transaction and the intent still reconciles; 
 sequence with no final report expires to `uncertain` with nothing repeated. WCU's ledger and
 traces, if present, appear as corroboration and never change a binding.
 
-**S1 — sensors (2).** `internal/surface` (observed surfaces); `/hook` receiver and `init --hooks`
+**S1 — sensors (2).** Pin the released Skald L0 capture packages and conformance
+fixtures (§7.1), started 2026-09-10; hooks remain Heimdall-owned. Implement §7.9’s
+metadata-only events, purgeable evidence table and separate hydration diagnostics.
+S1 does not wait for Skald’s daemon or TUI. `internal/surface` (observed surfaces); `/hook` receiver and `init --hooks`
 for Claude Code with the §7.1 mapping and binding order; `internal/conversation` and the §7.9
 pipeline; herdr observed path (§7.3); extension focus spans and capture popup; Hyprland attention
 (§7.6); `sensor.*`; TUI observed-surface and conversation panels; schema 22. Done when:
 `agent.blocked` from a real Claude Code session in herdr appears in `state` within 2 s and clears on
 the next tool use; a conversation bound by `HEIMDALL_TASK` ends with a `conversation.ended` carrying
 its transcript path; `state --active` shows the focused task from tab-level focus; replay golden
-byte-identical. S1b is the §7.5 spike and, if it passes, one adapter.
+byte-identical with sources absent. Native descriptions need no inference provider;
+no description bytes appear in events, receipts or replay state. Withdrawal purges
+cached/indexed bytes and replay cannot resurrect the withdrawn association. An
+ingested recap saying “done” leaves task status, contract, accepted decisions,
+checkpoint head and verification records unchanged. Test partial writes, duplicate
+revisions, source loss, same-ID resume, missing IDs, aliases/forks and digest
+mismatch. S1b is the §7.5 spike and, if it passes, one adapter.
 
 **S2b — startup and interruption recovery (2; roadmap W08; after S1).** Desktop, browser and
 herdr readiness checks with bounded waiting and manual override, duplicate-start suppression,
@@ -848,7 +940,9 @@ mid-`open` restarts into a recovery report with every unsettled action `uncertai
 restart, reboot and a controlled VM power loss each recover to a consistent `verify` on the
 reference machine. This two-weekend hardening slice does not block the S1 hook receiver or sensors.
 
-**S3 — Braid and MCP growth (1–2).** `internal/retrieval`; label export; classifier as a Braid
+**S3 — Braid and MCP growth (1–2).** Include §11.6 native-description provenance,
+revision/scope/withdrawal tests and required MCP provenance envelopes; Braid absence
+must preserve mandatory context and local task operations. `internal/retrieval`; label export; classifier as a Braid
 caller with the seed labels; typed checkpoint records for `heimdall_capture` and `heimdall_observe`
 (§9.4, schema 23); `internal/infer` for intent extraction. Done when: a capture why-line yields an
 `assign` proposal with Braid's `why`; an MCP capture outside the grant's subtree is refused inside
@@ -861,7 +955,9 @@ radiator/bar/walker in `contrib/`; schema 24. Done when: `plan` on `testdata/` m
 JSON under `--now`; one drift notification and one sound per stale task per day; the TUI plan view
 updates within 1 s of an event.
 
-**S5 — mail, Codex, Desktop, packaging (2).** Maildir then IMAP with `mail.*` checks and coverage;
+**S5 — mail, Codex, Desktop, packaging (2).** Reuse pinned capture adapters and
+verify each advertised capability against installed versions; inaccessible content
+and ephemeral recaps are not persisted summaries. Maildir then IMAP with `mail.*` checks and coverage;
 Codex hooks with probing and `notify` chaining; Claude Desktop Code-tab hook test and the Electron
 spike; systemd user unit; `export` on one box and `replay` on a fresh install reproduce `ls --json`;
 schema 25. Done when: a real sent mail matches a `mail.sent` step check within 60 s and its silence
@@ -874,7 +970,7 @@ Braid's F3 stays gated on labels from S1 and S3, not on a date.
 
 1. Copy this file and `diagrams/` to `docs/design/`; rewrite `README.md`'s roadmap table and
    `STATUS.md`'s open list from §12; move `IMPLEMENTATION-PLAN.md` and
-   `REVISED-ROADMAP-IMPLEMENTATION-PLAN.md` to `docs/design/history/`.
+   `REVISED-ROADMAP-IMPLEMENTATION-PLAN.md` to `docs/history/roadmaps/`.
 2. `internal/checks`: environment whitelist (§9.2); the self-test `test.exit` fixture.
 3. `internal/core`: check materialization (§9.3) with golden events for the derived binding,
    contract and evaluator; replay golden updated.
@@ -891,15 +987,19 @@ Binding:
 
 - Deterministic daemon: no model call without a configured provider; no agent, runner, dispatcher,
   lease or recovery loop inside Heimdall; a model-originated MCP call is a claim.
-- Nothing writes a projection directly; every state change is an event; replay golden runs on
-  every change.
+- Authoritative state changes are events; nothing directly edits those projections.
+  The §7.9 purgeable evidence-byte table is explicitly non-authoritative: ingest,
+  hydration and purge may update it without changing replayed state. Replay goldens
+  compare events and authoritative state; evidence presence is a diagnostic.
 - A sensor never transitions task state; an adapter's return value is never verification; a
   declared attachment is an override, not the primary binding path.
 - A marker bump adds its row to §5.1 in the same PR.
 - Grants are frozen (§9.5). Any new route is authenticated with an existing role.
 - No network call except configured adapters and loopback; secrets from environment variables.
 - Evaluators run with the §9.2 whitelist and nothing else; output digested, not stored.
-- Prompt text, mail bodies, transcripts and WCU frames do not enter the event log.
+- Prompt text, mail bodies, transcripts, native-description text and WCU frames
+  do not enter the event log, receipts or serialized replay state. §7.9 permits
+  bounded native-description bytes only in a purgeable evidence table.
 - Sensors fail loudly (`sensor.degraded`) and degrade to a lower tier; they never fabricate the
   tier they lost.
 - The daemon never edits `tasks.yaml` except to assign ids and, at P0, to record materialization
@@ -1026,7 +1126,7 @@ things, the tree's name stands and the S1 concept gets a qualified name.
 
 ## Appendix B — roadmap reconciliation
 
-The roadmap generated at `2f11175` (`docs/design/history/REVISED-ROADMAP-IMPLEMENTATION-PLAN.md`, `docs/BACKLOG.md`)
+The roadmap generated at `2f11175` (`docs/history/roadmaps/REVISED-ROADMAP-IMPLEMENTATION-PLAN.md`, `docs/BACKLOG.md`)
 is re-keyed to this document at P0. Keep the old ids in the history section of each file so
 commit messages stay resolvable. Dispositions:
 
@@ -1108,4 +1208,190 @@ acceptance pin recorded there; trace/ledger records remain corroboration only.
 S2a A01/A02 acceptance is complete at schema 21. Implementation and deployment
 limits are recorded in [S2A-IMPLEMENTATION.md](../S2A-IMPLEMENTATION.md); the
 original “as built” baseline above remains historical. The next slice is S1,
-reserved marker 22, and has not started.
+reserved marker 22; its independent identity foundation started on 2026-09-10.
+See [S1 implementation](../S1-IMPLEMENTATION.md).
+
+
+## S1 identity implementation clarifications (2026-09-10)
+
+The first S1 code is the pure `internal/surface.Identify` boundary from §5.3.
+The next increment connects browser inventory ingestion to version-1 surface
+events and adds the schema-22 catalog/container projection, as detailed below. Capture ingestion still requires the released
+Skald L0 pin; the inspected local contract explicitly remains pre-release.
+
+Identity normalization is lexical and performs no filesystem or network reads.
+Repository pointers require an absolute path with an exact `.git` component;
+a plain cwd does not prove a repository. Sensors must establish repository
+identity before supplying such a pointer. Native `herdr`, `maildir`, `imap` and
+artifact identifiers are opaque; URL fragment/query rules do not alter them.
+Artifact pointers carry the existing lowercase 64-hex content digest.
+
+For URLs, scheme/host are lowercase; fragment, case-sensitive `utm_*`, `fbclid`
+and `gclid` parameters and literal trailing path slashes are removed. Meaningful
+query order, duplicate keys and escaping are preserved; `%2F` is not a trailing
+path separator. A hostless root URL retains `/` to remain a valid locator.
+Credential-bearing URLs are rejected without including their locator in errors.
+Source retention policy remains the sensor's responsibility. These identities
+never confer ownership, completion evidence or action authority.
+
+
+## S1 browser observation implementation (2026-09-10)
+
+Schema 22 now adds `State.ObservedSurfaces` (content catalog) and
+`State.SurfaceContainers` (last browser occurrence per profile/epoch/tab).
+`BrowserSurfaceObservation` v1 carries the source profile, epoch, sequence,
+source observation time, tab/window locator, raw URL, title and content id.
+It has no task, desired-surface ownership or action-verification authority.
+The existing CLI `state` exposes these additive projections.
+
+Paired inventory transactions append `surface.observed`, `surface.opened`,
+`surface.closed` and `surface.changed` after the bounding snapshot or delta.
+Initial presence is `observed`; a new tab after a complete baseline is `opened`.
+Navigation between content identities closes the old content and opens the new
+content in the same transaction/container. Equivalent normalized URLs and title
+or placement changes use `changed`. Unchanged content, focus and load-only
+updates do not add surface events. Browser spans are now implemented by the extension increment below; compositor attention remains pending.
+
+Only tabs actually supplied by an inventory are positive observations. Closure
+requires a complete full inventory's absence, an explicit delta removal, or
+observed navigation. Partial inventories do not refresh inherited tabs or prove
+closure. Reconnect, unpair and epoch loss do not fabricate closure; container
+`present` describes its last recorded observation, not current source coverage.
+Consumers must still check pairing, current epoch and fresh sensor coverage.
+Old epoch records remain historical and are never ownership evidence.
+
+If an otherwise accepted inventory URL cannot be normalized, `surface.observed`
+records `gap: invalid_pointer` with no content id rather than rejecting the
+inventory or inventing a surface. Resolution recovery is another observation.
+Generic `sensor.degraded`/`sensor.recovered` delivery and compositor attention
+remain later S1 work. This diagnostic preserves existing browser inventory acceptance.
+
+The reducer verifies source/profile/epoch/sequence/times, observed tab metadata,
+content identity and occurrence transitions; hash collisions fail explicitly.
+Events, command receipt and projections commit or roll back together. Schema-21
+upgrade creates a rollback backup; legacy inventory events do not retroactively
+emit observations during replay. The compiled schema-21 binary refuses schema 22
+and opens its restored pre-upgrade backup. Full S1 acceptance is still pending;
+see [S1 implementation](../S1-IMPLEMENTATION.md) for tests and remaining work.
+
+
+## S1 browser attention implementation (2026-09-10)
+
+Extension 0.6.1 adds an in-memory focus tracker at inventory sampling resolution.
+The active tab in the focused window starts an interval; sampled blur, tab/window
+switch or raw-URL navigation closes it. Visits shorter than two seconds are
+omitted without crediting that time to another tab. Spans longer than a day are
+omitted. Reconnect, pause, worker restart, failed/partial collection, unsupported
+focused content and challenged readback reset the tracker without inventing a
+blur. No intervals are buffered offline or reconstructed across those gaps.
+This implements the 2 s attention debounce conservatively at the existing 2 s
+collection cycle, not at a finer event resolution than the inventory provides.
+
+A complete live inventory can carry at most one version-1 `focus_spans` entry:
+tab/window, raw pointer, source start/end times and `duration_s`. Ingress appends
+`surface.focused` with profile/epoch/connection/sequence and content identity in
+the same transaction, before occurrence changes. The reducer verifies the
+observed content/container, source boundaries, duration and blur/navigation,
+and refuses overlapping reports within a connection. The projection retains the
+last span per profile in `surface_focus_spans`; the event log retains history.
+These are sensor attention observations, never completion or action proof.
+
+`state --active [--json]` uses CLI-authenticated `GET /state?active=1` and the
+existing browser challenge/readback protocol. It waits at most four seconds for
+bounded observation demands, with no new action or grant route. Runtime monotonic
+leases are required; saved focus timestamps cannot become live focus after
+restart. Responses distinguish `active`, `unbound`, `ambiguous`, `unknown` and
+`none`, with tab-level source locators and explicit coverage gaps. A task is
+selected only from the active tab's exact recorded open ownership and current
+reviewed manifest/task revision; focus alone never binds it. Foreign tabs and
+legacy unscoped opens remain unbound. Multiple competing focus claims refuse
+selection. This increment is browser-only; Hyprland fallback remains pending.
+
+## S1 identity and browser observation clarifications (2026-09-10)
+
+A bare trailing `?` (an empty URL query) is normalized away. It is intentionally
+not a distinct observed-content identity from the same URL without a query.
+
+The `surface.observed` reducer validates positive browser observations against
+the merged profile projection, rather than the exact set of tabs supplied by a
+partial inventory. The browser producer emits positive observations only for
+supplied tabs; a follow-up may retain supplied tab IDs by sequence if reducer-side
+enforcement is required.
+
+Focused spans are tied to the connection that last observed their container and
+cannot use stale pre-reconnect content evidence. The retained span for a profile
+also rejects chronological overlap regardless of connection or epoch.
+
+## S1 Hyprland compositor attention implementation (2026-09-10)
+
+Hyprland socket2 `activewindowv2`, `workspace` and `workspacev2` now produce
+closed, sampled compositor window and compositor-workspace focus intervals. The
+observer keeps an interval only within one desktop source epoch, drops visits
+under two seconds or over one day, and discards open intervals on source loss,
+failure, restart or reconnection. Events carry the exact native window identity,
+retained class/title, qualified compositor workspace identity, source ordering,
+source times and explicit gaps; they never carry a task, ownership claim or tab.
+The reducer validates source-head/epoch provenance, strictly increasing source
+sequence and chronological non-overlap from the span itself; no compositor window
+inventory enters the event log. The bounded projection retains the latest interval
+per source epoch and per native window within the current epoch (at most 256). A paired, connected
+browser association suppresses its outer compositor window; without one every
+window is eligible. `state --active` still prefers fresh browser focus and uses
+a bounded compositor fallback only for exact current reviewed window ownership.
+
+## S1 conversation and description implementation (2026-09-10)
+
+S1.3 now supplies Heimdall-owned conversation lifecycle/projection/evidence APIs,
+with synthetic fixtures while the released Skald module pin remains blocked.
+`internal/conversation` is the pure types/validation boundary; store ingestion
+allocates ordinary 32-hex Heimdall IDs and verifies explicit current task revisions.
+A matching source/native ID start resumes the same ID. Source loss never ends it;
+30-minute inactivity is a read-time policy. No hooks, transcript parsing, agents,
+intent extraction, grants or write HTTP routes are added.
+
+The following are delivered additions to the §1.1 vocabulary and §5.1 event catalog:
+
+| Noun | Definition |
+| --- | --- |
+| Description evidence association | A conversation/source/native record revision scoped reference to purgeable retained bytes; availability and permanent withdrawal are replay metadata, never task authority. |
+
+| Subject | Verbs | Version | Payload / authority |
+| --- | --- | --- | --- |
+| `conversation` | `started` | 1 | ID, allowlisted kind, source key, native conversation ID, optional transcript/task reference, started time, adapter/contract versions, record revision and ordered source observation. Explicit binding only. |
+| `conversation` | `ended` | 1 | Conversation ID, transcript locator/digest, turn count, sorted artifact content digests, ended time and ordered source observation. Explicit source end only. |
+| `conversation` | `description_observed` | 1 | Conversation/source/record revision, eligible kind, versions, provenance, original/retained SHA-256, truncation/count, source/observation time, coverage, available/withdrawn. No description text. |
+
+Delivered §11.3 CLI and §11.4 route rows:
+
+| Interface | Availability | Behavior |
+| --- | --- | --- |
+| `conversations [TARGET] [--json]` | S1 delivered | Lists lifecycle, explicit binding, transcript reference and bounded current description display or evidence gap. Terminal controls/bidi are escaped. |
+| `GET /conversations?target=TARGET` | CLI role only | Read-only; normal loopback host/bearer/no-Origin guard. Browser and scoped client credentials have no description access. No write counterpart. |
+
+Schema remains 22. `State.Conversations` holds only lifecycle and metadata, current
+per-record heads, a 32-entry history-reference window and permanent tombstones.
+The two SQLite conversation evidence/association tables are disposable projections
+created idempotently at open, not migration prerequisites. Replay rebuilds the
+association index and honors withdrawal without requiring retained text. Backup
+copies may include cached bytes; existing backups are not retroactively purged.
+
+`RecordConversationStarted`, `RecordConversationEnded`, `RecordDescription` and
+`WithdrawDescription` commit event, receipt, metadata and supplied bytes together.
+Epoch/sequence and source/observation times are monotonic per conversation; strict
+JSON reducers verify actor, deterministic command ID, source and entity scope.
+Native record revisions are `sha256:<hex>`; content/locator digests are 64-hex.
+Source identity uses independently implemented published v1 length-prefix encoding.
+Configured namespaces/logical streams are opaque and stable; contract major 1 is
+supported. No Skald source is imported, copied or vendored.
+
+Only title/recap/summary/note native bytes are eligible. Normalization changes CRLF
+and trailing whitespace/newlines only, then rune-safely caps at 4,096 bytes. Both
+native and retained digests survive truncation. Withdrawal of a current native
+record revision purges shared bytes and permanently blocks that association.
+Shared available associations may hydrate independently after scope revalidation.
+`Hydrate(ctx, resolver, limit)` is explicit (1--128), runs resolver calls outside
+the store lock, verifies revision/digests/retention and rechecks withdrawal inside
+a transaction. Its diagnostics are disposable SQL metadata; it changes neither
+events nor model state. Superseded record revisions are not exposed or hydrated.
+Unknown source times and historical out-of-order ingestion remain adapter gaps
+for S1.2. See [the delivered guide](../guides/CONVERSATIONS.md).

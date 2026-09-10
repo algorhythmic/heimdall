@@ -1,4 +1,6 @@
 import {Outbox} from './outbox.js';
+import {FocusTracker} from './focus.js';
+const focusTracker=new FocusTracker();
 import {readback,retainedResults} from './readback.js';
 import {retainedPairings} from './pairing.js';
 let inventoryGeneration=0;
@@ -21,10 +23,11 @@ function rpc(body){
  });
 }
 async function connect(){
+ focusTracker.reset();
  connection=id();port=chrome.runtime.connectNative('dev.heimdall.browser');
  const current=port;
  port.onMessage.addListener(reply=>{const p=pending.get(reply.id);if(p){pending.delete(reply.id);p.resolve(reply);}});
- port.onDisconnect.addListener(()=>{const reason=chrome.runtime.lastError?.message??'Native host disconnected';if(port===current)port=undefined;paired=false;for(const p of pending.values())p.reject(Error(reason));pending.clear();status({connected:false,detail:reason});});
+ port.onDisconnect.addListener(()=>{focusTracker.reset();const reason=chrome.runtime.lastError?.message??'Native host disconnected';if(port===current)port=undefined;paired=false;for(const p of pending.values())p.reject(Error(reason));pending.clear();status({connected:false,detail:reason});});
  const reply=await rpc({type:'hello',label:'Browser profile',extension_version:chrome.runtime.getManifest().version,action_protocol:1,verification_protocol:1,pairing_protocol:1,recovery_protocol:1,extension_id:chrome.runtime.id});paired=reply.paired;
  const s=await chrome.storage.session.get(['sequence']);await chrome.storage.session.set({sequence:Math.max(s.sequence??0,reply.last_sequence??0)});
  dirty=true;baseline=null;
@@ -32,15 +35,17 @@ async function connect(){
 async function enqueue(body){const {outboxOrder=0}=await chrome.storage.session.get('outboxOrder');await chrome.storage.session.set({outboxOrder:outboxOrder+1});const dropped=await queue.put({id:id(),epoch,created:Date.now(),order:outboxOrder+1,body});if(dropped)await chrome.storage.local.set({gap:'Outbox reached retention limit; some observations were dropped'});}
 async function collect(paused){
  if(!paired||paused||(!dirty&&Date.now()-snapshotAt<86400000))return;dirty=false;
- try{const tabs=await chrome.tabs.query({});let focus=-1;try{const w=await chrome.windows.getLastFocused();if(w.focused&&!w.incognito)focus=w.id;}catch{}
+ try{const tabs=await chrome.tabs.query({});let focus=-1,focusKnown=true;try{const w=await chrome.windows.getLastFocused();if(w.focused&&!w.incognito)focus=w.id;}catch{focusKnown=false;}
   const {sequence=0}=await chrome.storage.session.get(['sequence']);await chrome.storage.session.set({sequence:sequence+1});
   const current=inventory(tabs,focus);
+  if(!focusKnown)current.complete=false;
+  const focusSpans=focusTracker.observe(current);
   const snapshot=!baseline||!baseline.complete||!current.complete||Date.now()-snapshotAt>=86400000;
   const body=snapshot?current:inventoryDelta(baseline,current,baseSequence);
   if(!snapshot&&!body.tabs.length&&!body.removed.length&&current.focused_window===baseline.focused_window&&current.complete===baseline.complete)return;
-  await rpc({...body,seq:sequence+1});
+  await rpc({...body,seq:sequence+1,...(focusSpans.length?{focus_spans:focusSpans}:{})});
   baseline=current;baseSequence=sequence+1;if(snapshot)snapshotAt=Date.now();
- }catch(e){dirty=true;baseline=null;throw e;}
+ }catch(e){focusTracker.reset();dirty=true;baseline=null;throw e;}
 }
 // Retain offline observations in the bounded outbox. Reconnect replays these
 // full censuses through the daemon's delta reducer before taking a live snapshot.
@@ -63,8 +68,8 @@ async function cycle(){
   let poll=await rpc({type:'poll'});const wasPaired=paired;paired=poll.paired;authorized=paired;await chrome.storage.session.set({authorized});if(paired&&!wasPaired){dirty=true;baseline=null;}
   failures=0;nextAttempt=0;
   await status({connected:true,paused,detail:paired?'Connected':'Pair this profile using the local CLI'});
-  if(!paired){await queue.clear();return;}
-  if(paused){await queue.clear();for(const op of poll.commands??[])await rpc({type:'command_result',result:await actions.execute(op,true)});for(const c of poll.continuations??[])await rpc({type:'command_result',result:await actions.pairing.continue(c,true)});return;}
+  if(!paired){focusTracker.reset();await queue.clear();return;}
+  if(paused){focusTracker.reset();await queue.clear();for(const op of poll.commands??[])await rpc({type:'command_result',result:await actions.execute(op,true)});for(const c of poll.continuations??[])await rpc({type:'command_result',result:await actions.pairing.continue(c,true)});return;}
   for(const row of (await queue.all()).sort((a,b)=>(a.order??a.created)-(b.order??b.created))){
     if(row.epoch!==epoch||Date.now()-row.created>86400000){await queue.remove(row.id);await chrome.storage.local.set({gap:'Older browser-session observations discarded'});continue;}
     try{await rpc(row.body);await queue.remove(row.id);
@@ -84,6 +89,7 @@ async function cycle(){
    }
    poll=await rpc({type:'poll'});
    if(poll.challenge){
+    focusTracker.reset();
     const body=await readback(chrome,poll.challenge,()=>inventoryGeneration);
     const {sequence=0}=await chrome.storage.session.get('sequence');body.seq=sequence+1;await chrome.storage.session.set({sequence:body.seq});
     try{await rpc(body);baseline={tabs:body.tabs,focused_window:body.focused_window,complete:body.complete};baseSequence=body.seq;}catch(e){if(!/stale_challenge/.test(e.message))throw e;}
@@ -97,7 +103,7 @@ async function cycle(){
 }
 for(const event of [chrome.tabs.onCreated,chrome.tabs.onReplaced,chrome.tabs.onUpdated,chrome.tabs.onRemoved,chrome.tabs.onActivated,chrome.tabs.onAttached,chrome.tabs.onDetached,chrome.windows.onFocusChanged])event.addListener(()=>{inventoryGeneration++;dirty=true;});
 chrome.tabs.onRemoved.addListener(async tabId=>{await ready;const {owners={}}=await chrome.storage.session.get('owners');delete owners[tabId];await chrome.storage.session.set({owners});});
-chrome.storage.onChanged.addListener((changes,area)=>{if(area==='local'&&changes.paused){dirty=true;cycle();}});
+chrome.storage.onChanged.addListener((changes,area)=>{if(area==='local'&&changes.paused){focusTracker.reset();dirty=true;cycle();}});
 chrome.alarms.onAlarm.addListener(()=>cycle());
 chrome.alarms.create('reconnect',{periodInMinutes:0.5});
 setInterval(cycle,2000);cycle();

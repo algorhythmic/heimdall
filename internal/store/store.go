@@ -21,7 +21,7 @@ import (
 
 var ErrConflict = errors.New("revision or idempotency conflict")
 
-const SchemaVersion = 21
+const SchemaVersion = 22
 
 type Event struct {
 	ID        int64           `json:"id"`
@@ -39,6 +39,7 @@ type Pending struct {
 	Payload                 any
 }
 type Change struct {
+	descriptionBytes map[string][]byte
 	SnapshotPayloads map[string]json.RawMessage
 	Revision         int64
 	Events           []Pending
@@ -116,7 +117,7 @@ func Open(dir string) (*Store, error) {
  CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,event_version INTEGER NOT NULL,ts TEXT NOT NULL,subject TEXT NOT NULL,verb TEXT NOT NULL,actor TEXT NOT NULL,entity_id TEXT NOT NULL,command_id TEXT NOT NULL,payload TEXT NOT NULL CHECK(json_valid(payload)),idempotency_key TEXT NOT NULL UNIQUE);
  CREATE TABLE IF NOT EXISTS projection_state(id INTEGER PRIMARY KEY CHECK(id=1),body TEXT NOT NULL CHECK(json_valid(body)));
  CREATE TABLE IF NOT EXISTS commands(id TEXT PRIMARY KEY,request_hash TEXT NOT NULL,result TEXT NOT NULL);
- ` + snapshotTables + `CREATE INDEX IF NOT EXISTS events_subject_entity ON events(subject,entity_id,id); PRAGMA user_version=21;`)
+ ` + snapshotTables + conversationTables + `CREATE INDEX IF NOT EXISTS events_subject_entity ON events(subject,entity_id,id); PRAGMA user_version=22;`)
 	if err != nil {
 		s.Close()
 		return nil, err
@@ -222,6 +223,9 @@ func (s *Store) TransactChecked(ctx context.Context, id, actor string, request [
 		if err = applySnapshotSQL(ctx, tx, st, e, change.SnapshotPayloads, false); err != nil {
 			return nil, err
 		}
+		if err = applyConversationSQL(ctx, tx, e, change.descriptionBytes); err != nil {
+			return nil, err
+		}
 		if e.Subject == "snapshot" && e.Verb == "captured" && s.testSnapshotHook != nil {
 			s.testSnapshotHook("payload")
 		}
@@ -291,6 +295,34 @@ func Apply(st *model.State, e Event) error {
 		return fmt.Errorf("unsupported event version %d at %d", e.Version, e.ID)
 	}
 	switch e.Subject + "." + e.Verb {
+	case "conversation.started", "conversation.ended", "conversation.description_observed":
+		if err := applyConversation(st, e); err != nil {
+			return err
+		}
+	case "workspace.focused":
+		if err := applyCompositorWorkspaceFocus(st, e); err != nil {
+			return err
+		}
+	case "surface.focused":
+		var source struct {
+			SourceID string `json:"source_id"`
+		}
+		if err := json.Unmarshal(e.Payload, &source); err != nil {
+			return err
+		}
+		if source.SourceID != "" {
+			if err := applyCompositorSurfaceFocus(st, e); err != nil {
+				return err
+			}
+			break
+		}
+		if err := applySurfaceFocus(st, e); err != nil {
+			return err
+		}
+	case "surface.observed", "surface.opened", "surface.closed", "surface.changed":
+		if err := applyObservedSurface(st, e); err != nil {
+			return err
+		}
 	case "application.reviewed":
 		if err := applyApplication(st, e); err != nil {
 			return err
@@ -510,6 +542,9 @@ func (s *Store) Replay(ctx context.Context) (model.State, error) {
 	if _, err = tx.ExecContext(ctx, "DELETE FROM workspace_snapshots"); err != nil {
 		return empty, err
 	}
+	if _, err = tx.ExecContext(ctx, "DELETE FROM conversation_description_associations"); err != nil {
+		return empty, err
+	}
 	st := model.Empty()
 	// Validate/reduce entirely before replacing either projection.
 	for _, e := range events {
@@ -522,6 +557,9 @@ func (s *Store) Replay(ctx context.Context) (model.State, error) {
 			return empty, err
 		}
 		if err = applySnapshotSQL(ctx, tx, st, e, nil, true); err != nil {
+			return empty, err
+		}
+		if err = applyConversationSQL(ctx, tx, e, nil); err != nil {
 			return empty, err
 		}
 	}

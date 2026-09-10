@@ -4,8 +4,10 @@ import (
 	"bufio"
 	"context"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"heimdall/internal/model"
+	"log"
 	"reflect"
 	"strings"
 	"sync"
@@ -39,6 +41,9 @@ type Observer struct {
 	dirtyAt, lastEvent, lastAttempt time.Time
 	broken                          bool
 	status                          Status
+	Attention                       func(AttentionObservation) error
+	surfaceFocus                    *openSurfaceFocus
+	workspaceFocus                  *openWorkspaceFocus
 }
 
 func New() *Observer {
@@ -60,6 +65,7 @@ func (o *Observer) Configure(s model.DesktopSource) {
 	o.source = s
 	o.broken = false
 	o.sequence = 0
+	o.resetAttentionLocked()
 	o.dirtyAt = time.Time{}
 	o.lastAttempt = time.Time{}
 	o.status = Status{Version: 1, Selected: s.Active, Issue: "awaiting_inventory", Coverage: "double_inventory_with_buffered_unsequenced_events"}
@@ -103,12 +109,19 @@ func (o *Observer) frames(c Connection, generation uint64) {
 			return
 		}
 		o.sequence++
+		observation := o.attentionFrameLocked(line[:at], line[at+2:], int64(o.sequence), time.Now().UTC())
+		sink := o.Attention
 		o.status.Fresh = false
 		if o.dirtyAt.IsZero() {
 			o.dirtyAt = time.Now()
 		}
 		o.lastEvent = time.Now()
 		o.mu.Unlock()
+		if observation != nil && sink != nil {
+			if err := sink(*observation); err != nil && !errors.Is(err, ErrAttentionExcluded) {
+				log.Printf("hyprland attention sink: %v", err)
+			}
+		}
 	}
 	o.mu.Lock()
 	defer o.mu.Unlock()
@@ -116,7 +129,9 @@ func (o *Observer) frames(c Connection, generation uint64) {
 		return
 	}
 	o.broken = true
+	o.resetAttentionLocked()
 	o.status.Fresh = false
+	o.resetAttentionLocked()
 	o.status.Issue = "event_gap"
 	o.status.Gaps++
 }
@@ -137,6 +152,7 @@ func (o *Observer) connect(ctx context.Context) error {
 		o.conn.Close()
 		o.conn = nil
 	}
+	o.resetAttentionLocked()
 	o.generation++
 	generation := o.generation
 	o.mu.Unlock()
@@ -169,6 +185,7 @@ func (o *Observer) connect(ctx context.Context) error {
 	if err != nil || json.Unmarshal(b, &version) != nil || version.Version != "0.56.2" || version.Dirty {
 		o.mu.Lock()
 		o.broken = true
+		o.resetAttentionLocked()
 		o.mu.Unlock()
 		c.Close()
 		return fmt.Errorf("unsupported_compositor_version")

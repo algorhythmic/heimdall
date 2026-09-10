@@ -1,0 +1,140 @@
+{
+  "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa": {
+    "version": 1,
+    "id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+    "kind": "claude_code",
+    "source": {
+      "adapter_id": "synthetic-v1",
+      "contract_major": 1,
+      "contract_minor": 0,
+      "namespace": "fixture:conversation",
+      "logical_stream": "primary"
+    },
+    "native_conversation_id": "golden-native",
+    "started_at": "2026-09-10T12:00:01Z",
+    "adapter_version": "fixture-v1",
+    "contract_version": {
+      "major": 1,
+      "minor": 0
+    },
+    "record_key": "start-golden",
+    "source_revision": "sha256:e970aec63524a75a078b0f64011fb8a2a91c8f30b574b3de79d833265225c576",
+    "epoch": 0,
+    "sequence": 1,
+    "source_time": "2026-09-10T12:00:01Z",
+    "observed_at": "2026-09-10T12:00:01Z",
+    "transcript_ref": {
+      "locator": "/configured/fixture.jsonl",
+      "digest": "9b8d48294875075102655633843e189b127fad112b939351ffcc3b68f55b8a34"
+    },
+    "first_started_at": "2026-09-10T12:00:01Z",
+    "resume_count": 0,
+    "ended": {
+      "version": 1,
+      "conversation_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "transcript_ref": {
+        "locator": "/configured/fixture.jsonl",
+        "digest": "9b8d48294875075102655633843e189b127fad112b939351ffcc3b68f55b8a34"
+      },
+      "turns": 2,
+      "artifacts": [],
+      "ended_at": "2026-09-10T12:00:03Z",
+      "record_key": "end-golden",
+      "source_revision": "sha256:ee6cd61ec178c884bbd94c9b126f72644072203f3b4a0a5b7988a6ebd7a948ab",
+      "epoch": 0,
+      "sequence": 3,
+      "source_time": "2026-09-10T12:00:03Z",
+      "observed_at": "2026-09-10T12:00:03Z"
+    },
+    "last_observation": {
+      "record_key": "end-golden",
+      "source_revision": "sha256:ee6cd61ec178c884bbd94c9b126f72644072203f3b4a0a5b7988a6ebd7a948ab",
+      "epoch": 0,
+      "sequence": 3,
+      "source_time": "2026-09-10T12:00:03Z",
+      "observed_at": "2026-09-10T12:00:03Z"
+    },
+    "current_description": {
+      "version": 1,
+      "conversation_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "source": {
+        "adapter_id": "synthetic-v1",
+        "contract_major": 1,
+        "contract_minor": 0,
+        "namespace": "fixture:conversation",
+        "logical_stream": "primary"
+      },
+      "kind": "recap",
+      "adapter_version": "fixture-v1",
+      "contract_version": {
+        "major": 1,
+        "minor": 0
+      },
+      "provenance": {
+        "kind": "native",
+        "producer": "fixture"
+      },
+      "original_digest": "d9482497c71f1e7dd2c560be821e85a93bc06d1ca228e10d4a0690fd5a46ab8a",
+      "retained_digest": "b676192082f1088cf024e732746391aee01511db43359c94794836631eb20fc9",
+      "truncated": false,
+      "retained_bytes": 21,
+      "coverage": {
+        "kind": "unknown"
+      },
+      "availability": "available",
+      "record_key": "recap-golden",
+      "source_revision": "sha256:c1f1edfa06f840cecc8d18b130e31067ce7ca0e4538f141009e1c9fa950bc174",
+      "epoch": 0,
+      "sequence": 2,
+      "source_time": "2026-09-10T12:00:02Z",
+      "observed_at": "2026-09-10T12:00:02Z"
+    },
+    "description_heads": {
+      "recap-golden": {
+        "version": 1,
+        "conversation_id": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+        "source": {
+          "adapter_id": "synthetic-v1",
+          "contract_major": 1,
+          "contract_minor": 0,
+          "namespace": "fixture:conversation",
+          "logical_stream": "primary"
+        },
+        "kind": "recap",
+        "adapter_version": "fixture-v1",
+        "contract_version": {
+          "major": 1,
+          "minor": 0
+        },
+        "provenance": {
+          "kind": "native",
+          "producer": "fixture"
+        },
+        "original_digest": "d9482497c71f1e7dd2c560be821e85a93bc06d1ca228e10d4a0690fd5a46ab8a",
+        "retained_digest": "b676192082f1088cf024e732746391aee01511db43359c94794836631eb20fc9",
+        "truncated": false,
+        "retained_bytes": 21,
+        "coverage": {
+          "kind": "unknown"
+        },
+        "availability": "available",
+        "record_key": "recap-golden",
+        "source_revision": "sha256:c1f1edfa06f840cecc8d18b130e31067ce7ca0e4538f141009e1c9fa950bc174",
+        "epoch": 0,
+        "sequence": 2,
+        "source_time": "2026-09-10T12:00:02Z",
+        "observed_at": "2026-09-10T12:00:02Z"
+      }
+    },
+    "description_history": [
+      {
+        "association": "sr1:heimdall-description:576ce44ebec0fcbfb2c4720614f2304e9ae00b4ab6957e178d352795d12611b4",
+        "record_key": "recap-golden",
+        "source_revision": "sha256:c1f1edfa06f840cecc8d18b130e31067ce7ca0e4538f141009e1c9fa950bc174",
+        "retained_digest": "b676192082f1088cf024e732746391aee01511db43359c94794836631eb20fc9",
+        "availability": "available"
+      }
+    ],
+    "withdrawn": {}
+  }
+}

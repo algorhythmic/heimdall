@@ -120,6 +120,6 @@ asserted by `full`. No automatic layout-restoration dispatcher is added in W07.
 
 The TUI workspace dialog (`p`, then `r` to refresh) includes the fresh aggregate
 and per-surface limitations. CLI operation verification gives the more detailed
-close/swap/action-specific view. See [application recipes](APPLICATION-RECOVERY.md)
+close/swap/action-specific view. See [application recipes](guides/APPLICATION-RECOVERY.md)
 and [verification evidence](VERIFICATION.md). W08 startup/readiness and controlled
 compositor/reboot/VM interruption acceptance remain separate work.

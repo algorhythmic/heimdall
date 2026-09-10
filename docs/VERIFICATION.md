@@ -1,4 +1,8 @@
-# Verification — workspace continuity and reviewed application recovery, schema 20
+# Verification history
+
+Dated acceptance records follow. Current schema is 21; see [S2a acceptance](S2A-IMPLEMENTATION.md)
+and [P0 gates](P0-VERIFICATION.md). The schema-20 W07 results below remain historical
+evidence for that run, not the current version or a fresh test run.
 
 ## W07 fresh recovery verification — 2026-09-09
 
@@ -32,7 +36,7 @@ These checks establish W06's supported adapter boundary, not full recovery.
 Herdr attachment rendering, editor buffer/cursor readback, complete membership
 and display placement reports remain W07. Browser cross-epoch adoption requires
 explicit review; reboot, compositor interruption and controlled VM power loss
-remain W08. See [application recovery](APPLICATION-RECOVERY.md).
+remain W08. See [application recovery](guides/APPLICATION-RECOVERY.md).
 
 Earlier sections below retain their original milestone scope and artifact versions.
 
@@ -47,7 +51,7 @@ Earlier sections below retain their original milestone scope and artifact versio
 - Actual schema-17 executable upgrade/refusal/pre-schema-18 rollback and original scoped-grant behavior pass in `.tools/continuity-test-u1DJet`. Preview regression passes in `.tools/preview-test-pPqKTO`; TUI and real-PTY regression pass in `.tools/tui-test-QjS8im`. Old matched browser outcomes gain no native ownership during migration.
 - Final Linux SHA-256: `75b12709d2c83e28e3c4205808584f75e2c8dc8f3d23de3c3902546c37ad3a1e`; Windows: `50c64d24c3fc649718550590b1eb95284c175ce4487f5b7f387cc90e247c6356`; extension 0.5.0 ZIP: `d6d3ccb62212387755deba24fbca5d3b70de8c413c3f53d56dd4e43d91ef03f8`. The package contains 14 runtime files with the same extension development ID. The preceding C13 browser verification commit passed both published CI jobs ([run 34344235106](https://github.com/algorhythmic/heimdall/actions/runs/34344235106)). CI adds the synthetic-compositor/native-browser pairing scenario on Linux.
 
-This delivers C13's Linux association boundary. W05–W07 still need journaled workspace recovery, reviewed application recipes and fresh membership/attachment checks. Browser reboot/adoption, Windows/Edge association, normal-profile deployment and VM power-loss acceptance are not claimed. See [browser pairing](BROWSER-PAIRING.md).
+This delivers C13's Linux association boundary. W05–W07 still need journaled workspace recovery, reviewed application recipes and fresh membership/attachment checks. Browser reboot/adoption, Windows/Edge association, normal-profile deployment and VM power-loss acceptance are not claimed. See [browser pairing](guides/BROWSER-PAIRING.md).
 
 ## C13 browser verification slice — 2026-09-09
 
@@ -60,7 +64,7 @@ This delivers C13's Linux association boundary. W05–W07 still need journaled w
 - Actual schema-16 binary upgrade/refusal/pre-schema-17 rollback passes in `.tools/continuity-test-HZekjt`. The final compiled action compatibility/restart/backup check passes in `.tools/actions-test-glZ0fK`; TUI/real-PTY regression passes in `.tools/tui-test-WCX6Xk`. `testdata/browser-verification` retains synthetic schema-16/schema-17 SQL and native-run golden events. Earlier action receipts and unverified success are preserved.
 - Extension 0.4.0 retains the development ID and packages both runtime protocol modules; ZIP SHA-256: `7e84f9185c1b4abe2168a78bedf7b313f37b4ca8e31125f54d46349b49b97f31`. C12 commit `3641683` passed both published CI jobs ([run 34340259556](https://github.com/algorhythmic/heimdall/actions/runs/34340259556)). CI now includes strict TypeScript compilation on both platforms and actual isolated native-browser acceptance on Linux.
 
-This completes C13's browser API slice. Browser-to-Hyprland nonce association remains the next integration gate; normal-profile deployment, actual Windows/Edge registration, browser/reboot adoption and complete workspace recovery are not claimed. See [browser verification](BROWSER-VERIFICATION.md).
+This completes C13's browser API slice. Browser-to-Hyprland nonce association remains the next integration gate; normal-profile deployment, actual Windows/Edge registration, browser/reboot adoption and complete workspace recovery are not claimed. See [browser verification](guides/BROWSER-VERIFICATION.md).
 
 
 ## C12 shared action journal — 2026-09-09
@@ -73,7 +77,7 @@ This completes C13's browser API slice. Browser-to-Hyprland nonce association re
 - Isolated real Chromium extension checks pass for open, inventory, navigation, focus, move, close, stale URLs, idempotence, IndexedDB and popup rendering. The worker integration separately exercises real browser APIs with compiled native framing through a discovery shim. These checks do not establish actual OS native-host registration or independent postconditions; those remain C13 gates. TypeScript declarations are supplied, but no TypeScript compiler check is claimed.
 - W04 preview regression passes in `.tools/preview-test-1s3yJG`; TUI/real-PTY regression passes in `.tools/tui-test-wweHiS`. W04 commit `b53887f` passed both published CI jobs ([run 34335427527](https://github.com/algorhythmic/heimdall/actions/runs/34335427527)). C12 CI includes the portable action smoke on both operating systems.
 
-See [shared action setup and boundaries](ACTIONS-SETUP.md). C13 must add challenged fresh readback and independent reconciliation before browser recovery can be reported as verified.
+See [shared action setup and boundaries](guides/ACTIONS-SETUP.md). C13 must add challenged fresh readback and independent reconciliation before browser recovery can be reported as verified.
 
 
 ## W04 scoped workspace preview — 2026-09-09
@@ -86,7 +90,7 @@ See [shared action setup and boundaries](ACTIONS-SETUP.md). C13 must add challen
 - TUI simulation and compiled PTY acceptance pass, including the new saved-point/autosave content, preserved capture preconditions and explicit confirmation, existing review/progress flows, resize and terminal restoration. No new native application movement, launch, close, reboot or VM acceptance is claimed.
 - Schema remains 15: no new event family or migration. Existing migration/replay/backup tests pass; the final binary is retained as `.tools/heimdall-schema15` for subsequent stage rollback checks. CI now includes the preview smoke on Linux and Windows; non-Linux checks report native coverage unavailable.
 
-See [workspace preview setup and boundaries](WORKSPACE-PREVIEW.md).
+See [workspace preview setup and boundaries](guides/WORKSPACE-PREVIEW.md).
 
 
 ## W03 durable snapshots — 2026-09-09
@@ -139,7 +143,7 @@ Current R0/T01–T03 and initial W01/T02/P01/P02/P03/P04 work was verified local
 - Neovim 0.12.5 with the installed lazy.nvim loader passes in `.tools/neovim-test-lURPwA`. Review launches a terminal job with the selected target and argv-only data-directory arguments; checkpoint conflict/restart, proposal inspection and bounded subprocess tests still pass. The editor harness stubs terminal launch; actual TUI input is covered by the separate PTY gate. No editor configuration or clipboard changed. All seven extension unit tests pass.
 - WCU inspected the actual compact TUI in an isolated Ghostty 1.3.1 window on Hyprland. The initial inherited `NO_COLOR=1` correctly disabled color; a separate preview with that variable unset rendered the intended amber/green/gray palette. WCU runtime `fb4ac4da6ab03192d99ca4b8e26963a3eb60e9f8e5748350adbc0badad1957ab`, contract `wcu-tools-2`, context schema 1; loaded skill SHA-256 `a09384f3c2baec4bf4e9a9053b5c131d3895babcece3cf9cefc2d94d6e25210e`, distinct from the published skill hash `b1bb77b49d09948340babaa9603962d27195eec86615728b26feede6e5c345bf`. No global desktop or terminal configuration changed. Native modal input was not claimed; wide layout and dialogs have simulation/PTY coverage.
 
-See [TUI setup](TUI-SETUP.md) and [design mapping](design/TUI.md). The reference's native bar, live agent telemetry, durable compositor snapshots and application recovery remain separate roadmap work. Earlier browser-GUI sections below record historical checks, not the current interface.
+See [TUI setup](guides/TUI-SETUP.md) and [design mapping](design/TUI.md). The reference's native bar, live agent telemetry, durable compositor snapshots and application recovery remain separate roadmap work. Earlier browser-GUI sections below record historical checks, not the current interface.
 
 ## P02 GUI review and Neovim handoff — 2026-09-08 Pacific / September 9 UTC
 
@@ -150,7 +154,7 @@ See [TUI setup](TUI-SETUP.md) and [design mapping](design/TUI.md). The reference
 - Neovim 0.12.5 acceptance and the installed lazy.nvim loader pass in `.tools/neovim-test-qIEVJb`. New checks cover read-only proposal inspection, escaped proposal text, delayed inspection after task switches and the explicitly enabled GUI handoff. Original checkpoint drafts, conflicts, restart retries and credential-free buffers/history still pass. Configuration/state/cache are isolated; clipboard and browser opening are stubbed, and plugin installation/update is disabled. No global editor configuration changed and no fresh native-editor visual inspection is claimed.
 - Compiled affected regressions pass: CLI progress (`.tools/progress-test-IVazJD`), evaluator evidence (`.tools/evidence-test-B8d0Cp`) and existing Chromium completion review (`.tools/gui-test-RP0bhn`). CI now runs the planning-review browser gate alongside the existing GUI gate.
 
-Use `heimdall ui ROOT_TASK --progress-review` or `:HeimdallProgressReview` to enable planning review; `:HeimdallProgress [ID]` inspects a proposal. See [progress setup](PROGRESS-SETUP.md) for scope, retries and schema-11 recovery. GUI proposal authoring, native editor review forms, scoped agent proposal-write grants and file preservation remain open.
+Use `heimdall ui ROOT_TASK --progress-review` or `:HeimdallProgressReview` to enable planning review; `:HeimdallProgress [ID]` inspects a proposal. See [progress setup](guides/PROGRESS-SETUP.md) for scope, retries and schema-11 recovery. GUI proposal authoring, native editor review forms, scoped agent proposal-write grants and file preservation remain open.
 
 ## P02 CLI progress/decision review — 2026-09-08 Pacific / September 9 UTC
 
@@ -162,7 +166,7 @@ Use `heimdall ui ROOT_TASK --progress-review` or `:HeimdallProgressReview` to en
 - Affected compiled regressions pass: artifacts (`.tools/artifact-test-1NPFMc`), resume (`.tools/resume-test-dVS4Gp`), workspace (`.tools/workspace-test-0xdzjF`), evidence (`.tools/evidence-test-Sr2oWQ`), MCP (`.tools/mcp-test-5Rr8pJ`) and existing Chromium GUI acceptance (`.tools/gui-test-p6HzfD`). Scoped feed tests detect progress events without leaking foreign-target activity. No TypeScript/assets changed or new GUI review controls were delivered; no fresh WCU or installed-editor inspection is claimed.
 - Broadening race checks exposed the existing subprocess evaluator fixture's one-second successful-exit timeout: the race runtime waits on exit, and the deliberately minimal child environment omits `GORACE`. The fixture now allows five seconds for non-timeout cases and keeps one second for the intentional sleep timeout. Production evaluator timeouts and environment are unchanged; the full affected race suite passes after this test-only correction.
 
-Usage is in [progress setup](PROGRESS-SETUP.md). Review observations are bounded and do not lock the filesystem. Artifact acceptance retains historical identity, not file contents. GUI/editor review controls, agent proposal-write grants, file preservation, workflow timing measurements and workspace recovery remain open.
+Usage is in [progress setup](guides/PROGRESS-SETUP.md). Review observations are bounded and do not lock the filesystem. Artifact acceptance retains historical identity, not file contents. GUI/editor review controls, agent proposal-write grants, file preservation, workflow timing measurements and workspace recovery remain open.
 
 ## Herdr socket replacement fix — 2026-09-08 Pacific / September 9 UTC
 
@@ -170,7 +174,7 @@ The first schema-9 publication [failed on Ubuntu](https://github.com/algorhythmi
 
 The source fingerprint now includes the socket inode's full change timestamp, with a new fingerprint domain. The same identity is compared before/after connection. A deterministic reused-inode regression fails against the old calculation and passes with the fix; ordinary access-time changes remain irrelevant. Both it and the original real socket-replacement test pass 100 repetitions. The full Go suite, vet, Linux build and Herdr/workspace race checks pass. Installed Herdr 0.8.2/protocol-20 acceptance passes in `.tools/herdr-test-NBuIeR`, including pane moves, metadata readback/expiry, server replacement, explicit rebinding, exact retries and inert replay.
 
-Pre-fix Herdr bindings require explicit live rebinding. Stored records and receipts remain unchanged and replayable under schema 9; no user configuration or database was migrated during validation. See [Herdr setup](HERDR-SETUP.md) for reconciliation commands.
+Pre-fix Herdr bindings require explicit live rebinding. Stored records and receipts remain unchanged and replayable under schema 9; no user configuration or database was migrated during validation. See [Herdr setup](guides/HERDR-SETUP.md) for reconciliation commands.
 
 ## P01 local artifact versions — 2026-09-08 Pacific / September 9 UTC
 
@@ -192,7 +196,7 @@ node scripts/continuity-smoke.cjs /path/to/heimdall-schema8 --legacy-continuity 
 HEIMDALL_LAZY_PATH=/path/to/lazy.nvim node scripts/neovim-smoke.cjs
 ```
 
-See [artifact setup](ARTIFACT-SETUP.md) for commands, observation bounds, version compatibility and backup recovery.
+See [artifact setup](guides/ARTIFACT-SETUP.md) for commands, observation bounds, version compatibility and backup recovery.
 
 ## T03 Neovim integration — 2026-09-08 Pacific / September 9 UTC
 
@@ -211,7 +215,7 @@ node scripts/neovim-smoke.cjs
 HEIMDALL_LAZY_PATH=/path/to/lazy.nvim node scripts/neovim-smoke.cjs
 ```
 
-See [Neovim setup](NEOVIM-SETUP.md) for commands, clipboard handoff and retained-draft recovery. User workflow timing, broader editor-configuration acceptance, P01 artifact versions and workspace recovery remain open.
+See [Neovim setup](guides/NEOVIM-SETUP.md) for commands, clipboard handoff and retained-draft recovery. User workflow timing, broader editor-configuration acceptance, P01 artifact versions and workspace recovery remain open.
 
 ## T02 local Herdr integration — 2026-09-08 Pacific / September 9 UTC
 
@@ -241,7 +245,7 @@ node scripts/continuity-smoke.cjs /path/to/heimdall-0.7.0 --legacy-continuity --
 node scripts/continuity-smoke.cjs /path/to/heimdall-w01-schema7 --legacy-continuity --legacy-grants
 ```
 
-See [Herdr setup](HERDR-SETUP.md) for exact selectors, migration/rollback and the current version/platform limits. T03 editor commands, observed workspace snapshots and recovery remain open. Earlier milestone sections below retain their original implementation and acceptance scope.
+See [Herdr setup](guides/HERDR-SETUP.md) for exact selectors, migration/rollback and the current version/platform limits. T03 editor commands, observed workspace snapshots and recovery remain open. Earlier milestone sections below retain their original implementation and acceptance scope.
 
 ## W01 identity foundation — 2026-09-08
 
@@ -298,7 +302,7 @@ Build the UI and install Playwright Chromium using the README instructions befor
 
 - Full Go tests, `go vet ./...`, TypeScript compilation, and Windows/Linux-amd64 CGO-disabled builds pass. Database schema remains 6. No race-detector or Linux desktop acceptance is claimed.
 - Go GUI tests cover single-use bootstrap, HttpOnly/Strict cookies, unauthenticated/cross-origin/missing-CSRF refusal, subtree isolation, cursor scope/expiry, exact completion retries, logout/revoked retries, and checkpoint/evidence feed changes without a document revision change.
-- The final compiled Chromium smoke passed in `.tools/gui-test-FbiGpx`: real artifact evidence and accepted continuity context, isolated task scope, literal untrusted title, keyboard search, desktop 1440px/mobile 390px layouts, explicit completion review, logout and code replay denial. Both screenshots were visually inspected; the synthetic desktop capture is retained in [GUI setup](GUI-SETUP.md). All test processes closed.
+- The final compiled Chromium smoke passed in `.tools/gui-test-FbiGpx`: real artifact evidence and accepted continuity context, isolated task scope, literal untrusted title, keyboard search, desktop 1440px/mobile 390px layouts, explicit completion review, logout and code replay denial. Both screenshots were visually inspected; the synthetic desktop capture is retained in [GUI setup](history/deprecated/GUI-SETUP.md). All test processes closed.
 - The final compiled evidence regression also passed in `.tools/evidence-test-c9HwxK`, including live stale-input denial, exact retry without test reexecution, invalidation/supersession, replay/restart and explicit reevaluation/ratification.
 - CI now builds TypeScript and checks generated JavaScript on both platforms and runs the compiled Chromium GUI smoke on Windows. Remote results for this GUI checkpoint must be checked separately; the evidence-only run below does not certify GUI changes.
 
@@ -338,7 +342,7 @@ Final checks: full Go tests and vet passed; Windows and Linux/amd64 CGO-disabled
 - Compiled CLI checks exercised private credential creation, exact issuance retry, authorized task/context/history reads, wrong-project refusal, credential-free public endpoint rediscovery after restart, revocation, and denial after retrying a revoked issuance. Raw tokens were absent from event output. Backup/restore/replay checks also passed.
 - Reproduce with `node scripts/continuity-smoke.cjs .tools/legacy/heimdall-0.3.0.exe --legacy-continuity` when that archived executable is available. The default script uses a fresh current-version store and also runs in the Windows CI job; remote CI has not been executed here.
 
-This slice does not implement MCP, client checkpoint/progress writes, proposed/rejected decision review, Git identity or the task GUI. Read grants are an application/API boundary; they do not isolate a local process that can independently read the unrestricted CLI credential. See [SCOPED-ACCESS.md](SCOPED-ACCESS.md) for restore/revocation semantics and limits.
+This slice does not implement MCP, client checkpoint/progress writes, proposed/rejected decision review, Git identity or the task GUI. Read grants are an application/API boundary; they do not isolate a local process that can independently read the unrestricted CLI credential. See [SCOPED-ACCESS.md](guides/SCOPED-ACCESS.md) for restore/revocation semantics and limits.
 
 ## Continuity verification in 0.3.0
 

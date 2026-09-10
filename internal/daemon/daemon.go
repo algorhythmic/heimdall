@@ -113,6 +113,8 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	defer cancel()
 	service.EvaluationContext = localCtx
 	service.Viewport = &workspace.ViewportService{Store: e.Store, Observer: hyprland.New()}
+	service.Viewport.Observer.Attention = (&workspace.AttentionService{Store: e.Store}).Record
+	service.Browser.Compositor = service.Viewport.Observer
 	if err := service.Viewport.Restore(localCtx); err != nil {
 		return err
 	}
@@ -228,7 +230,12 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if strings.HasPrefix(r.URL.Path, "/browser/") {
+		// Browser credentials remain confined to the browser protocol.
 		s.browserHTTP(w, r)
+		return
+	}
+	if r.URL.Path == "/conversations" {
+		s.conversationsHTTP(w, r)
 		return
 	}
 	if strings.HasPrefix(r.URL.Path, "/continuity/") {
@@ -272,6 +279,19 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		case "/health":
 			writeJSON(w, map[string]any{"status": "running", "task_file_error": s.Engine.ViewError(), "capabilities": []string{"core", "capture", "manual_completion", "aggregate_proposals", "review_timers", "replay", "browser_metadata", "browser_commands", "continuity_cli_v1", "progress_cli_v1", "task_dependencies_cli_v1", "scoped_progress_summary_v1", "preservation_manual_cli_v1", "workspace_declarations_cli_v1", "herdr_bindings_linux_v1", "hyprland_observation_cli_v1", "workspace_snapshots_cli_v1", "workspace_autosnapshot_policy_v1", "database_backup", "scoped_client_reads_v1", "scoped_checkpoint_writes_v1", "mcp_stdio_v1", "evidence_cli_v1", "evidence_revalidation_v1"}})
 		case "/state":
+			if r.URL.Query().Get("active") == "1" {
+				if s.Browser == nil {
+					writeError(w, 503, fmt.Errorf("browser observation service unavailable"))
+					return
+				}
+				active, err := s.Browser.Active(r.Context())
+				if err != nil {
+					writeError(w, 500, err)
+					return
+				}
+				writeJSON(w, active)
+				return
+			}
 			st, err := s.Engine.Store.State(r.Context())
 			if err != nil {
 				writeError(w, 500, err)

@@ -5,8 +5,10 @@ import (
 	"encoding/json"
 	"fmt"
 	"heimdall/internal/actions"
+	"heimdall/internal/adapters/hyprland"
 	"heimdall/internal/model"
 	"heimdall/internal/store"
+	"heimdall/internal/surface"
 	"reflect"
 	"sort"
 	"time"
@@ -14,6 +16,7 @@ import (
 
 type Service struct {
 	AssociationCheck func(model.BrowserAssociation) error
+	Compositor       *hyprland.Observer
 	Store            *store.Store
 	Runtime          *Runtime
 }
@@ -203,6 +206,15 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 				}
 				change.Events = append(change.Events, store.Pending{Subject: "browser", Verb: "inventory_delta", EntityID: p.ID, Payload: delta})
 			}
+			for _, span := range m.FocusSpans {
+				identity, err := surface.Identify(span.Pointer)
+				if err != nil {
+					return change, fmt.Errorf("focus span has unresolved content identity")
+				}
+				f := model.SurfaceFocusSpan{BrowserFocusSpan: span, Profile: p.ID, Epoch: p.Epoch, Connection: p.Connection, Sequence: p.LastSequence, SurfaceID: identity.ID}
+				change.Events = append(change.Events, store.Pending{Subject: "surface", Verb: "focused", EntityID: f.SurfaceID, Payload: f})
+			}
+			change.Events = append(change.Events, surfaceEvents(st, p, m)...)
 			reply.LastSequence = p.LastSequence
 		case "readback":
 			var err error

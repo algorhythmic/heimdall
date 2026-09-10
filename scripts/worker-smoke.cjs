@@ -47,6 +47,13 @@ async function until(fn){for(let i=0;i<100;i++){const r=await fn();if(r)return r
   const opened=await operate('open',['--url',url+'managed']);assert.equal(opened.status,'succeeded');
   await until(()=>cli('browser','status').profiles[profile.id].tabs.some(t=>t.id===opened.tab_id&&t.owner_id===opened.id));
   const focus=await operate('focus',['--tab',String(opened.tab_id),'--expected-url',url+'managed']);assert.equal(focus.status,'succeeded');
+  await until(()=>{const p=cli('browser','status').profiles[profile.id];return p.tabs.some(t=>t.id===opened.tab_id&&t.active&&t.window_id===p.focused_window);});
+  await wait(2500);
+  const focusedTab=await worker.evaluate(async args=>chrome.tabs.create({windowId:args.window,url:args.url,active:true}),{window:opened.window_id,url:url+'focus-target'});
+  await until(()=>cli('events').some(e=>e.subject==='surface'&&e.verb==='focused'&&e.payload.tab_id===opened.tab_id&&e.payload.duration_s>=2));
+  // Keep the relay event loop free while the CLI waits for challenged readback.
+  const active=JSON.parse((await require('node:util').promisify(require('node:child_process').execFile)(exe,['state','--active','--json','--data-dir',data],{encoding:'utf8'})).stdout);
+  assert.equal(active.status,'unbound');assert.equal(active.focus?.tab_id,focusedTab.id);assert.equal(active.target,undefined);
   const popup=await context.newPage();await popup.goto(`chrome-extension://${extension}/popup.html`);await popup.locator('#paused').check();await wait(4000);
   const before=cli('browser','status').profiles[profile.id].last_sequence;await page.goto(url+'paused');await wait(4000);assert.equal(cli('browser','status').profiles[profile.id].last_sequence,before);
   await popup.locator('#paused').uncheck();await until(()=>cli('browser','status').profiles[profile.id].tabs.some(t=>t.url===url+'paused'));
@@ -54,6 +61,6 @@ async function until(fn){for(let i=0;i<100;i++){const r=await fn();if(r)return r
   assert.ok(await popup.evaluate(async()=>{const {Outbox}=await import('./outbox.js');return (await new Outbox().all()).some(r=>r.body.tabs?.some(t=>t.url.endsWith('/offline')));}));
   await start();await page.goto(url+'reconnected');await until(()=>cli('browser','status').profiles[profile.id].tabs.some(t=>t.url===url+'reconnected'));
   const closed=await operate('close',['--tab',String(opened.tab_id),'--expected-url',url+'managed']);assert.equal(closed.status,'succeeded');
-  console.log(JSON.stringify({status:'passed',checks:['worker handshake without auto-pairing','paired automatic inventory','CLI open/focus/close through worker and native framing','pause and resume','offline IndexedDB buffering','daemon restart and worker reconnect'],native_discovery:'test shim; OS registry registration not exercised'},null,2));
+  console.log(JSON.stringify({status:'passed',checks:['worker handshake without auto-pairing','paired automatic inventory','CLI open/focus/close through worker and native framing','sampled focus span on tab switch','state --active challenged unbound tab','pause and resume','offline IndexedDB buffering','daemon restart and worker reconnect'],native_discovery:'test shim; OS registry registration not exercised'},null,2));
  }finally{await context?.close();await stop(host);await stop(daemon);await new Promise(r=>server.close(r));}
 })().catch(e=>{console.error(e);process.exitCode=1;});

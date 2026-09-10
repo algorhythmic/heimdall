@@ -9,9 +9,10 @@ export async function retainedResults(api,refs){
 // This is direct challenged readback, never an offline outbox observation.
 export async function readback(api,challenge,generation=()=>0){
  const sample=async()=>{
-  const tabs=await api.tabs.query({});let focused=-1;
-  try{const w=await api.windows.getLastFocused();if(w.focused&&!w.incognito)focused=w.id;}catch{}
+  const tabs=await api.tabs.query({});let focused=-1,focusKnown=true;
+  try{const w=await api.windows.getLastFocused();if(w.focused&&!w.incognito)focused=w.id;}catch{focusKnown=false;}
   const body=inventory(tabs,focused);
+  if(!focusKnown)body.complete=false;
   body.tabs.sort((a,b)=>a.id-b.id);
   const publicTabs=tabs.filter(t=>!t.incognito&&t.id>0&&t.windowId>0);
   body.present_tabs=publicTabs.map(t=>t.id).sort((a,b)=>a-b).slice(0,2048);

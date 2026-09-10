@@ -20,3 +20,8 @@ test('large censuses are partial and old journal rows confer no scoped ownership
  const f=fixture();delete f.state.journal[ref.id].action_ref;assert.deepEqual((await readback(f.api,{id:'a'.repeat(32)})).instances,[]);
  f.api.tabs.query=async()=>Array.from({length:2050},(_,i)=>({id:i+1,windowId:3,url:'chrome://settings'}));const r=await readback(f.api,{id:'a'.repeat(32)});assert.equal(r.complete,false);assert.equal(r.present_tabs.length,2048);
 });
+
+test('failed focus read is unavailable coverage, not evidence of blur',async()=>{
+ const f=fixture();f.api.windows.getLastFocused=async()=>{throw Error('window unavailable');};
+ const r=await readback(f.api,{id:'a'.repeat(32)});assert.equal(r.complete,false);
+});

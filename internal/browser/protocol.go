@@ -16,6 +16,8 @@ var IDPattern = regexp.MustCompile(`^[a-f0-9]{32}$`)
 var ExtensionPattern = regexp.MustCompile(`^[a-p]{32}$`)
 
 type Message struct {
+	FocusSpans []model.BrowserFocusSpan `json:"focus_spans,omitempty"`
+
 	Delta                bool                    `json:"delta,omitempty"`
 	BaseSequence         int64                   `json:"base_seq,omitempty"`
 	Removed              []int                   `json:"removed,omitempty"`
@@ -93,6 +95,15 @@ func ValidURL(s string) bool {
 	return model.BrowserURL(s)
 }
 func (m Message) Validate() error {
+	if len(m.FocusSpans) > 1 || (m.FocusSpans != nil && m.Type != "inventory") {
+		return fmt.Errorf("focus spans require a bounded inventory observation")
+	}
+	for _, span := range m.FocusSpans {
+		observed, err := time.Parse(time.RFC3339Nano, m.ObservedAt)
+		if span.Validate() != nil || err != nil || !span.EndedAt.Equal(observed) || m.Complete == nil || !*m.Complete {
+			return fmt.Errorf("focus span requires a matching complete observation")
+		}
+	}
 	if (m.Delta || m.BaseSequence != 0 || len(m.Removed) > 0) && m.Type != "inventory" {
 		return fmt.Errorf("delta fields on another message")
 	}

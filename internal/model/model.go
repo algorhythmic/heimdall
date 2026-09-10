@@ -141,6 +141,15 @@ type Timer struct {
 	Outcome string    `json:"outcome,omitempty"`
 }
 type State struct {
+	Conversations                 map[string]Conversation                 `json:"conversations"`
+	SurfaceFocusSpans             map[string]SurfaceFocusSpan             `json:"surface_focus_spans"`
+	CompositorSurfaceFocusSpans   map[string]CompositorSurfaceFocusSpan   `json:"compositor_surface_focus_spans"`
+	CompositorWindowFocusSpans    map[string]CompositorSurfaceFocusSpan   `json:"compositor_window_focus_spans"`
+	CompositorWorkspaceFocusSpans map[string]CompositorWorkspaceFocusSpan `json:"compositor_workspace_focus_spans"`
+
+	ObservedSurfaces  map[string]ObservedSurface          `json:"observed_surfaces"`
+	SurfaceContainers map[string]ObservedSurfaceContainer `json:"surface_containers"`
+
 	ApplicationRecipes    map[string]ApplicationRecipe    `json:"application_recipes"`
 	ApplicationHeads      map[string]string               `json:"application_heads"`
 	WorkspaceResidency    *WorkspaceResidency             `json:"workspace_residency,omitempty"`

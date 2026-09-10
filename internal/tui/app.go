@@ -138,6 +138,10 @@ func (a *App) apply(r result) {
 	}
 	a.modal.busy = false
 	if r.err != nil {
+		if a.modal.kind == "active" {
+			a.activeUnavailable(r.err)
+			return
+		}
 		a.modal.err = r.err.Error()
 		return
 	}
@@ -227,6 +231,8 @@ func (a *App) key(e *tcell.EventKey) {
 	case 'r':
 		a.message = "Refreshing recorded state and selected files…"
 		a.refresh()
+	case 'g':
+		a.openActive()
 	case 'c':
 		a.openDraft(a.actionTarget())
 	case 'f':

@@ -59,6 +59,18 @@ type BrowserOperation struct {
 }
 
 func (s *State) Normalize() {
+	if s.Conversations == nil {
+		s.Conversations = map[string]Conversation{}
+	}
+	if s.SurfaceFocusSpans == nil {
+		s.SurfaceFocusSpans = map[string]SurfaceFocusSpan{}
+	}
+	if s.ObservedSurfaces == nil {
+		s.ObservedSurfaces = map[string]ObservedSurface{}
+	}
+	if s.SurfaceContainers == nil {
+		s.SurfaceContainers = map[string]ObservedSurfaceContainer{}
+	}
 	if s.ApplicationRecipes == nil {
 		s.ApplicationRecipes = map[string]ApplicationRecipe{}
 	}

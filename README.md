@@ -2,25 +2,28 @@
 
 Heimdall is a local task and continuity system for work shared between people and assistants. It records changes as events, preserves accepted decisions and progress checkpoints, and supplies scoped resume context. Retrieval belongs to the separate Braid project.
 
-**Current development: terminal/editor continuity, reviewed application recovery, artifact versions and CLI/TUI progress review, extending 0.7.0 with database schema 21 (S2a delivered).** Resume an explicit task with its accepted direction, saved progress, blockers and file drift. Save progress through editable checkpoint drafts that preserve their original task, revision and retry identity.
+**Current development: terminal/editor continuity, reviewed application recovery, artifact versions and CLI/TUI progress review, extending 0.7.0 with database schema 22 (S2a delivered; S1 browser observations in progress).** Resume an explicit task with its accepted direction, saved progress, blockers and file drift. Save progress through editable checkpoint drafts that preserve their original task, revision and retry identity.
 
-The [Neovim integration](docs/NEOVIM-SETUP.md) brings that workflow into the editor. [Workspace/session records](docs/WORKSPACE-SETUP.md) keep tasks distinct even when they share a repository. The [Linux Herdr adapter](docs/HERDR-SETUP.md) verifies selected panes and publishes expiring task metadata. [Artifact versions](docs/ARTIFACT-SETUP.md) pin exact file identity, with optional Git metadata, to checkpoints; they detect changed or missing files and explicitly recorded relocations. They retain metadata and digests, not file contents.
+The [Neovim integration](docs/guides/NEOVIM-SETUP.md) brings that workflow into the editor. [Workspace/session records](docs/guides/WORKSPACE-SETUP.md) keep tasks distinct even when they share a repository. The [Linux Herdr adapter](docs/guides/HERDR-SETUP.md) verifies selected panes and publishes expiring task metadata. [Artifact versions](docs/guides/ARTIFACT-SETUP.md) pin exact file identity, with optional Git metadata, to checkpoints; they detect changed or missing files and explicitly recorded relocations. They retain metadata and digests, not file contents.
 
-Scoped MCP clients can read context and, with an explicit write grant, save progress. The terminal interface shows needs-you, workstreams, saved context and explicit review dialogs. Start with [terminal setup](docs/CONTINUITY-SETUP.md), [TUI setup](docs/TUI-SETUP.md), [evidence setup](docs/EVIDENCE-SETUP.md) or [MCP setup](docs/MCP-SETUP.md). Extension 0.6.0 adds recovery deduplication alongside challenged browser readback and shared action/attempt references. Initial [P02 progress/decision review](docs/PROGRESS-SETUP.md) is available through the CLI and the terminal interface, with Neovim inspection and terminal handoff; [P03 manual preservation](docs/PRESERVATION-SETUP.md) adds checkpoint-linked previews and independently observed copy/commit/remote receipts. [P04 task dependencies and scoped summaries](docs/DEPENDENCY-SETUP.md) expose cross-project prerequisites and saved progress. [W02 Hyprland observation](docs/HYPRLAND-SETUP.md) adds explicitly selected desktop inventories and task-owned window bindings. [W03 durable snapshots](docs/SNAPSHOT-SETUP.md) add manual restore points, explicit autosave policies and bounded payload retention. [W04 workspace previews](docs/WORKSPACE-PREVIEW.md) compare saved points with fresh owned observations and reject stale plans. [C12 shared actions](docs/ACTIONS-SETUP.md) preserve task-bound intent, attempts and uncertain outcomes before browser dispatch. [C13 browser verification](docs/BROWSER-VERIFICATION.md) checks independent outcomes and recovers retained results through a real native-host connection. [C13 browser pairing](docs/BROWSER-PAIRING.md) joins an explicit browser window to Hyprland before continuing navigation. [W05 workspace operations](docs/WORKSPACE-OPERATIONS.md) add journaled native focus and graceful close, explicit swaps and interruption reconciliation. [W06 application recovery](docs/APPLICATION-RECOVERY.md) adds reviewed Foot/Herdr, paired-browser and saved-file Neovim adapters. [W07 recovery verification](docs/RECOVERY-VERIFICATION.md) reports fresh ownership, membership, placement and supported application state with explicit uncertainty. Startup/interruption gates, unsupported attachment/editor readback, programmatic preservation, Braid integration, sensors, planning and notifications remain planned. See [STATUS.md](docs/STATUS.md) for the supported boundaries.
+Scoped MCP clients can read context and, with an explicit write grant, save progress. The terminal interface shows needs-you, workstreams, saved context and explicit review dialogs. Start with [terminal setup](docs/guides/CONTINUITY-SETUP.md), [TUI setup](docs/guides/TUI-SETUP.md), [evidence setup](docs/guides/EVIDENCE-SETUP.md) or [MCP setup](docs/guides/MCP-SETUP.md). Extension 0.6.1 adds sampled focus spans and supports `state --active`; 0.6.0 added recovery deduplication alongside challenged browser readback and shared action/attempt references. Initial [P02 progress/decision review](docs/guides/PROGRESS-SETUP.md) is available through the CLI and the terminal interface, with Neovim inspection and terminal handoff; [P03 manual preservation](docs/guides/PRESERVATION-SETUP.md) adds checkpoint-linked previews and independently observed copy/commit/remote receipts. [P04 task dependencies and scoped summaries](docs/guides/DEPENDENCY-SETUP.md) expose cross-project prerequisites and saved progress. [W02 Hyprland observation](docs/guides/HYPRLAND-SETUP.md) adds explicitly selected desktop inventories and task-owned window bindings. [W03 durable snapshots](docs/guides/SNAPSHOT-SETUP.md) add manual restore points, explicit autosave policies and bounded payload retention. [W04 workspace previews](docs/guides/WORKSPACE-PREVIEW.md) compare saved points with fresh owned observations and reject stale plans. [C12 shared actions](docs/guides/ACTIONS-SETUP.md) preserve task-bound intent, attempts and uncertain outcomes before browser dispatch. [C13 browser verification](docs/guides/BROWSER-VERIFICATION.md) checks independent outcomes and recovers retained results through a real native-host connection. [C13 browser pairing](docs/guides/BROWSER-PAIRING.md) joins an explicit browser window to Hyprland before continuing navigation. [W05 workspace operations](docs/guides/WORKSPACE-OPERATIONS.md) add journaled native focus and graceful close, explicit swaps and interruption reconciliation. [W06 application recovery](docs/guides/APPLICATION-RECOVERY.md) adds reviewed Foot/Herdr, paired-browser and saved-file Neovim adapters. [W07 recovery verification](docs/RECOVERY-VERIFICATION.md) reports fresh ownership, membership, placement and supported application state with explicit uncertainty. Startup/interruption gates, unsupported attachment/editor readback, programmatic preservation, Braid integration, sensors, planning and notifications remain planned. See [STATUS.md](docs/STATUS.md) for the supported boundaries.
+
+[Documentation index](docs/README.md) · [Setup guides](docs/guides/README.md) ·
+[Implementation roadmap](docs/HEIMDALL-IMPLEMENTATION-ROADMAP.md) · [History](docs/history/README.md).
 
 ## Progress
 
 | Improvement | Current development status |
 |---|---|
-| Durable checkpoints and context | Delivered: immutable checkpoints, contracts, decisions, resource drift, readable resume and draft/submit helpers. [Linux artifact/version pins](docs/ARTIFACT-SETUP.md) include optional Git identity. [CLI/TUI progress and decision review](docs/PROGRESS-SETUP.md) is delivered; evidence/run links remain open. |
+| Durable checkpoints and context | Delivered: immutable checkpoints, contracts, decisions, resource drift, readable resume and draft/submit helpers. [Linux artifact/version pins](docs/guides/ARTIFACT-SETUP.md) include optional Git identity. [CLI/TUI progress and decision review](docs/guides/PROGRESS-SETUP.md) is delivered; evidence/run links remain open. |
 | Workspace/session identity | Initial W01/T02 delivered: explicit manifests, generic declarations and verified local Herdr bindings with refresh/metadata. W02 adds observation/binding, W03 durable points/autosnapshots, W04 scoped previews, W05 journaled operations/capacity and W06 application adapters. W07 adds fresh recovery reports with explicit capability limits; W08 startup/interruption gates remain open. |
-| Editor continuity | Initial T03 delivered: [Neovim commands and LazyVim example](docs/NEOVIM-SETUP.md) for task selection, resume, checkpoint drafts, artifacts, session checks and TUI review. Isolated Linux acceptance; no global configuration installed. |
+| Editor continuity | Initial T03 delivered: [Neovim commands and LazyVim example](docs/guides/NEOVIM-SETUP.md) for task selection, resume, checkpoint drafts, artifacts, session checks and TUI review. Isolated Linux acceptance; no global configuration installed. |
 | Assistant access through MCP | Initial implementation delivered: six tools, scoped credentials and explicitly delegated checkpoint writes. Host registration remains a deployment step. |
 | Verified computer actions | C12/C13 and W05–W07 delivered: journaled actions, independent browser/Hyprland verification and scoped recovery reports. S2a adds scoped native/browser WCU records with independent readback. |
 | Evidence-based completion | Initial CLI implementation delivered: artifact/repo/test evaluators, durable attempts, invalidation and live revalidation of task/step proposals. Raw-output retention, broader machine tools and review notices remain open. |
 | Agent continuity | Saved context and checkpoint handoff are delivered. Agents execute in external harnesses; scoped computer-use records are delivered at S2a. |
 | Project-aware Braid memory | Planned; Braid is not integrated. Current mandatory context works without retrieval. |
-| Task interface | Delivered: [terminal dashboard and review dialogs](docs/TUI-SETUP.md), replacing the browser GUI. Needs-you, expandable workstreams, retained progress drafts, file checks and workspace preview. |
+| Task interface | Delivered: [terminal dashboard and review dialogs](docs/guides/TUI-SETUP.md), replacing the browser GUI. Needs-you, expandable workstreams, retained progress drafts, file checks and workspace preview. |
 
 See [implementation status](docs/STATUS.md), the [ordered backlog](docs/BACKLOG.md), and [development milestones](CHANGELOG.md). These are development milestones, not a complete v1 release.
 
@@ -71,7 +74,7 @@ On Windows:
 .\bin\heimdall.exe start --data-dir .\demo-data
 ```
 
-Leave `start` running. The following PowerShell example uses the Windows executable; on Linux, use `./bin/heimdall` and forward-slash paths. For the resume/draft workflow, follow [terminal continuity setup](docs/CONTINUITY-SETUP.md).
+Leave `start` running. The following PowerShell example uses the Windows executable; on Linux, use `./bin/heimdall` and forward-slash paths. For the resume/draft workflow, follow [terminal continuity setup](docs/guides/CONTINUITY-SETUP.md).
 
 ```powershell
 .\bin\heimdall.exe import-tasks .\testdata\tasks.yaml --data-dir .\demo-data
@@ -94,11 +97,11 @@ Stop with Ctrl+C. No hooks, browser extension, system service, remote provider, 
 
 Run `./bin/heimdall tui --data-dir ./demo-data` with the daemon running. Use
 `node scripts/tui-demo.cjs` for an isolated working example of the new design.
-[Controls and recovery](docs/TUI-SETUP.md) cover review, drafts and exact retries.
+[Controls and recovery](docs/guides/TUI-SETUP.md) cover review, drafts and exact retries.
 
 ## Commands
 
-For extension installation, use [Browser setup](docs/BROWSER-SETUP.md). The extension and daemon run together; the browser launches the native helper. Load `extension/` unpacked, or extract `bin/heimdall-extension-0.6.0.zip`. Native-host registration is a separate local installation step.
+For extension installation, use [Browser setup](docs/guides/BROWSER-SETUP.md). The extension and daemon run together; the browser launches the native helper. Load the current `extension/` directory unpacked, or build a versioned ZIP with `scripts/package-extension.ps1`. Native-host registration is a separate local installation step.
 
 All commands accept `--data-dir PATH`, `--json`, and `--now RFC3339`. JSON is the default output except `export-tasks` (YAML) and `resume` (readable text unless `--json` is supplied). Global flags can occur anywhere; command-specific flags follow the title/target.
 
@@ -119,19 +122,19 @@ All commands accept `--data-dir PATH`, `--json`, and `--now RFC3339`. JSON is th
 | `replay` | Rebuild state and command dedupe from events; no external side effects |
 | `contract accept\|show\|list TARGET` / `decision accept\|list TARGET` | Accepted continuity records; mutations require JSON `--file` and explicit `--expected-task-revision` |
 | `resource bind\|unbind\|list TARGET` | Register or deactivate bounded file/tree observations |
-| `progress summary TASK` / `progress summary --all` | Recorded checkpoints, next actions, unresolved decisions and prerequisites with explicit ordering and bounded pages; see [dependencies and summaries](docs/DEPENDENCY-SETUP.md) |
+| `progress summary TASK` / `progress summary --all` | Recorded checkpoints, next actions, unresolved decisions and prerequisites with explicit ordering and bounded pages; see [dependencies and summaries](docs/guides/DEPENDENCY-SETUP.md) |
 | `dependency add\|remove\|list\|show TARGET` | Explicit task prerequisites, exact revision/head checks and immutable relation history |
-| `preservation preview\|request\|observe\|show\|list\|export TARGET` | Manual checkpoint-linked preservation and independently observed receipts; see [preservation setup](docs/PRESERVATION-SETUP.md) |
-| `artifact record\|list\|show\|check TARGET` | Explicit local Linux file identity, immutable versions, optional Git metadata and fresh checks; see [artifact setup](docs/ARTIFACT-SETUP.md) |
+| `preservation preview\|request\|observe\|show\|list\|export TARGET` | Manual checkpoint-linked preservation and independently observed receipts; see [preservation setup](docs/guides/PRESERVATION-SETUP.md) |
+| `artifact record\|list\|show\|check TARGET` | Explicit local Linux file identity, immutable versions, optional Git metadata and fresh checks; see [artifact setup](docs/guides/ARTIFACT-SETUP.md) |
 | `checkpoint create\|show\|list TARGET` | Immutable progress checkpoints; create requires explicit contract and previous head; show supports `--id` |
 | `checkpoint draft TARGET --output FILE` / `checkpoint submit TARGET --file FILE` | Prepare a new editable request with fixed revision/head/ID; submit after editing; preserve the file on retry or conflict |
 | `resume TARGET [--budget N] [--json]` | Readable accepted direction, saved progress, drift and recorded review needs; does not execute work |
 | `context TARGET --budget N` | Mandatory task/ancestor context and checkpoint drift checks; explicit budget error |
 | `action context\|queue\|show\|list\|history\|cancel\|reconcile TASK` | Shared task-bound intent, attempt history, cancellation and observation-only reconciliation; API execution and verification remain separate |
 | `workspace accept\|show TASK` | Accept a desired manifest or inspect its task-owned surfaces and bindings; acceptance requires explicit revision and JSON input |
-| `workspace list\|diff\|preview\|validate TASK` | Scoped observations, selected manifest/snapshot comparison and stale-plan validation; see [workspace preview](docs/WORKSPACE-PREVIEW.md) |
+| `workspace list\|diff\|preview\|validate TASK` | Scoped observations, selected manifest/snapshot comparison and stale-plan validation; see [workspace preview](docs/guides/WORKSPACE-PREVIEW.md) |
 | `session bind\|unbind\|show TASK` | Explicit generic session declarations with immutable history; declarations are unverified |
-| `session bind-herdr\|refresh\|publish TASK` | Bind/check an actual local Herdr pane or publish expiring task metadata; see [Herdr setup](docs/HERDR-SETUP.md) for required identities |
+| `session bind-herdr\|refresh\|publish TASK` | Bind/check an actual local Herdr pane or publish expiring task metadata; see [Herdr setup](docs/guides/HERDR-SETUP.md) for required identities |
 | `backup --output FILE` | Consistent database-only snapshot with no-overwrite publication |
 | `grant issue TARGET --name NAME --expires TIME --output FILE` | New private read credential; optional `--subtree` and `--resources ID1,ID2` |
 | `grant activate --credential FILE` / `grant list` / `grant revoke ID` | Retry issuance exactly, inspect or revoke grants |
@@ -161,7 +164,7 @@ If a command races with an editor save, the command's event remains durable whil
 
 The prototype keeps `tasks.yaml`, `types.yaml`, SQLite and endpoint metadata together under `--data-dir`. It defaults to `$XDG_DATA_HOME/heimdall`, otherwise `~/.local/share/heimdall`. The full XDG config/state split and `config.toml` are future work. On Windows, access control follows the chosen directory's ACL; Unix file mode bits are not a substitute for Windows ACL hardening.
 
-The current binary upgrades database markers 1–20 to **21**, publishing a consistent `backups/pre-schema-21-*.db` before migration. Schema-20 binaries refuse marker 21. Database backups preserve recorded state and receipts; external working files require separate preservation. Follow [backup, upgrade and restore](docs/CONTINUITY-SETUP.md#backup-upgrade-and-restore) for fresh-directory recovery or rollback.
+The current binary upgrades database markers 1–20 to **21**, publishing a consistent `backups/pre-schema-21-*.db` before migration. Schema-20 binaries refuse marker 21. Database backups preserve recorded state and receipts; external working files require separate preservation. Follow [backup, upgrade and restore](docs/guides/CONTINUITY-SETUP.md#backup-upgrade-and-restore) for fresh-directory recovery or rollback.
 
 ## Develop
 
@@ -200,7 +203,7 @@ node scripts/herdr-smoke.cjs
 node scripts/neovim-smoke.cjs
 ```
 
-The installed targets tested locally are Herdr **0.8.2 / protocol 20** and Neovim **0.12.5**, with an optional lazy.nvim loader gate. These checks use isolated data and configuration. See [Herdr setup](docs/HERDR-SETUP.md#compatibility-and-acceptance) and [Neovim setup](docs/NEOVIM-SETUP.md#reproduce-acceptance) for prerequisites and limits. Fresh artifact and live Herdr observations currently require Linux; Windows cross-build success does not establish those runtime capabilities.
+The installed targets tested locally are Herdr **0.8.2 / protocol 20** and Neovim **0.12.5**, with an optional lazy.nvim loader gate. These checks use isolated data and configuration. See [Herdr setup](docs/guides/HERDR-SETUP.md#compatibility-and-acceptance) and [Neovim setup](docs/guides/NEOVIM-SETUP.md#reproduce-acceptance) for prerequisites and limits. Fresh artifact and live Herdr observations currently require Linux; Windows cross-build success does not establish those runtime capabilities.
 
 Set `HEIMDALL_BIN` to an explicit executable and `HEIMDALL_TEST_TMP` to a scratch parent when needed. The harness closes child stdin and bounds shutdown on Unix; test data remains for inspection. The old PowerShell core smoke remains available.
 
@@ -216,7 +219,7 @@ On Windows, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools
 .\scripts\dev.ps1 build -o bin/heimdall.exe ./cmd/heimdall
 ```
 
-[Implementation specification](docs/design/HANDOFF-heimdall-v1-r4.md) · [Browser runtime design](docs/design/BROWSER-EXTENSION.md) · [Verification](docs/VERIFICATION.md).
+[Implementation specification](docs/design/HANDOFF-heimdall-v1-r4.md) · [Implemented browser protocol](docs/guides/BROWSER-PROTOCOL.md) · [Verification](docs/VERIFICATION.md).
 
 ## Roadmap
 
@@ -224,14 +227,14 @@ On Windows, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools
 |---|---|---|
 | P0 | W07 clock repair, r4 adoption, evaluator environment, YAML check materialization, browser deltas and daily-profile pairing | 20 |
 | S2a (R5/A01/A02) | Delivered: scoped computer-use intents, action grant, reports and fresh reconciliation | 21 |
-| S1 | Observed surfaces, hooks, conversations, herdr sensors, focus spans; S1b adapter spike | 22 |
+| S1 | Pinned Skald L0 capture; Heimdall hooks/sensors, lifecycle and purgeable description evidence; S1b spike | 22 |
 | S2b (R6/W08) | Startup readiness, interruption/reboot recovery, optional login restore | no reserved bump |
 | S3 (C14–C16) | Braid assignment and continuity retrieval, typed checkpoint MCP records, optional intent extraction | 23 |
 | S4 | Planner, notifier, configuration/preferences and TUI views | 24 |
 | S5 (C21) | Mail, Codex/Desktop adapters, packaging and fresh-install replay | 25 |
 
 Delivery order: **P0 → S2a → S1 → S2b → S3 → S4 → S5**. S-numbers are
-stable labels, not numeric execution order. S2a (A01/A02) is delivered; S1 and all later slices remain unstarted. See [S2a implementation](docs/S2A-IMPLEMENTATION.md).
+stable labels, not numeric execution order. S2a (A01/A02) is delivered; S1 now includes browser surface observations at schema 22; browser focus spans and `state --active` are implemented, while other sensors, compositor attention, lifecycle/UI and later slices remain pending. See [S2a implementation](docs/S2A-IMPLEMENTATION.md).
 
 **Agent execution is out of scope for Heimdall.** Agents run in Claude Code,
 Codex and herdr; desktop input runs through WCU under its MCP host's approval.

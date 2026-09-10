@@ -366,14 +366,14 @@ func statusColor(s string) tcell.Color {
 }
 func (a *App) contextLines() []line {
 	if a.selected == "" {
-		return []line{plain("Select a workstream to inspect its saved context.")}
+		return append([]line{plain("Select a workstream to inspect its saved context.")}, a.attentionLines()...)
 	}
 	v := a.data.Resume
 	if v == nil || v.Target != a.selected {
 		if a.data.DetailError != "" {
-			return []line{{{"Context unavailable: " + a.data.DetailError, red}}}
+			return append([]line{{{"Context unavailable: " + a.data.DetailError, red}}}, a.attentionLines()...)
 		}
-		return []line{{{"Loading selected context…", gray}}}
+		return append([]line{{{"Loading selected context…", gray}}}, a.attentionLines()...)
 	}
 	out := []line{}
 	add := func(label, text string, color tcell.Color) {
@@ -437,6 +437,8 @@ func (a *App) contextLines() []line {
 		}
 		add("attention", issue.Detail, gold)
 	}
+	out = append(out, a.attentionLines()...)
+	out = append(out, a.observedLines(rootOf(a.selected))...)
 	return out
 }
 func checkColor(s string) tcell.Color {
@@ -490,7 +492,7 @@ func (a *App) footer(w, h int) {
 	if a.message != "" {
 		a.text(2, h-3, w-4, a.message, base.Foreground(gray))
 	}
-	a.line(2, h-2, w-4, line{{"tab", gold}, {" panel  ", gray}, {"space", gold}, {" expand  ", gray}, {"↵", gold}, {" open  ", gray}, {"c", gold}, {" save  ", gray}, {"b", gold}, {" bind  ", gray}, {"f", gold}, {" files  ", gray}, {"p", gold}, {" desktop  ", gray}, {"r", gold}, {" refresh  ", gray}, {"/", gold}, {" find  ", gray}, {"?", gold}, {" help  ", gray}, {"q", gold}, {" quit", gray}}, base)
+	a.line(2, h-2, w-4, line{{"tab", gold}, {" panel  ", gray}, {"space", gold}, {" expand  ", gray}, {"↵", gold}, {" open  ", gray}, {"c", gold}, {" save  ", gray}, {"g", gold}, {" active  ", gray}, {"b", gold}, {" bind  ", gray}, {"f", gold}, {" files  ", gray}, {"p", gold}, {" desktop  ", gray}, {"r", gold}, {" refresh  ", gray}, {"/", gold}, {" find  ", gray}, {"?", gold}, {" help  ", gray}, {"q", gold}, {" quit", gray}}, base)
 }
 func (a *App) drawCompact(w, h int) {
 	a.header(w)

@@ -1,0 +1,161 @@
+We're reviewing the plan for developing Heimdall. Dig into any issues that you find from the handoff doc. Propose solutions to those issues. Ask clarifying questions if needed. The fuse retrieval engine is a separate project/repo that may share a binary with heimdall once heimdall is shipped. One issue I'm interested in exploring is the granularity of the event log; how would heimdall track events from a claude.ai webapp session compared to a claude code session running in herdr? How will heimdall accurately track that an event has taken place that fulfills a task; for example writing and sending an email.
+
+Overall the doc is in good shape: the truth/projection split, ratification gate, and dependency discipline are the right skeleton. The problems are at the seams — surface identity, the hook state machine, what "done" means, M1 scope, and the overlap with fuse. Your two questions first, then the rest.
+
+1. Granularity: claude.ai tab vs Claude Code in herdr
+
+Trace the same task (jobapp-sensemesh, "draft the follow-up") through both:
+
+Claude Code in herdr
+
+open → terminal exec → claude starts → SessionStart hook → agent.* events with session_id, cwd, transcript_path
+prompt → working; permission prompt → blocked; Stop → idle; SessionEnd → released
+optional, and cheap: PostToolUse for Write/Edit/Bash gives you which files the session touched, deterministically
+the full transcript is on disk (~/.claude/projects/<slug>/<session>.jsonl), so a close-summary can be derived, not typed
+
+claude.ai tab
+
+chrome observer: targetCreated at claude.ai/new, then targetInfoChanged when the URL becomes /chat/<uuid> and the title becomes the conversation name
+focus: from Hyprland, not CDP (see below)
+state: none. Content: none. The draft leaves via clipboard and Heimdall never sees it
+chat.summarized only if you type one
+
+So the two sessions sit on different observability tiers, and the doc should say so explicitly rather than let surface_state.agent_state be silently null for chats. Proposed contract per surface kind:
+
+tier	what	tab/chat	terminal/agent	repo
+0 existence	observed/opened/closed	auto	auto	manifest
+1 attention	focus spans	auto	auto	via agent tool events
+2 state	agent.*	—	auto (hooks)	—
+3 content	chat.summarized, capture	manual	derivable from transcript	—
+
+The principle: log what the source can vouch for, at the source's resolution, and never synthesize a finer event (no inferring "email sent" from a Gmail title change). Consequences and fixes:
+
+Tab ≠ surface. A CDP target id is stable across navigations; your surface id (sha256(kind|pointer)) is not, and chat vs tab for the same URL yields two ids. Make the surface the pointer, the tab a container_id in the payload, and navigation = surface.closed(old) + surface.opened(new, container_id). Derive kind from the pointer by rule (claude.ai/chat/* → chat) so the id is deterministic. Normalize pointers (strip fragments, tracking params) or the same page gets N ids.
+Tab switch detection. Target.setDiscoverTargets doesn't report activation; targetInfoChanged only fires on URL/title changes. The signal you actually have is Hyprland's activewindowv2 + windowtitle on the Chrome window, matched by title to the CDP target. Say so in §6, and note it fails on duplicate titles (two "New chat" tabs).
+touched floods. activewindow fires on every focus change. Record focus spans (surface.focused{duration_s} on blur, debounced) instead of point touches. Same information, ~50× fewer rows, and it's what last_touch and staleness need anyway.
+Blocked has no exit. Approving a permission prompt doesn't fire UserPromptSubmit, so a session shows blocked for the whole tool run. Map PostToolUse → working. Also Notification fires for idle nags, not just permissions; filter on the payload.
+Session→task binding. cwd→repo→task breaks the moment two tasks share a repo (worktrees, monorepo). The viewport controller launches the terminal, so it can name the task; but if herdr is a server/attach model like tmux, the pane's shell inherits the server's environment, not the client's, so an env var set at exec time won't arrive. Two options: herdr exports its workspace name into panes (question below) and the hook reads it, since herdr workspace = task id; or the hook posts git rev-parse --abbrev-ref HEAD and the manifest's branch disambiguates. Keep cwd as fallback.
+Make the summary the equalizer. A notifier rule: closing a chat surface with > N min of focus and no chat.summarized is needs-you. For Claude Code, derive the summary from the transcript via the intent-extraction function. For claude.ai, if you want more than typed summaries, a user-triggered bookmarklet that grabs the conversation DOM and POSTs to /summary is different in kind from the scraping you rejected: it's on-demand, not a state watcher, and when the selector breaks you fall back to typing.
+2. Fulfillment: how does Heimdall know the email went out?
+
+It doesn't, and shouldn't pretend to. The architecture already has the right answer: observers produce evidence, a matcher binds evidence to a task, ratification decides. Today done: Reply received or 14 days of silence is prose, so nothing can match it. Split it:
+
+yaml
+done:
+  text: Reply received or 14 days of silence
+  checks:
+    - {kind: mail.received, from: "@sensemesh.com"}
+    - {kind: silence, days: 14, after: subtask:email}
+subtasks:
+  - {id: email, title: send email, check: {kind: mail.sent, to: "@sensemesh.com"}}
+
+Flow: a mail observer emits surface.observed{kind: mail, msgid, from, to, subject, folder} → a deterministic matcher evaluates every open check against each event → proposal.created{kind: fulfill, task, subtask, evidence: [event_ids]} → ratify → task.updated. The silence check is just commitment.created{due: +14d} anchored on the ratified send, reusing machinery you have. Check kinds for v1: manual (default), silence, mail.sent, mail.received, agent.released, repo.commit (a post-commit hook installed by init --hooks, same pattern as Claude Code's). gh.pr_merged is a configured adapter later.
+
+Two notes: mail is already in your surface-kind enum but has no observer in §6, so this is filling a hole you left, not adding scope. And keep the ratify step even for "obvious" matches; one keypress is cheap and it's what keeps the log honest. If you want to defer the mail observer, v1 = manual + silence still improves on today, because the timer runs without you.
+
+3. Other issues, roughly by severity
+M3 collides with fuse F3. Heimdall M3 (weekend 3) builds embeddings, centroids, clustering in internal/classify; fuse F3 ("after Heimdall M2") replaces it with a thin caller. That's the same weekend. Either define internal/classify as an interface whose contract is fuse's Query{anchors, text, filters} → hits+why with a naive centroid implementation behind it, or drop clustering/initiative proposals from M3 entirely. Also decide who owns the embeddings and edges projections; both specs create them.
+Grammar bug. why = 1*200VCHAR — VCHAR excludes space. Needs 1*200(VCHAR / SP).
+CDP↔Hyprland linking isn't a "known gap", it's solvable at creation time. Create the target on data:text/html,<title>heimdall:<ulid></title>, wait for the Hyprland openwindow with that title, movetoworkspacesilent, then Page.navigate to the real URL. Hand-moved tabs still need the title reconciliation on close. This also exposes an M1 inconsistency: open needs to detect the new window, but socket2 subscription is scheduled for M2 — either pull it forward or accept polling clients -j in M1.
+Bookmarklet → 127.0.0.1 will fight Chrome. Cross-origin fetch from an https page to loopback hits CORS and Chrome's Local Network Access restrictions (a per-site permission prompt in recent versions). Test on day one. Robust alternative: register a heimdall:// URL scheme via a .desktop file in init; the bookmarklet does location.href = 'heimdall://capture?...', Chrome asks once, no server exposure.
+tasks.yaml watching and the editor fight. Nothing in the allowed deps does fsnotify; syscall.Inotify* is in stdlib (Linux only, fine for the reference platform), or poll mtime. Watch the directory, not the file, because editors write temp+rename. And rewriting the file on every save to reformat will trigger "file changed on disk" in the editor: only rewrite when an id must be assigned, and move formatting to an explicit heimdall fmt.
+Commitment is three things. A task type (§4.3), an event subject (§4.1), and a projection (§4.2). Pick one: commitment is a task type, events are task.*, and due is a notifier-derived event. Same for stream: the example has stream: job-search, but streams are defined as task ids, so job-search is implicitly a parent task. Say tasks form a two-level tree, or collapse stream/initiative/project into one word.
+Notifier state has no events. "Once per task per day" and HA snooze/drop need dedupe state, and nothing writes projections directly, so add a notification subject (delivered, snoozed, dismissed). deep_session has no way to be set: add heimdall mute --deep <dur>. And /action from HA implies a non-loopback listener → needs a token, contradicting "127.0.0.1 only". Resolve before M4.
+Planner edge cases undefined. No resume_by → urgency? No impact → the task loses 35% of its score against tasks that set it; renormalize weights over present components or default impact from importance. No estimate_minutes → knapsack? plan needs the --now override for the golden test.
+Event payloads will evolve; replay must upcast. Add a v column (or per-verb upcasters in replay) now, while it's free. And plan a replay snapshot on the scale path: focus spans over years will make cold replay slow.
+M1 is two weekends. Store, tasks diff, capture parser, a WebSocket CDP client, Hyprland IPC, viewport with diff, ten CLI verbs, bar, bookmarklet, unit. Split: M1a is pure Go with the golden test (store, tasks, capture, ls/add/capture/replay); M1b is the OS integration. The replay golden test gates every PR from M1a onward.
+Dependency list. nhooyr.io/websocket moved to github.com/coder/websocket in 2024; pin the new path. Go 1.22 is old by now; pin via toolchain in go.mod.
+Small ones. seed/ doesn't exist and labeling 127 surfaces is operator work — add it to §15. The radiator --app tab shares the CDP profile and will be observed; exclude by URL. Subtask ids like jobapp-sensemesh-email are already 22/24 chars. workspace.diffed and workspace.closed{diff} are redundant. Open refusal at resident_max needs a defined next step (--swap). The ^ origin needs a scope (same actor, last N minutes, else 400). A capture to two streams: one event or two?
+Questions
+How much of your thinking happens in claude.ai versus Claude Code? That decides whether the summary-equalizer is enough or the DOM-grab bookmarklet is worth it.
+Mail client: Gmail web, Thunderbird, or a local index (notmuch/mbsync/aerc)? The mail observer is trivial with a local maildir and awkward with Gmail-in-a-tab.
+Does herdr export its workspace name into pane environments (the tmux $TMUX equivalent)? If not, branch-based binding is the fallback.
+Is POST /summary structured text you type, or free text run through intent extraction? The doc says "parses," which implies the former.
+Is job-search a task? If streams are parent tasks, does the planner rank parents, children, or both?
+Should done.checks land in M1's tasks.yaml schema (cheap now, painful to retrofit), even if only manual and silence are evaluated before M2?
+
+1. Most of my thinking is done in claude.ai until an artifact is produced, then I use that artifact in another discussion thread with enriched context, or I bring it into CC for implementation. In the case where I use the claude desktop app, how would this affect things? Also we should provision sensors for chatgpt/codex.
+2. A native mail client would be easiest, we should assume that many users use the web client and prepare accordingly. Should we consider a browser extension?
+3. I believe so, check this documentation: https://herdr.dev/docs/cli-reference/#workspaces
+4. We should never expect the user to input structured text for summaries. Design based on available data streams or sources which does not require user activation beyond the initial daemon installation/setup.
+5. job-search is a task but we should clarify that job-search and job-application might be two separate tasks. The planner should rank subtasks in order to establish a hierarchy of parent and child. How are steams being defined in relation to tasks? Streams are the task specific workflow that captures all discrete steps required to achieve completion?
+6. Yes done.checks should land in M1's tasks.yaml schema
+
+3. herdr (settled)
+
+The docs give you everything the binding needs. Every pane process gets HERDR_ENV=1, HERDR_PANE_ID, HERDR_TAB_ID, and HERDR_WORKSPACE_ID, and workspace create accepts --cwd, --label, and repeatable --env KEY=VALUE, which adds the variable to the new root shell. So the viewport controller does: 
+herdr
+herdr
+
+herdr workspace create --cwd <repo> --label <task-id> --env HEIMDALL_TASK=<task-id> --no-focus
+
+and the hook script reads $HEIMDALL_TASK first, $HERDR_WORKSPACE_ID → manifest second, cwd/branch last. Three corrections to the handoff:
+
+Workspace ids are herdr-assigned; the label is the human name. "Task id doubles as herdr workspace name" means label; the manifest must store herdr_workspace_id.
+A cross-workspace pane move keeps the process's launch-time env vars, and herdr retains the old pane id as an alias — so HEIMDALL_TASK can go stale after a move. Rare; herdr pane current resolves it live if you care. 
+herdr
+herdr already ships Claude Code and Codex integrations that install their own hooks and report via pane report-agent with idle/working/blocked/unknown. init --hooks must merge alongside those, not replace them. Also useful: herdr api schema --json prints the full socket JSON Schema, which is what M2's observer should be generated from, and worktrees are ordinary workspaces with git checkout provenance — a natural fit for task = worktree. 
+CLI reference +2
+1 + 4. Sensors, and summaries without activation
+
+Your constraint in (4) is the right one and it changes the summary observer from "parse what the user typed" to "extract from whatever the source leaves behind." What each source leaves behind:
+
+Source	Stream	Tier	Binding	Session end
+Claude Code CLI in herdr	hooks + transcript JSONL on disk	0–3	HEIMDALL_TASK	SessionEnd
+Claude Code in Desktop app	same hooks and transcripts (verify the bundled Code reads ~/.claude/settings.json)	0–3	cwd/branch only	SessionEnd
+Codex CLI	hooks + rollout JSONL	0–3	env/cwd	none; infer from Stop + idle
+claude.ai / chatgpt.com in Chromium	extension (below)	0–1 auto, 3 on close	workspace placement, URL→manifest	tab close or idle-unfocused
+Claude Desktop chat	Hyprland window; MCP server tools	0; 3 only model-initiated	—	none
+Mail, any client	IMAP IDLE or maildir inotify	evidence for checks	check patterns	n/a
+
+The pipeline is then uniform: a sensor emits session.ended{kind, session_id, transcript_ref, turns, artifacts[]} (deterministic, no inference), the daemon runs intent extraction over the transcript if a provider is configured and emits chat.summarized{decided, next_action, resume_by, drop_if, artifacts}, and that becomes a proposal.created{kind: next_action} if the session is bound to a task, or classifier input if not. No provider → session.ended still lands, tier 3 stays empty. That keeps inference inside the three sanctioned functions.
+
+Codex specifics. Codex has two mechanisms and they don't overlap. Project-level .codex/hooks.json gives SessionStart, UserPromptSubmit, and Stop, gated by a codex_hooks = true feature flag in .codex/config.toml, and the transcript is a JSONL rollout under ~/.codex/ or CODEX_HOME. Separately, notify is a single global setting that another tool may already occupy, so installing must chain rather than replace, and it has no session-end event. Two gaps: Codex doesn't emit a session-end hook, so use Stop plus an idle sweep on the rollout file; and approval-requested and user-input-requested only come through the TUI notification channel, not the notify hook, so there is no hook-level blocked for Codex. This forces a carve-out in the locked decision: for agents without a hook-level blocked signal, accept herdr's screen-detected blocked as an event with actor: observer:herdr. The actor field already carries the provenance; the planner and notifier can weight it lower. herdr's Codex integration likely takes the notify slot, so chain. 
+github
+github
+
+Claude Desktop. Two things changed since the handoff was written. Linux support is an official beta with Chat, Cowork, and Claude Code in one app; Arch isn't covered and the docs say to run the CLI there, though the official .deb is repackaged for AUR, with MCP config at ~/.config/Claude/claude_desktop_config.json. Consequences: 
+Claude Code Docs
+GitHub
+
+The Code tab is Claude Code outside herdr. If it honors the same hooks and transcript path (five-minute test), it's already covered with cwd/branch binding.
+Chat has no transcript on disk and no extension can reach it. The sanctioned channel is MCP: heimdall serve --mcp exposing capture, session_summary, task_context, registered once in the desktop config. Summaries become model-initiated — a project instruction like "call session_summary when a decision or artifact is produced" — which is prompt-dependent rather than deterministic. It's the only tier-3 path for Desktop chat, so build it, but rank it below the transcript path in confidence.
+It's Electron; --remote-debugging-port may work on the AUR build, in which case Desktop chat gets the same sensor as the browser tab via CDP. Worth a spike before committing to MCP-only.
+Cowork is opaque for v1 — it runs tasks in a QEMU/KVM virtual machine hosted by the app; treat it as a window and nothing more. 
+Claude Code Docs
+
+The artifact-handoff workflow you described (claude.ai → artifact → another thread or Claude Code) is a lineage problem, and it's tractable without inference. The extension (or CDP) gets artifacts out of the conversation JSON; emit surface.observed{kind: artifact, id: sha256(content), title, origin: <chat surface>}. Then hash-match: the same content appearing in a UserPromptSubmit prompt, a Write tool call, or another chat's first message yields an origin edge. Exact hashes cover paste; fuzzy matching is fuse's job at F3. This fills the artifact surface kind that currently has no producer.
+
+2. Extension and mail
+
+Yes to the extension, with a specific scope. The handoff rejected the Obsidian clipper as a second writer with no origin. A first-party MV3 sensor that posts to the daemon isn't that. It consolidates four needs: capture (kills the bookmarklet's CORS/Local-Network-Access problem outright), tab focus via tabs.onActivated (replaces the Hyprland title-match hack), and content sensors for claude.ai and chatgpt.com. For content, don't scrape the DOM: have the extension ask the page's own backend for the conversation JSON, the same call the page makes. Still unofficial, so contain it: per-site adapters versioned independently, a self-test that emits sensor.degraded when the shape drifts, and nothing downstream that depends on it for correctness — it produces evidence for proposals, never state transitions. That's a defensible narrowing of the scraping objection: the fragility is isolated and loud, and the alternative is no signal at all.
+
+Keep CDP as the actuator for v1 (open/close need a synchronous channel and it's already specified); the extension is the observer. Consolidating both into the extension would drop the websocket dependency and the launch flag, but needs a reverse channel to a service worker that sleeps. Revisit after M1b.
+
+Mail: the client is irrelevant; the mailbox is the source. A native client emits nothing; it just reads the same IMAP account Gmail-in-a-tab does. So one mail observer covers both populations: IMAP IDLE on Sent and INBOX (Gmail with an app password, Workspace with XOAUTH2), or inotify on a local maildir for mbsync/notmuch users, which is stdlib-only. Emit surface.observed{kind: mail, msgid, from, to, subject, folder} and let done.checks match. Go has no stdlib IMAP: either add github.com/emersion/go-imap/v2 to the allowed list or hand-roll the five commands you need. A Gmail API/OAuth path is the "many users" answer but requires a verified OAuth app; that's a scale-path row, not v1. An extension watching Gmail's DOM is the worst of the options — skip it.
+
+5. Streams, tasks, types
+
+Not quite — what you're describing ("the discrete steps required to achieve completion") is the type, not the stream. Three words, three jobs:
+
+Task — the unit of ranking, membership, and completion. Can have a parent. job-search is a parent task (type project, or the initiative the classifier proposes); jobapp-sensemesh is a child (type application). Both are tasks; both are ranked.
+Stream — an address for routing captures and surfaces. Every task id is a stream address; unassigned is the only other one. Addressing something to job-search means "belongs here, not yet assigned to a child," and the classifier proposes the child. The tasks.yaml field currently named stream: is a parent pointer and should be renamed parent: so the word means one thing.
+Type — a workflow template: the status lifecycle plus default subtasks with their checks. Move this out of the enum in §4.3 into types.yaml, so add --type application scaffolds research → draft → send → follow-up with checks attached and a status mapping (submitted ⇐ subtask send done).
+
+Planner rules for the hierarchy: score leaves; subtasks inherit importance and impact from their task, take urgency from their own due else the task's resume_by, and carry their own estimate_minutes. A task's next_action is its first open, unblocked subtask in authored order (after: for explicit dependencies); sequence usually matters more than score among siblings, so don't rank them unless asked. A parent's score is the max over its children, and its completion is {kind: children_done}. The plan shows parent › task › subtask paths. That establishes the hierarchy without the planner inventing one.
+
+6. done.checks in M1
+yaml
+done:
+  text: Reply received or 14 days of silence
+  checks:                      # any match → proposal.created{kind: fulfill}
+    - {kind: mail.received, from: "@sensemesh.com"}
+    - {kind: silence, days: 14, after: subtask:send}
+subtasks:
+  - {id: send, title: send email, check: {kind: mail.sent, to: "@sensemesh.com"}}
+
+Kinds validated in M1 (unknown kind = validation error, so typos surface): manual (default), silence, children_done, subtasks_done, mail.sent, mail.received, agent.released, repo.commit, gh.pr_merged. Evaluated in M1: manual, silence, children_done, subtasks_done. The rest evaluate when their observer lands and are inert until then. Every match is a proposal; nothing auto-completes.
+
+Handoff edits this implies
+
+Decision table: add the extension (first-party sensor, not a second writer); amend "herdr never state" with the Codex carve-out; add types.yaml; rename stream: → parent:; add session.ended, sensor.degraded, and an artifact producer to the event set; add an IMAP dependency or a hand-rolled client; add a sensor section covering Claude Code, Codex, browser, Desktop/MCP, mail with the tier each reaches. M2 grows the mail observer and the extension; MCP server slots into M4 with HA.

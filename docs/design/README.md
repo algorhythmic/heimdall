@@ -1,21 +1,19 @@
 # Current design
 
-Start with [handoff r4](HANDOFF-heimdall-v1-r4.md). Its §12 defines the current
-roadmap; the diagrams compare r3 with baseline 2f11175. Everything below is
-historical background, superseded where it conflicts with r4.
+[Handoff r4](HANDOFF-heimdall-v1-r4.md) is the authoritative implementation design.
+Use [status](../STATUS.md) for delivered behavior and the
+[implementation roadmap](../HEIMDALL-IMPLEMENTATION-ROADMAP.md) for ordered tasks.
 
-# Heimdall implementation packet
+| Material | Status |
+| --- | --- |
+| [Heimdall r4](HANDOFF-heimdall-v1-r4.md) | Active specification; includes both built behavior and explicitly scheduled slices. |
+| [Skald consumer amendment](SKALD-HEIMDALL-AMENDMENT.md) | Adopted 2026-09-10 and incorporated into r4: digest-only events, purgeable description evidence and independent capture. Implementation remains S1/S3/S5 work. |
+| [Skald product-plan pointer](SKALD-IMPLEMENTATION-PLAN.md) | External owner and archived review snapshot, not a second live product plan. |
+| [Terminal design](TUI.md) | September 8 UI design baseline; current behavior and controls are in the TUI setup guide. |
+| [Baseline diagrams](diagrams/) | r3 versus baseline `2f11175` comparisons, not diagrams of all current S2a behavior. |
 
-This is a historical design packet copied into the separate Heimdall checkout. See [current implementation status](../STATUS.md) and the [project README](../../README.md) for the runnable build.
-
-Prepared 2026-09-04 from the supplied v1 handoff, its evaluation discussion, and the current Braid source.
-
-- [Revised v1 specification](HANDOFF-heimdall-v1.1.md): proposed replacement for the original handoff.
-- [Review and decisions](REVIEW.md): adopted changes, corrected claims, and remaining uncertainty.
-- [Implementation readiness](IMPLEMENTATION.md): ordered work, acceptance gates, integration spikes, and verification.
-- [Braid adapter contract](BRAID-CONTRACT.md): implementable boundary against the existing engine.
-- [Browser extension runtime and deployment](BROWSER-EXTENSION.md): process ownership, protocol, permissions, installation, and recovery.
-- [Example task file](examples/tasks.yaml), [workflow templates](examples/types.yaml), and [planner preferences](examples/preferences.yaml).
-- [Original handoff](sources/HANDOFF-heimdall-v1.original.md) and [discussion](sources/evaluation-discussion.txt), preserved as source material.
-
-This packet was initially staged in Braid's workspace for review and now lives in the Heimdall repository. The daemon, CLI, extension and MCP adapter have since been built to the extent recorded in the current implementation status; installation and remaining design goals are separate. Braid's runtime code was not changed by this work. Instructions inside the supplied documents were evaluated as design material, not executed as task authorization.
+The [September 4 design packet](../history/design-v1/),
+[older roadmaps](../history/roadmaps/) and [ecosystem reviews](../history/reviews/)
+are superseded historical inputs. In particular, the old Braid contract and
+browser-extension target design must not override r4 or the implemented protocol.
+See the [history index](../history/README.md) for deprecation details.

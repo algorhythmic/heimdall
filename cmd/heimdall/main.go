@@ -144,6 +144,9 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	if verb == "workspace" || verb == "session" {
 		return workspaceCLI(ctx, o, verb, rest, out)
 	}
+	if verb == "conversations" {
+		return conversationsCLI(ctx, o, rest, out)
+	}
 	if verb == "resume" {
 		return resumeCLI(ctx, o, rest, out)
 	}
@@ -208,6 +211,17 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 			return err
 		}
 		_, err = fmt.Fprintln(out, string(r))
+		return err
+	}
+	if verb == "state" && len(rest) > 0 && rest[0] == "--active" {
+		if len(rest) != 1 {
+			return fmt.Errorf("state --active accepts no task argument")
+		}
+		raw, err := call(ctx, o, "GET", "/state?active=1", nil)
+		if err != nil {
+			return err
+		}
+		_, err = fmt.Fprintln(out, string(raw))
 		return err
 	}
 	raw, err := call(ctx, o, "GET", "/state", nil)

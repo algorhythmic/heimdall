@@ -2,6 +2,7 @@ package store
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"heimdall/internal/model"
 	"reflect"
@@ -9,6 +10,17 @@ import (
 )
 
 func applyAction(st *model.State, e Event) error {
+	if e.Verb == "queued" {
+		var probe struct {
+			Adapter string `json:"adapter"`
+		}
+		if err := json.Unmarshal(e.Payload, &probe); err == nil && probe.Adapter == "wcu" {
+			return applyExternalAction(st, e)
+		}
+	} else if st.Actions[e.EntityID].Intent.External != nil {
+		return applyExternalAction(st, e)
+	}
+
 	if e.Verb == "queued" {
 		var v model.ActionIntent
 		if err := model.StrictJSON(e.Payload, &v); err != nil {
@@ -105,6 +117,9 @@ func applyAction(st *model.State, e Event) error {
 	var v model.ActionTransition
 	if err := model.StrictJSON(e.Payload, &v); err != nil {
 		return err
+	}
+	if (v.Report != nil && (v.Report.Step != 0 || v.Report.Final || v.Report.WCURequestID != "" || v.Report.MetricsDigest != "")) || (v.Observation != nil && (v.Observation.External != nil || v.Observation.Browser != nil)) {
+		return fmt.Errorf("external fields on legacy transition")
 	}
 	a, exists := st.Actions[v.ActionID]
 	if !exists || (v.Version != 1 && v.Version != 2 && v.Version != 3 && v.Version != 4) || !model.OpaqueID.MatchString(v.ID) || v.ActionID != e.EntityID || v.AttemptID != a.Intent.AttemptID || v.PreviousRevision != a.Revision || v.Actor != e.Actor || !v.At.Equal(e.TS) || v.At.IsZero() || len(v.Reason) > 512 {
@@ -307,7 +322,7 @@ func validateActionOperation(st model.State, op model.BrowserOperation) error {
 }
 
 func (s *Store) ActionHistory(ctx context.Context, target, id string, before int64, limit int) ([]Event, error) {
-	if !model.ValidID(target) || !model.OpaqueID.MatchString(id) || before < 0 || limit < 1 || limit > 100 {
+	if !model.ValidActionTarget(target) || !model.OpaqueID.MatchString(id) || before < 0 || limit < 1 || limit > 100 {
 		return nil, fmt.Errorf("invalid action history scope/cursor/limit")
 	}
 	s.mu.Lock()

@@ -24,21 +24,22 @@ type ResourceCheck struct {
 	Detail   string          `json:"detail,omitempty"`
 }
 type Bundle struct {
-	Progress        []ProgressSummary  `json:"progress,omitempty"`
-	Artifacts       []ArtifactCheck    `json:"artifacts,omitempty"`
-	Version         int                `json:"version"`
-	SourceEvent     int64              `json:"source_event"`
-	Target          string             `json:"target"`
-	Task            model.TaskRecord   `json:"task"`
-	Ancestors       []model.TaskRecord `json:"ancestors"`
-	Contracts       []model.Contract   `json:"contracts"`
-	Decisions       []model.Decision   `json:"decisions"`
-	Checkpoint      *model.Checkpoint  `json:"checkpoint,omitempty"`
-	Resources       []ResourceCheck    `json:"resources"`
-	Issues          []Issue            `json:"issues"`
-	ResumeStatus    string             `json:"resume_status"`
-	Coverage        map[string]string  `json:"coverage"`
-	EstimatedTokens int                `json:"estimated_tokens"`
+	OwnedWindows    []model.OwnedWindow `json:"owned_windows,omitempty"`
+	Progress        []ProgressSummary   `json:"progress,omitempty"`
+	Artifacts       []ArtifactCheck     `json:"artifacts,omitempty"`
+	Version         int                 `json:"version"`
+	SourceEvent     int64               `json:"source_event"`
+	Target          string              `json:"target"`
+	Task            model.TaskRecord    `json:"task"`
+	Ancestors       []model.TaskRecord  `json:"ancestors"`
+	Contracts       []model.Contract    `json:"contracts"`
+	Decisions       []model.Decision    `json:"decisions"`
+	Checkpoint      *model.Checkpoint   `json:"checkpoint,omitempty"`
+	Resources       []ResourceCheck     `json:"resources"`
+	Issues          []Issue             `json:"issues"`
+	ResumeStatus    string              `json:"resume_status"`
+	Coverage        map[string]string   `json:"coverage"`
+	EstimatedTokens int                 `json:"estimated_tokens"`
 }
 type BudgetError struct {
 	Required int `json:"required_estimate"`
@@ -55,7 +56,11 @@ func (s Service) Context(ctx context.Context, target string, budget int) (Bundle
 	if err != nil {
 		return Bundle{}, err
 	}
-	return buildContext(ctx, st, target, budget)
+	bundle, err := buildContext(ctx, st, target, budget)
+	if err == nil {
+		err = bundle.ObserveOwnedWindows(ctx, s.Desktop, budget, st)
+	}
+	return bundle, err
 }
 func buildContext(ctx context.Context, st model.State, target string, budget int) (Bundle, error) {
 	return buildContextArtifacts(ctx, st, target, budget, true)
@@ -70,6 +75,7 @@ func buildContextArtifacts(ctx context.Context, st model.State, target string, b
 		return out, err
 	}
 	out.Task = task
+	out.OwnedWindows = model.OwnedWindows(st, target)
 	targets, err := lineage(st, target)
 	if err != nil {
 		return out, err
@@ -269,4 +275,55 @@ func (s Service) View(ctx context.Context, target string) (View, error) {
 		return v.Checkpoints[i].ID < v.Checkpoints[j].ID
 	})
 	return v, nil
+}
+
+// Runtime metadata is short-lived guidance, never an ownership declaration or
+// input capability. Registration and WCU each recheck their own exact identity.
+func (b *Bundle) ObserveOwnedWindows(ctx context.Context, observer DesktopObserver, budget int, states ...model.State) error {
+	if observer == nil || len(b.OwnedWindows) == 0 {
+		return nil
+	}
+	status, err := observer.ReadFocused(ctx)
+	if err != nil || !status.Fresh || status.Snapshot == nil {
+		return nil
+	}
+	p := status.Snapshot
+	if observer.Check(p.ID) != nil {
+		return nil
+	}
+	for i := range b.OwnedWindows {
+		owned := &b.OwnedWindows[i]
+		for _, w := range p.Windows {
+			if w.Identity == owned.Window {
+				if owned.Browser {
+					if len(states) != 1 {
+						continue
+					}
+					pin, ok := model.ExternalBrowserScope(states[0], *owned)
+					if !ok || !model.ExternalBrowserFresh(states[0].Browsers[pin.Profile], 0, time.Now().UTC()) || !model.ExternalBrowserTitle(states[0], pin, w.Title) {
+						continue
+					}
+				}
+				name := ""
+				for _, workspace := range p.Workspaces {
+					if workspace.ID == w.WorkspaceID {
+						name = workspace.Name
+					}
+				}
+				owned.Runtime = &model.OwnedWindowRuntime{Address: w.Address, Title: w.Title, Workspace: name, CapturedAt: p.CapturedAt}
+			}
+		}
+	}
+	for {
+		raw, _ := json.Marshal(b)
+		estimate := (len(raw) + 3) / 4
+		if estimate == b.EstimatedTokens {
+			break
+		}
+		b.EstimatedTokens = estimate
+	}
+	if b.EstimatedTokens > budget {
+		return &BudgetError{Required: b.EstimatedTokens, Budget: budget}
+	}
+	return nil
 }

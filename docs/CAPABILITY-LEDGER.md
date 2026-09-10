@@ -62,3 +62,33 @@ The current credential maps to one immutable read grant; identity is daemon-auth
 Start with bounded reads and explicit checkpoint/progress grants. Reserve accepting contracts/decisions, changing bindings, ratifying completion and granting authority for the user-controlled surface unless a later policy explicitly delegates that operation. Distinguish inherited visibility from mutation authority; applying a grant to one child must not expose siblings or let it replace ancestor contracts.
 
 MCP and daemon tests now cover wrong-scope reads/writes, sibling/ancestor access, forged authority, expiry, revocation, credential separation, duplicate commands after revocation, pagination/cursor scope and reconnect. The daemon remains the sole writer. MCP capabilities are advertised after adapter/handshake acceptance; per-host installation remains separate. Do not hand the unrestricted CLI token to an MCP client as a shortcut.
+
+
+## S2a delivered (2026-09-10)
+
+CLI-issued grant v2 adds mutually exclusive action-write authority for
+`heimdall_intent` and `heimdall_report`. Schema 21 records external intents and
+ordered reports on existing action verbs. Current task/manifest/context and exact
+native bindings constrain registration; browser input scope additionally requires
+a proved container and owned active tab with fresh challenged readback.
+
+Reports never verify actions. Native/browser observations determine verification;
+optional read-only WCU metadata, bounded trace correlation and request-result
+target mismatch corroborate without changing bindings. Cancellation/revocation,
+expiry and restart still reconcile and never repeat input. Checkpoint action
+references and `action.verified` completion checks cite independently matched
+observations; completion acceptance revalidates current state.
+
+Tested WCU published bundle:
+`4c709b707e0dc26bffbbf915d79461969f03b44fb6180549fc26d8806c7d6bb5`,
+contract `wcu-tools-4`, context schema 1, observer version
+`2b5401dff8eb14d11e49e7c2d214d9e8c0dd90c0c099e3171b58b80fd25d448a`.
+The adapter records an operator-selected pin plus runtime revision; it does not
+automatically attest executable contents. Fresh/partial live corroboration was
+retained while independent readback correctly rejected a focus mismatch.
+The earlier positive native run and current negative run, protocol/MCP,
+completion, race and schema-20 migration evidence are detailed in
+[S2a implementation](S2A-IMPLEMENTATION.md).
+
+Daily browser registration/pairing and ordinary-day volume measurement remain
+P0 deployment gates. S1 and later slices remain unstarted.

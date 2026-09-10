@@ -117,3 +117,8 @@ GOFLAGS, LANG and LC_ALL. Optional `env: [NAME]` selects additional inherited
 names (also available in an explicit evaluator spec). Values are never included
 in definitions or output logs; the actual environment is digested and checked
 again before acceptance. No other environment variables are inherited.
+
+S2a adds `action.verified` checks keyed by an exact preselected `action_id`.
+They cite independently matched observations through the existing proposal and
+ratification path, with fresh state validation at acceptance. Reports alone
+remain unknown. See [S2a implementation](S2A-IMPLEMENTATION.md).

@@ -187,7 +187,10 @@ func continuityCLI(ctx context.Context, o options, verb string, args []string, o
 			req.Op = "checkpoint.record"
 			req.Checkpoint = &continuity.CheckpointInput{}
 			err = model.StrictJSON(body, req.Checkpoint)
-			if req.Checkpoint.Artifacts != nil {
+			if req.Checkpoint.Actions != nil {
+				req.Version = 3
+			}
+			if req.Checkpoint.Artifacts != nil && req.Checkpoint.Actions == nil {
 				req.Version = 2
 			}
 		default:

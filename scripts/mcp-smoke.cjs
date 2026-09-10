@@ -18,7 +18,7 @@ const id=()=>randomBytes(16).toString('hex');
   const notify=(method,params={})=>p.stdin.write(JSON.stringify({jsonrpc:'2.0',method,params})+'\n');
   return {p,request,notify,stderr:()=>stderr};
  }
- async function handshake(a){const r=await a.request('initialize',{protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'heimdall-stdio-fixture',version:'1'}});assert(!r.error,JSON.stringify(r));assert.equal(r.result.protocolVersion,'2025-11-25');a.notify('notifications/initialized');assert.equal((await a.request('tools/list',{})).result.tools.length,4);}
+ async function handshake(a){const r=await a.request('initialize',{protocolVersion:'2025-11-25',capabilities:{},clientInfo:{name:'heimdall-stdio-fixture',version:'1'}});assert(!r.error,JSON.stringify(r));assert.equal(r.result.protocolVersion,'2025-11-25');a.notify('notifications/initialized');assert.equal((await a.request('tools/list',{})).result.tools.length,6);}
  async function tool(a,name,args,wantError=false){const r=await a.request('tools/call',{name,arguments:args});assert(!r.error,JSON.stringify(r));assert.equal(!!r.result.isError,wantError,JSON.stringify(r));return r.result;}
  try{
   cli('init');await start();cli('add','MCP fixture','--id','mcp-fixture','--type','project','--status','active');const task=cli('state','mcp-fixture');

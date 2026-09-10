@@ -48,6 +48,7 @@ type Result struct {
 }
 type Engine struct {
 	ValidateEvidence func(context.Context, model.State, string) error
+	PrepareEvidence  func(context.Context, model.State, string) error
 	mu               sync.Mutex
 	Store            *store.Store
 	Dir              string
@@ -219,6 +220,22 @@ func (e *Engine) execute(ctx context.Context, c Command, actor string, now time.
 func (e *Engine) executeChecked(ctx context.Context, c Command, actor string, now time.Time, authorize func(model.State) error) (json.RawMessage, error) {
 	if c.ID == "" {
 		return nil, fmt.Errorf("command id required")
+	}
+	if c.Op == "ratify" && c.Action == "accept" && e.PrepareEvidence != nil {
+		st, err := e.Store.State(ctx)
+		if err != nil {
+			return nil, err
+		}
+		if authorize != nil {
+			if err := authorize(st); err != nil {
+				return nil, err
+			}
+		}
+		if p := st.Proposals[c.Target]; p.Status == "pending" {
+			if err := e.PrepareEvidence(ctx, st, p.Target); err != nil {
+				return nil, err
+			}
+		}
 	}
 	intent := c
 	intent.ExpectedRevision = nil

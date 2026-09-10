@@ -35,6 +35,12 @@ func Evaluate(st model.State, id string) []CheckResult {
 				cr.Status = evidence.Outcome
 				cr.Evidence = []string{evidence.ID}
 			}
+		case "action.verified":
+			cr.Status = "unknown"
+			if a, ok := model.VerifiedAction(st, id, c.ActionID); ok {
+				cr.Status = "matched"
+				cr.Evidence = []string{"action:" + a.Intent.ID + ":" + a.Observation.ID}
+			}
 		case "manual":
 			cr.Status = "not_matched"
 		case "silence":
@@ -132,7 +138,9 @@ func (b *builder) ratify(c Command) error {
 			done = step.Done
 		}
 		for _, check := range done.Checks {
-			if evidence, current := model.LatestEvidence(b.state, p.Target, check.ID); current && evidence.Outcome == "matched" {
+			evidence, current := model.LatestEvidence(b.state, p.Target, check.ID)
+			_, actionCurrent := model.VerifiedAction(b.state, p.Target, check.ActionID)
+			if (current && evidence.Outcome == "matched") || (check.Kind == "action.verified" && actionCurrent) {
 				if b.validateEvidence == nil {
 					return fmt.Errorf("live evidence verifier unavailable")
 				}

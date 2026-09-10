@@ -85,6 +85,7 @@ type ContextVersion struct {
 	ContractID   string `json:"contract_id,omitempty"`
 }
 type Checkpoint struct {
+	Actions      []string          `json:"actions,omitempty"`
 	Artifacts    []ArtifactRef     `json:"artifacts,omitempty"`
 	GrantID      string            `json:"grant_id,omitempty"`
 	Version      int               `json:"version"`
@@ -106,6 +107,24 @@ type Checkpoint struct {
 }
 
 func ValidCheckpoint(c Checkpoint) error {
+	if c.Version == 4 {
+		if err := ValidActionRefs(c.Actions); err != nil {
+			return err
+		}
+		c.Actions = nil
+		if c.GrantID != "" {
+			c.Version = 2
+		} else if c.Artifacts != nil {
+			c.Version = 3
+		} else {
+			c.Version = 1
+		}
+		return ValidCheckpoint(c)
+	}
+	if c.Actions != nil {
+		return fmt.Errorf("action references require checkpoint version 4")
+	}
+
 	if c.Version == 3 {
 		if c.GrantID != "" {
 			return fmt.Errorf("artifact checkpoints require CLI provenance")
@@ -213,6 +232,29 @@ func ValidRecord(version int, id, target, actor string, at time.Time) error {
 	p := strings.Split(target, "#")
 	if len(p) > 2 || !ValidID(p[0]) || (len(p) == 2 && p[1] == "") {
 		return fmt.Errorf("invalid continuity target")
+	}
+	return nil
+}
+
+func ValidActionRefs(ids []string) error {
+	if len(ids) > 64 {
+		return fmt.Errorf("at most 64 action references")
+	}
+	seen := map[string]bool{}
+	for _, id := range ids {
+		if !OpaqueID.MatchString(id) || seen[id] {
+			return fmt.Errorf("invalid or duplicate action reference")
+		}
+		seen[id] = true
+	}
+	return nil
+}
+func ValidateCheckpointActions(st State, c Checkpoint) error {
+	for _, id := range c.Actions {
+		a, ok := st.Actions[id]
+		if !ok || a.Intent.Target != c.Target || a.Intent.TaskRevision != c.TaskRevision || a.Verification != "matched" || a.Observation == nil || a.Observation.Status != "matched" || a.LastEventID > c.SourceEvent || !ActionInputsCurrent(st, a.Intent) {
+			return fmt.Errorf("checkpoint requires a current independently verified action on the exact target")
+		}
 	}
 	return nil
 }

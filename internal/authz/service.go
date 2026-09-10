@@ -32,6 +32,7 @@ type IssueInput struct {
 	ResourceIDs     []string  `json:"resource_ids"`
 	TokenHash       string    `json:"token_hash"`
 	ExpiresAt       time.Time `json:"expires_at"`
+	ActionWrite     bool      `json:"action_write,omitempty"`
 	CheckpointWrite bool      `json:"checkpoint_write,omitempty"`
 }
 
@@ -79,6 +80,10 @@ func (s Service) Execute(ctx context.Context, r Request, now time.Time) (json.Ra
 		if r.Op == "grant.issue" {
 			input := r.Grant
 			g = model.Grant{Version: 1, ID: r.ID, Name: input.Name, Target: input.Target, Subtree: input.Subtree, ResourceIDs: input.ResourceIDs, TokenHash: input.TokenHash, ExpiresAt: input.ExpiresAt, Actor: "cli", At: now.UTC()}
+			if input.ActionWrite {
+				g.Version = 2
+				g.ActionWrite = true
+			}
 			if input.CheckpointWrite {
 				g.Version = 2
 				g.CheckpointWrite = true
@@ -120,6 +125,9 @@ func (s Service) Execute(ctx context.Context, r Request, now time.Time) (json.Ra
 // Public omits even the credential hash from ordinary grant listings.
 func Public(g model.Grant) any {
 	capabilities := []string{"task.read", "history.read", "context.read"}
+	if g.Version == 2 && g.ActionWrite {
+		capabilities = append(capabilities, "action.intent", "action.report")
+	}
 	if g.Version == 2 && g.CheckpointWrite {
 		capabilities = append(capabilities, "checkpoint.write")
 	}

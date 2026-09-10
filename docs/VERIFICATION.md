@@ -395,3 +395,18 @@ Build SHA-256 hashes for the local development artifacts are recorded in [build-
 - Actual schema-18 binary upgrade/refusal and pre-schema-19 rollback, including old continuity records/grants: `.tools/continuity-test-JX9XL0` passed. Schema-19 native SQL/event goldens use synthetic data only; previous schema-18 browser pairing fixtures retain their historical authority.
 - Regression: `.tools/preview-test-p8LKot`, `.tools/tui-test-KVyy81` (real PTY), `.tools/browser-verification-test-Pm4j6u`, and `.tools/browser-pairing-test-D4jeh4` passed. Browser verification still retains before-unload uncertainty and does not claim saved data.
 - W06 launch/attach/detach and browser self-restoration, W07 full placement/attachment reporting, and W08 reboot/controlled VM power-loss gates remain open. A process-kill test is not a VM power-loss test. Native ACK and workspace closure do not complete a development task.
+
+## S2a A01/A02, schema 21 (2026-09-10)
+
+[S2a implementation and acceptance](S2A-IMPLEMENTATION.md) records native WCU
+positive and focus-drift negative runs, scoped MCP/HTTP integration, exact owned
+browser readback, observation-only completion/checkpoint citations, cancellation,
+revocation, expiry/restart and replay. Full Go tests, vet, targeted race tests,
+Linux and Windows builds, extension unit tests and compiled MCP/evidence smoke
+acceptance pass. Isolated Chromium 151.0.7922.34 native-host/readback acceptance
+also passes, including duplicate-URL exclusion, redirects, exact closure and
+recovery without duplicated input; the before-unload case remains unknown. The actual P0 binary refuses schema 21 and opens a restored
+pre-upgrade backup at schema 20 with all 99 fixture events preserved.
+
+Daily-profile browser pairing and ordinary-day volume measurement remain P0
+deployment gates; no S1 sensor or later roadmap slice is included.

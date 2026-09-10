@@ -13,6 +13,7 @@ import (
 	"heimdall/internal/adapters/application"
 	"heimdall/internal/adapters/herdr"
 	"heimdall/internal/adapters/hyprland"
+	"heimdall/internal/adapters/wcu"
 	"heimdall/internal/browser"
 	"heimdall/internal/checks"
 	"heimdall/internal/core"
@@ -39,6 +40,7 @@ type Request struct {
 	Now     string       `json:"now,omitempty"`
 }
 type Server struct {
+	External          *actions.ExternalService
 	Operations        *workspace.OperationService
 	Browser           *browser.Service
 	Previews          *workspace.PreviewService
@@ -114,6 +116,26 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	if err := service.Viewport.Restore(localCtx); err != nil {
 		return err
 	}
+	service.External = &actions.ExternalService{Store: e.Store, Observer: service.Viewport.Observer, Browser: service.Browser, Clock: clock}
+	corroborator, err := wcu.Load(e.Dir)
+	if err != nil {
+		return err
+	}
+	if corroborator != nil {
+		service.External.Corroborate = corroborator.Observe
+	}
+	e.PrepareEvidence = service.External.PrepareCompletion
+	e.ValidateEvidence = func(ctx context.Context, st model.State, target string) error {
+		if err := checks.ValidateTarget(ctx, st, target); err != nil {
+			return err
+		}
+		return service.External.ValidateCompletion(ctx, st, target)
+	}
+	if err := service.External.Settle(localCtx, true); err != nil {
+		return err
+	}
+	externalDone := make(chan struct{})
+	go func() { defer close(externalDone); service.External.Run(localCtx) }()
 	service.Snapshots = &workspace.SnapshotService{Store: e.Store, Observer: service.Viewport.Observer}
 	service.Previews = &workspace.PreviewService{Store: e.Store, Observer: service.Viewport.Observer, Herdr: herdr.Adapter{}, BrowserReadback: service.Browser}
 	service.Operations = &workspace.OperationService{Store: e.Store, Previews: service.Previews, Observer: service.Viewport.Observer, Dispatcher: hyprland.Dispatcher{Observer: service.Viewport.Observer}, Clock: clock}
@@ -145,6 +167,7 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	}
 	err = server.Serve(listener)
 	cancel()
+	<-externalDone
 	<-snapshotDone
 	<-operationDone
 	<-pairingDone

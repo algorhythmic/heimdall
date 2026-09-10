@@ -115,17 +115,20 @@ func Pending(v model.ActionTransition) store.Pending {
 	return store.Pending{Subject: "action", Verb: "transitioned", EntityID: v.ActionID, Payload: v}
 }
 func (s Service) Cancel(ctx context.Context, r CancelRequest, actor string, now time.Time) (json.RawMessage, error) {
-	if actor != "cli" || r.Version != 1 || !model.OpaqueID.MatchString(r.ID) || !model.OpaqueID.MatchString(r.ActionID) || !model.ValidID(r.Target) || r.ExpectedRevision < 1 || r.Reason == "" || len(r.Reason) > 512 {
+	if actor != "cli" || (r.Version != 1 && r.Version != 2) || !model.OpaqueID.MatchString(r.ID) || !model.OpaqueID.MatchString(r.ActionID) || (r.Version == 1 && (!model.ValidActionTarget(r.Target) || r.ExpectedRevision < 1)) || (r.Version == 2 && (r.Target != "" || r.ExpectedRevision != 0)) || r.Reason == "" || len(r.Reason) > 512 {
 		return nil, fmt.Errorf("invalid explicit action cancellation")
 	}
 	raw, _ := json.Marshal(r)
 	return s.Store.Transact(ctx, "action-cancel-"+r.ID, actor, raw, now, func(st model.State) (store.Change, error) {
 		c := store.Change{Revision: st.Revision}
 		a := st.Actions[r.ActionID]
-		if a.Intent.Target != r.Target || a.Revision != r.ExpectedRevision {
+		if (r.Version == 1 && (a.Intent.Target != r.Target || a.Revision != r.ExpectedRevision)) || (r.Version == 2 && a.Intent.External == nil) {
 			return c, fmt.Errorf("action scope/revision: %w", store.ErrConflict)
 		}
 		v := Transition(a, "cancel", r.Reason, actor, now)
+		if a.Intent.External != nil {
+			v.Version = 5
+		}
 		p := Pending(v)
 		if err := ApplyPending(&st, p, "action-cancel-"+r.ID, actor, now); err != nil {
 			return c, err
@@ -199,14 +202,14 @@ func (s Service) Show(ctx context.Context, target, id string) (model.ActionRecor
 	return a, nil
 }
 func (s Service) List(ctx context.Context, target string, before int64, limit int) ([]model.ActionRecord, error) {
-	if !model.ValidID(target) || before < 0 || limit < 1 || limit > 100 {
+	if !model.ValidActionTarget(target) || before < 0 || limit < 1 || limit > 100 {
 		return nil, fmt.Errorf("action list requires task, nonnegative cursor and limit 1..100")
 	}
 	st, err := s.Store.State(ctx)
 	if err != nil {
 		return nil, err
 	}
-	if st.Tasks[target].Revision == 0 {
+	if _, _, err := model.ResolveTarget(st, target); err != nil {
 		return nil, fmt.Errorf("task not found")
 	}
 	out := []model.ActionRecord{}
@@ -251,7 +254,7 @@ func Legacy(o model.BrowserOperation) LegacyBrowserAction {
 
 // Reconcile requests fresh observation of the same attempt and never dispatches it.
 func (s Service) Reconcile(ctx context.Context, r CancelRequest, actor string, now time.Time) (json.RawMessage, error) {
-	if actor != "cli" || r.Version != 1 || !model.OpaqueID.MatchString(r.ID) || !model.OpaqueID.MatchString(r.ActionID) || !model.ValidID(r.Target) || r.ExpectedRevision < 1 || r.Reason == "" || len(r.Reason) > 512 {
+	if actor != "cli" || r.Version != 1 || !model.OpaqueID.MatchString(r.ID) || !model.OpaqueID.MatchString(r.ActionID) || !model.ValidActionTarget(r.Target) || r.ExpectedRevision < 1 || r.Reason == "" || len(r.Reason) > 512 {
 		return nil, fmt.Errorf("invalid explicit reconciliation")
 	}
 	raw, _ := json.Marshal(r)
@@ -263,6 +266,9 @@ func (s Service) Reconcile(ctx context.Context, r CancelRequest, actor string, n
 		}
 		v := Transition(a, "reconcile", r.Reason, actor, now)
 		v.Version = 2
+		if a.Intent.External != nil {
+			v.Version = 5
+		}
 		p := Pending(v)
 		if err := ApplyPending(&st, p, "action-reconcile-"+r.ID, actor, now); err != nil {
 			return c, err

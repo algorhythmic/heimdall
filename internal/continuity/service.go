@@ -5,6 +5,7 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"heimdall/internal/adapters/hyprland"
 	"heimdall/internal/authz"
 	"heimdall/internal/model"
 	"heimdall/internal/store"
@@ -33,6 +34,7 @@ type ResourceInput struct {
 	Exclude []string `json:"exclude,omitempty"`
 }
 type CheckpointInput struct {
+	Actions     []string            `json:"actions,omitempty"`
 	Artifacts   []model.ArtifactRef `json:"artifacts,omitempty"`
 	Previous    string              `json:"previous"`
 	ContractID  string              `json:"contract_id"`
@@ -61,6 +63,15 @@ func Decode(body []byte) (Request, error) {
 	}
 	if err := model.StrictJSON(body, &r); err != nil {
 		return r, err
+	}
+	if r.Version < 3 {
+		var envelope map[string]json.RawMessage
+		_ = json.Unmarshal(body, &envelope)
+		var checkpoint map[string]json.RawMessage
+		_ = json.Unmarshal(envelope["checkpoint"], &checkpoint)
+		if _, ok := checkpoint["actions"]; ok {
+			return r, fmt.Errorf("action references require request version 3")
+		}
 	}
 	if r.Version == 1 {
 		var envelope map[string]json.RawMessage
@@ -95,8 +106,23 @@ func linesValid(lines []string) bool {
 	return true
 }
 func (r Request) Validate() error {
-	if (r.Version != 1 && r.Version != 2) || !model.OpaqueID.MatchString(r.ID) || r.ExpectedTaskRevision == nil || *r.ExpectedTaskRevision < 1 {
+	if (r.Version != 1 && r.Version != 2 && r.Version != 3) || !model.OpaqueID.MatchString(r.ID) || r.ExpectedTaskRevision == nil || *r.ExpectedTaskRevision < 1 {
 		return fmt.Errorf("version, request ID and expected task revision required")
+	}
+	if r.Version == 3 {
+		if r.Op != "checkpoint.record" || r.Checkpoint == nil || len(r.Checkpoint.Actions) == 0 {
+			return fmt.Errorf("request v3 is for action checkpoints")
+		}
+		if r.Checkpoint.Artifacts != nil {
+			if err := model.ValidArtifactRefs(r.Checkpoint.Artifacts); err != nil {
+				return err
+			}
+		}
+		if err := model.ValidActionRefs(r.Checkpoint.Actions); err != nil {
+			return err
+		}
+	} else if r.Checkpoint != nil && r.Checkpoint.Actions != nil {
+		return fmt.Errorf("action references require request version 3")
 	}
 	if r.Version == 2 {
 		if r.Op != "checkpoint.record" || r.Checkpoint == nil {
@@ -105,7 +131,7 @@ func (r Request) Validate() error {
 		if err := model.ValidArtifactRefs(r.Checkpoint.Artifacts); err != nil {
 			return err
 		}
-	} else if r.Checkpoint != nil && r.Checkpoint.Artifacts != nil {
+	} else if r.Version != 3 && r.Checkpoint != nil && r.Checkpoint.Artifacts != nil {
 		return fmt.Errorf("artifact references require request version 2")
 	}
 	n := 0
@@ -156,7 +182,14 @@ func (r Request) Validate() error {
 	return nil
 }
 
-type Service struct{ Store *store.Store }
+type Service struct {
+	Store   *store.Store
+	Desktop DesktopObserver
+}
+type DesktopObserver interface {
+	ReadFocused(context.Context) (hyprland.Status, error)
+	Check(string) error
+}
 
 func (s Service) Execute(ctx context.Context, r Request, actor string, now time.Time) (json.RawMessage, error) {
 	if actor != "cli" {
@@ -181,7 +214,7 @@ func (s Service) ExecuteClient(ctx context.Context, r Request, token string, clo
 		if err != nil {
 			return err
 		}
-		if current.ID != g.ID || r.Version != 1 || r.Op != "checkpoint.record" || r.Checkpoint == nil || r.Checkpoint.Artifacts != nil || !current.PermitsCheckpoint(st, r.Target, r.Checkpoint.ContractID) {
+		if current.ID != g.ID || (r.Version != 1 && r.Version != 3) || r.Op != "checkpoint.record" || r.Checkpoint == nil || r.Checkpoint.Artifacts != nil || !current.PermitsCheckpoint(st, r.Target, r.Checkpoint.ContractID) {
 			return authz.ErrDenied
 		}
 		if saved, ok := st.Checkpoints[r.ID]; ok {
@@ -338,6 +371,14 @@ func (s Service) execute(ctx context.Context, r Request, actor string, now time.
 			if r.Version == 2 {
 				v.Version = 3
 				v.Artifacts = append([]model.ArtifactRef{}, c.Artifacts...)
+			}
+			if r.Version == 3 {
+				v.Version = 4
+				v.Actions = append([]string{}, c.Actions...)
+				v.Artifacts = c.Artifacts
+			}
+			if err := model.ValidateCheckpointActions(st, v); err != nil {
+				return change, err
 			}
 			bound := resources(st, targets)
 			if contract.Version != 2 || !slices.Equal(contract.ResourceIDs, resourceIDs(st, targets)) {

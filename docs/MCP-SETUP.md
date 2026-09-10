@@ -1,6 +1,6 @@
 # MCP and scoped progress writes — 0.6.0
 
-The daemon now supports explicitly granted checkpoint writes, and the Go MCP adapter exposes task, context, history and checkpoint tools over stdio. The daemon stays running as the sole database writer. Each MCP adapter is a separate lightweight process using a scoped credential and the daemon's loopback API; it does not start a daemon, open the database or move runtime state into the extension.
+The daemon now supports explicitly granted checkpoint writes, and the Go MCP adapter exposes task, context, history, checkpoint, intent and report tools over stdio. The daemon stays running as the sole database writer. Each MCP adapter is a separate lightweight process using a scoped credential and the daemon's loopback API; it does not start a daemon, open the database or move runtime state into the extension.
 
 ## Prepare access
 
@@ -41,6 +41,8 @@ This patch supplies the executable and tested interface. It does not register it
 | `heimdall_task` | `target`; returns one authorized task record, including its revision |
 | `heimdall_context` | `target`, optional `budget` (default 16000); returns mandatory accepted context, checkpoint and authorized live observations |
 | `heimdall_history` | `target`, `kind`, optional `limit` and `cursor`; bounded exact-target history page |
+| `heimdall_intent` | Action grant: register a bounded intent against a current owned window |
+| `heimdall_report` | Action grant: append an ordered execution claim; observation alone verifies |
 | `heimdall_checkpoint` | Explicit request ID, task revision, contract/head preconditions and progress fields; returns an immutable checkpoint with authenticated author/grant provenance |
 
 Example checkpoint arguments, substituting the actual IDs/revision from task/context:
@@ -72,7 +74,7 @@ The same granted operation is available without MCP:
 .\bin\heimdall.exe client checkpoint feature-work --credential .\feature-worker.credential.json --expected-task-revision 1 --request-id 0123456789abcdef0123456789abcdef --file checkpoint.json
 ```
 
-The file contains the usual checkpoint input from Continuity setup (`previous`, `contract_id`, `summary`, `next_action`, `blockers`, optional `current_step`). The client command requires an explicit request ID. It uses `POST /client/checkpoint`; no other client mutation route is enabled.
+The file contains the usual checkpoint input from Continuity setup (`previous`, `contract_id`, `summary`, `next_action`, `blockers`, optional `current_step`). The client command requires an explicit request ID. It uses `POST /client/checkpoint`; the separate action grant enables only intent/report mutations.
 
 ## Errors, limits and persistence
 
@@ -92,4 +94,7 @@ Tests exercise an official SDK client through the scoped HTTP daemon using proto
 
 Dependency root notices are retained under [licenses](licenses/INDEX.txt), including the SDK's full current license/transition notice. Include these notices with redistributed artifacts.
 
-The next implementation slice is evidence capture/evaluation and completion revalidation. Proposed/rejected decisions, Git/source identities, Braid integration, the task GUI, verified browser actions and execution-host coordination remain tracked in the backlog.
+S2a is delivered; S1 sensors (schema 22) are next in the revised roadmap. Execution-host orchestration remains retired. See BACKLOG.md.
+
+For action-grant setup, browser scope, checkpoint action references and optional
+WCU corroboration, see [S2a implementation](S2A-IMPLEMENTATION.md).

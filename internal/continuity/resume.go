@@ -60,6 +60,9 @@ func (s Service) Resume(ctx context.Context, target string, budget int) (ResumeV
 	if err != nil {
 		return ResumeView{}, err
 	}
+	if err := bundle.ObserveOwnedWindows(ctx, s.Desktop, budget, st); err != nil {
+		return ResumeView{}, err
+	}
 	result := ResumeView{Bundle: bundle, Reviews: reviewSummary(st, target)}
 	// Account for the entire response, including its review summary. As with
 	// context, mandatory direction and drift warnings are never truncated.

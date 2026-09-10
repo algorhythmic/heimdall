@@ -51,7 +51,7 @@ verification are recorded in [P0 verification](P0-VERIFICATION.md); machine gate
 - Version-2 contracts freeze explicitly reviewed resource IDs and reject scope changes. Version-1 contracts remain replayable but require review before new checkpoints. Golden event fixtures exercise both versions plus grant issue/revoke.
 - CLI-authored accepted task/step contracts and decisions, explicit supersession, canonical file/tree bindings, immutable checkpoints with atomic head preconditions, and deterministic mandatory context without retrieval. Task/ancestor changes, working-file drift, blockers and unavailable resources are visible. See [CONTINUITY-SETUP.md](CONTINUITY-SETUP.md).
 - Versioned continuity events and request fixtures, exact-request retry, competing-head rejection, replay/restart equality, bounded resource reads and explicit small-budget errors. Replay performs no filesystem observations.
-- Database marker 20, stopped schema-6 through schema-19 fixture migrations and historical actual schema-11/schema-10/0.7.0 upgrade/refusal/rollback, consistent pre-upgrade backups, exclusive live database backups, and fresh-directory recovery. Earlier compiled 0.5.0 acceptance preserved task/contract/checkpoint and read-grant state and rolled back from its pre-upgrade snapshot successfully. Its existing read credential still refused checkpoint writes after upgrade.
+- Database marker 21 delivers S2a native/browser intents, reports, WCU corroboration and checkpoint/completion references; schema-20 upgrade/refusal/rollback acceptance passes. The P0 baseline used marker 20, stopped schema-6 through schema-19 fixture migrations and historical actual schema-11/schema-10/0.7.0 upgrade/refusal/rollback, consistent pre-upgrade backups, exclusive live database backups, and fresh-directory recovery. Earlier compiled 0.5.0 acceptance preserved task/contract/checkpoint and read-grant state and rolled back from its pre-upgrade snapshot successfully. Its existing read credential still refused checkpoint writes after upgrade.
 - MV3 extension with explicit profile pairing, ordinary HTTP(S) tab inventory/focus, popup pause/connection status, browser epochs, bounded IndexedDB outbox, reconnect and command journal.
 - Compiled native helper with bounded framing and exact-origin config; browser-only daemon credential; replayable browser observations and command results.
 - CLI open/navigate/focus/move/close. Existing tabs require recorded Heimdall ownership, current epoch and exact URL. Setup prepares native-host registration artifacts without installing them.
@@ -71,7 +71,7 @@ verification are recorded in [P0 verification](P0-VERIFICATION.md); machine gate
 | Slice | Scope | Planned schema |
 |---|---|---|
 | P0 | W07 clock repair, r4 adoption, evaluator environment, YAML check materialization, browser deltas and daily-profile pairing | 20 |
-| S2a (R5/A01/A02) | Scoped computer-use intents, action grant, reports and fresh reconciliation | 21 |
+| S2a (R5/A01/A02) | Delivered: scoped computer-use intents, action grant, reports and fresh reconciliation | 21 |
 | S1 | Observed surfaces, hooks, conversations, herdr sensors, focus spans; S1b adapter spike | 22 |
 | S2b (R6/W08) | Startup readiness, interruption/reboot recovery, optional login restore | no reserved bump |
 | S3 (C14–C16) | Braid assignment and continuity retrieval, typed checkpoint MCP records, optional intent extraction | 23 |
@@ -79,7 +79,7 @@ verification are recorded in [P0 verification](P0-VERIFICATION.md); machine gate
 | S5 (C21) | Mail, Codex/Desktop adapters, packaging and fresh-install replay | 25 |
 
 Delivery order: **P0 → S2a → S1 → S2b → S3 → S4 → S5**. S-numbers are
-stable labels, not numeric execution order. S2a and all later slices remain unstarted.
+stable labels, not numeric execution order. S2a (A01/A02) is delivered; S1 and all later slices remain unstarted. See [S2a implementation](S2A-IMPLEMENTATION.md).
 
 **Agent execution is out of scope for Heimdall.** Agents run in Claude Code,
 Codex and herdr; desktop input runs through WCU under its MCP host's approval.
@@ -91,7 +91,7 @@ attention belong to the S4 notifier.
 
 ## Boundaries and scale triggers
 
-Grants remain frozen until S2a. Focus spans and observed-surface identities remain S1.
+S2a adds the explicit action grant; other grant kinds remain frozen. Focus spans and observed-surface identities remain S1.
 No sensor completes a task; evidence only proposes completion for ratification.
 No raw evaluator output, prompts, transcripts or frames enter the event log.
 Configuration remains compiled defaults until S4; Windows/macOS desktop adapters

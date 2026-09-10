@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"heimdall/internal/actions"
 	"heimdall/internal/authz"
 	"heimdall/internal/continuity"
 	"heimdall/internal/model"
@@ -59,6 +60,38 @@ func (s *Server) grantHTTP(w http.ResponseWriter, r *http.Request) {
 func (s *Server) clientHTTP(w http.ResponseWriter, r *http.Request, token string) {
 	ctx, cancel := context.WithTimeout(r.Context(), 5*time.Second)
 	defer cancel()
+	if r.Method == "POST" && (r.URL.Path == "/client/intent" || r.URL.Path == "/client/report") {
+		if r.Header.Get("Content-Type") != "application/json" {
+			writeError(w, 415, fmt.Errorf("application/json required"))
+			return
+		}
+		defer r.Body.Close()
+		raw, err := io.ReadAll(http.MaxBytesReader(w, r.Body, actions.MaxRequest))
+		var result json.RawMessage
+		service := s.External
+		if service == nil {
+			service = &actions.ExternalService{Store: s.Engine.Store, Clock: s.Clock}
+		}
+		if err == nil {
+			if r.URL.Path == "/client/intent" {
+				var input actions.IntentRequest
+				if err = model.StrictJSON(raw, &input); err == nil {
+					result, err = service.Register(ctx, input, token)
+				}
+			} else {
+				var input actions.ReportRequest
+				if err = model.StrictJSON(raw, &input); err == nil {
+					result, err = service.Report(ctx, input, token)
+				}
+			}
+		}
+		if err != nil {
+			clientError(w, err)
+			return
+		}
+		writeJSON(w, result)
+		return
+	}
 	if r.Method == "POST" && r.URL.Path == "/client/checkpoint" {
 		if r.Header.Get("Content-Type") != "application/json" {
 			writeError(w, 415, fmt.Errorf("application/json required"))
@@ -115,7 +148,12 @@ func (s *Server) clientHTTP(w http.ResponseWriter, r *http.Request, token string
 				budget, err = strconv.Atoi(raw)
 			}
 			if err == nil {
-				result, err = continuity.ScopedContext(ctx, st, g, target, budget)
+				var bundle continuity.Bundle
+				bundle, err = continuity.ScopedContext(ctx, st, g, target, budget)
+				if err == nil && s.Viewport != nil {
+					err = bundle.ObserveOwnedWindows(ctx, s.Viewport.Observer, budget, st)
+				}
+				result = bundle
 			}
 		case "/client/history":
 			limit := 20
@@ -152,6 +190,13 @@ func (s *Server) clientHTTP(w http.ResponseWriter, r *http.Request, token string
 }
 
 func clientError(w http.ResponseWriter, err error) {
+	var refusal *actions.Refusal
+	if errors.As(err, &refusal) {
+		w.WriteHeader(403)
+		json.NewEncoder(w).Encode(map[string]any{"code": "access_denied", "error": refusal.Error(), "receipt": refusal.Receipt})
+		return
+	}
+
 	status := 400
 	if errors.Is(err, authz.ErrDenied) {
 		status = 403

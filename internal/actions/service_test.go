@@ -29,7 +29,7 @@ type fixture struct {
 	sequence                                      int64
 }
 
-func setup(t *testing.T) *fixture {
+func setup(t *testing.T, done ...model.Done) *fixture {
 	e, err := core.Open(t.TempDir())
 	if err != nil {
 		t.Fatal(err)
@@ -39,6 +39,9 @@ func setup(t *testing.T) *fixture {
 	f.b.Runtime.Clock = func() time.Time { return f.now }
 	for _, target := range []string{"alpha", "beta"} {
 		task := model.Task{ID: target, Title: target, Type: "project", Status: "active"}
+		if target == "alpha" && len(done) > 0 {
+			task.Done = done[0]
+		}
 		if _, err = e.Execute(f.ctx, core.Command{ID: model.NewID(), Op: "add", Task: &task}, "cli", f.now); err != nil {
 			t.Fatal(err)
 		}

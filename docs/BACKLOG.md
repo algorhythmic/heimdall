@@ -5,7 +5,7 @@ The authoritative design is [handoff r4](design/HANDOFF-heimdall-v1-r4.md), §12
 | Slice | Scope | Planned schema |
 |---|---|---|
 | P0 | W07 clock repair, r4 adoption, evaluator environment, YAML check materialization, browser deltas and daily-profile pairing | 20 |
-| S2a (R5/A01/A02) | Scoped computer-use intents, action grant, reports and fresh reconciliation | 21 |
+| S2a (R5/A01/A02) | Delivered: scoped computer-use intents, action grant, reports and fresh reconciliation | 21 |
 | S1 | Observed surfaces, hooks, conversations, herdr sensors, focus spans; S1b adapter spike | 22 |
 | S2b (R6/W08) | Startup readiness, interruption/reboot recovery, optional login restore | no reserved bump |
 | S3 (C14–C16) | Braid assignment and continuity retrieval, typed checkpoint MCP records, optional intent extraction | 23 |
@@ -13,7 +13,7 @@ The authoritative design is [handoff r4](design/HANDOFF-heimdall-v1-r4.md), §12
 | S5 (C21) | Mail, Codex/Desktop adapters, packaging and fresh-install replay | 25 |
 
 Delivery order: **P0 → S2a → S1 → S2b → S3 → S4 → S5**. S-numbers are
-stable labels, not numeric execution order. S2a and all later slices remain unstarted.
+stable labels, not numeric execution order. S2a (A01/A02) is delivered; S1 and all later slices remain unstarted. See [S2a implementation](S2A-IMPLEMENTATION.md).
 
 ## P0 acceptance
 

@@ -14,6 +14,9 @@ import (
 
 func (s *Server) continuityHTTP(w http.ResponseWriter, r *http.Request) {
 	service := continuity.Service{Store: s.Engine.Store}
+	if s.Viewport != nil {
+		service.Desktop = s.Viewport.Observer
+	}
 	var result any
 	var err error
 	switch {

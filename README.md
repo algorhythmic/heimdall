@@ -2,7 +2,7 @@
 
 Heimdall is a local task and continuity system for work shared between people and assistants. It records changes as events, preserves accepted decisions and progress checkpoints, and supplies scoped resume context. Retrieval belongs to the separate Braid project.
 
-**Current development: terminal/editor continuity, reviewed application recovery, artifact versions and CLI/TUI progress review, extending 0.7.0 with database schema 20.** Resume an explicit task with its accepted direction, saved progress, blockers and file drift. Save progress through editable checkpoint drafts that preserve their original task, revision and retry identity.
+**Current development: terminal/editor continuity, reviewed application recovery, artifact versions and CLI/TUI progress review, extending 0.7.0 with database schema 21 (S2a delivered).** Resume an explicit task with its accepted direction, saved progress, blockers and file drift. Save progress through editable checkpoint drafts that preserve their original task, revision and retry identity.
 
 The [Neovim integration](docs/NEOVIM-SETUP.md) brings that workflow into the editor. [Workspace/session records](docs/WORKSPACE-SETUP.md) keep tasks distinct even when they share a repository. The [Linux Herdr adapter](docs/HERDR-SETUP.md) verifies selected panes and publishes expiring task metadata. [Artifact versions](docs/ARTIFACT-SETUP.md) pin exact file identity, with optional Git metadata, to checkpoints; they detect changed or missing files and explicitly recorded relocations. They retain metadata and digests, not file contents.
 
@@ -15,10 +15,10 @@ Scoped MCP clients can read context and, with an explicit write grant, save prog
 | Durable checkpoints and context | Delivered: immutable checkpoints, contracts, decisions, resource drift, readable resume and draft/submit helpers. [Linux artifact/version pins](docs/ARTIFACT-SETUP.md) include optional Git identity. [CLI/TUI progress and decision review](docs/PROGRESS-SETUP.md) is delivered; evidence/run links remain open. |
 | Workspace/session identity | Initial W01/T02 delivered: explicit manifests, generic declarations and verified local Herdr bindings with refresh/metadata. W02 adds observation/binding, W03 durable points/autosnapshots, W04 scoped previews, W05 journaled operations/capacity and W06 application adapters. W07 adds fresh recovery reports with explicit capability limits; W08 startup/interruption gates remain open. |
 | Editor continuity | Initial T03 delivered: [Neovim commands and LazyVim example](docs/NEOVIM-SETUP.md) for task selection, resume, checkpoint drafts, artifacts, session checks and TUI review. Isolated Linux acceptance; no global configuration installed. |
-| Assistant access through MCP | Initial implementation delivered: four tools, scoped credentials and explicitly delegated checkpoint writes. Host registration remains a deployment step. |
-| Verified computer actions | C12/C13 and W05–W07 delivered: journaled actions, independent browser/Hyprland verification and scoped recovery reports. WCU records follow at S2a. |
+| Assistant access through MCP | Initial implementation delivered: six tools, scoped credentials and explicitly delegated checkpoint writes. Host registration remains a deployment step. |
+| Verified computer actions | C12/C13 and W05–W07 delivered: journaled actions, independent browser/Hyprland verification and scoped recovery reports. S2a adds scoped native/browser WCU records with independent readback. |
 | Evidence-based completion | Initial CLI implementation delivered: artifact/repo/test evaluators, durable attempts, invalidation and live revalidation of task/step proposals. Raw-output retention, broader machine tools and review notices remain open. |
-| Agent continuity | Saved context and checkpoint handoff are delivered. Agents execute in external harnesses; scoped computer-use records follow at S2a. |
+| Agent continuity | Saved context and checkpoint handoff are delivered. Agents execute in external harnesses; scoped computer-use records are delivered at S2a. |
 | Project-aware Braid memory | Planned; Braid is not integrated. Current mandatory context works without retrieval. |
 | Task interface | Delivered: [terminal dashboard and review dialogs](docs/TUI-SETUP.md), replacing the browser GUI. Needs-you, expandable workstreams, retained progress drafts, file checks and workspace preview. |
 
@@ -161,7 +161,7 @@ If a command races with an editor save, the command's event remains durable whil
 
 The prototype keeps `tasks.yaml`, `types.yaml`, SQLite and endpoint metadata together under `--data-dir`. It defaults to `$XDG_DATA_HOME/heimdall`, otherwise `~/.local/share/heimdall`. The full XDG config/state split and `config.toml` are future work. On Windows, access control follows the chosen directory's ACL; Unix file mode bits are not a substitute for Windows ACL hardening.
 
-The current binary upgrades database markers 1–19 to **20**, publishing a consistent `backups/pre-schema-20-*.db` before migration. Older binaries refuse marker 20. Database backups preserve recorded state and receipts; external working files require separate preservation. Follow [backup, upgrade and restore](docs/CONTINUITY-SETUP.md#backup-upgrade-and-restore) for fresh-directory recovery or rollback.
+The current binary upgrades database markers 1–20 to **21**, publishing a consistent `backups/pre-schema-21-*.db` before migration. Schema-20 binaries refuse marker 21. Database backups preserve recorded state and receipts; external working files require separate preservation. Follow [backup, upgrade and restore](docs/CONTINUITY-SETUP.md#backup-upgrade-and-restore) for fresh-directory recovery or rollback.
 
 ## Develop
 
@@ -223,7 +223,7 @@ On Windows, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools
 | Slice | Scope | Planned schema |
 |---|---|---|
 | P0 | W07 clock repair, r4 adoption, evaluator environment, YAML check materialization, browser deltas and daily-profile pairing | 20 |
-| S2a (R5/A01/A02) | Scoped computer-use intents, action grant, reports and fresh reconciliation | 21 |
+| S2a (R5/A01/A02) | Delivered: scoped computer-use intents, action grant, reports and fresh reconciliation | 21 |
 | S1 | Observed surfaces, hooks, conversations, herdr sensors, focus spans; S1b adapter spike | 22 |
 | S2b (R6/W08) | Startup readiness, interruption/reboot recovery, optional login restore | no reserved bump |
 | S3 (C14–C16) | Braid assignment and continuity retrieval, typed checkpoint MCP records, optional intent extraction | 23 |
@@ -231,7 +231,7 @@ On Windows, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools
 | S5 (C21) | Mail, Codex/Desktop adapters, packaging and fresh-install replay | 25 |
 
 Delivery order: **P0 → S2a → S1 → S2b → S3 → S4 → S5**. S-numbers are
-stable labels, not numeric execution order. S2a and all later slices remain unstarted.
+stable labels, not numeric execution order. S2a (A01/A02) is delivered; S1 and all later slices remain unstarted. See [S2a implementation](docs/S2A-IMPLEMENTATION.md).
 
 **Agent execution is out of scope for Heimdall.** Agents run in Claude Code,
 Codex and herdr; desktop input runs through WCU under its MCP host's approval.

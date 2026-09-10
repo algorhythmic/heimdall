@@ -115,3 +115,7 @@ func testStoppedWorkspaceFixture(t *testing.T, path string, marker int) {
 func TestStoppedSchemaThirteenFixtureUpgrade(t *testing.T) {
 	testStoppedWorkspaceFixture(t, "../../testdata/viewport/schema13.sql", 13)
 }
+
+func TestStoppedSchemaTwentyFixtureUpgrade(t *testing.T) {
+	testStoppedWorkspaceFixture(t, "../../testdata/external-actions/schema20.sql", 20)
+}

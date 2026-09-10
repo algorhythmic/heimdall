@@ -251,7 +251,7 @@ Schema ledger (one row per migration from here on; a PR that bumps the marker ad
 | 7–12 | Sept 8–9 | terminal continuity, bindings, artifact versions, decision review, preservation |
 | 13–19 | Sept 9 | dependencies, Hyprland observation, snapshots, previews, actions, browser verification, operations |
 | 20 | Sept 9 | application recipes, recovery verification |
-| 21 | S2a | action grant; `ActionObservation.External`; `Execution: external`; checkpoint `Actions` |
+| 21 | Sept 10, S2a delivered | scoped action grant; native/browser reconciliation; WCU corroboration; checkpoint/completion action references |
 | 22 | S1 | observed surfaces, conversations, agent state, focus spans; inventory snapshots + deltas |
 | 23 | S3 | typed checkpoint records (capture, claim) |
 | 24 | S4 | plans, notifications |
@@ -1096,3 +1096,16 @@ the P0 verification report records the fresh suite and isolated acceptance runs.
 Offline full inventories remain in the existing bounded extension outbox and
 are converted into compact deltas at ingress after the reconnect snapshot.
 P0 does not add attention spans or a new observed-surface identity model.
+
+## S2a implementation decisions
+
+The operator authorized proceeding after P0 commit 5e0c790 while its two daily-use
+gates remain pending. See docs/S2A-IMPLEMENTATION.md. Action grants are CLI-issued;
+no owned viewport means no input scope. Scope is never inferred from mere focus.
+The installed WCU published bundle, rather than the old source checkout, is the
+acceptance pin recorded there; trace/ledger records remain corroboration only.
+
+S2a A01/A02 acceptance is complete at schema 21. Implementation and deployment
+limits are recorded in [S2A-IMPLEMENTATION.md](../S2A-IMPLEMENTATION.md); the
+original “as built” baseline above remains historical. The next slice is S1,
+reserved marker 22, and has not started.

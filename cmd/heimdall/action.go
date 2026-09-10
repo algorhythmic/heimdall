@@ -14,7 +14,7 @@ import (
 )
 
 func actionCLI(ctx context.Context, o options, args []string, out io.Writer) error {
-	if len(args) < 2 || !model.ValidID(args[1]) {
+	if len(args) < 2 || (!model.ValidActionTarget(args[1]) && !(args[0] == "cancel" && model.OpaqueID.MatchString(args[1]))) {
 		return fmt.Errorf("action requires context|queue|cancel|reconcile|show|list|history TASK")
 	}
 	action, target := args[0], args[1]
@@ -60,39 +60,48 @@ func actionCLI(ctx context.Context, o options, args []string, out io.Writer) err
 	}
 	path := "/action/" + action + "?" + q.Encode()
 	if action == "queue" || action == "cancel" || action == "reconcile" {
-		if file == "" {
-			return fmt.Errorf("--file REQUEST.json required")
-		}
-		f, err := os.Open(file)
-		if err != nil {
-			return err
-		}
-		defer f.Close()
-		raw, err := io.ReadAll(io.LimitReader(f, actions.MaxRequest+1))
-		if err != nil {
-			return err
-		}
-		if len(raw) > actions.MaxRequest {
-			return fmt.Errorf("action input exceeds 64 KiB")
-		}
-		var requestID, requestTarget string
-		if action == "queue" {
-			r, err := actions.Decode(raw)
+		if action == "cancel" && file == "" && model.OpaqueID.MatchString(target) {
+			requestID := o.requestID
+			if requestID == "" {
+				requestID = model.NewID()
+			}
+			input = actions.CancelRequest{Version: 2, ID: requestID, ActionID: target, Reason: "Operator cancelled external reporting"}
+			method, path = "POST", "/action/cancel"
+		} else {
+			if file == "" {
+				return fmt.Errorf("--file REQUEST.json required")
+			}
+			f, err := os.Open(file)
 			if err != nil {
 				return err
 			}
-			requestID, requestTarget, input = r.ID, r.Target, r
-		} else {
-			var r actions.CancelRequest
-			if err := model.StrictJSON(raw, &r); err != nil {
+			defer f.Close()
+			raw, err := io.ReadAll(io.LimitReader(f, actions.MaxRequest+1))
+			if err != nil {
 				return err
 			}
-			requestID, requestTarget, input = r.ID, r.Target, r
+			if len(raw) > actions.MaxRequest {
+				return fmt.Errorf("action input exceeds 64 KiB")
+			}
+			var requestID, requestTarget string
+			if action == "queue" {
+				r, err := actions.Decode(raw)
+				if err != nil {
+					return err
+				}
+				requestID, requestTarget, input = r.ID, r.Target, r
+			} else {
+				var r actions.CancelRequest
+				if err := model.StrictJSON(raw, &r); err != nil {
+					return err
+				}
+				requestID, requestTarget, input = r.ID, r.Target, r
+			}
+			if requestTarget != target || (o.requestID != "" && requestID != o.requestID) {
+				return fmt.Errorf("saved action target/request ID differs from command")
+			}
+			method, path = "POST", "/action/"+action
 		}
-		if requestTarget != target || (o.requestID != "" && requestID != o.requestID) {
-			return fmt.Errorf("saved action target/request ID differs from command")
-		}
-		method, path = "POST", "/action/"+action
 	}
 	raw, err := call(ctx, o, method, path, input)
 	if err != nil {

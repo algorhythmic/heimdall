@@ -68,3 +68,9 @@ Wire administration shape: [grant-request-v1.schema.json](../schemas/grant-reque
 ## Remaining work
 
 C06 now includes explicit checkpoint-write grants, authenticated provenance and transactional authorization before dedupe/commit. C07 supplies tested MCP stdio transport. Host-specific registration and Linux runtime acceptance remain open. Proposed/rejected decision workflow, Git/source identity, evidence evaluators, Braid integration, task GUI and execution-host coordination remain later work. No client, extension or system service was installed by this patch.
+
+Schema 21 adds the CLI-issued action grant for `/client/intent` and
+`/client/report`, mutually exclusive with checkpoint-write. Read grants gain no
+write authority. See [S2a implementation](S2A-IMPLEMENTATION.md) for current
+scoping, revocation, refusal receipts and acceptance evidence. The older
+schema-5 migration notes above describe historical behavior.

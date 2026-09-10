@@ -73,11 +73,19 @@ func grantCLI(ctx context.Context, o options, verb string, args []string, out io
 	if len(args) < 2 {
 		return fmt.Errorf("target required")
 	}
+	// Retain TARGET-first syntax and the r4 spelling: grant issue --action TARGET.
+	if verb == "grant" && action == "issue" && args[1] == "--action" {
+		if len(args) < 3 {
+			return fmt.Errorf("action grant target required")
+		}
+		args = append([]string{args[0], args[2], "--action"}, args[3:]...)
+	}
 	target := args[1]
 	if verb == "grant" && action == "issue" {
 		name := f.String("name", "", "client label")
 		expires := f.String("expires", "", "required RFC3339 expiry, at most 30 days")
 		subtree := f.Bool("subtree", false, "include descendants")
+		actionWrite := f.Bool("action", false, "allow scoped external intent registration and reports")
 		checkpointWrite := f.Bool("checkpoint-write", false, "allow checkpoint progress writes")
 		resources := f.String("resources", "", "comma-separated resource IDs allowed for live observations")
 		output := f.String("output", "", "new private credential file")
@@ -106,6 +114,10 @@ func grantCLI(ctx context.Context, o options, verb string, args []string, out io
 		}
 		token := hex.EncodeToString(secret)
 		g := model.Grant{Version: 1, ID: id, Name: *name, Target: target, Subtree: *subtree, ResourceIDs: ids, TokenHash: authz.HashToken(token), ExpiresAt: expiry}
+		if *actionWrite {
+			g.Version = 2
+			g.ActionWrite = true
+		}
 		if *checkpointWrite {
 			g.Version = 2
 			g.CheckpointWrite = true
@@ -118,6 +130,7 @@ func grantCLI(ctx context.Context, o options, verb string, args []string, out io
 		}
 		c := clientCredential{Version: 1, DataDir: o.dir, Token: token, Issue: authz.Request{Version: 1, ID: id, Op: "grant.issue", Grant: &authz.IssueInput{Name: g.Name, Target: g.Target, Subtree: g.Subtree, ResourceIDs: g.ResourceIDs, TokenHash: g.TokenHash, ExpiresAt: g.ExpiresAt}}}
 		c.Issue.Grant.CheckpointWrite = g.CheckpointWrite
+		c.Issue.Grant.ActionWrite = g.ActionWrite
 		path, err := filepath.Abs(*output)
 		if err != nil {
 			return err

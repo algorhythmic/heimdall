@@ -21,7 +21,7 @@ import (
 
 var ErrConflict = errors.New("revision or idempotency conflict")
 
-const SchemaVersion = 20
+const SchemaVersion = 21
 
 type Event struct {
 	ID        int64           `json:"id"`
@@ -116,7 +116,7 @@ func Open(dir string) (*Store, error) {
  CREATE TABLE IF NOT EXISTS events(id INTEGER PRIMARY KEY,event_version INTEGER NOT NULL,ts TEXT NOT NULL,subject TEXT NOT NULL,verb TEXT NOT NULL,actor TEXT NOT NULL,entity_id TEXT NOT NULL,command_id TEXT NOT NULL,payload TEXT NOT NULL CHECK(json_valid(payload)),idempotency_key TEXT NOT NULL UNIQUE);
  CREATE TABLE IF NOT EXISTS projection_state(id INTEGER PRIMARY KEY CHECK(id=1),body TEXT NOT NULL CHECK(json_valid(body)));
  CREATE TABLE IF NOT EXISTS commands(id TEXT PRIMARY KEY,request_hash TEXT NOT NULL,result TEXT NOT NULL);
- ` + snapshotTables + `CREATE INDEX IF NOT EXISTS events_subject_entity ON events(subject,entity_id,id); PRAGMA user_version=20;`)
+ ` + snapshotTables + `CREATE INDEX IF NOT EXISTS events_subject_entity ON events(subject,entity_id,id); PRAGMA user_version=21;`)
 	if err != nil {
 		s.Close()
 		return nil, err

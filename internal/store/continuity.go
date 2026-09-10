@@ -117,6 +117,13 @@ func applyContinuity(st *model.State, e Event) error {
 		if err := model.ValidCheckpoint(v); err != nil {
 			return err
 		}
+		if v.Version < 4 {
+			var fields map[string]json.RawMessage
+			_ = json.Unmarshal(e.Payload, &fields)
+			if _, ok := fields["actions"]; ok {
+				return fmt.Errorf("legacy checkpoint payload cannot carry actions")
+			}
+		}
 		if v.Version < 3 {
 			var fields map[string]json.RawMessage
 			_ = json.Unmarshal(e.Payload, &fields)
@@ -127,7 +134,7 @@ func applyContinuity(st *model.State, e Event) error {
 		if v.Actor != e.Actor || !v.At.Equal(e.TS) {
 			return fmt.Errorf("checkpoint author/time differs from envelope")
 		}
-		if v.Version == 2 {
+		if v.GrantID != "" {
 			g, ok := st.Grants[v.GrantID]
 			if !ok || g.RevokedAt != nil || e.TS.Before(g.At) || !e.TS.Before(g.ExpiresAt) || !g.PermitsCheckpoint(*st, v.Target, v.ContractID) {
 				return fmt.Errorf("checkpoint outside recorded grant authority")
@@ -168,6 +175,9 @@ func applyContinuity(st *model.State, e Event) error {
 			}
 		}
 		if err := validateCheckpointArtifacts(*st, v); err != nil {
+			return err
+		}
+		if err := model.ValidateCheckpointActions(*st, v); err != nil {
 			return err
 		}
 		st.Checkpoints[v.ID] = v

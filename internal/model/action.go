@@ -8,7 +8,7 @@ import (
 )
 
 func ValidActionExecution(s string) bool {
-	return Contains([]string{"queued", "dispatching", "api_reported", "refused", "uncertain", "cancelled"}, s)
+	return Contains([]string{"external", "queued", "dispatching", "api_reported", "refused", "uncertain", "cancelled"}, s)
 }
 func ValidActionVerification(s string) bool {
 	return Contains([]string{"pending", "matched", "not_matched", "unknown", "unsupported"}, s)
@@ -27,12 +27,14 @@ type BrowserIntent struct {
 	URL           string                `json:"url,omitempty"`
 }
 type ActionPostcondition struct {
+	Workspace      string `json:"workspace,omitempty"`
 	Kind           string `json:"kind"`
 	URL            string `json:"url,omitempty"`
 	RedirectPolicy string `json:"redirect_policy"`
 	LoadCondition  string `json:"load_condition"`
 }
 type ActionIntent struct {
+	External      *ExternalIntent         `json:"external,omitempty"`
 	Workspace     *BrowserWorkspaceAction `json:"workspace,omitempty"`
 	Version       int                     `json:"version"`
 	ID            string                  `json:"id"`
@@ -53,23 +55,31 @@ type ActionIntent struct {
 	ExpiresAt     time.Time               `json:"expires_at"`
 }
 type ActionReport struct {
-	Native   *NativeDispatchReport `json:"native,omitempty"`
-	Status   string                `json:"status"`
-	Detail   string                `json:"detail"`
-	TabID    int                   `json:"tab_id,omitempty"`
-	WindowID int                   `json:"window_id,omitempty"`
-	URL      string                `json:"url,omitempty"`
+	Step          int                   `json:"step,omitempty"`
+	Final         bool                  `json:"final,omitempty"`
+	WCURequestID  string                `json:"wcu_request_id,omitempty"`
+	MetricsDigest string                `json:"metrics_digest,omitempty"`
+	Native        *NativeDispatchReport `json:"native,omitempty"`
+	Status        string                `json:"status"`
+	Detail        string                `json:"detail"`
+	TabID         int                   `json:"tab_id,omitempty"`
+	WindowID      int                   `json:"window_id,omitempty"`
+	URL           string                `json:"url,omitempty"`
 }
 type ActionObservation struct {
-	Native      *NativeReadback `json:"native,omitempty"`
-	ID          string          `json:"id"`
-	Status      string          `json:"status"`
-	SourceEpoch string          `json:"source_epoch"`
-	Digest      string          `json:"digest"`
-	ObservedAt  time.Time       `json:"observed_at"`
-	Detail      string          `json:"detail"`
+	Browser     *ExternalBrowserObservation `json:"browser,omitempty"`
+	External    *ExternalObservation        `json:"external,omitempty"`
+	Native      *NativeReadback             `json:"native,omitempty"`
+	ID          string                      `json:"id"`
+	Status      string                      `json:"status"`
+	SourceEpoch string                      `json:"source_epoch"`
+	Digest      string                      `json:"digest"`
+	ObservedAt  time.Time                   `json:"observed_at"`
+	Detail      string                      `json:"detail"`
 }
 type ActionRecord struct {
+	Reports              []ActionReport       `json:"reports,omitempty"`
+	FinalReport          bool                 `json:"final_report,omitempty"`
 	Pairing              *BrowserPairingState `json:"pairing,omitempty"`
 	VerificationAttempts int                  `json:"verification_attempts,omitempty"`
 	Intent               ActionIntent         `json:"intent"`
@@ -116,7 +126,7 @@ type BrowserActionRef struct {
 }
 
 func (a ActionRecord) BrowserRef() *BrowserActionRef {
-	if a.Intent.Native != nil {
+	if a.Intent.Browser == nil {
 		return nil
 	}
 	return &BrowserActionRef{1, a.Intent.ID, a.Intent.AttemptID, a.IntentDigest, a.Intent.Target, a.Intent.ManifestID, a.Intent.SurfaceID}
@@ -195,6 +205,12 @@ func BrowserPostcondition(b BrowserIntent) ActionPostcondition {
 	return p
 }
 func (v ActionIntent) Validate() error {
+	if v.External != nil || v.Adapter == "wcu" || v.Authority == "grant" {
+		return v.ValidateExternal()
+	}
+	if v.Expected.Workspace != "" {
+		return fmt.Errorf("external postcondition field on legacy action")
+	}
 	if (v.Version < 1 || v.Version > 5) || !ValidID(v.Target) || v.TaskRevision < 1 || !TokenHashPattern.MatchString(v.ContextDigest) || v.Authority != "cli" || v.At.IsZero() || v.ExpiresAt.Sub(v.At) != 30*time.Second {
 		return fmt.Errorf("invalid action intent envelope")
 	}
@@ -283,6 +299,9 @@ func ActionContextDigest(st State, target string) string {
 }
 
 func ActionHolds(a ActionRecord) bool {
+	if a.Intent.External != nil && a.Execution == "external" {
+		return true
+	}
 	if a.Execution == "cancelled" || a.Execution == "refused" || (a.Pairing != nil && a.Pairing.Abandoned) {
 		return false
 	}
@@ -304,6 +323,21 @@ func ActionConflict(st State, v ActionIntent) string {
 			ids = append(ids, id)
 			continue
 		}
+		// Aliased bindings cannot admit concurrent input against one exact window.
+		window := func(intent ActionIntent) *WindowIdentity {
+			if intent.External != nil {
+				return &intent.External.Owned.Window
+			}
+			if intent.Native != nil {
+				return intent.Native.Window
+			}
+			return nil
+		}
+		left, right := window(a.Intent), window(v)
+		if (a.Intent.External != nil || v.External != nil) && left != nil && right != nil && *left == *right {
+			ids = append(ids, id)
+			continue
+		}
 		if a.Intent.SurfaceID == v.SurfaceID || (a.Intent.Browser != nil && v.Browser != nil && a.Intent.Browser.Profile == v.Browser.Profile && a.Intent.Browser.Epoch == v.Browser.Epoch && v.Browser.OwnerID != "" && (a.Intent.ID == v.Browser.OwnerID || a.Intent.Browser.OwnerID == v.Browser.OwnerID)) {
 			ids = append(ids, id)
 		}
@@ -315,6 +349,9 @@ func ActionConflict(st State, v ActionIntent) string {
 	return ""
 }
 func ActionInputsCurrent(st State, v ActionIntent) bool {
+	if v.External != nil {
+		return ExternalInputsCurrent(st, v)
+	}
 	if v.Workspace != nil {
 		w := v.Workspace
 		op := st.WorkspaceOperations[w.OperationID]

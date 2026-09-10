@@ -40,7 +40,7 @@ func setup(t *testing.T) *fixture {
 		t.Fatal(err)
 	}
 	st, _ := e.Store.State(ctx)
-	return &fixture{t, e, Service{e.Store}, ctx, now, task.ID, st.Tasks[task.ID].Revision}
+	return &fixture{t, e, Service{Store: e.Store}, ctx, now, task.ID, st.Tasks[task.ID].Revision}
 }
 func (f *fixture) request(op string) Request {
 	return Request{Version: 1, ID: model.NewID(), Op: op, Target: f.target, ExpectedTaskRevision: &f.rev}

@@ -19,6 +19,7 @@ import (
 )
 
 type Check struct {
+	ActionID       string   `json:"action_id,omitempty" yaml:"action_id,omitempty"`
 	Path           string   `json:"path,omitempty" yaml:"path,omitempty"`
 	Argv           []string `json:"argv,omitempty" yaml:"argv,omitempty"`
 	TimeoutSeconds int      `json:"timeout_seconds,omitempty" yaml:"timeout_seconds,omitempty"`
@@ -460,6 +461,10 @@ func validateDone(d Done, t Task) error {
 		allowed := map[string]string{"manual": "", "children_done": "", "subtasks_done": "", "silence": "days after response_check", "mail.sent": "account to to_domain since after correlation", "mail.received": "account from from_domain since after correlation", "agent.released": "session", "repo.commit": "repo ref", "gh.pr_merged": "url"}
 		for _, kind := range []string{"artifact.exists", "artifact.digest", "repo.state", "test.exit"} {
 			allowed[kind] = "path argv timeout_seconds expected_digest expected_commit require_clean env exclude"
+		}
+		allowed["action.verified"] = "action_id"
+		if c.Kind == "action.verified" && !OpaqueID.MatchString(c.ActionID) {
+			return fmt.Errorf("action.verified requires an exact action_id")
 		}
 		fields, ok := allowed[c.Kind]
 		if !ok {

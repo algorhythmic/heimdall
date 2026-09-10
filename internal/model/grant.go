@@ -22,11 +22,12 @@ type Grant struct {
 	At              time.Time  `json:"at"`
 	RevokedAt       *time.Time `json:"revoked_at,omitempty"`
 	Actor           string     `json:"actor"`
+	ActionWrite     bool       `json:"action_write,omitempty"`
 	CheckpointWrite bool       `json:"checkpoint_write,omitempty"`
 }
 
 func (g Grant) Validate() error {
-	if (g.Version != 1 && g.Version != 2) || (g.Version == 1 && g.CheckpointWrite) || !OpaqueID.MatchString(g.ID) || !ValidID(g.Target) || g.Actor != "cli" || g.At.IsZero() || !g.ExpiresAt.After(g.At) || !TokenHashPattern.MatchString(g.TokenHash) || strings.TrimSpace(g.Name) == "" || len(g.Name) > 128 || len(g.ResourceIDs) > 16 {
+	if (g.Version != 1 && g.Version != 2) || (g.Version == 1 && (g.CheckpointWrite || g.ActionWrite)) || (g.ActionWrite && g.CheckpointWrite) || !OpaqueID.MatchString(g.ID) || !ValidID(g.Target) || g.Actor != "cli" || g.At.IsZero() || !g.ExpiresAt.After(g.At) || !TokenHashPattern.MatchString(g.TokenHash) || strings.TrimSpace(g.Name) == "" || len(g.Name) > 128 || len(g.ResourceIDs) > 16 {
 		return fmt.Errorf("invalid read grant")
 	}
 	for i, id := range g.ResourceIDs {

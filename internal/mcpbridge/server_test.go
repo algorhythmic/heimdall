@@ -76,7 +76,7 @@ func TestOfficialSDKClientThroughScopedDaemon(t *testing.T) {
 		t.Fatal("unexpected SDK negotiation", version)
 	}
 	tools, err := session.ListTools(ctx, nil)
-	if err != nil || len(tools.Tools) != 4 {
+	if err != nil || len(tools.Tools) != 6 {
 		t.Fatal("tool discovery", tools, err)
 	}
 	call := func(name string, args any, wantError bool) *mcp.CallToolResult {

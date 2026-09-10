@@ -37,6 +37,11 @@ func uiCLI(ctx context.Context, o options, args []string, out io.Writer) error {
 	if err != nil {
 		return err
 	}
+	if out == os.Stdout {
+		if err = ensureDaemon(ctx, o); err != nil {
+			return err
+		}
+	}
 	opts := tui.Options{Target: target, DataDir: o.dir, Compact: *compact, Now: clock}
 	caller := func(ctx context.Context, method, path string, body any) ([]byte, error) {
 		return call(ctx, o, method, path, body)

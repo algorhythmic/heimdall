@@ -113,7 +113,11 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 		return err
 	}
 	if len(o.args) == 0 {
-		return fmt.Errorf("usage: heimdall init|start|doctor|ls|state|add|update|import-tasks|capture|assign|complete|reopen|drop|ratify|checks|tick|sync|fmt|events|replay|browser|action|application|contract|decision|resource|artifact|progress|dependency|preservation|checkpoint|context|resume|workspace|session|viewport|snapshot|backup|grant|client|mcp|evidence|tui|ui [--data-dir PATH] [--json]")
+		if interactive(out) {
+			o.args = []string{"tui"}
+		} else {
+			return fmt.Errorf("usage: heimdall init|start|doctor|ls|state|add|update|import-tasks|capture|assign|complete|reopen|drop|ratify|checks|tick|sync|fmt|events|replay|browser|action|application|contract|decision|resource|artifact|progress|dependency|preservation|checkpoint|context|resume|workspace|session|viewport|snapshot|backup|grant|client|mcp|evidence|tui|ui [--data-dir PATH] [--json]")
+		}
 	}
 	verb := o.args[0]
 	rest := o.args[1:]

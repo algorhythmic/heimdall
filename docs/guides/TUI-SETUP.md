@@ -19,6 +19,13 @@ In another terminal:
 ./bin/heimdall tui video-series#storyboard --data-dir ./demo-data
 ```
 
+Interactive `tui` brings the daemon up itself: if the endpoint is unhealthy or
+absent it spawns a detached `heimdall start` for the data directory, waits for
+health, then attaches. A bare `heimdall` in a terminal is equivalent to
+`heimdall tui`; with no terminal it still prints usage. The daemon stays
+running after the interface closes — stop it with a signal to the endpoint PID.
+Daemon output appends to `<data-dir>/daemon.log`.
+
 For a fresh data directory, run `./bin/heimdall init --data-dir ./demo-data` first.
 The binary is built with `go build -trimpath -o bin/heimdall ./cmd/heimdall`; it is
 not installed on PATH automatically. On Windows use `bin\heimdall.exe`.

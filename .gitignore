@@ -12,3 +12,6 @@ browser-endpoint.json
 client-endpoint.json
 *.credential.json
 host-config.json
+/pkg/
+/src/
+/*.pkg.tar.*

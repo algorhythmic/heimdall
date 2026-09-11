@@ -75,7 +75,16 @@ func sourceCLI(ctx context.Context, o options, args []string, out io.Writer) err
 		}
 		_, err = io.WriteString(out, b.String())
 		return err
+	case "activate", "deactivate":
+		if len(args) != 2 {
+			return fmt.Errorf("source %s ROOT_KEY", args[0])
+		}
+		if _, err := call(ctx, o, "POST", "/session/source/active", map[string]any{"key": args[1], "active": args[0] == "activate"}); err != nil {
+			return err
+		}
+		fmt.Fprintf(out, "Source root %s %sd.\n", args[1], args[0])
+		return nil
 	default:
-		return fmt.Errorf("source add --provider PROVIDER --root PATH | source list [--json]")
+		return fmt.Errorf("source add --provider PROVIDER --root PATH | source list [--json] | source activate|deactivate KEY")
 	}
 }

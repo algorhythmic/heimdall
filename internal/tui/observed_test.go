@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"heimdall/internal/browser"
+	"heimdall/internal/conversation"
 	"heimdall/internal/model"
 	"strings"
 	"testing"
@@ -111,4 +112,26 @@ func observedState(st model.State, now time.Time) model.State {
 	}
 	st.SurfaceFocusSpans = map[string]model.SurfaceFocusSpan{profile: {BrowserFocusSpan: model.BrowserFocusSpan{TabID: 1, WindowID: 10, StartedAt: now.Add(-2 * time.Minute), EndedAt: now.Add(-time.Minute), DurationSeconds: 60}, Profile: profile, Epoch: current}}
 	return st
+}
+
+func TestConversationAndSensorLines(t *testing.T) {
+	f := newFixture(t)
+	st := f.a.data.State
+	now := f.now.UTC()
+	st.Conversations["c1"] = model.Conversation{Started: conversation.Started{ID: "c1", Kind: "claude_code", StartedAt: now.Add(-time.Hour),
+		Task: &conversation.TaskRef{Target: "alpha", Revision: 1}},
+		CurrentDescription: &conversation.Description{Kind: "recap", Availability: "available", RetainedDigest: "abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234abcd1234"},
+		LastObservation:    conversation.Observation{SourceTime: now}}
+	st.Conversations["c2"] = model.Conversation{Started: conversation.Started{ID: "c2", Kind: "claude_code", StartedAt: now.Add(-2 * time.Hour), Task: &conversation.TaskRef{Target: "other", Revision: 1}}}
+	st.SensorHealth["session:root1"] = model.SensorStatus{Version: 1, Sensor: "session:root1", Status: "degraded", Reason: "inventory_failed", At: f.now.Add(-time.Minute)}
+	st.SensorHealth["herdr:x"] = model.SensorStatus{Version: 1, Sensor: "herdr:x", Status: "healthy", At: f.now}
+	f.a.data.State = st
+	text := flattenWorkspaceLines(f.a.conversationLines("alpha"))
+	if !strings.Contains(text, "recap available") || strings.Contains(text, "c2") {
+		t.Fatal("conversation lines wrong", text)
+	}
+	sensors := flattenWorkspaceLines(f.a.sensorLines())
+	if !strings.Contains(sensors, "session:root1 degraded") || strings.Contains(sensors, "herdr:x") {
+		t.Fatal("sensor lines wrong", sensors)
+	}
 }

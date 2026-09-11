@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"heimdall/internal/actions"
 	"heimdall/internal/adapters/hyprland"
+	"heimdall/internal/capture"
 	"heimdall/internal/model"
 	"heimdall/internal/store"
 	"heimdall/internal/surface"
@@ -38,7 +39,7 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 		if !ok || p.Epoch != m.Epoch || p.Connection != m.Connection {
 			return fmt.Errorf("stale_connection: reconnect before sending messages")
 		}
-		if (m.Type == "poll" || m.Type == "command_result" || m.Type == "readback" || m.Type == "pairing_ready") && !p.Paired {
+		if (m.Type == "poll" || m.Type == "command_result" || m.Type == "readback" || m.Type == "pairing_ready" || m.Type == "capture") && !p.Paired {
 			return fmt.Errorf("profile_unpaired")
 		}
 		if m.Type == "readback" {
@@ -364,6 +365,13 @@ func (s Service) handle(ctx context.Context, m Message, now time.Time) (json.Raw
 				o.Detail = "late result after deadline: " + r.Detail
 			}
 			change.Events = append(change.Events, store.Pending{Subject: "browser", Verb: "command_finished", EntityID: o.ID, Payload: o})
+		case "capture":
+			c, err := s.capture(st, *m.Capture, p.ID, now)
+			if err != nil {
+				return change, err
+			}
+			change.Events = append(change.Events, store.Pending{Subject: "capture", Verb: "created", EntityID: c.ID, Payload: c})
+			reply.CaptureID = c.ID
 		}
 		change.Result = reply
 		return change, nil
@@ -459,4 +467,58 @@ func (s Service) Control(ctx context.Context, c Control, now time.Time) (json.Ra
 		change.Result = o
 		return change, nil
 	})
+}
+
+// capture mirrors core's capture builder for a paired profile: grammar parse,
+// target validation, identical deadline policy, client scoped to the profile.
+// Origin replay (^) is unsupported over the extension channel.
+func (s Service) capture(st model.State, c BrowserCapture, profile string, now time.Time) (model.Capture, error) {
+	line, err := capture.Parse(c.Line)
+	if err != nil {
+		return model.Capture{}, err
+	}
+	if line.Origin {
+		return model.Capture{}, fmt.Errorf("origin replay requires the CLI channel")
+	}
+	if len(line.Targets) == 0 {
+		return model.Capture{}, fmt.Errorf("targets required")
+	}
+	seen := map[string]bool{}
+	for _, id := range line.Targets {
+		if seen[id] {
+			return model.Capture{}, fmt.Errorf("duplicate target")
+		}
+		seen[id] = true
+		if id == "unassigned" {
+			if len(line.Targets) != 1 {
+				return model.Capture{}, fmt.Errorf("unassigned must be alone")
+			}
+		} else if r, ok := st.Tasks[id]; !ok || model.Contains(r.Workflow.Success, r.Task.Status) || model.Contains(r.Workflow.Dropped, r.Task.Status) {
+			return model.Capture{}, fmt.Errorf("unknown or terminal stream %s", id)
+		}
+	}
+	v := model.Capture{ID: model.NewID(), Client: "browser:" + profile, Pointer: c.Pointer, Title: c.Title, Targets: line.Targets, Kind: line.Kind, Why: line.Why, CreatedAt: now.UTC()}
+	var due *time.Time
+	add := func(t time.Time) {
+		if due == nil || t.Before(*due) {
+			x := t
+			due = &x
+		}
+	}
+	if model.Contains(v.Targets, "unassigned") {
+		add(v.CreatedAt.Add(72 * time.Hour))
+	}
+	if v.Kind == "candidate" {
+		add(v.CreatedAt.Add(14 * 24 * time.Hour))
+	}
+	if v.Kind == "study" {
+		for _, id := range v.Targets {
+			if r, ok := st.Tasks[id]; ok && r.Task.ResumeBy != "" {
+				d, _ := time.Parse("2006-01-02", r.Task.ResumeBy)
+				add(d.Add(24*time.Hour - time.Second))
+			}
+		}
+	}
+	v.ExpiresAt = due
+	return v, nil
 }

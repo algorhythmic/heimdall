@@ -104,6 +104,12 @@ async function cycle(){
 for(const event of [chrome.tabs.onCreated,chrome.tabs.onReplaced,chrome.tabs.onUpdated,chrome.tabs.onRemoved,chrome.tabs.onActivated,chrome.tabs.onAttached,chrome.tabs.onDetached,chrome.windows.onFocusChanged])event.addListener(()=>{inventoryGeneration++;dirty=true;});
 chrome.tabs.onRemoved.addListener(async tabId=>{await ready;const {owners={}}=await chrome.storage.session.get('owners');delete owners[tabId];await chrome.storage.session.set({owners});});
 chrome.storage.onChanged.addListener((changes,area)=>{if(area==='local'&&changes.paused){focusTracker.reset();dirty=true;cycle();}});
+chrome.runtime.onMessage.addListener((msg,sender,respond)=>{
+ if(msg?.type!=='heimdall-capture')return;
+ (async()=>{try{await ready;if(!port)await connect();if(!paired)throw Error('Pair this profile first');
+  const r=await rpc({type:'capture',capture:msg.capture});respond(r);}catch(e){respond({error:String(e.message||e)});}})();
+ return true;
+});
 chrome.alarms.onAlarm.addListener(()=>cycle());
 chrome.alarms.create('reconnect',{periodInMinutes:0.5});
 setInterval(cycle,2000);cycle();

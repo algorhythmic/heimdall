@@ -46,7 +46,7 @@ func (h HookPayload) stamp() (time.Time, bool) {
 
 // resolveStream finds the registered stream for a native session, or registers
 // it under a configured root covering the transcript path.
-func (s Service) resolveStream(ctx context.Context, st model.State, p HookPayload, now time.Time) (conversation.Source, conversation.SourceRoot, error) {
+func (s *Service) resolveStream(ctx context.Context, st model.State, p HookPayload, now time.Time) (conversation.Source, conversation.SourceRoot, error) {
 	for _, src := range st.SessionSources {
 		if src.NativeID == p.SessionID {
 			root, ok := st.SourceRoots[src.RootID]
@@ -124,7 +124,7 @@ func recordTimes(path string) (first, last time.Time, ordinal, turns int64, err 
 // HandleHook applies a provider hook payload to conversation lifecycle.
 // Observations reuse the stream's own ordinal band so hook events and
 // transcript records order deterministically under the same epoch.
-func (s Service) HandleHook(ctx context.Context, p HookPayload, now time.Time) error {
+func (s *Service) HandleHook(ctx context.Context, p HookPayload, now time.Time) error {
 	if err := p.Validate(); err != nil {
 		return err
 	}

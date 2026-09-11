@@ -16,13 +16,22 @@ import (
 // session socket and records epoch-scoped agent observations. Observations are
 // inventory evidence only; task attribution is derived by readers, never by
 // this recorder.
-type AgentService struct {
-	Store     *store.Store
-	Herdr     herdr.Adapter
-	PollEvery time.Duration
+// AgentLister is the read-only surface the agent poller needs; the concrete
+// adapter satisfies it and tests fake it.
+type AgentLister interface {
+	Agents(ctx context.Context, socket, epoch, host string) ([]herdr.AgentInfo, error)
 }
 
-func (s AgentService) Run(ctx context.Context, clock func() time.Time) {
+type AgentService struct {
+	Store     *store.Store
+	Herdr     AgentLister
+	PollEvery time.Duration
+	// degraded tracks last reported health per source so only transitions
+	// journal sensor events.
+	degraded map[string]bool
+}
+
+func (s *AgentService) Run(ctx context.Context, clock func() time.Time) {
 	interval := s.PollEvery
 	if interval <= 0 {
 		interval = 2 * time.Second
@@ -61,7 +70,7 @@ func agentSources(st model.State) []agentSource {
 	return out
 }
 
-func (s AgentService) poll(ctx context.Context, now time.Time) {
+func (s *AgentService) poll(ctx context.Context, now time.Time) {
 	if s.Store == nil {
 		return
 	}
@@ -74,15 +83,35 @@ func (s AgentService) poll(ctx context.Context, now time.Time) {
 	}
 }
 
-func (s AgentService) pollSource(ctx context.Context, src agentSource, now time.Time) {
+func (s *AgentService) health(ctx context.Context, src agentSource, reason string, now time.Time) {
+	if s.degraded == nil {
+		s.degraded = map[string]bool{}
+	}
+	key := src.socket + ":" + src.epoch
+	sensor := "herdr:" + key
+	if reason != "" && !s.degraded[key] {
+		if _, err := s.Store.ReportSensor(ctx, sensor, "degraded", reason, "observer:herdr", now); err == nil {
+			s.degraded[key] = true
+		}
+	}
+	if reason == "" && s.degraded[key] {
+		if _, err := s.Store.ReportSensor(ctx, sensor, "healthy", "", "observer:herdr", now); err == nil {
+			delete(s.degraded, key)
+		}
+	}
+}
+
+func (s *AgentService) pollSource(ctx context.Context, src agentSource, now time.Time) {
 	ioctx, stop := context.WithTimeout(ctx, 3*time.Second)
 	list, err := s.Herdr.Agents(ioctx, src.socket, src.epoch, src.host)
 	stop()
 	if err != nil {
 		// An unreachable or re-epoch'd Herdr records nothing; the last
 		// observations stay attributed to their original epoch.
+		s.health(ctx, src, "agent_list_failed", now)
 		return
 	}
+	s.health(ctx, src, "", now)
 	raw, err := json.Marshal(list)
 	if err != nil {
 		return

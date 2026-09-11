@@ -47,6 +47,15 @@ type Message struct {
 	FocusedWindow        *int                    `json:"focused_window,omitempty"`
 	Complete             *bool                   `json:"complete,omitempty"`
 	Result               *OperationResult        `json:"result,omitempty"`
+	Capture              *BrowserCapture         `json:"capture,omitempty"`
+}
+
+// BrowserCapture is a paired profile's explicit capture request; the pointer
+// is the operator-chosen URL the popup records, never an inferred tab.
+type BrowserCapture struct {
+	Line    string `json:"line"`
+	Pointer string `json:"pointer"`
+	Title   string `json:"title,omitempty"`
 }
 type OperationResult struct {
 	ContinuationID string                  `json:"continuation_id,omitempty"`
@@ -68,6 +77,7 @@ type Reply struct {
 	Paired        bool                        `json:"paired"`
 	LastSequence  int64                       `json:"last_sequence,omitempty"`
 	Commands      []model.BrowserOperation    `json:"commands,omitempty"`
+	CaptureID     string                      `json:"capture_id,omitempty"`
 	Error         string                      `json:"error,omitempty"`
 }
 type Control struct {
@@ -170,6 +180,12 @@ func (m Message) Validate() error {
 	if m.Type != "command_result" && m.Result != nil {
 		return fmt.Errorf("result on another message")
 	}
+	if (m.Type == "capture") != (m.Capture != nil) {
+		return fmt.Errorf("capture fields on another message")
+	}
+	if m.Capture != nil && (len(m.Capture.Line) > 4096 || len(m.Capture.Pointer) < 1 || len(m.Capture.Pointer) > 8192 || len(m.Capture.Title) > 1024) {
+		return fmt.Errorf("invalid capture request")
+	}
 	switch m.Type {
 	case "hello":
 		if m.ExtensionVersion == "" {
@@ -181,6 +197,7 @@ func (m Message) Validate() error {
 		}
 		return m.PairReady.ActionRef.Validate()
 	case "poll":
+	case "capture":
 	case "inventory", "readback":
 		if m.Sequence < 1 || m.FocusedWindow == nil || m.Complete == nil || len(m.Tabs) > 2048 {
 			return fmt.Errorf("invalid inventory metadata")

@@ -125,3 +125,22 @@ func ArtifactResource(r Resource, relative string) (Resource, error) {
 	r.Exclude = []string{}
 	return r, nil
 }
+
+// ArtifactOrigin is the first exact-digest transfer observed in a conversation:
+// equal content proves equality, never direction; fuzzy matching stays Braid's.
+type ArtifactOrigin struct {
+	Version        int       `json:"version"`
+	VersionID      string    `json:"version_id"`
+	ConversationID string    `json:"conversation_id"`
+	Evidence       string    `json:"evidence"` // prompt | write_tool | first_message
+	RecordKey      string    `json:"record_key"`
+	SourceRevision string    `json:"source_revision"`
+	At             time.Time `json:"at"`
+}
+
+func (o ArtifactOrigin) Validate() error {
+	if o.Version != 1 || !OpaqueID.MatchString(o.VersionID) || !OpaqueID.MatchString(o.ConversationID) || !Contains([]string{"prompt", "write_tool", "first_message"}, o.Evidence) || o.RecordKey == "" || len(o.RecordKey) > 1024 || o.At.IsZero() {
+		return fmt.Errorf("invalid artifact origin")
+	}
+	return nil
+}

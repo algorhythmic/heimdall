@@ -11,6 +11,7 @@ import (
 	"reflect"
 	"strings"
 	"testing"
+	"time"
 )
 
 func TestHerdrRequestFixtures(t *testing.T) {
@@ -41,9 +42,15 @@ type fakeHerdr struct {
 	observation           herdr.Observation
 	observeErr, reportErr error
 	focusErr              error
+	agents                []herdr.AgentInfo
+	agentsErr             error
 	observations, reports int
 	focuses               int
 	tokens                map[string]string
+}
+
+func (a *fakeHerdr) Agents(context.Context, string, string, string) ([]herdr.AgentInfo, error) {
+	return a.agents, a.agentsErr
 }
 
 func (a *fakeHerdr) Observe(context.Context, string, string, string) (herdr.Observation, error) {
@@ -200,4 +207,61 @@ func TestHerdrEventVersionAndObservationCannotBeForgedThroughGenericRequests(t *
 	generic := f.request("session.bind", "alpha")
 	generic.Session = &SessionInput{Previous: r.ID, ManifestID: r.ManifestID, SurfaceID: r.SurfaceID, Locator: b.Locator}
 	f.reject(generic)
+}
+
+func TestAgentBlockedObservedClearedAndSensorHealth(t *testing.T) {
+	f, s, a, r := setupHerdr(t)
+	if _, err := s.Bind(f.ctx, r, "cli", f.now); err != nil {
+		t.Fatal(err)
+	}
+	svc := &AgentService{Store: f.e.Store, Herdr: a}
+
+	// A blocked agent report appears on the next poll cycle.
+	a.agents = []herdr.AgentInfo{{Agent: "claude", AgentStatus: "blocked", WorkspaceID: "w1", PaneID: "w1:p1",
+		TabID: "w1:t1", TerminalID: "terminal-1", TerminalTitle: "t", Cwd: "/synthetic", StateChangeSeq: 7,
+		AgentSession: &herdr.AgentSession{Value: "sess-1"}}}
+	svc.poll(f.ctx, f.now)
+	st, _ := f.e.Store.State(f.ctx)
+	found := false
+	for _, head := range st.AgentHeads {
+		if head.Status == "blocked" && head.Active {
+			found = true
+		}
+	}
+	if !found {
+		t.Fatal("blocked agent not observed")
+	}
+
+	// Next poll reporting work clears the blocked state.
+	a.agents[0].AgentStatus = "working"
+	a.agents[0].StateChangeSeq = 8
+	svc.poll(f.ctx, f.now.Add(time.Second))
+	st, _ = f.e.Store.State(f.ctx)
+	for _, head := range st.AgentHeads {
+		if head.Status == "blocked" {
+			t.Fatal("blocked status not cleared by next observation")
+		}
+	}
+
+	// An adapter failure degrades the sensor once; recovery journals once.
+	a.agentsErr = errors.New("socket gone")
+	svc.poll(f.ctx, f.now.Add(2*time.Second))
+	svc.poll(f.ctx, f.now.Add(3*time.Second))
+	st, _ = f.e.Store.State(f.ctx)
+	if len(st.SensorHealth) != 1 {
+		t.Fatalf("expected exactly one degraded sensor row, got %+v", st.SensorHealth)
+	}
+	for _, h := range st.SensorHealth {
+		if h.Status != "degraded" || h.Reason != "agent_list_failed" {
+			t.Fatalf("bad sensor health %+v", h)
+		}
+	}
+	a.agentsErr = nil
+	svc.poll(f.ctx, f.now.Add(4*time.Second))
+	st, _ = f.e.Store.State(f.ctx)
+	for _, h := range st.SensorHealth {
+		if h.Status != "healthy" {
+			t.Fatal("sensor did not recover")
+		}
+	}
 }

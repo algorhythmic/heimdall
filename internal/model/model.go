@@ -146,6 +146,7 @@ type State struct {
 	Conversations                 map[string]Conversation                 `json:"conversations"`
 	SessionSources                map[string]conversation.Source          `json:"session_sources"`
 	SourceRoots                   map[string]conversation.SourceRoot      `json:"source_roots"`
+	SensorHealth                  map[string]SensorStatus                 `json:"sensor_health"`
 	SurfaceFocusSpans             map[string]SurfaceFocusSpan             `json:"surface_focus_spans"`
 	CompositorSurfaceFocusSpans   map[string]CompositorSurfaceFocusSpan   `json:"compositor_surface_focus_spans"`
 	CompositorWindowFocusSpans    map[string]CompositorSurfaceFocusSpan   `json:"compositor_window_focus_spans"`
@@ -180,6 +181,7 @@ type State struct {
 	Artifacts             map[string]Artifact             `json:"artifacts"`
 	ArtifactVersions      map[string]ArtifactVersion      `json:"artifact_versions"`
 	ArtifactHeads         map[string]string               `json:"artifact_heads"`
+	ArtifactOrigins       map[string]ArtifactOrigin       `json:"artifact_origins"`
 	WorkspaceManifests    map[string]WorkspaceManifest    `json:"workspace_manifests"`
 	WorkspaceHeads        map[string]string               `json:"workspace_heads"`
 	WorkspaceSurfaces     map[string]SurfaceIdentity      `json:"workspace_surfaces"`

@@ -71,6 +71,9 @@ func (s *State) Normalize() {
 	if s.SourceRoots == nil {
 		s.SourceRoots = map[string]conversation.SourceRoot{}
 	}
+	if s.SensorHealth == nil {
+		s.SensorHealth = map[string]SensorStatus{}
+	}
 	if s.SurfaceFocusSpans == nil {
 		s.SurfaceFocusSpans = map[string]SurfaceFocusSpan{}
 	}
@@ -151,6 +154,9 @@ func (s *State) Normalize() {
 	}
 	if s.ArtifactHeads == nil {
 		s.ArtifactHeads = map[string]string{}
+	}
+	if s.ArtifactOrigins == nil {
+		s.ArtifactOrigins = map[string]ArtifactOrigin{}
 	}
 	if s.WorkspaceManifests == nil {
 		s.WorkspaceManifests = map[string]WorkspaceManifest{}

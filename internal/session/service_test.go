@@ -2,6 +2,7 @@ package session
 
 import (
 	"context"
+	"encoding/json"
 	"os"
 	"path/filepath"
 	"testing"
@@ -115,5 +116,121 @@ func TestSessionIngest(t *testing.T) {
 		if src.Active || src.Lost != "file_removed" {
 			t.Fatalf("expected lost stream, got %+v", src)
 		}
+	}
+}
+
+func TestSessionIngestReplayAndRecapIsolation(t *testing.T) {
+	now := time.Now().UTC()
+	dir := t.TempDir()
+	rootDir := filepath.Join(dir, "projects")
+	if err := os.MkdirAll(filepath.Join(rootDir, "-repo"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	file := filepath.Join("-repo", "conv-1.jsonl")
+	write := func(data string) { os.WriteFile(filepath.Join(rootDir, file), []byte(data), 0o644) }
+	write(`{"type":"user","sessionId":"conv-1","uuid":"u1","version":"2.0.0","cwd":"/repo","timestamp":"2026-09-10T10:00:00.000Z","message":{"role":"user","content":[{"type":"text","text":"hi"}]}}` + "\n")
+
+	s, _ := store.Open(filepath.Join(dir, "store"))
+	defer s.Close()
+	host, _ := os.Hostname()
+	root := conversation.SourceRoot{Version: 1, ID: "0123456789abcdef0123456789abcdef", Provider: "claude_code",
+		Root: rootDir, Namespace: "sr1:namespace:" + conversation.Digest([]byte("ns2")), Host: host, RegisteredAt: now}
+	s.RegisterSourceRoot(context.Background(), root, now)
+	svc := Service{Store: s}
+	svc.poll(context.Background(), now)
+
+	// A recap asserting "task complete" never mutates task/contract/decision state.
+	write(`{"type":"user","sessionId":"conv-1","uuid":"u1","version":"2.0.0","cwd":"/repo","timestamp":"2026-09-10T10:00:00.000Z","message":{"role":"user","content":[{"type":"text","text":"hi"}]}}` + "\n" +
+		`{"type":"system","subtype":"away_summary","sessionId":"conv-1","content":"task complete: all work shipped","timestamp":"2026-09-10T10:05:00.000Z"}` + "\n")
+	svc.poll(context.Background(), now.Add(time.Second))
+	st, _ := s.State(context.Background())
+	if len(st.Tasks) != 0 || len(st.Contracts) != 0 || len(st.Decisions) != 0 || len(st.Checkpoints) != 0 {
+		t.Fatal("recap text mutated authoritative task state")
+	}
+
+	// Replay must be deterministic and byte-identical to projected state.
+	replayed, err := s.Replay(context.Background())
+	if err != nil {
+		t.Fatal(err)
+	}
+	a, _ := json.Marshal(st)
+	b, _ := json.Marshal(replayed)
+	if string(a) != string(b) {
+		t.Fatal("replay differs from projected state")
+	}
+
+	// Partial write: a truncated trailing line produces a coverage gap or holds
+	// the checkpoint, never silently consumes partial records.
+	write(`{"type":"user","sessionId":"conv-1","uuid":"u1","version":"2.0.0","cwd":"/repo","timestamp":"2026-09-10T10:00:00.000Z","message":{"role":"user","content":[{"type":"text","text":"hi"}]}}` + "\n" +
+		`{"type":"system","subtype":"away_summary","sessionId":"conv-1","content":"task complete: all work shipped","timestamp":"2026-09-10T10:05:00.000Z"}` + "\n" +
+		`{"type":"user","sessionId":"conv-1","uuid":"u2","version":"2.0.0","timestamp":"2026-09-10T10:06:00.000Z","message":{"role":"user","cont`)
+	svc.poll(context.Background(), now.Add(2*time.Second))
+	st, _ = s.State(context.Background())
+	for _, src := range st.SessionSources {
+		if src.Checkpoint.Ordinal > 2 {
+			t.Fatalf("checkpoint advanced past partial record: %+v", src.Checkpoint)
+		}
+	}
+
+	// The truncated tail completes on the next write and ingests normally.
+	write(`{"type":"user","sessionId":"conv-1","uuid":"u1","version":"2.0.0","cwd":"/repo","timestamp":"2026-09-10T10:00:00.000Z","message":{"role":"user","content":[{"type":"text","text":"hi"}]}}` + "\n" +
+		`{"type":"system","subtype":"away_summary","sessionId":"conv-1","content":"task complete: all work shipped","timestamp":"2026-09-10T10:05:00.000Z"}` + "\n" +
+		`{"type":"user","sessionId":"conv-1","uuid":"u2","version":"2.0.0","timestamp":"2026-09-10T10:06:00.000Z","message":{"role":"user","content":[{"type":"text","text":"next"}]}}` + "\n")
+	svc.poll(context.Background(), now.Add(3*time.Second))
+	st, _ = s.State(context.Background())
+	for _, src := range st.SessionSources {
+		if src.Checkpoint.Ordinal != 3 {
+			t.Fatalf("completed tail not ingested: %+v", src.Checkpoint)
+		}
+	}
+}
+
+func TestHookStartResumeEndAndUnknownConversation(t *testing.T) {
+	now := time.Now().UTC()
+	dir := t.TempDir()
+	rootDir := filepath.Join(dir, "projects")
+	if err := os.MkdirAll(filepath.Join(rootDir, "-repo"), 0o755); err != nil {
+		t.Fatal(err)
+	}
+	transcript := filepath.Join(rootDir, "-repo", "hook-1.jsonl")
+	os.WriteFile(transcript, []byte(
+		`{"type":"user","sessionId":"hook-1","uuid":"u1","version":"2.0.0","cwd":"/repo","timestamp":"2026-09-10T09:00:00.000Z","message":{"role":"user","content":[{"type":"text","text":"hi"}]}}`+"\n"), 0o644)
+	s, _ := store.Open(filepath.Join(dir, "store"))
+	defer s.Close()
+	host, _ := os.Hostname()
+	root := conversation.SourceRoot{Version: 1, ID: "0123456789abcdef0123456789abcdef", Provider: "claude_code",
+		Root: rootDir, Namespace: "sr1:namespace:" + conversation.Digest([]byte("ns3")), Host: host, RegisteredAt: now}
+	s.RegisterSourceRoot(context.Background(), root, now)
+	svc := &Service{Store: s}
+	svc.poll(context.Background(), now)
+
+	start := HookPayload{Event: "SessionStart", SessionID: "hook-1",
+		TranscriptPath: transcript, CWD: "/repo", Timestamp: now.Add(-time.Minute).UnixMilli()}
+	if err := svc.HandleHook(context.Background(), start, now); err != nil {
+		t.Fatal(err)
+	}
+	st, _ := s.State(context.Background())
+	if len(st.Conversations) != 1 {
+		t.Fatal("hook start did not resume conversation")
+	}
+
+	// End requires the same stream; turns count from transcript records.
+	end := HookPayload{Event: "SessionEnd", SessionID: "hook-1",
+		TranscriptPath: transcript, CWD: "/repo", Timestamp: now.UnixMilli()}
+	if err := svc.HandleHook(context.Background(), end, now); err != nil {
+		t.Fatal(err)
+	}
+	st, _ = s.State(context.Background())
+	for _, c := range st.Conversations {
+		if c.Ended == nil || c.Ended.Turns < 1 {
+			t.Fatalf("expected ended conversation with turn count, got %+v", c.Ended)
+		}
+	}
+
+	// End on an unknown conversation refuses instead of fabricating state.
+	bad := HookPayload{Event: "SessionEnd", SessionID: "unknown-1",
+		TranscriptPath: filepath.Join(rootDir, "-repo", "unknown-1.jsonl"), Timestamp: now.UnixMilli()}
+	if err := svc.HandleHook(context.Background(), bad, now); err == nil {
+		t.Fatal("end hook on unknown conversation must fail")
 	}
 }

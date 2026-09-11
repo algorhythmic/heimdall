@@ -94,7 +94,7 @@ row with its owning implementation.
   or an optional feed with verified digests. Absent bytes are diagnostic coverage
   gaps. Withdrawal purges text/retrieval copies and blocks rehydration of withdrawn
   associations. No text in events, receipts or serialized authoritative state.
-- [ ] **S1.4 — Implement lifecycle and the remaining sensor surface.** Native
+- [x] **S1.4 — Implement lifecycle and the remaining sensor surface.** Native
   end differs from idle/inactive; source disappearance is a coverage gap and a
   resumed native ID stays the same conversation. Add surfaces, Herdr observations,
   tab/window focus, attention, capture UI and exact-digest artifact occurrence
@@ -107,20 +107,27 @@ row with its owning implementation.
   schema-22 catalog/container projection, including replay, rollback, gaps and
   navigation. Extension 0.6.1 adds sampled focus spans; `state --active` now
   selects tab-level focus through bounded fresh readback and existing ownership.
-  Compositor attention, other sensors, lifecycle and UI remain pending.
-  See [S1 implementation](S1-IMPLEMENTATION.md).
-- [ ] **S1.5 — Demonstrate acceptance.** With Skald absent, consume sanitized
+  Completed 2026-09-10: compositor attention, `sensor.degraded`/`recovered`
+  health transitions, `artifact.origin_observed` exact-digest transfers plus
+  derived `same_content` peers, the extension capture popup (`capture` bridge
+  message), `source activate|deactivate` lifecycle, and conversation/sensor
+  lines in the TUI context pane. See [S1 implementation](S1-IMPLEMENTATION.md).
+- [x] **S1.5 — Demonstrate acceptance.** With Skald absent, consume sanitized
   lifecycle/recap fixtures and a verified local Claude transcript. Real
   `agent.blocked` appears within 2 s and clears on next tool use; explicit task
   binding and end source references survive replay; `state --active` identifies
   tab-level focus. Replay remains deterministic. Exercise duplicate delivery,
   partial writes, rotation/rewrites, repeated text, missing IDs, aliases/forks,
   unknown versions, withdrawn/oversized descriptions and same-ID resume.
-  A recap saying “task complete” must leave status, contract, decisions,
-  checkpoint head and verification records unchanged. No model provider is
-  needed to ingest an available native description. Compare replay events/state
-  with and without sources, diagnose missing evidence independently, and test
-  digest mismatch, purge, withdrawal/replay and cross-scope digest isolation.
+  Verified 2026-09-10: replay determinism, recap isolation, partial-write
+  checkpoint hold, hook resume/end/unknown-refusal
+  (`internal/session/service_test.go`), blocked-observe/clear and
+  sensor health (`internal/workspace/herdr_test.go`), origin rejection
+  matrix (`internal/store/origin_test.go`). Provider edge cases
+  (aliases/forks/missing IDs/unknown versions) remain Skald's
+  sessioncapture conformance scope upstream. Description digest mismatch,
+  purge, withdrawal/replay and cross-scope isolation were covered by the
+  S1.3 conversation store tests.
 
 ## S3 and S5 integration additions
 

@@ -58,6 +58,24 @@ func (s *Server) sessionHTTP(w http.ResponseWriter, r *http.Request) {
 			err = serviceSessions(s).HandleHook(r.Context(), p, s.Clock().UTC())
 		}
 		result = map[string]bool{"ok": err == nil}
+	case r.Method == "POST" && r.URL.Path == "/session/source/active":
+		var req struct {
+			Key    string `json:"key"`
+			Active bool   `json:"active"`
+		}
+		defer r.Body.Close()
+		var body []byte
+		body, err = io.ReadAll(http.MaxBytesReader(w, r.Body, 4<<10))
+		if err == nil {
+			err = model.StrictJSON(body, &req)
+		}
+		if err == nil {
+			if !model.OpaqueID.MatchString(req.Key) {
+				err = fmt.Errorf("invalid source root key")
+			} else {
+				result, err = s.Engine.Store.SetSourceRootActive(r.Context(), req.Key, req.Active, s.Clock().UTC())
+			}
+		}
 	case r.Method == "POST" && r.URL.Path == "/session/source":
 		if r.Header.Get("Content-Type") != "application/json" {
 			writeError(w, 415, fmt.Errorf("application/json required"))
@@ -119,7 +137,9 @@ func (s *Server) configureSource(ctx context.Context, req sourceRootRequest) (an
 	}
 	id := req.ID
 	if id == "" {
-		id = model.NewID()
+		// A deterministic root identity makes repeated `source add` calls
+		// idempotent; the reducer still verifies provider/root/namespace match.
+		id = conversation.Digest([]byte(conversation.Identity("heimdall-source-root", req.Provider, root)))[:32]
 	}
 	reg := conversation.SourceRoot{Version: 1, ID: id, Provider: req.Provider, Root: root, Namespace: namespace, Host: host, RegisteredAt: s.Clock().UTC()}
 	return s.Engine.Store.RegisterSourceRoot(ctx, reg, s.Clock().UTC())

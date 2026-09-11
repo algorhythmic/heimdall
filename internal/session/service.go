@@ -28,9 +28,30 @@ type Service struct {
 	Store     *store.Store
 	PollEvery time.Duration
 	Limits    sessioncapture.Limits
+	// degraded tracks the last reported health per root so only transitions
+	// journal sensor events.
+	degraded map[string]bool
 }
 
-func (s Service) Run(ctx context.Context, clock func() time.Time) {
+// health journals sensor.degraded/recovered on transitions only.
+func (s *Service) health(ctx context.Context, root conversation.SourceRoot, reason string, now time.Time) {
+	if s.degraded == nil {
+		s.degraded = map[string]bool{}
+	}
+	sensor := "session:" + root.ID
+	if reason != "" && !s.degraded[root.ID] {
+		if _, err := s.Store.ReportSensor(ctx, sensor, "degraded", reason, "observer:session", now); err == nil {
+			s.degraded[root.ID] = true
+		}
+	}
+	if reason == "" && s.degraded[root.ID] {
+		if _, err := s.Store.ReportSensor(ctx, sensor, "healthy", "", "observer:session", now); err == nil {
+			delete(s.degraded, root.ID)
+		}
+	}
+}
+
+func (s *Service) Run(ctx context.Context, clock func() time.Time) {
 	interval := s.PollEvery
 	if interval <= 0 {
 		interval = 5 * time.Second
@@ -52,14 +73,14 @@ func (s Service) Run(ctx context.Context, clock func() time.Time) {
 	}
 }
 
-func (s Service) limits() sessioncapture.Limits {
+func (s *Service) limits() sessioncapture.Limits {
 	if s.Limits == (sessioncapture.Limits{}) {
 		return sessioncapture.DefaultLimits()
 	}
 	return s.Limits
 }
 
-func (s Service) poll(ctx context.Context, now time.Time) {
+func (s *Service) poll(ctx context.Context, now time.Time) {
 	if s.Store == nil {
 		return
 	}
@@ -74,13 +95,15 @@ func (s Service) poll(ctx context.Context, now time.Time) {
 	}
 }
 
-func (s Service) pollRoot(ctx context.Context, st model.State, root conversation.SourceRoot, now time.Time) {
+func (s *Service) pollRoot(ctx context.Context, st model.State, root conversation.SourceRoot, now time.Time) {
 	ioctx, stop := context.WithTimeout(ctx, 10*time.Second)
 	candidates, err := sessioncapture.Inventory(ioctx, root.Root, root.Provider, time.Time{}, 256)
 	stop()
 	if err != nil {
+		s.health(ctx, root, "inventory_failed", now)
 		return
 	}
+	s.health(ctx, root, "", now)
 	seen := map[string]bool{}
 	for _, cand := range candidates {
 		seen[cand.Path] = true
@@ -114,22 +137,26 @@ func findStream(st model.State, root conversation.SourceRoot, path string) (conv
 
 // register identifies a native stream and persists its identity before the
 // first capture. Files without a native conversation ID are not streams.
-func (s Service) register(ctx context.Context, st model.State, root conversation.SourceRoot, path string, now time.Time) (conversation.Source, error) {
+func (s *Service) register(ctx context.Context, st model.State, root conversation.SourceRoot, path string, now time.Time) (conversation.Source, error) {
 	ioctx, stop := context.WithTimeout(ctx, 5*time.Second)
 	ident, err := sessioncapture.Identify(ioctx, root.Root, path, root.Provider)
 	stop()
 	if err != nil || ident.ConversationID == "" {
 		return conversation.Source{}, err
 	}
-	// The same native conversation at a new path is a relocation, not a stream.
+	// The same native conversation in the same namespace is one stream,
+	// whether it moved paths or consolidated onto another root. A persistent
+	// logical stream token derives from the native identity, not a fresh ID.
 	for id, old := range st.SessionSources {
-		if old.RootID == root.ID && old.NativeID == ident.ConversationID {
-			if old.Path != path {
+		if old.Key.Namespace == root.Namespace && old.NativeID == ident.ConversationID {
+			if old.Path != path || old.RootID != root.ID {
 				relocated := old
 				relocated.Path = path
+				relocated.RootID = root.ID
+				relocated.Root = root.Root
 				if _, err := s.Store.RegisterStream(ctx, relocated, now); err == nil {
-					old.Path = path
-					st.SessionSources[id] = old
+					st.SessionSources[id] = relocated
+					old = relocated
 				}
 			}
 			return old, nil
@@ -139,7 +166,7 @@ func (s Service) register(ctx context.Context, st model.State, root conversation
 		NativeID: ident.ConversationID, Project: ident.Project, Originator: ident.Originator,
 		Evidence: ident.Evidence, ProviderVer: ident.ProviderVersion, RegisteredAt: now,
 		Key: conversation.SourceKey{AdapterID: AdapterID, ContractMajor: contractMajor, ContractMinor: contractMinor,
-			Namespace: root.Namespace, LogicalStream: sessionrecord.Key("stream", root.Namespace, root.Provider, model.NewID())}}
+			Namespace: root.Namespace, LogicalStream: sessionrecord.Key("stream", root.Namespace, root.Provider, ident.ConversationID)}}
 	if _, err := s.Store.RegisterStream(ctx, src, now); err != nil {
 		return conversation.Source{}, err
 	}
@@ -203,7 +230,7 @@ func taskBinding(st model.State, rec sessionrecord.Record) *conversation.TaskRef
 // ingest reads one stream from its committed checkpoint and journals derived
 // observations before advancing the checkpoint. Reprocessing after an
 // interruption re-derives identical command IDs and dedupes cleanly.
-func (s Service) ingest(ctx context.Context, st model.State, root conversation.SourceRoot, src conversation.Source, now time.Time) {
+func (s *Service) ingest(ctx context.Context, st model.State, root conversation.SourceRoot, src conversation.Source, now time.Time) {
 	f, err := os.Open(filepath.Join(src.Root, filepath.Clean(src.Path)))
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -237,12 +264,73 @@ func (s Service) ingest(ctx context.Context, st model.State, root conversation.S
 			}
 		}
 		s.ingestRecord(ctx, st, src, rec, captured.Raw, epoch, now)
+		if convID := convIDFor(st, src); convID != "" {
+			s.checkOrigins(ctx, st, src, rec, convID, now)
+		}
 	}
 	for _, g := range batch.Gaps {
 		_, _ = s.Store.RecordGap(ctx, src.ID(), conversation.Gap{Version: 1, Code: g.Code, Offset: g.Offset, Ordinal: g.Ordinal, Generation: g.Generation}, now)
 	}
 	if changed {
 		_, _ = s.Store.AdvanceCheckpoint(ctx, src.ID(), fromCaptureCheckpoint(batch.Checkpoint), now)
+	}
+}
+
+func convIDFor(st model.State, src conversation.Source) string {
+	for id, c := range st.Conversations {
+		if c.Source == src.Key && c.NativeConversationID == src.NativeID {
+			return id
+		}
+	}
+	return ""
+}
+
+// checkOrigins journals an artifact.origin_observed when a record's exact
+// content matches a known artifact version digest. Equal content proves the
+// transfer occurred; it never asserts direction or fuzzy similarity.
+func (s *Service) checkOrigins(ctx context.Context, st model.State, src conversation.Source, rec sessionrecord.Record, convID string, now time.Time) {
+	match := func(digest, evidence string) {
+		if digest == "" {
+			return
+		}
+		for id, v := range st.ArtifactVersions {
+			if v.Observation.Digest != digest {
+				continue
+			}
+			if _, taken := st.ArtifactOrigins[id]; taken {
+				continue
+			}
+			o := model.ArtifactOrigin{Version: 1, VersionID: id, ConversationID: convID,
+				Evidence: evidence, RecordKey: rec.RecordKey, SourceRevision: rec.SourceRevision}
+			if _, err := s.Store.RecordArtifactOrigin(ctx, o, now); err == nil {
+				st.ArtifactOrigins[id] = o
+			}
+		}
+	}
+	if rec.Kind == "message" {
+		role := ""
+		if rec.Role != nil {
+			role = *rec.Role
+		}
+		if role == "user" && rec.Body.Text != "" {
+			match(conversation.Digest([]byte(rec.Body.Text)), "prompt")
+			if rec.SourceOrder != nil && rec.SourceOrder.Ordinal == 0 {
+				match(conversation.Digest([]byte(rec.Body.Text)), "first_message")
+			}
+		}
+	}
+	for _, part := range rec.Body.Parts {
+		if part.Type != "tool_call" || part.Name != "Write" || len(part.Data) == 0 {
+			continue
+		}
+		var tool struct {
+			Input struct {
+				Content string `json:"content"`
+			} `json:"input"`
+		}
+		if json.Unmarshal(part.Data, &tool) == nil && tool.Input.Content != "" {
+			match(conversation.Digest([]byte(tool.Input.Content)), "write_tool")
+		}
 	}
 }
 
@@ -255,7 +343,7 @@ func conversationStarted(st model.State, src conversation.Source, rec sessionrec
 	return false
 }
 
-func (s Service) startConversation(ctx context.Context, st model.State, src conversation.Source, rec sessionrecord.Record, epoch int64, now time.Time) (json.RawMessage, error) {
+func (s *Service) startConversation(ctx context.Context, st model.State, src conversation.Source, rec sessionrecord.Record, epoch int64, now time.Time) (json.RawMessage, error) {
 	o, err := ingestObservation(rec, epoch, now)
 	if err != nil {
 		return nil, err
@@ -270,7 +358,7 @@ func (s Service) startConversation(ctx context.Context, st model.State, src conv
 
 // ingestRecord maps one normalized record to conversation events. Content
 // kinds Heimdall does not retain advance the checkpoint without an event.
-func (s Service) ingestRecord(ctx context.Context, st model.State, src conversation.Source, rec sessionrecord.Record, raw []byte, epoch int64, now time.Time) {
+func (s *Service) ingestRecord(ctx context.Context, st model.State, src conversation.Source, rec sessionrecord.Record, raw []byte, epoch int64, now time.Time) {
 	var kind string
 	switch rec.Kind {
 	case "title":

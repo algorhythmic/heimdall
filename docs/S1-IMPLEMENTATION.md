@@ -125,6 +125,28 @@ native recaps surfaced through the evidence cache, cwd binding linked sessions
 to `heimdall`, `skald` and `wayland-computer-use` tasks, and a SessionStart
 hook resumed a live conversation.
 
+## S1.4 sensor surface completion (2026-09-10)
+
+- `sensor.degraded` / `sensor.recovered` journal per-sensor health transitions
+  (observer authority, monotonic). The session poller reports per source root;
+  the Herdr agent poller reports per socket/epoch. Repeated failures journal once.
+- `artifact.origin_observed` records the first exact-digest transfer of a
+  version's content seen in a conversation record (`prompt`, `write_tool`,
+  `first_message`). `same_content` edges are a deterministic view
+  (`store.SameContentPeers`) over equal-digest versions — derived, never
+  journaled, so historical fixtures replay identically.
+- `heimdall source activate|deactivate KEY` toggles polling; `source add` is
+  idempotent — root identity derives from provider+canonical path and the
+  reducer dedupes on that locator. Streams register under the live root and
+  migrate `RootID` on consolidation; `LogicalStream` derives from the native
+  conversation identity rather than a fresh random token.
+- The extension popup (`extension/popup.*`) captures the active tab through a
+  new `capture` bridge message (paired profiles only), journaled as
+  `capture.created` with client `browser:<profile>` and the same grammar and
+  deadline policy as the CLI.
+- The TUI context pane shows task-bound conversations (lifecycle, description
+  kind/availability, age) and degraded sensors.
+
 ## Verification
 
 Used the existing `.tools/go` toolchain and repository module/build caches:

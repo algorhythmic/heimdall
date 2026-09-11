@@ -51,6 +51,24 @@ func (l sourceLost) Validate() error {
 
 // A configured root requires explicit CLI authority. Stream registration,
 // checkpoint advance, gaps and loss are observer facts under a live root.
+// SetSourceRootActive journals an explicit activation toggle. Deactivation
+// stops polling; the root's streams and checkpoints are retained.
+func (s *Store) SetSourceRootActive(ctx context.Context, key string, active bool, now time.Time) (json.RawMessage, error) {
+	verb := map[bool]string{true: "activated", false: "deactivated"}[active]
+	id := "source-" + conversation.Digest([]byte(conversation.Identity("heimdall-source-root", key, verb, now.UTC().Format(time.RFC3339Nano))))
+	return s.Transact(ctx, id, "cli", nil, now, func(st model.State) (Change, error) {
+		p, ok := st.SourceRoots[key]
+		if !ok {
+			return Change{}, fmt.Errorf("unknown source root %s", key)
+		}
+		if p.Active == active {
+			return Change{}, fmt.Errorf("source root already %s", verb)
+		}
+		p.Active = active
+		return Change{Revision: st.Revision, Events: []Pending{{"source", verb, key, p}}}, nil
+	})
+}
+
 func applySource(st *model.State, e Event) error {
 	switch e.Verb {
 	case "configured":
@@ -75,6 +93,22 @@ func applySource(st *model.State, e Event) error {
 			return nil
 		}
 		st.SourceRoots[p.ID] = p
+	case "activated", "deactivated":
+		var p conversation.SourceRoot
+		if err := model.StrictJSON(e.Payload, &p); err != nil {
+			return err
+		}
+		if err := p.Validate(); err != nil {
+			return err
+		}
+		old, ok := st.SourceRoots[p.ID]
+		if !ok || old.Provider != p.Provider || old.Root != p.Root || old.Namespace != p.Namespace || old.Active == p.Active {
+			return fmt.Errorf("invalid source root activation")
+		}
+		if e.Actor != "cli" || e.EntityID != p.ID || p.Active != (e.Verb == "activated") || !strings.HasPrefix(e.CommandID, "source-") {
+			return fmt.Errorf("invalid source root activation provenance")
+		}
+		st.SourceRoots[p.ID] = p
 	case "registered":
 		var p conversation.Source
 		if err := model.StrictJSON(e.Payload, &p); err != nil {
@@ -91,11 +125,20 @@ func applySource(st *model.State, e Event) error {
 			return fmt.Errorf("stream registration requires a live configured root")
 		}
 		if old, ok := st.SessionSources[p.ID()]; ok {
-			if old.Key != p.Key || old.NativeID != p.NativeID || old.Provider != p.Provider || old.RootID != p.RootID {
+			if old.Key != p.Key || old.NativeID != p.NativeID || old.Provider != p.Provider {
 				return fmt.Errorf("stream identity conflict")
 			}
-			if old.Path != p.Path {
-				// A deliberate relocation keeps identity; the locator updates in place.
+			if old.RootID != p.RootID {
+				// A root consolidation may re-register the same stream under a
+				// different live root of the same provider and namespace.
+				nr, ok := st.SourceRoots[p.RootID]
+				or, ok2 := st.SourceRoots[old.RootID]
+				if !ok || !ok2 || !nr.Active || nr.Provider != or.Provider || nr.Namespace != or.Namespace {
+					return fmt.Errorf("stream identity conflict")
+				}
+				old.RootID = p.RootID
+			}
+			if old.Path != p.Path || old.RootID != p.RootID {
 				old.Path = p.Path
 				st.SessionSources[p.ID()] = old
 			}
@@ -161,6 +204,27 @@ func (s *Store) RegisterSourceRoot(ctx context.Context, r conversation.SourceRoo
 	}
 	id := sourceCommand("configured", r)
 	return s.Transact(ctx, id, "cli", deliveryRequest(r), now, func(st model.State) (Change, error) {
+		// The canonical locator (provider + canonical root) is the dedupe
+		// key: re-adding an existing root returns its identity rather than
+		// splitting streams across duplicate roots.
+		var match *conversation.SourceRoot
+		for _, old := range st.SourceRoots {
+			if old.Provider == r.Provider && old.Root == r.Root {
+				// An active root always wins over an inactive duplicate.
+				if match == nil || (old.Active && !match.Active) {
+					old := old
+					match = &old
+				}
+			}
+		}
+		if match != nil {
+			if !match.Active {
+				reactivated := *match
+				reactivated.Active = true
+				return Change{Revision: st.Revision, Events: []Pending{{"source", "activated", reactivated.ID, reactivated}}, Result: map[string]string{"source_root_id": reactivated.ID}}, nil
+			}
+			return Change{Revision: st.Revision, Result: map[string]string{"source_root_id": match.ID}}, nil
+		}
 		return Change{Revision: st.Revision, Events: []Pending{{"source", "configured", r.ID, r}}, Result: map[string]string{"source_root_id": r.ID}}, nil
 	})
 }

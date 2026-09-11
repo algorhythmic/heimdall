@@ -363,7 +363,11 @@ func Apply(st *model.State, e Event) error {
 		if err := applyWorkspace(st, e); err != nil {
 			return err
 		}
-	case "source.configured", "source.registered", "source.checkpointed", "source.gap", "source.lost":
+	case "sensor.degraded", "sensor.recovered":
+		if err := applySensor(st, e); err != nil {
+			return err
+		}
+	case "source.configured", "source.activated", "source.deactivated", "source.registered", "source.checkpointed", "source.gap", "source.lost":
 		if err := applySource(st, e); err != nil {
 			return err
 		}
@@ -383,7 +387,7 @@ func Apply(st *model.State, e Event) error {
 		if err := applyContinuity(st, e); err != nil {
 			return err
 		}
-	case "artifact.registered", "artifact.versioned":
+	case "artifact.registered", "artifact.versioned", "artifact.origin_observed":
 		if err := applyArtifact(st, e); err != nil {
 			return err
 		}

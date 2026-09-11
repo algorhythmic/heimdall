@@ -572,6 +572,8 @@ func (a *App) contextLines() []line {
 		}
 		add("attention", issue.Detail, gold)
 	}
+	out = append(out, a.conversationLines(rootOf(a.selected))...)
+	out = append(out, a.sensorLines()...)
 	out = append(out, a.attentionLines()...)
 	out = append(out, a.observedLines(rootOf(a.selected))...)
 	return out

@@ -145,6 +145,57 @@ func (a *App) observedLines(target string) []line {
 	return out
 }
 
+// conversationLines shows provider conversations explicitly bound to the task.
+// Description text is evidence-side; the panel shows kind/digest/lifecycle only.
+func (a *App) conversationLines(target string) []line {
+	convs := []model.Conversation{}
+	for _, c := range a.data.State.Conversations {
+		if c.Task != nil && c.Task.Target == target {
+			convs = append(convs, c)
+		}
+	}
+	sort.Slice(convs, func(i, j int) bool { return convs[i].StartedAt.After(convs[j].StartedAt) })
+	out := []line{line{{"conv       ", gray}, {"provider conversations bound to this task", gold}}}
+	if len(convs) == 0 {
+		return append(out, line{{"conv       ", gray}, {"No bound conversations", gray}})
+	}
+	for i, c := range convs {
+		if i >= 6 {
+			out = append(out, line{{"conv       ", gray}, {fmt.Sprintf("+%d more", len(convs)-6), gray}})
+			break
+		}
+		lifecycle := c.Lifecycle(a.now())
+		color := checkColor(map[string]string{"ended": "matched", "resumed": "matched", "started": "unknown", "inactive-by-policy": "stale"}[lifecycle])
+		desc := "no description"
+		if d := c.CurrentDescription; d != nil {
+			desc = d.Kind + " " + d.Availability + " " + bounded(d.RetainedDigest, 12)
+			if d.Availability == "withdrawn" {
+				desc = d.Kind + " withdrawn"
+			}
+		}
+		out = append(out, line{{"conv       ", gray},
+			{c.Kind + " " + lifecycle, color}, {" · " + desc + " · started " + age(c.StartedAt, a.now()), fg}})
+	}
+	return out
+}
+
+// sensorLines reports degraded sensors only; healthy sensors stay silent.
+func (a *App) sensorLines() []line {
+	out := []line{}
+	names := []string{}
+	for name, s := range a.data.State.SensorHealth {
+		if s.Status == "degraded" {
+			names = append(names, name)
+		}
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		s := a.data.State.SensorHealth[name]
+		out = append(out, line{{"sensor     ", red}, {name + " degraded: " + s.Reason + " · " + age(s.At, a.now()), red}})
+	}
+	return out
+}
+
 func (a *App) attentionLines() []line {
 	profiles := []string{}
 	for id, p := range a.data.State.Browsers {

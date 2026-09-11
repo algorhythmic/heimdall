@@ -198,7 +198,7 @@ func (s *Store) TransactChecked(ctx context.Context, id, actor string, request [
 		return nil, err
 	}
 	// Empty background scans do not grow the event log.
-	if (actor == "scheduler" || actor == "coordinator" || actor == "observer:browser") && len(change.Events) == 0 {
+	if (actor == "scheduler" || actor == "coordinator" || actor == "observer:browser" || actor == "observer:herdr") && len(change.Events) == 0 {
 		return result, nil
 	}
 	accepted := Pending{"command", "accepted", id, Acceptance{h, change.Revision, result}}
@@ -361,6 +361,10 @@ func Apply(st *model.State, e Event) error {
 		}
 	case "workspace.accepted", "session.bound", "session.unbound":
 		if err := applyWorkspace(st, e); err != nil {
+			return err
+		}
+	case "agent.observed", "agent.detached":
+		if err := applyAgent(st, e); err != nil {
 			return err
 		}
 	case "evaluator.accepted", "evidence.started", "evidence.finished", "evidence.invalidated":

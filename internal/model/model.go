@@ -181,6 +181,7 @@ type State struct {
 	WorkspaceSurfaces     map[string]SurfaceIdentity      `json:"workspace_surfaces"`
 	SessionBindings       map[string]SessionBinding       `json:"session_bindings"`
 	SessionHeads          map[string]string               `json:"session_heads"`
+	AgentHeads            map[string]AgentRecord          `json:"agent_heads"`
 	Evaluators            map[string]Evaluator            `json:"evaluators"`
 	EvaluatorHeads        map[string]string               `json:"evaluator_heads"`
 	Evidence              map[string]Evidence             `json:"evidence"`

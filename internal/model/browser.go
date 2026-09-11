@@ -158,6 +158,9 @@ func (s *State) Normalize() {
 	if s.SessionHeads == nil {
 		s.SessionHeads = map[string]string{}
 	}
+	if s.AgentHeads == nil {
+		s.AgentHeads = map[string]AgentRecord{}
+	}
 	if s.Evaluators == nil {
 		s.Evaluators = map[string]Evaluator{}
 	}

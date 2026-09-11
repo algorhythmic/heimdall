@@ -165,6 +165,45 @@ func (a *App) needs() []need {
 			out = append(out, need{id, "link", "", text, c.CreatedAt})
 		}
 	}
+	blocked := map[string][]model.AgentRecord{}
+	unbound := map[string][]model.AgentRecord{}
+	for _, r := range a.agents() {
+		target, bound := a.agentTask(r)
+		if r.Status == "blocked" && target != "" {
+			blocked[target] = append(blocked[target], r)
+		}
+		if target != "" && !bound {
+			unbound[target] = append(unbound[target], r)
+		}
+	}
+	for target, rs := range blocked {
+		oldest := rs[0].At
+		kinds := map[string]int{}
+		for _, r := range rs {
+			kinds[r.Agent]++
+			if r.At.Before(oldest) {
+				oldest = r.At
+			}
+		}
+		parts := []string{}
+		for kind, n := range kinds {
+			parts = append(parts, fmt.Sprintf("%d %s", n, kind))
+		}
+		sort.Strings(parts)
+		out = append(out, need{"agent:" + target, "agent", target, strings.Join(parts, " ") + " blocked " + age(oldest, a.now()), oldest})
+	}
+	for target, rs := range unbound {
+		names := []string{}
+		oldest := rs[0].At
+		for _, r := range rs {
+			names = append(names, r.PaneID)
+			if r.At.Before(oldest) {
+				oldest = r.At
+			}
+		}
+		sort.Strings(names)
+		out = append(out, need{"unbound:" + target, "unbound", target, fmt.Sprintf("%d agents · %s", len(rs), strings.Join(names, ", ")), oldest})
+	}
 	for _, id := range a.taskOrder() {
 		t := st.Tasks[id]
 		if model.Contains(t.Workflow.Success, t.Task.Status) || model.Contains(t.Workflow.Dropped, t.Task.Status) {
@@ -185,10 +224,14 @@ func (a *App) needs() []need {
 			return 0
 		case "decision", "artifact":
 			return 1
-		case "link":
+		case "agent":
 			return 2
+		case "unbound":
+			return 3
+		case "link":
+			return 4
 		}
-		return 3
+		return 5
 	}
 	sort.Slice(out, func(i, j int) bool {
 		if rank(out[i].Kind) != rank(out[j].Kind) {
@@ -221,6 +264,58 @@ func age(at, now time.Time) string {
 	return fmt.Sprintf("%dd", int(d.Hours()/24))
 }
 func rootOf(target string) string { return strings.Split(target, "#")[0] }
+
+// agents returns the live (active) recorded agent observations.
+func (a *App) agents() []model.AgentRecord {
+	out := []model.AgentRecord{}
+	for _, r := range a.data.State.AgentHeads {
+		if r.Active {
+			out = append(out, r)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].ContainerKey() < out[j].ContainerKey() })
+	return out
+}
+
+// agentTask attributes an observed agent to a task: a session-bound pane wins;
+// otherwise a cwd inside a bound resource root names the task without binding.
+// The bool reports whether the attribution is an explicit surface binding.
+func (a *App) agentTask(r model.AgentRecord) (string, bool) {
+	st := a.data.State
+	for surface, head := range st.SessionHeads {
+		b := st.SessionBindings[head]
+		if !b.Active || b.Locator == nil || st.SessionHeads[surface] != head || b.SurfaceID != surface {
+			continue
+		}
+		if b.Locator.Host+"|"+b.Locator.SourceEpoch+"|"+b.Locator.SessionID+"|"+b.Locator.PaneID == r.ContainerKey() {
+			return b.Target, true
+		}
+	}
+	match := ""
+	for _, res := range st.Resources {
+		if !res.Active || res.Kind != "tree" || res.Root == "" {
+			continue
+		}
+		if r.Cwd == res.Root || strings.HasPrefix(r.Cwd, res.Root+"/") {
+			if match != "" && match != res.Target {
+				return match, false
+			}
+			match = res.Target
+		}
+	}
+	return match, false
+}
+
+// agentsForTask returns the live agent records attributed to one task.
+func (a *App) agentsForTask(target string) []model.AgentRecord {
+	out := []model.AgentRecord{}
+	for _, r := range a.agents() {
+		if t, _ := a.agentTask(r); t == target {
+			out = append(out, r)
+		}
+	}
+	return out
+}
 func (a *App) choose(target string) {
 	if target == a.selected {
 		return

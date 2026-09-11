@@ -129,7 +129,7 @@ func (a *App) header(w int) {
 	if a.connection != "ok" {
 		color = red
 	}
-	bound, agents := 0, 0
+	bound := 0
 	spaces := map[string]bool{}
 	for id, head := range a.data.State.SessionHeads {
 		b := a.data.State.SessionBindings[head]
@@ -139,9 +139,20 @@ func (a *App) header(w int) {
 		bound++
 		if b.Locator != nil {
 			spaces[b.Locator.WorkspaceID] = true
-			if b.Locator.AgentSessionID != "" {
-				agents++
-			}
+		}
+	}
+	working, blockedA, idle, other := 0, 0, 0, 0
+	agents := a.agents()
+	for _, r := range agents {
+		switch r.Status {
+		case "working":
+			working++
+		case "blocked":
+			blockedA++
+		case "idle":
+			idle++
+		default:
+			other++
 		}
 	}
 	parts := line{{"heimdall", gold}, {"   daemon ", gray}, {a.connection, color}, {"   refreshed ", gray}, {age(a.data.At, a.now()), fg}}
@@ -149,7 +160,13 @@ func (a *App) header(w int) {
 		parts = append(parts, span{" · loading", gold})
 	}
 	if bound > 0 {
-		parts = append(parts, span{fmt.Sprintf("   herdr %d recorded spaces · %d bindings · %d agents", len(spaces), bound, agents), gray})
+		parts = append(parts, span{fmt.Sprintf("   herdr %d recorded spaces · %d bindings · %d agents", len(spaces), bound, len(agents)), gray})
+		if len(agents) > 0 {
+			parts = append(parts, span{fmt.Sprintf("   %d● %d? %d○", working, blockedA, idle), fg})
+			if other > 0 {
+				parts = append(parts, span{fmt.Sprintf(" %d·", other), gray})
+			}
+		}
 	} else {
 		parts = append(parts, span{"   herdr · no bound sessions", gray})
 	}
@@ -193,6 +210,13 @@ func (a *App) drawDashboard(w, h int) {
 		if n.Kind == "unsaved" {
 			action = "c save progress"
 		}
+		if n.Kind == "agent" {
+			color = red
+			action = "↵ inspect"
+		}
+		if n.Kind == "unbound" {
+			action = "b bind"
+		}
 		if n.Kind == "link" {
 			action = "↵ file link"
 		}
@@ -227,14 +251,19 @@ func (a *App) drawRows(x, y, w, h int) {
 		return
 	}
 	wide := w >= 122
+	xwide := w >= 140
 	idw := 25
 	statusw := 11
 	nextw := w - idw - statusw - 10 - 7 - 13
 	if wide {
 		nextw -= 17
 	}
+	if xwide {
+		nextw -= 10
+	}
 	colNext, colStatus := x+idw, x+idw+nextw
 	colBy, colSaved, colSteps := colStatus+statusw, colStatus+statusw+10, colStatus+statusw+17
+	colAgents := colSteps + 31
 	for _, p := range []struct {
 		x, w int
 		s    string
@@ -243,6 +272,9 @@ func (a *App) drawRows(x, y, w, h int) {
 	}
 	if wide {
 		a.text(colSteps+13, y, 17, "sessions", base.Foreground(gray))
+	}
+	if xwide {
+		a.text(colAgents, y, 10, "agents", base.Foreground(gray))
 	}
 	idx := 0
 	for i, r := range rows {
@@ -351,6 +383,25 @@ func (a *App) drawRows(x, y, w, h int) {
 			}
 			a.text(colSteps+13, yy, 17, value, style.Foreground(gray))
 		}
+		if xwide {
+			dots := ""
+			for _, r := range a.agentsForTask(r.Target) {
+				symbol, color := "○", gray
+				switch r.Status {
+				case "working":
+					symbol, color = "●", green
+				case "blocked":
+					symbol, color = "?", red
+				case "done":
+					symbol, color = "✓", green
+				}
+				a.text(colAgents+len([]rune(dots)), yy, 1, symbol, style.Foreground(color))
+				dots += " "
+			}
+			if dots == "" {
+				a.text(colAgents, yy, 10, "—", style.Foreground(gray))
+			}
+		}
 	}
 }
 func statusColor(s string) tcell.Color {
@@ -431,6 +482,33 @@ func (a *App) contextLines() []line {
 		sessions = append(sessions, "No bound sessions")
 	}
 	add("sessions", strings.Join(sessions, " · "), gray)
+	agents := line{{"agents     ", gray}}
+	related := a.agentsForTask(rootOf(a.selected))
+	for i, r := range related {
+		if i > 0 {
+			agents = append(agents, span{" · ", gray})
+		}
+		symbol, color := "○", gray
+		switch r.Status {
+		case "working":
+			symbol, color = "●", green
+		case "blocked":
+			symbol, color = "?", red
+		case "done":
+			symbol, color = "✓", green
+		}
+		_, bound := a.agentTask(r)
+		label := r.WorkspaceID + ":" + r.PaneID
+		marker := "unbound"
+		if bound {
+			marker = "bound"
+		}
+		agents = append(agents, span{symbol + " ", color}, span{label + " " + r.Agent + " · " + r.Status + " · " + marker, color})
+	}
+	if len(related) == 0 {
+		agents = append(agents, span{"No observed agents", gray})
+	}
+	out = append(out, agents)
 	for _, issue := range v.Issues {
 		if issue.Code == "unresolved_progress" {
 			continue

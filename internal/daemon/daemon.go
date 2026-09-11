@@ -46,6 +46,7 @@ type Server struct {
 	Previews          *workspace.PreviewService
 	Snapshots         *workspace.SnapshotService
 	Viewport          *workspace.ViewportService
+	Agents            *workspace.AgentService
 	EvaluationContext context.Context
 	evaluations       sync.WaitGroup
 	Engine            *core.Engine
@@ -152,6 +153,9 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	go func() { defer close(snapshotDone); service.Snapshots.Run(localCtx, clock) }()
 	viewportDone := make(chan struct{})
 	go func() { defer close(viewportDone); service.Viewport.Observer.Run(localCtx) }()
+	service.Agents = &workspace.AgentService{Store: e.Store, Herdr: herdr.Adapter{}, PollEvery: 2 * time.Second}
+	agentDone := make(chan struct{})
+	go func() { defer close(agentDone); service.Agents.Run(localCtx, clock) }()
 	watchDone := make(chan struct{})
 	go func() { defer close(watchDone); watch(localCtx, e, clock) }()
 	stopped := make(chan struct{})
@@ -174,6 +178,7 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	<-operationDone
 	<-pairingDone
 	<-viewportDone
+	<-agentDone
 	<-watchDone
 	<-stopped
 	service.evaluations.Wait()

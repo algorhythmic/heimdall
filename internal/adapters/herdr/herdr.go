@@ -28,6 +28,24 @@ func (e *Error) Error() string       { return e.Code + ": " + e.Detail }
 func fail(code, detail string) error { return &Error{code, detail} }
 
 type AgentSession struct{ Source, Agent, Kind, Value string }
+
+// AgentInfo is one entry of an agent.list inventory. It reports Herdr's own
+// agent detection; it never attests task ownership or action authority.
+type AgentInfo struct {
+	Agent          string        `json:"agent"`
+	AgentSession   *AgentSession `json:"agent_session"`
+	AgentStatus    string        `json:"agent_status"`
+	Cwd            string        `json:"cwd"`
+	ForegroundCwd  string        `json:"foreground_cwd"`
+	Focused        bool          `json:"focused"`
+	PaneID         string        `json:"pane_id"`
+	Revision       int           `json:"revision"`
+	StateChangeSeq int64         `json:"state_change_seq"`
+	TabID          string        `json:"tab_id"`
+	TerminalID     string        `json:"terminal_id"`
+	TerminalTitle  string        `json:"terminal_title"`
+	WorkspaceID    string        `json:"workspace_id"`
+}
 type Pane struct {
 	ID            string            `json:"pane_id"`
 	TerminalID    string            `json:"terminal_id"`
@@ -254,6 +272,42 @@ func (a Adapter) Report(ctx context.Context, o Observation, source string, seq i
 		}
 	}
 	return nil
+}
+
+// Agents returns the live agent inventory of one epoch-checked Herdr session.
+// Observations are attributed to the exact socket/host/epoch of a bound
+// session; a changed server instance refuses rather than cross-attributing.
+func (a Adapter) Agents(ctx context.Context, socket, epoch, host string) ([]AgentInfo, error) {
+	if socket == "" {
+		return nil, fail("invalid_selector", "explicit socket required")
+	}
+	c := connection{socket: socket, epoch: epoch, host: host}
+	var r struct {
+		Type   string      `json:"type"`
+		Agents []AgentInfo `json:"agents"`
+	}
+	if err := c.call(ctx, "agent.list", struct{}{}, &r); err != nil {
+		return nil, err
+	}
+	if r.Type != "agent_list" {
+		return nil, fail("invalid_response", "unexpected agent list type")
+	}
+	for _, agent := range r.Agents {
+		if agent.PaneID == "" || agent.WorkspaceID == "" || agent.TerminalID == "" || agent.Agent == "" ||
+			agent.AgentSession == nil || agent.AgentSession.Kind != "id" || agent.AgentSession.Value == "" ||
+			agent.StateChangeSeq < 1 || !validAgentStatus(agent.AgentStatus) {
+			return nil, fail("invalid_response", "agent entry lacks explicit identity or status")
+		}
+	}
+	return r.Agents, nil
+}
+
+func validAgentStatus(s string) bool {
+	switch s {
+	case "idle", "working", "blocked", "done", "unknown":
+		return true
+	}
+	return false
 }
 
 func canonicalDir(s string) (string, error) {

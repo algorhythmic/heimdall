@@ -164,6 +164,9 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	if verb == "service" {
 		return serviceCLI(ctx, o, rest, out)
 	}
+	if verb == "braid" {
+		return braidCLI(ctx, o, rest, out)
+	}
 	if verb == "resume" {
 		return resumeCLI(ctx, o, rest, out)
 	}

@@ -131,7 +131,15 @@ row with its owning implementation.
 
 ## S3 and S5 integration additions
 
-- [ ] **S3.1:** Use an independently configured Heimdall Braid dataset and pin
+- [x] **S3.1 (partial):** `internal/retrieval` supervises the pinned Braid
+  v0.1.0 `serve --stdio` child over protocol v1 hello; `heimdall braid publish`
+  replaces the Heimdall-local dataset snapshot (tasks, captures, conversations,
+  surfaces — digest-only metadata, no prose) with revision-checked writes, and
+  `heimdall braid query TEXT` returns candidates with `why` provenance.
+  Remaining: assignment proposals, scope checks on read paths, withdrawal
+  handling, `heimdall_capture`/`heimdall_observe` MCP records, intent
+  extraction.
+- [ ] **S3.1 (rest):** Use an independently configured Heimdall Braid dataset and pin
   its actual current contract. Publish only permitted retained records and
   accepted relationships; distinguish native claims from decisions/checkpoints.
   Every MCP response requires producer/authority/scope/revision provenance, with

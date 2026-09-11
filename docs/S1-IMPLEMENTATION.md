@@ -85,11 +85,45 @@ Read-only inspection of the adjacent Skald checkout on 2026-09-10 found:
 - The available directory has no discoverable Git repository metadata from
   which to establish an immutable release pin.
 
-S1.1 remains open. No mutable sibling replacement, parser fork, Skald daemon
-requirement or archive database access was introduced. This local inspection
-does not establish whether an external release exists. Obtain the released
-module path/version and conformance fixtures before implementing S1.2 against
-`sessionrecord`/`sessioncapture`. Skald L1–L6 are not prerequisites.
+Resolved 2026-09-10: `github.com/algorhythmic/skald` is published and pinned at
+the immutable tag `v0.1.1` (heimdall `go.mod`). The earlier `v0.1.0` was cut
+before `aiTitle` title normalization landed upstream; `v0.1.1` carries it along
+with the Devin source and session-page fixes. Only `sessionrecord` and
+`sessioncapture` are imported — no Skald daemon, archive DDL or sibling
+`replace`. Provider compatibility freeze remains tracked upstream in Skald's
+STATUS.md.
+
+## S1.2 direct consumer (2026-09-10)
+
+`internal/session` is the consumer service. `heimdall source add --provider
+PROVIDER --root PATH` journals `source.configured` (CLI authority only);
+canonical root and the contracted `sessionrecord.Namespace` are derived at
+registration and never recomputed later. The daemon poller (5 s) runs
+`sessioncapture.Inventory` per active root, `Identify` per candidate, and
+journals `source.registered` with a persisted logical stream token before first
+capture — relocation reuses identity and updates the locator only.
+
+Each stream reads from its committed checkpoint via `sessioncapture.Read`.
+Normalized `title`/`native_recap` records become `description_observed`
+(native provenance, native_range coverage); the first record of a new stream
+yields `conversation.started` with a cwd→resource-root task binding.
+`source.gap` journals coverage gaps, `source.checkpointed` advances only after
+its records are journaled, and `source.lost` marks disappearance — never
+deletion. Per-event command IDs are content-derived, so interrupted batches
+replay into dedupe.
+
+`heimdall init --hooks` merges `heimdall hook` into `~/.claude/settings.json`
+SessionStart/SessionEnd preserving existing hook chains (verified against the
+installed herdr chain) and configures the Claude projects root. `heimdall hook`
+reads a provider payload on stdin; `HandleHook` resolves or registers the
+stream and derives source time from the payload timestamp or the transcript's
+own records — never an ingestion-time substitute. End requires a known
+conversation and counts turns from transcript records.
+
+Verified live: 12 Claude streams registered across five project roots, real
+native recaps surfaced through the evidence cache, cwd binding linked sessions
+to `heimdall`, `skald` and `wayland-computer-use` tasks, and a SessionStart
+hook resumed a live conversation.
 
 ## Verification
 

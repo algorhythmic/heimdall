@@ -19,6 +19,7 @@ import (
 	"heimdall/internal/continuity"
 	"heimdall/internal/core"
 	"heimdall/internal/model"
+	"heimdall/internal/session"
 	"heimdall/internal/store"
 	"heimdall/internal/workspace"
 	"io"
@@ -48,6 +49,7 @@ type Server struct {
 	Snapshots         *workspace.SnapshotService
 	Viewport          *workspace.ViewportService
 	Agents            *workspace.AgentService
+	Sessions          *session.Service
 	EvaluationContext context.Context
 	evaluations       sync.WaitGroup
 	Engine            *core.Engine
@@ -157,6 +159,9 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	service.Agents = &workspace.AgentService{Store: e.Store, Herdr: herdr.Adapter{}, PollEvery: 2 * time.Second}
 	agentDone := make(chan struct{})
 	go func() { defer close(agentDone); service.Agents.Run(localCtx, clock) }()
+	service.Sessions = &session.Service{Store: e.Store, PollEvery: 5 * time.Second}
+	sessionDone := make(chan struct{})
+	go func() { defer close(sessionDone); service.Sessions.Run(localCtx, clock) }()
 	watchDone := make(chan struct{})
 	go func() { defer close(watchDone); watch(localCtx, e, clock) }()
 	stopped := make(chan struct{})
@@ -180,6 +185,7 @@ func Serve(ctx context.Context, dir string, clock func() time.Time, ready func(E
 	<-pairingDone
 	<-viewportDone
 	<-agentDone
+	<-sessionDone
 	<-watchDone
 	<-stopped
 	service.evaluations.Wait()
@@ -242,6 +248,10 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	if r.URL.Path == "/conversations" {
 		s.conversationsHTTP(w, r)
+		return
+	}
+	if strings.HasPrefix(r.URL.Path, "/session/") {
+		s.sessionHTTP(w, r)
 		return
 	}
 	if strings.HasPrefix(r.URL.Path, "/continuity/") {

@@ -152,6 +152,15 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	if verb == "conversations" {
 		return conversationsCLI(ctx, o, rest, out)
 	}
+	if verb == "source" {
+		return sourceCLI(ctx, o, rest, out)
+	}
+	if verb == "hook" {
+		if len(rest) > 0 {
+			return fmt.Errorf("hook reads one provider hook payload from stdin")
+		}
+		return hookCLI(ctx, o, out)
+	}
 	if verb == "resume" {
 		return resumeCLI(ctx, o, rest, out)
 	}
@@ -176,7 +185,10 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 	}
 	if verb == "init" {
 		if len(rest) > 0 {
-			return fmt.Errorf("init has no integration-install flags in this core release")
+			if len(rest) == 1 && rest[0] == "--hooks" {
+				return initHooks(ctx, o, out)
+			}
+			return fmt.Errorf("init [--hooks]")
 		}
 		e, err := core.Open(o.dir)
 		if err != nil {
@@ -242,26 +254,100 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 		if err = json.Unmarshal(raw, &state); err != nil {
 			return err
 		}
-		agents := map[string]int{}
-		for _, a := range continuity.ActiveAgents(state) {
-			agents[a.Status]++
-		}
-		var latest time.Time
-		for _, head := range state.SnapshotHeads {
-			if head.At.After(latest) {
-				latest = head.At
-			}
-		}
 		now := time.Now().UTC()
 		if o.now != "" {
 			if t, err := time.Parse(time.RFC3339Nano, o.now); err == nil {
 				now = t.UTC()
 			}
 		}
+		agents := map[string]int{}
+		groups := map[string]map[string]int{}
+		unbound := 0
+		for _, a := range continuity.ActiveAgents(state) {
+			agents[a.Status]++
+			target, bound := continuity.AgentTask(state, a)
+			if target != "" {
+				if groups[target] == nil {
+					groups[target] = map[string]int{}
+				}
+				groups[target][a.Status]++
+				if !bound {
+					unbound++
+				}
+			}
+		}
+		agentRows := []map[string]any{}
+		for target, g := range groups {
+			row := map[string]any{"target": target}
+			for s, n := range g {
+				row[s] = n
+			}
+			agentRows = append(agentRows, row)
+		}
+		sort.Slice(agentRows, func(i, j int) bool { return agentRows[i]["target"].(string) < agentRows[j]["target"].(string) })
+		workstreams := []map[string]any{}
+		for id, t := range state.Tasks {
+			if model.Contains(t.Workflow.Success, t.Task.Status) || model.Contains(t.Workflow.Dropped, t.Task.Status) {
+				continue
+			}
+			done, total := 0, 0
+			for _, s := range t.Task.Subtasks {
+				if s.Status != "dropped" {
+					total++
+					if s.Status == "done" {
+						done++
+					}
+				}
+			}
+			cp := state.Checkpoints[state.CheckpointHeads[id]]
+			var savedAt any
+			savedSec := -1.0
+			if !cp.At.IsZero() {
+				savedAt = cp.At
+				savedSec = now.Sub(cp.At).Seconds()
+			}
+			workstreams = append(workstreams, map[string]any{
+				"id": id, "status": t.Task.Status, "resume_by": t.Task.ResumeBy,
+				"steps_done": done, "steps_total": total,
+				"saved_at": savedAt, "saved_age": continuity.Age(cp.At, now), "saved_age_seconds": savedSec,
+			})
+		}
+		sort.Slice(workstreams, func(i, j int) bool {
+			a, b := workstreams[i], workstreams[j]
+			if a["resume_by"] != b["resume_by"] {
+				if a["resume_by"] == "" {
+					return false
+				}
+				if b["resume_by"] == "" {
+					return true
+				}
+				return a["resume_by"].(string) < b["resume_by"].(string)
+			}
+			at, bt := a["saved_age_seconds"].(float64), b["saved_age_seconds"].(float64)
+			if at != bt {
+				if at < 0 {
+					return false
+				}
+				if bt < 0 {
+					return true
+				}
+				return at < bt
+			}
+			return a["id"].(string) < b["id"].(string)
+		})
+		var latest time.Time
+		for _, head := range state.SnapshotHeads {
+			if head.At.After(latest) {
+				latest = head.At
+			}
+		}
 		return enc.Encode(map[string]any{
 			"needs": needs, "needs_count": len(needs), "needs_by_kind": byKind,
 			"agents": agents, "agents_total": len(continuity.ActiveAgents(state)),
-			"latest_snapshot_age": continuity.Age(latest, now), "at": now,
+			"agent_groups": agentRows, "agents_unbound": unbound,
+			"workstreams":                 workstreams,
+			"latest_snapshot_age":         continuity.Age(latest, now),
+			"latest_snapshot_age_seconds": int(now.Sub(latest).Seconds()), "at": now,
 		})
 	}
 	if verb == "state" && len(rest) > 0 && rest[0] == "--active" {

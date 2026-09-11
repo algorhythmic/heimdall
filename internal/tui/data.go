@@ -26,6 +26,7 @@ type snapshot struct {
 	Target      string
 	Resume      *continuity.ResumeView
 	DetailError string
+	Usage       []usageRecord
 }
 type row struct {
 	Target string
@@ -58,6 +59,7 @@ func fetch(ctx context.Context, call Call, target string) (snapshot, error) {
 			}
 		}
 	}
+	v.Usage = readAgentUsage()
 	return v, nil
 }
 func (a *App) inScope(target string) bool {
@@ -136,6 +138,7 @@ func (a *App) rows() []row {
 	}
 	return out
 }
+
 // scopeRoot is the task scope for needs and row filtering; empty scopes all.
 func (a *App) scopeRoot() string { return rootOf(a.opts.Target) }
 
@@ -192,6 +195,7 @@ func (a *App) choose(target string) {
 	a.detailOffset = 0
 	a.refresh()
 }
+
 // selectedNeed returns the highlighted needs-you entry when the needs panel
 // is focused.
 func (a *App) selectedNeed() *need {

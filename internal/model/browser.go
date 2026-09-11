@@ -1,6 +1,9 @@
 package model
 
-import "time"
+import (
+	"heimdall/internal/conversation"
+	"time"
+)
 
 type BrowserTab struct {
 	NavigationPending bool   `json:"navigation_pending,omitempty"`
@@ -61,6 +64,12 @@ type BrowserOperation struct {
 func (s *State) Normalize() {
 	if s.Conversations == nil {
 		s.Conversations = map[string]Conversation{}
+	}
+	if s.SessionSources == nil {
+		s.SessionSources = map[string]conversation.Source{}
+	}
+	if s.SourceRoots == nil {
+		s.SourceRoots = map[string]conversation.SourceRoot{}
 	}
 	if s.SurfaceFocusSpans == nil {
 		s.SurfaceFocusSpans = map[string]SurfaceFocusSpan{}

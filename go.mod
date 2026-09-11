@@ -15,6 +15,7 @@ require (
 )
 
 require (
+	github.com/algorhythmic/skald v0.1.1 // indirect
 	github.com/dustin/go-humanize v1.0.1 // indirect
 	github.com/gdamore/encoding v1.0.1 // indirect
 	github.com/google/jsonschema-go v0.4.3 // indirect

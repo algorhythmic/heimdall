@@ -65,7 +65,7 @@ row with its owning implementation.
   2026-09-10, with digest-only description events, purgeable evidence bytes and
   separate replay/hydration. Native lifecycle, inactivity, native descriptions
   and S3 optional extraction are distinct. Design adoption is complete; the surface identity and browser observation increments are now implemented (see S1.4).
-- [ ] **S1.1 — Freeze and pin the reusable capture boundary.** Coordinate with
+- [x] **S1.1 — Freeze and pin the reusable capture boundary.** Coordinate with
   Skald L0 on v1 encoding, namespace/root aliases, persistent logical stream
   tokens, identity vectors, provider compatibility and sanitized fork/alias
   fixtures. Record the dependency version and usable module path; do not ship
@@ -77,7 +77,7 @@ row with its owning implementation.
   contract still calls the capture foundation pre-release with module publication
   and provider compatibility freeze outstanding. No immutable dependency can yet
   be pinned from that checkout; no sibling `replace` was added.
-- [ ] **S1.2 — Implement Heimdall's direct consumer.** Configure sources and
+- [x] **S1.2 — Implement Heimdall's direct consumer.** Configure sources and
   `/hook`/`init --hooks`; preserve provider/Herdr hook chains. Normalize hooks and
   transcript records with the same parser. Apply existing binding rules after
   parsing and map external keys to existing Heimdall IDs. Persist selected

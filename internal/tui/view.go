@@ -171,6 +171,9 @@ func (a *App) header(w int) {
 		parts = append(parts, span{"   refreshing…", gold})
 	}
 	a.line(2, 1, w-4, parts, base)
+	if us := a.usageSpans(); len(us) > 0 {
+		a.line(2, 2, w-4, append(line{{"usage ", gray}}, us...), base)
+	}
 }
 func (a *App) drawDashboard(w, h int) {
 	a.header(w)
@@ -400,6 +403,61 @@ func (a *App) drawRows(x, y, w, h int) {
 		}
 	}
 }
+
+// usageSpans renders one mini bar per ready agent record, using its fullest
+// limit window. Records older than the collector's normal cadence dim to gray.
+func (a *App) usageSpans() []span {
+	out := []span{}
+	for _, r := range a.data.Usage {
+		if len(r.Limits) == 0 {
+			continue
+		}
+		worst := r.Limits[0]
+		for _, l := range r.Limits[1:] {
+			if l.Percent > worst.Percent {
+				worst = l
+			}
+		}
+		p := min(1, max(0, worst.Percent))
+		color := green
+		if p >= 0.85 {
+			color = red
+		} else if p >= 0.6 {
+			color = gold
+		}
+		if a.now().Sub(r.UpdatedAt) > 30*time.Minute {
+			color = gray
+		}
+		filled := int(p*5 + 0.5)
+		if len(out) > 0 {
+			out = append(out, span{" · ", gray})
+		}
+		label := r.ID
+		if tag := limitTag(worst.Label); tag != "" {
+			label += " " + tag
+		}
+		out = append(out, span{label + " ", gray}, span{strings.Repeat("▰", filled), color}, span{strings.Repeat("▰", 5-filled), border}, span{fmt.Sprintf(" %d%%", int(worst.Percent*100+0.5)), color})
+		if at, err := time.Parse(time.RFC3339Nano, worst.ResetsAt); err == nil && at.After(a.now()) {
+			out = append(out, span{" resets in " + age(a.now(), at), gray})
+		}
+	}
+	return out
+}
+
+// limitTag shortens a limit label to the window it covers: the parenthetical
+// when present ("Session (5-hour)" → "5h", "Weekly (7-day)" → "7d"), otherwise
+// the first word ("Fable Weekly" → "fable").
+func limitTag(label string) string {
+	if i := strings.Index(label, "("); i >= 0 {
+		inner := strings.TrimSpace(strings.TrimSuffix(label[i+1:], ")"))
+		return strings.ReplaceAll(strings.ReplaceAll(inner, "-hour", "h"), "-day", "d")
+	}
+	if w := strings.Fields(strings.ToLower(label)); len(w) > 0 {
+		return w[0]
+	}
+	return ""
+}
+
 func agentStyle(s string) (string, tcell.Color) {
 	switch s {
 	case "working":

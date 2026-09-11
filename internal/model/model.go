@@ -15,6 +15,8 @@ import (
 	"strings"
 	"time"
 
+	"heimdall/internal/conversation"
+
 	"gopkg.in/yaml.v3"
 )
 
@@ -142,6 +144,8 @@ type Timer struct {
 }
 type State struct {
 	Conversations                 map[string]Conversation                 `json:"conversations"`
+	SessionSources                map[string]conversation.Source          `json:"session_sources"`
+	SourceRoots                   map[string]conversation.SourceRoot      `json:"source_roots"`
 	SurfaceFocusSpans             map[string]SurfaceFocusSpan             `json:"surface_focus_spans"`
 	CompositorSurfaceFocusSpans   map[string]CompositorSurfaceFocusSpan   `json:"compositor_surface_focus_spans"`
 	CompositorWindowFocusSpans    map[string]CompositorSurfaceFocusSpan   `json:"compositor_window_focus_spans"`

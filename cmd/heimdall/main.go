@@ -161,6 +161,9 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 		}
 		return hookCLI(ctx, o, out)
 	}
+	if verb == "service" {
+		return serviceCLI(ctx, o, rest, out)
+	}
 	if verb == "resume" {
 		return resumeCLI(ctx, o, rest, out)
 	}
@@ -206,6 +209,12 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 		})
 	}
 	if verb == "doctor" {
+		if len(rest) == 1 && rest[0] == "--startup" {
+			return doctorStartup(ctx, o, out)
+		}
+		if len(rest) > 0 {
+			return fmt.Errorf("doctor [--startup]")
+		}
 		health, err := call(ctx, o, "GET", "/health", nil)
 		if err != nil {
 			return fmt.Errorf("daemon unavailable; run heimdall start with this data directory: %w", err)

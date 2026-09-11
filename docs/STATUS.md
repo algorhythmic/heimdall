@@ -1,14 +1,21 @@
 # Implementation status
 
-2026-09-10 — Working tree builds on HEAD `d3e4694` with schema 22 and extension
-0.6.1. S2a is delivered; S1 browser surface observations and attention are implemented.
-[Handoff r4](design/HANDOFF-heimdall-v1-r4.md) supersedes prior plans.
+2026-09-10 — Working tree builds on HEAD `fb6b30d` with schema 22 and extension
+0.6.1. S2a is delivered; S1 is implemented end to end (pinned Skald v0.1.1
+capture, direct hooks/transcript consumer, surfaces, compositor attention,
+sensor health, artifact occurrences, capture popup, conversation/surface TUI
+lines). S2b has `doctor --startup` and `service install|uninstall` (systemd
+user unit). [Handoff r4](design/HANDOFF-heimdall-v1-r4.md) supersedes prior plans.
 Historical baseline: `2f11175`, schema 20. P0 implementation and
 verification are recorded in [P0 verification](P0-VERIFICATION.md); machine gates remain open.
 
 ## Implemented and tested
 
-- S1 browser observed surfaces: task-independent content catalog, profile/epoch/tab occurrences and atomic observed/opened/closed/changed events. Tests cover replay, navigation, alias URLs, identity gaps, partial coverage, source epochs, task/action isolation and schema-21 backup/upgrade/refusal/rollback. Browser focus spans and `state --active` are also implemented and pass isolated Chromium worker acceptance; compositor attention, other sensors and UI remain pending. See [S1 implementation](S1-IMPLEMENTATION.md).
+- S1 session/conversation capture: pinned Skald `v0.1.1` `sessioncapture`/`sessionrecord`, daemon-polled source roots with per-stream checkpoints, `init --hooks` (chain-preserving) + `heimdall hook`, `source add|list|activate|deactivate`, native lifecycle vs. inactive-by-policy, digest-only descriptions with purgeable evidence, source gaps/loss, sensor health events, exact-digest artifact origins, extension capture popup, and TUI conversation/sensor/surface context. Live-verified against `~/.claude/projects` (streams, recaps, task bindings, hook resume). See [S1 implementation](S1-IMPLEMENTATION.md).
+
+- S1 browser observed surfaces: task-independent content catalog, profile/epoch/tab occurrences and atomic observed/opened/closed/changed events. Tests cover replay, navigation, alias URLs, identity gaps, partial coverage, source epochs, task/action isolation and schema-21 backup/upgrade/refusal/rollback. Browser focus spans and `state --active` are also implemented and pass isolated Chromium worker acceptance. See [S1 implementation](S1-IMPLEMENTATION.md).
+
+- S2b startup: `doctor --startup` reports bounded checks for daemon liveness, state revision, source-root reachability, sensor health, compositor presence, bound Herdr socket reachability and browser pairing; `heimdall service install|uninstall|status` manages the optional user-level systemd unit; daemon startup marks still-`dispatching` actions uncertain (`actions.Service.Recover` on every `Serve`).
 
 - Herdr agent observation: the daemon polls the live `agent.list` inventory of every active session-bound Herdr socket and records epoch-scoped `agent.observed`/`agent.detached` events keyed by host/epoch/socket/pane. The TUI header shows live working/blocked/idle counts, workstream rows show per-task agent status dots, needs-you lists blocked agents and unbound repo-cwd agents, and the selected context lists attributed agents. Task attribution derives at read time from bound panes and bound resource roots; the recorder never assigns ownership. Sequence-regression, duplicate, forged-envelope and detach-order rejection are tested. `session jump` (surface or observed-pane mode) performs journaled pane focus with verified readback, and needs-you surfaces uncertain workspace operations with an explicit re-observe action.
 
@@ -85,14 +92,14 @@ remain pending. See
 |---|---|---|
 | P0 | W07 clock repair, r4 adoption, evaluator environment, YAML check materialization, browser deltas and daily-profile pairing | 20 |
 | S2a (R5/A01/A02) | Delivered: scoped computer-use intents, action grant, reports and fresh reconciliation | 21 |
-| S1 | Pinned Skald L0 capture; Heimdall hooks/sensors, surfaces, lifecycle and purgeable description evidence; S1b spike | 22 |
+| S1 | Delivered: pinned Skald v0.1.1 capture, direct consumer, surfaces, lifecycle, sensor health, capture popup, artifact occurrences, TUI context | 22 |
 | S2b (R6/W08) | Startup readiness, interruption/reboot recovery, optional login restore | no reserved bump |
 | S3 (C14–C16) | Braid assignment/continuity retrieval with scoped provenance, typed checkpoint MCP records, optional intent extraction | 23 |
 | S4 | Planner, notifier, configuration/preferences and TUI views | 24 |
 | S5 (C21) | Mail, version-probed Codex/Desktop adapters reusing pinned capture, packaging and fresh-install replay | 25 |
 
 Delivery order: **P0 → S2a → S1 → S2b → S3 → S4 → S5**. S-numbers are
-stable labels, not numeric execution order. S2a (A01/A02) is delivered; S1 now includes browser surface observations at schema 22; browser focus spans and `state --active` are implemented, while other sensors, compositor attention, lifecycle/UI and later slices remain pending. See [S2a implementation](S2A-IMPLEMENTATION.md).
+stable labels, not numeric execution order. S2a (A01/A02) is delivered; S1 now includes browser surface observations at schema 22; browser focus spans and `state --active` are implemented, S1 is delivered end to end (sensors, compositor attention, lifecycle/UI, acceptance); S2b readiness diagnostics and user-unit packaging are in progress. See [S2a implementation](S2A-IMPLEMENTATION.md).
 
 **Agent execution is out of scope for Heimdall.** Agents run in Claude Code,
 Codex and herdr; desktop input runs through WCU under its MCP host's approval.

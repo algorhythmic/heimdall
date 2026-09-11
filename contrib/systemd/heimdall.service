@@ -1,0 +1,15 @@
+[Unit]
+Description=Heimdall continuity daemon
+After=graphical-session.target
+PartOf=graphical-session.target
+
+[Service]
+Type=exec
+ExecStart=%h/.local/bin/heimdall start --data-dir %h/.local/share/heimdall
+Restart=on-failure
+RestartSec=3
+# The daemon is the single writer; a stale endpoint file is cleaned on exit.
+ExecStopPost=/bin/sh -c 'rm -f %h/.local/share/heimdall/endpoint.json %h/.local/share/heimdall/client-endpoint.json %h/.local/share/heimdall/browser-endpoint.json'
+
+[Install]
+WantedBy=default.target

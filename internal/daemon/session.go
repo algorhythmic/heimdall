@@ -74,6 +74,11 @@ func (s *Server) sessionHTTP(w http.ResponseWriter, r *http.Request) {
 				err = fmt.Errorf("invalid source root key")
 			} else {
 				result, err = s.Engine.Store.SetSourceRootActive(r.Context(), req.Key, req.Active, s.Clock().UTC())
+				// A deactivated root is intentionally not covered; its stale
+				// degraded report clears so diagnostics stay honest.
+				if err == nil && !req.Active {
+					_, _ = s.Engine.Store.ReportSensor(r.Context(), "session:"+req.Key, "healthy", "", "observer:session", s.Clock().UTC())
+				}
 			}
 		}
 	case r.Method == "POST" && r.URL.Path == "/session/source":

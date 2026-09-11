@@ -16,6 +16,7 @@ import (
 	"heimdall/internal/adapters/wcu"
 	"heimdall/internal/browser"
 	"heimdall/internal/checks"
+	"heimdall/internal/continuity"
 	"heimdall/internal/core"
 	"heimdall/internal/model"
 	"heimdall/internal/store"
@@ -310,6 +311,13 @@ func (s *Server) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 			writeJSON(w, events)
+		case "/needs":
+			st, err := s.Engine.Store.State(r.Context())
+			if err != nil {
+				writeError(w, 500, err)
+				return
+			}
+			writeJSON(w, continuity.Needs(st, r.URL.Query().Get("scope"), s.Clock().UTC()))
 		default:
 			writeError(w, 404, fmt.Errorf("unknown route"))
 		}

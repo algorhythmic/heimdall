@@ -7,6 +7,7 @@ import (
 	"flag"
 	"fmt"
 	"gopkg.in/yaml.v3"
+	"heimdall/internal/continuity"
 	"heimdall/internal/core"
 	"heimdall/internal/daemon"
 	"heimdall/internal/model"
@@ -216,6 +217,52 @@ func run(ctx context.Context, args []string, out io.Writer) error {
 		}
 		_, err = fmt.Fprintln(out, string(r))
 		return err
+	}
+	if verb == "status" {
+		if len(rest) > 0 {
+			return fmt.Errorf("status takes no arguments")
+		}
+		raw, err := call(ctx, o, "GET", "/needs", nil)
+		if err != nil {
+			return err
+		}
+		var needs []continuity.Need
+		if err = json.Unmarshal(raw, &needs); err != nil {
+			return err
+		}
+		byKind := map[string]int{}
+		for _, n := range needs {
+			byKind[n.Kind]++
+		}
+		raw, err = call(ctx, o, "GET", "/state", nil)
+		if err != nil {
+			return err
+		}
+		var state model.State
+		if err = json.Unmarshal(raw, &state); err != nil {
+			return err
+		}
+		agents := map[string]int{}
+		for _, a := range continuity.ActiveAgents(state) {
+			agents[a.Status]++
+		}
+		var latest time.Time
+		for _, head := range state.SnapshotHeads {
+			if head.At.After(latest) {
+				latest = head.At
+			}
+		}
+		now := time.Now().UTC()
+		if o.now != "" {
+			if t, err := time.Parse(time.RFC3339Nano, o.now); err == nil {
+				now = t.UTC()
+			}
+		}
+		return enc.Encode(map[string]any{
+			"needs": needs, "needs_count": len(needs), "needs_by_kind": byKind,
+			"agents": agents, "agents_total": len(continuity.ActiveAgents(state)),
+			"latest_snapshot_age": continuity.Age(latest, now), "at": now,
+		})
 	}
 	if verb == "state" && len(rest) > 0 && rest[0] == "--active" {
 		if len(rest) != 1 {

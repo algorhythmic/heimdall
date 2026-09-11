@@ -13,6 +13,8 @@ import (
 	"github.com/rivo/uniseg"
 )
 
+const slowRefresh = 400 * time.Millisecond
+
 var (
 	bg         = tcell.NewHexColor(0x0e1012)
 	fg         = tcell.NewHexColor(0xd4cfc3)
@@ -141,34 +143,32 @@ func (a *App) header(w int) {
 			spaces[b.Locator.WorkspaceID] = true
 		}
 	}
-	working, blockedA, idle, other := 0, 0, 0, 0
+	counts := map[string]int{}
 	agents := a.agents()
 	for _, r := range agents {
-		switch r.Status {
-		case "working":
-			working++
-		case "blocked":
-			blockedA++
-		case "idle":
-			idle++
-		default:
-			other++
-		}
+		counts[r.Status]++
 	}
 	parts := line{{"heimdall", gold}, {"   daemon ", gray}, {a.connection, color}, {"   refreshed ", gray}, {age(a.data.At, a.now()), fg}}
-	if a.loading {
-		parts = append(parts, span{" · loading", gold})
-	}
 	if bound > 0 {
 		parts = append(parts, span{fmt.Sprintf("   herdr %d recorded spaces · %d bindings · %d agents", len(spaces), bound, len(agents)), gray})
-		if len(agents) > 0 {
-			parts = append(parts, span{fmt.Sprintf("   %d● %d? %d○", working, blockedA, idle), fg})
-			if other > 0 {
-				parts = append(parts, span{fmt.Sprintf(" %d·", other), gray})
+		sep, shown := ": ", 0
+		for _, s := range []string{"working", "blocked", "idle", "done", "unknown"} {
+			if counts[s] == 0 {
+				continue
 			}
+			shown += counts[s]
+			_, color := agentStyle(s)
+			parts = append(parts, span{sep, gray}, span{fmt.Sprintf("%d %s", counts[s], s), color})
+			sep = " · "
+		}
+		if n := len(agents) - shown; n > 0 {
+			parts = append(parts, span{sep, gray}, span{fmt.Sprintf("%d other", n), gray})
 		}
 	} else {
 		parts = append(parts, span{"   herdr · no bound sessions", gray})
+	}
+	if a.loading && a.now().Sub(a.loadingAt) >= slowRefresh {
+		parts = append(parts, span{"   refreshing…", gold})
 	}
 	a.line(2, 1, w-4, parts, base)
 }
@@ -208,11 +208,11 @@ func (a *App) drawDashboard(w, h int) {
 			action = "↵ review"
 		}
 		if n.Kind == "unsaved" {
-			action = "c save progress"
+			action = "c save · p park"
 		}
 		if n.Kind == "agent" {
 			color = red
-			action = "j jump · inspect"
+			action = "j jump · w wait"
 		}
 		if n.Kind == "uncertain" {
 			color = gold
@@ -390,15 +390,7 @@ func (a *App) drawRows(x, y, w, h int) {
 		if xwide {
 			dots := ""
 			for _, r := range a.agentsForTask(r.Target) {
-				symbol, color := "○", gray
-				switch r.Status {
-				case "working":
-					symbol, color = "●", green
-				case "blocked":
-					symbol, color = "?", red
-				case "done":
-					symbol, color = "✓", green
-				}
+				symbol, color := agentStyle(r.Status)
 				a.text(colAgents+len([]rune(dots)), yy, 1, symbol, style.Foreground(color))
 				dots += " "
 			}
@@ -407,6 +399,17 @@ func (a *App) drawRows(x, y, w, h int) {
 			}
 		}
 	}
+}
+func agentStyle(s string) (string, tcell.Color) {
+	switch s {
+	case "working":
+		return "●", green
+	case "blocked":
+		return "?", red
+	case "done":
+		return "✓", green
+	}
+	return "○", gray
 }
 func statusColor(s string) tcell.Color {
 	switch s {
@@ -492,15 +495,7 @@ func (a *App) contextLines() []line {
 		if i > 0 {
 			agents = append(agents, span{" · ", gray})
 		}
-		symbol, color := "○", gray
-		switch r.Status {
-		case "working":
-			symbol, color = "●", green
-		case "blocked":
-			symbol, color = "?", red
-		case "done":
-			symbol, color = "✓", green
-		}
+		symbol, color := agentStyle(r.Status)
 		_, bound := a.agentTask(r)
 		label := r.WorkspaceID + ":" + r.PaneID
 		marker := "unbound"

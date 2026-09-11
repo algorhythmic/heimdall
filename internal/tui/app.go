@@ -27,8 +27,10 @@ type App struct {
 	data                                  snapshot
 	selected, query, message, connection  string
 	expanded                              map[string]bool
+	snoozed                               map[string]int64
 	panel, needIndex, detailOffset        int
 	searching, loading, quitting, pasting bool
+	loadingAt                             time.Time
 	modal                                 *dialog
 	generation                            int
 }
@@ -37,7 +39,7 @@ func New(screen tcell.Screen, call Call, opts Options) *App {
 	if opts.Now == nil {
 		opts.Now = time.Now
 	}
-	return &App{screen: screen, call: call, opts: opts, selected: opts.Target, expanded: map[string]bool{rootOf(opts.Target): true}, results: make(chan result, 16), connection: "connecting", panel: 1}
+	return &App{screen: screen, call: call, opts: opts, selected: opts.Target, expanded: map[string]bool{rootOf(opts.Target): true}, snoozed: map[string]int64{}, results: make(chan result, 16), connection: "connecting", panel: 1}
 }
 func (a *App) now() time.Time { return a.opts.Now() }
 func Run(ctx context.Context, call Call, opts Options) error {
@@ -108,10 +110,22 @@ func (a *App) refresh() {
 		return
 	}
 	a.loading = true
+	a.loadingAt = a.now()
 	target := a.selected
 	a.async("snapshot", target, 0, func(ctx context.Context) (any, error) { return fetch(ctx, a.call, target) })
+	// The header only marks a slow fetch; a deferred redraw lets it appear.
+	time.AfterFunc(slowRefresh, func() {
+		select {
+		case a.results <- result{kind: "redraw"}:
+		case <-a.ctx.Done():
+		default:
+		}
+	})
 }
 func (a *App) apply(r result) {
+	if r.kind == "redraw" {
+		return
+	}
 	if r.kind == "snapshot" {
 		a.loading = false
 		if r.err != nil {
@@ -245,7 +259,16 @@ func (a *App) key(e *tcell.EventKey) {
 		a.openDraft(a.actionTarget())
 	case 'f':
 		a.openFiles(a.actionTarget())
+	case 'w':
+		if n := a.selectedNeed(); n != nil && n.Kind == "agent" {
+			a.waitNeed(n)
+			return
+		}
 	case 'p':
+		if n := a.selectedNeed(); n != nil && n.Kind == "unsaved" {
+			a.parkNeed(n)
+			return
+		}
 		a.openWorkspace(a.actionTarget())
 	case 'b':
 		a.openBind(a.actionTarget())

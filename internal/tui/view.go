@@ -212,7 +212,11 @@ func (a *App) drawDashboard(w, h int) {
 		}
 		if n.Kind == "agent" {
 			color = red
-			action = "↵ inspect"
+			action = "j jump · inspect"
+		}
+		if n.Kind == "uncertain" {
+			color = gold
+			action = "r re-observe"
 		}
 		if n.Kind == "unbound" {
 			action = "b bind"

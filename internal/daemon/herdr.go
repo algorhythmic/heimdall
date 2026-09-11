@@ -15,7 +15,7 @@ func (s *Server) herdrHTTP(w http.ResponseWriter, r *http.Request) (any, error) 
 		q := r.URL.Query()
 		return service.Refresh(r.Context(), q.Get("target"), q.Get("surface"), q.Get("binding"), s.Clock().UTC())
 	}
-	if r.Method != "POST" || (r.URL.Path != "/workspace/herdr/bind" && r.URL.Path != "/workspace/herdr/publish") {
+	if r.Method != "POST" || (r.URL.Path != "/workspace/herdr/bind" && r.URL.Path != "/workspace/herdr/publish" && r.URL.Path != "/workspace/herdr/jump") {
 		return nil, fmt.Errorf("unknown Herdr route or method")
 	}
 	if r.Header.Get("Content-Type") != "application/json" {
@@ -32,6 +32,13 @@ func (s *Server) herdrHTTP(w http.ResponseWriter, r *http.Request) (any, error) 
 			return nil, err
 		}
 		return service.Bind(r.Context(), input, "cli", s.Clock().UTC())
+	}
+	if r.URL.Path == "/workspace/herdr/jump" {
+		var input workspace.HerdrJumpRequest
+		if err := model.StrictJSON(body, &input); err != nil {
+			return nil, err
+		}
+		return service.Jump(r.Context(), input, "cli", s.Clock().UTC())
 	}
 	var input workspace.HerdrPublishRequest
 	if err := model.StrictJSON(body, &input); err != nil {

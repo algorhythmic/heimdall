@@ -219,6 +219,10 @@ func (a *App) key(e *tcell.EventKey) {
 	case 'q':
 		a.quitting = true
 	case 'j':
+		if n := a.selectedNeed(); n != nil && n.Kind == "agent" {
+			a.jumpNeed(n)
+			return
+		}
 		a.move(1)
 	case 'k':
 		a.move(-1)
@@ -229,6 +233,10 @@ func (a *App) key(e *tcell.EventKey) {
 	case '/':
 		a.searching = true
 	case 'r':
+		if n := a.selectedNeed(); n != nil && n.Kind == "uncertain" {
+			a.reobserveNeed(n)
+			return
+		}
 		a.message = "Refreshing recorded state and selected files…"
 		a.refresh()
 	case 'g':

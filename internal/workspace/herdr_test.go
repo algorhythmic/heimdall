@@ -40,7 +40,9 @@ func TestHerdrRequestFixtures(t *testing.T) {
 type fakeHerdr struct {
 	observation           herdr.Observation
 	observeErr, reportErr error
+	focusErr              error
 	observations, reports int
+	focuses               int
 	tokens                map[string]string
 }
 
@@ -52,6 +54,10 @@ func (a *fakeHerdr) Report(_ context.Context, _ herdr.Observation, _ string, _ i
 	a.reports++
 	a.tokens = tokens
 	return a.reportErr
+}
+func (a *fakeHerdr) Focus(context.Context, string, string, string, string) error {
+	a.focuses++
+	return a.focusErr
 }
 
 func setupHerdr(t *testing.T) (*fixture, HerdrService, *fakeHerdr, HerdrBindRequest) {

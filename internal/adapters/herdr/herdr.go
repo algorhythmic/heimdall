@@ -274,6 +274,29 @@ func (a Adapter) Report(ctx context.Context, o Observation, source string, seq i
 	return nil
 }
 
+// Focus requests pane.focus on an epoch-checked session and verifies the
+// returned pane_info readback names the requested pane as focused.
+func (a Adapter) Focus(ctx context.Context, socket, epoch, host, pane string) error {
+	if pane == "" {
+		return fail("invalid_selector", "explicit pane ID required")
+	}
+	c := connection{socket: socket, epoch: epoch, host: host}
+	var r struct {
+		Type string `json:"type"`
+		Pane struct {
+			PaneID  string `json:"pane_id"`
+			Focused bool   `json:"focused"`
+		} `json:"pane"`
+	}
+	if err := c.call(ctx, "pane.focus", map[string]string{"pane_id": pane}, &r); err != nil {
+		return err
+	}
+	if r.Type != "pane_info" || r.Pane.PaneID != pane || !r.Pane.Focused {
+		return fail("focus_unconfirmed", "Herdr did not confirm the requested pane focused")
+	}
+	return nil
+}
+
 // Agents returns the live agent inventory of one epoch-checked Herdr session.
 // Observations are attributed to the exact socket/host/epoch of a bound
 // session; a changed server instance refuses rather than cross-attributing.

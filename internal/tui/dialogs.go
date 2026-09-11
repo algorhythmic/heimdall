@@ -63,8 +63,10 @@ func (a *App) openSelected() {
 			a.openDraft(n.Target)
 		case "link":
 			a.openCapture(n)
-		default:
+		case "completion":
 			a.openStep(n.Target, n.ID)
+		default:
+			a.openStep(n.Target, "")
 		}
 	} else if a.selected != "" {
 		a.openStep(a.selected, "")

@@ -165,6 +165,21 @@ func (a *App) needs() []need {
 			out = append(out, need{id, "link", "", text, c.CreatedAt})
 		}
 	}
+	for id, op := range st.WorkspaceOperations {
+		if op.Status != "uncertain" || !a.inScope(op.Intent.Target) {
+			continue
+		}
+		detail := op.LastReason
+		if detail == "" {
+			detail = "acknowledged, not observed"
+		}
+		label := op.Intent.Kind + " " + op.Intent.Target
+		if len(op.Intent.SurfaceIDs) > 0 {
+			label += fmt.Sprintf(" · %d surfaces", len(op.Intent.SurfaceIDs))
+		}
+		out = append(out, need{"uncertain:" + id, "uncertain", op.Intent.Target,
+			label + " · " + detail + " " + age(op.UpdatedAt, a.now()), op.UpdatedAt})
+	}
 	blocked := map[string][]model.AgentRecord{}
 	unbound := map[string][]model.AgentRecord{}
 	for _, r := range a.agents() {
@@ -224,14 +239,16 @@ func (a *App) needs() []need {
 			return 0
 		case "decision", "artifact":
 			return 1
-		case "agent":
+		case "uncertain":
 			return 2
-		case "unbound":
+		case "agent":
 			return 3
-		case "link":
+		case "unbound":
 			return 4
+		case "link":
+			return 5
 		}
-		return 5
+		return 6
 	}
 	sort.Slice(out, func(i, j int) bool {
 		if rank(out[i].Kind) != rank(out[j].Kind) {
@@ -323,6 +340,69 @@ func (a *App) choose(target string) {
 	a.selected = target
 	a.detailOffset = 0
 	a.refresh()
+}
+// selectedNeed returns the highlighted needs-you entry when the needs panel
+// is focused.
+func (a *App) selectedNeed() *need {
+	if a.panel != 0 {
+		return nil
+	}
+	ns := a.needs()
+	if len(ns) == 0 || a.needIndex >= len(ns) {
+		return nil
+	}
+	return &ns[a.needIndex]
+}
+
+// jumpNeed focuses the pane of a blocked agent through the journaled Herdr
+// jump path. The pane identity comes from the recorded observation.
+func (a *App) jumpNeed(n *need) {
+	pane := ""
+	for _, r := range a.agentsForTask(n.Target) {
+		if r.Status == "blocked" {
+			pane = r.PaneID
+			break
+		}
+	}
+	if pane == "" {
+		a.message = "No blocked agent pane recorded for " + n.Target
+		return
+	}
+	a.message = "Jumping to " + pane + "…"
+	target := n.Target
+	a.async("jump", target, 0, func(ctx context.Context) (any, error) {
+		body := map[string]any{"version": 1, "id": model.NewID(), "target": target, "pane_id": pane}
+		raw, err := a.call(ctx, "POST", "/workspace/herdr/jump", body)
+		if err != nil {
+			return nil, err
+		}
+		var r struct {
+			Status string `json:"status"`
+			Issue  string `json:"issue"`
+		}
+		if err := json.Unmarshal(raw, &r); err != nil {
+			return nil, err
+		}
+		return r.Status + " " + r.Issue, nil
+	})
+}
+
+// reobserveNeed asks the daemon to reconcile an uncertain workspace operation.
+func (a *App) reobserveNeed(n *need) {
+	id := strings.TrimPrefix(n.ID, "uncertain:")
+	op, ok := a.data.State.WorkspaceOperations[id]
+	if !ok {
+		a.message = "Operation no longer recorded"
+		return
+	}
+	a.message = "Re-observing " + op.Intent.Kind + " " + op.Intent.Target + "…"
+	a.async("reconcile", op.Intent.Target, 0, func(ctx context.Context) (any, error) {
+		_, err := a.call(ctx, "POST", "/workspace/operation/reconcile", map[string]any{
+			"version": 1, "id": model.NewID(), "target": op.Intent.Target,
+			"operation_id": id, "expected_revision": op.Revision,
+			"reason": "re-observe uncertain operation"})
+		return nil, err
+	})
 }
 func (a *App) reconcile() {
 	rows := a.rows()

@@ -18,6 +18,7 @@ import (
 type HerdrAdapter interface {
 	Observe(context.Context, string, string, string) (herdr.Observation, error)
 	Report(context.Context, herdr.Observation, string, int64, string, map[string]string, int, bool) error
+	Focus(context.Context, string, string, string, string) error
 }
 
 type HerdrService struct {
@@ -261,6 +262,101 @@ func (s HerdrService) Publish(ctx context.Context, r HerdrPublishRequest, actor 
 			// reapply these idempotent display values; TTL bounds their lifetime.
 			result.Status = "unconfirmed"
 			result.Issue = "metadata_readback_unconfirmed"
+		}
+		c.Result = result
+		return c, nil
+	})
+}
+
+type HerdrJumpRequest struct {
+	Version   int    `json:"version"`
+	ID        string `json:"id"`
+	Target    string `json:"target"`
+	SurfaceID string `json:"surface_id,omitempty"`
+	PaneID    string `json:"pane_id,omitempty"`
+}
+
+func (r HerdrJumpRequest) Validate() error {
+	if r.Version != 1 || !model.OpaqueID.MatchString(r.ID) || !model.ValidID(r.Target) {
+		return fmt.Errorf("invalid jump request")
+	}
+	if (r.SurfaceID == "") == (r.PaneID == "") {
+		return fmt.Errorf("jump requires exactly one of --surface or --pane")
+	}
+	if r.SurfaceID != "" && !model.OpaqueID.MatchString(r.SurfaceID) {
+		return fmt.Errorf("invalid surface ID")
+	}
+	if r.PaneID != "" && (len(r.PaneID) > 256 || strings.TrimSpace(r.PaneID) == "") {
+		return fmt.Errorf("invalid pane ID")
+	}
+	return nil
+}
+
+type JumpResult struct {
+	Version   int       `json:"version"`
+	Target    string    `json:"target"`
+	SurfaceID string    `json:"surface_id,omitempty"`
+	PaneID    string    `json:"pane_id"`
+	Status    string    `json:"status"`
+	Issue     string    `json:"issue,omitempty"`
+	At        time.Time `json:"at"`
+}
+
+// Jump is navigation, not input: it focuses an exact pane and journals the
+// verified or failed outcome. A bound surface requires a current live binding;
+// an observed agent pane requires a matching active agent record so the pane
+// identity comes from recorded observation, not caller assertion.
+func (s HerdrService) Jump(ctx context.Context, r HerdrJumpRequest, actor string, now time.Time) (json.RawMessage, error) {
+	if actor != "cli" {
+		return nil, fmt.Errorf("Herdr jump requires CLI authority")
+	}
+	if err := r.Validate(); err != nil {
+		return nil, err
+	}
+	raw, err := json.Marshal(r)
+	if err != nil {
+		return nil, err
+	}
+	return s.Store.Transact(ctx, "herdr-jump-"+r.ID, actor, raw, now, func(st model.State) (store.Change, error) {
+		c := store.Change{Revision: st.Revision}
+		result := JumpResult{Version: 1, Target: r.Target, SurfaceID: r.SurfaceID, Status: "focused", At: now.UTC()}
+		socket, epoch, host := "", "", ""
+		if r.PaneID != "" {
+			var rec model.AgentRecord
+			found := false
+			for _, a := range st.AgentHeads {
+				if a.Active && a.PaneID == r.PaneID {
+					rec, found = a, true
+					break
+				}
+			}
+			if !found {
+				return c, fmt.Errorf("no active observed agent on pane %s: %w", r.PaneID, store.ErrConflict)
+			}
+			socket, epoch, host, result.PaneID = rec.SessionID, rec.SourceEpoch, rec.Host, rec.PaneID
+		} else {
+			b, err := selectedBinding(st, r.Target, r.SurfaceID, "")
+			if err != nil {
+				return c, err
+			}
+			ioctx, stop := context.WithTimeout(ctx, 3*time.Second)
+			check, o := s.check(ioctx, st, b, now)
+			stop()
+			if check.Status != "current" {
+				return c, fmt.Errorf("jump requires a current live binding (%s): %w", strings.Join(check.Issues, ", "), store.ErrConflict)
+			}
+			socket, epoch, host, result.PaneID = o.Locator.SessionID, o.Locator.SourceEpoch, o.Locator.Host, o.Locator.PaneID
+		}
+		ioctx, stop := context.WithTimeout(ctx, 3*time.Second)
+		defer stop()
+		if err := s.Adapter.Focus(ioctx, socket, epoch, host, result.PaneID); err != nil {
+			result.Status = "unconfirmed"
+			var ae *herdr.Error
+			if errors.As(err, &ae) {
+				result.Issue = ae.Code
+			} else {
+				result.Issue = "focus_failed"
+			}
 		}
 		c.Result = result
 		return c, nil

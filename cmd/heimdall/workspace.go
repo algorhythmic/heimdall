@@ -28,7 +28,7 @@ func workspaceCLI(ctx context.Context, o options, verb string, args []string, ou
 	if !model.ValidID(target) {
 		return fmt.Errorf("workspace/session requires an explicit task ID")
 	}
-	if verb == "session" && model.Contains([]string{"bind-herdr", "refresh", "publish"}, action) {
+	if verb == "session" && model.Contains([]string{"bind-herdr", "refresh", "publish", "jump"}, action) {
 		return herdrCLI(ctx, o, action, target, args[2:], out)
 	}
 	f := flag.NewFlagSet(verb+" "+action, flag.ContinueOnError)

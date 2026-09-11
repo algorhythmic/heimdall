@@ -46,6 +46,19 @@ func herdrCLI(ctx context.Context, o options, action, target string, args []stri
 			return err
 		}
 		input, path = r, "/workspace/herdr/bind"
+	} else if action == "jump" {
+		pane := f.String("pane", "", "observed agent pane ID")
+		if err := f.Parse(args); err != nil {
+			return err
+		}
+		if f.NArg() != 0 {
+			return fmt.Errorf("unexpected arguments")
+		}
+		r := workspace.HerdrJumpRequest{Version: 1, ID: id, Target: target, SurfaceID: *surface, PaneID: *pane}
+		if err := r.Validate(); err != nil {
+			return err
+		}
+		input, path = r, "/workspace/herdr/jump"
 	} else {
 		binding := f.String("binding", "", "explicit binding ID (required for publish)")
 		var summary bool

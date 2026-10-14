@@ -1,28 +1,63 @@
 # Heimdall
 
+A local task-continuity system for work shared between people and AI agents.
+
+Long-running work loses context between sessions. Heimdall records changes in a local event log, saves resumable checkpoints, and gives agents scoped access to task context. Evidence can propose completion; a person reviews the result.
+
+**Proof:** 293 Go test functions ([internal](internal/), [CLI](cmd/)) · Linux and Windows [CI workflow](.github/workflows/test.yml). Counts describe declared tests, not a fresh passing run.
+
+**Part of:** the agent runtime, a collection of independent tools: [Skald](https://github.com/algorhythmic/skald) captures conversations, [Braid](https://github.com/algorhythmic/braid) supplies retrieval, and [Wayland Computer Use](https://github.com/algorhythmic/wayland-computer-use) provides guarded desktop actions. Skald is integrated; Braid integration is partial.
+
+[![Heimdall terminal dashboard showing items needing attention, workstreams, and a selected task's next action](docs/images/heimdall-tui.png)](docs/images/heimdall-tui.png)
+
+*Review items needing attention alongside workstreams and the selected task's next action. Select the screenshot to view it at full size.*
+
+## Quick start
+
+Needs Go 1.25+; the module selects toolchain 1.27.1. On Linux:
+
+```sh
+git clone https://github.com/algorhythmic/heimdall.git && cd heimdall
+go build -trimpath -o bin/heimdall ./cmd/heimdall
+./bin/heimdall init --data-dir ./demo-data
+./bin/heimdall start --data-dir ./demo-data  # leave running
+./bin/heimdall tui --data-dir ./demo-data    # in a second terminal
+```
+
+## Status and limits
+
+Linux workflows include checkpoints, evidence review, scoped MCP access, a terminal dashboard and reviewed workspace recovery. Claude Code conversation capture works through transcripts and optional hooks; MCP registration inside Claude Code has not been verified. Braid retrieval is an early foundation; planning and notifications remain planned. Desktop adapters require Hyprland. Interruption/reboot recovery and macOS acceptance remain open; current CI success is not claimed.
+
+[Detailed status](docs/STATUS.md) · [Verification records](docs/VERIFICATION.md)
+
+---
+
+## Detailed overview
+
 Heimdall is a local task and continuity system for work shared between people and assistants. It records changes as events, preserves accepted decisions and progress checkpoints, and supplies scoped resume context. Retrieval belongs to the separate Braid project.
 
-**Current development: terminal/editor continuity, reviewed application recovery, artifact versions and CLI/TUI progress review, extending 0.7.0 with database schema 22 (S2a delivered; S1 browser observations in progress).** Resume an explicit task with its accepted direction, saved progress, blockers and file drift. Save progress through editable checkpoint drafts that preserve their original task, revision and retry identity.
+**Current development: sensors and Claude Code conversation capture (S1) delivered on top of scoped computer-use records (S2a), at database schema 22; startup readiness (S2b) is in progress and a Braid retrieval foundation (S3.1) has started.** Resume an explicit task with its accepted direction, saved progress, blockers and file drift. Save progress through editable checkpoint drafts that preserve their original task, revision and retry identity.
 
 The [Neovim integration](docs/guides/NEOVIM-SETUP.md) brings that workflow into the editor. [Workspace/session records](docs/guides/WORKSPACE-SETUP.md) keep tasks distinct even when they share a repository. The [Linux Herdr adapter](docs/guides/HERDR-SETUP.md) verifies selected panes and publishes expiring task metadata. [Artifact versions](docs/guides/ARTIFACT-SETUP.md) pin exact file identity, with optional Git metadata, to checkpoints; they detect changed or missing files and explicitly recorded relocations. They retain metadata and digests, not file contents.
 
-Scoped MCP clients can read context and, with an explicit write grant, save progress. The terminal interface shows needs-you, workstreams, saved context and explicit review dialogs. Start with [terminal setup](docs/guides/CONTINUITY-SETUP.md), [TUI setup](docs/guides/TUI-SETUP.md), [evidence setup](docs/guides/EVIDENCE-SETUP.md) or [MCP setup](docs/guides/MCP-SETUP.md). Extension 0.6.1 adds sampled focus spans and supports `state --active`; 0.6.0 added recovery deduplication alongside challenged browser readback and shared action/attempt references. Initial [P02 progress/decision review](docs/guides/PROGRESS-SETUP.md) is available through the CLI and the terminal interface, with Neovim inspection and terminal handoff; [P03 manual preservation](docs/guides/PRESERVATION-SETUP.md) adds checkpoint-linked previews and independently observed copy/commit/remote receipts. [P04 task dependencies and scoped summaries](docs/guides/DEPENDENCY-SETUP.md) expose cross-project prerequisites and saved progress. [W02 Hyprland observation](docs/guides/HYPRLAND-SETUP.md) adds explicitly selected desktop inventories and task-owned window bindings. [W03 durable snapshots](docs/guides/SNAPSHOT-SETUP.md) add manual restore points, explicit autosave policies and bounded payload retention. [W04 workspace previews](docs/guides/WORKSPACE-PREVIEW.md) compare saved points with fresh owned observations and reject stale plans. [C12 shared actions](docs/guides/ACTIONS-SETUP.md) preserve task-bound intent, attempts and uncertain outcomes before browser dispatch. [C13 browser verification](docs/guides/BROWSER-VERIFICATION.md) checks independent outcomes and recovers retained results through a real native-host connection. [C13 browser pairing](docs/guides/BROWSER-PAIRING.md) joins an explicit browser window to Hyprland before continuing navigation. [W05 workspace operations](docs/guides/WORKSPACE-OPERATIONS.md) add journaled native focus and graceful close, explicit swaps and interruption reconciliation. [W06 application recovery](docs/guides/APPLICATION-RECOVERY.md) adds reviewed Foot/Herdr, paired-browser and saved-file Neovim adapters. [W07 recovery verification](docs/RECOVERY-VERIFICATION.md) reports fresh ownership, membership, placement and supported application state with explicit uncertainty. Startup/interruption gates, unsupported attachment/editor readback, programmatic preservation, Braid integration, sensors, planning and notifications remain planned. See [STATUS.md](docs/STATUS.md) for the supported boundaries.
+Scoped MCP clients can read context and, with an explicit write grant, save progress. The terminal interface shows needs-you, workstreams, saved context and explicit review dialogs. Start with [terminal setup](docs/guides/CONTINUITY-SETUP.md), [TUI setup](docs/guides/TUI-SETUP.md), [evidence setup](docs/guides/EVIDENCE-SETUP.md) or [MCP setup](docs/guides/MCP-SETUP.md). Extension 0.6.1 adds sampled focus spans and supports `state --active`; 0.6.0 added recovery deduplication alongside challenged browser readback and shared action/attempt references. Initial [P02 progress/decision review](docs/guides/PROGRESS-SETUP.md) is available through the CLI and the terminal interface, with Neovim inspection and terminal handoff; [P03 manual preservation](docs/guides/PRESERVATION-SETUP.md) adds checkpoint-linked previews and independently observed copy/commit/remote receipts. [P04 task dependencies and scoped summaries](docs/guides/DEPENDENCY-SETUP.md) expose cross-project prerequisites and saved progress. [W02 Hyprland observation](docs/guides/HYPRLAND-SETUP.md) adds explicitly selected desktop inventories and task-owned window bindings. [W03 durable snapshots](docs/guides/SNAPSHOT-SETUP.md) add manual restore points, explicit autosave policies and bounded payload retention. [W04 workspace previews](docs/guides/WORKSPACE-PREVIEW.md) compare saved points with fresh owned observations and reject stale plans. [C12 shared actions](docs/guides/ACTIONS-SETUP.md) preserve task-bound intent, attempts and uncertain outcomes before browser dispatch. [C13 browser verification](docs/guides/BROWSER-VERIFICATION.md) checks independent outcomes and recovers retained results through a real native-host connection. [C13 browser pairing](docs/guides/BROWSER-PAIRING.md) joins an explicit browser window to Hyprland before continuing navigation. [W05 workspace operations](docs/guides/WORKSPACE-OPERATIONS.md) add journaled native focus and graceful close, explicit swaps and interruption reconciliation. [W06 application recovery](docs/guides/APPLICATION-RECOVERY.md) adds reviewed Foot/Herdr, paired-browser and saved-file Neovim adapters. [W07 recovery verification](docs/RECOVERY-VERIFICATION.md) reports fresh ownership, membership, placement and supported application state with explicit uncertainty. [S1 sensors](docs/S1-IMPLEMENTATION.md) add pinned Skald v0.1.1 conversation capture with Claude Code hooks/transcripts, browser and compositor attention, Herdr agent status, sensor health and artifact occurrences, and [conversation records](docs/guides/CONVERSATIONS.md). Startup/interruption recovery gates, unsupported attachment/editor readback, programmatic preservation, full Braid integration, planning and notifications remain planned. See [STATUS.md](docs/STATUS.md) for the supported boundaries.
 
 [Documentation index](docs/README.md) · [Setup guides](docs/guides/README.md) ·
 [Implementation roadmap](docs/HEIMDALL-IMPLEMENTATION-ROADMAP.md) · [History](docs/history/README.md).
 
 ## Progress
 
-| Improvement | Current development status |
+| Area | Where it stands |
 |---|---|
 | Durable checkpoints and context | Delivered: immutable checkpoints, contracts, decisions, resource drift, readable resume and draft/submit helpers. [Linux artifact/version pins](docs/guides/ARTIFACT-SETUP.md) include optional Git identity. [CLI/TUI progress and decision review](docs/guides/PROGRESS-SETUP.md) is delivered; evidence/run links remain open. |
-| Workspace/session identity | Initial W01/T02 delivered: explicit manifests, generic declarations and verified local Herdr bindings with refresh/metadata. W02 adds observation/binding, W03 durable points/autosnapshots, W04 scoped previews, W05 journaled operations/capacity and W06 application adapters. W07 adds fresh recovery reports with explicit capability limits; W08 startup/interruption gates remain open. |
+| Workspace/session identity | Initial W01/T02 delivered: explicit manifests, generic declarations and verified local Herdr bindings with refresh/metadata. W02 adds observation/binding, W03 durable points/autosnapshots, W04 scoped previews, W05 journaled operations/capacity and W06 application adapters. W07 adds fresh recovery reports with explicit capability limits. W08 (S2b) is in progress: `doctor --startup` and an optional systemd user unit exist; interruption/reboot/power-loss recovery gates remain open. |
 | Editor continuity | Initial T03 delivered: [Neovim commands and LazyVim example](docs/guides/NEOVIM-SETUP.md) for task selection, resume, checkpoint drafts, artifacts, session checks and TUI review. Isolated Linux acceptance; no global configuration installed. |
 | Assistant access through MCP | Initial implementation delivered: six tools, scoped credentials and explicitly delegated checkpoint writes. Host registration remains a deployment step. |
 | Verified computer actions | C12/C13 and W05–W07 delivered: journaled actions, independent browser/Hyprland verification and scoped recovery reports. S2a adds scoped native/browser WCU records with independent readback. |
+| Observation sensors | S1 delivered: browser surfaces and focus spans, Hyprland attention, live Herdr agent status, sensor health, exact-digest artifact occurrences, extension capture popup and TUI context lines. No sensor completes a task. |
 | Evidence-based completion | Initial CLI implementation delivered: artifact/repo/test evaluators, durable attempts, invalidation and live revalidation of task/step proposals. Raw-output retention, broader machine tools and review notices remain open. |
-| Agent continuity | Saved context and checkpoint handoff are delivered. Agents execute in external harnesses; scoped computer-use records are delivered at S2a. |
-| Project-aware Braid memory | Planned; Braid is not integrated. Current mandatory context works without retrieval. |
+| Agent continuity | Saved context and checkpoint handoff are delivered. Agents execute in external harnesses; scoped computer-use records are delivered at S2a. Claude Code conversations are captured from local transcripts and optional SessionStart/SessionEnd hooks through the pinned Skald capture library (S1). Codex roots are accepted but have no recorded live acceptance. |
+| Project-aware Braid memory | Foundation only (S3.1): `heimdall braid publish` / `braid query` supervise a separately installed Braid over its stdio protocol with metadata-only records. Assignment proposals, read-path scope checks, withdrawal handling and MCP retrieval remain planned. Mandatory context works without retrieval. |
 | Task interface | Delivered: [terminal dashboard and review dialogs](docs/guides/TUI-SETUP.md), replacing the browser GUI. Needs-you, expandable workstreams, retained progress drafts, file checks and workspace preview. |
 
 See [implementation status](docs/STATUS.md), the [ordered backlog](docs/BACKLOG.md), and [development milestones](CHANGELOG.md). These are development milestones, not a complete v1 release.
@@ -38,7 +73,7 @@ Browser extension --> native helper --+
 Terminal UI --> local CLI client -----+
 ```
 
-Braid will remain a separate retrieval component when its adapter is implemented. No model runner or automatic task dispatcher is included yet.
+Braid remains a separate retrieval component: the early `heimdall braid` commands launch a separately installed `braid` executable as a child process and never embed it. No model runner or automatic task dispatcher is included.
 
 ## Build and run
 
@@ -56,7 +91,7 @@ Linux/macOS build command:
 go build -trimpath -o bin/heimdall ./cmd/heimdall
 ```
 
-Windows has historical acceptance; Linux core, continuity, MCP, evidence, TUI and isolated browser/native-worker checks pass locally. WCU also inspected terminal rendering on Hyprland. Actual native-host installation, workspace recovery and macOS acceptance remain open. Use `./bin/heimdall` on Unix.
+Windows has historical acceptance; Linux core, continuity, MCP, evidence, TUI and isolated browser/native-worker checks pass locally. WCU also inspected terminal rendering on Hyprland. Actual daily-profile native-host installation, interruption/reboot recovery and macOS acceptance remain open. Use `./bin/heimdall` on Unix.
 
 Built executables do not require Go at runtime. `bin/heimdall` is the locally tested Linux build; generated binaries are ignored by Git.
 
@@ -91,7 +126,7 @@ Leave `start` running. The following PowerShell example uses the Windows executa
 
 The task fixture imports only at document revision 0 into a fresh store. For later imports, start with `export-tasks` and retain its current revision. Do not reset a document's revision just to bypass a conflict; merge against the current view.
 
-Stop with Ctrl+C. No hooks, browser extension, system service, remote provider, or Braid process is installed or started by this build. Running the example uses synthetic tasks only.
+Stop with Ctrl+C. The commands above install or start no hooks, browser extension, system service, remote provider or Braid process; `init --hooks`, `service install`, browser setup and `braid` commands are separate explicit steps. Running the example uses synthetic tasks only.
 
 ## Terminal interface
 
@@ -108,7 +143,12 @@ All commands accept `--data-dir PATH`, `--json`, and `--now RFC3339`. JSON is th
 | Command | Behavior |
 |---|---|
 | `init` / `start` / `doctor` | Initialize without overwrite; run foreground daemon; report health and task-file errors |
+| `doctor --startup` / `service install\|uninstall\|status` | Bounded startup readiness checks; manage the optional systemd user unit |
+| `init --hooks` / `hook` | Merge `heimdall hook` into Claude Code SessionStart/SessionEnd settings while preserving existing hook chains; `hook` reads one hook payload from stdin |
+| `source add --provider claude_code\|codex --root PATH` / `source list\|activate\|deactivate` | Register, list and toggle conversation transcript roots polled by the daemon |
+| `conversations [TARGET]` | Conversation lifecycle and description evidence; see [conversations](docs/guides/CONVERSATIONS.md) |
 | `ls` / `state [id]` / `events` | Task edit document in ID order; complete state or one task; event log |
+| `state --active` | Fresh active browser tab or owned window read; never binds a task |
 | `add TITLE --id ID --type TYPE --parent ID --status STATUS` | Add a task; missing ID is allocated; workflow subtask defaults materialize |
 | `update ID --title TITLE --status STATUS --next-action TEXT --resume-by DATE --parent ID --importance N` | Apply validated task changes at the current revision |
 | `import-tasks FILE` / `export-tasks` | Apply a strict revisioned YAML document; emit current document |
@@ -149,6 +189,7 @@ All commands accept `--data-dir PATH`, `--json`, and `--now RFC3339`. JSON is th
 | `browser status` / `browser pair PROFILE` / `browser unpair PROFILE` | Inspect browser state; explicitly authorize/revoke a connected profile |
 | `browser setup --extension-id ID --output DIR` | Prepare native host, exact-origin manifest and registration files in a new final installation directory |
 | `browser open\|navigate\|focus\|move\|close --profile ID --epoch ID ...` | Queue a guarded operation; inspect its eventual result with `browser status` |
+| `braid publish` / `braid query TEXT` | Early retrieval foundation: publish a metadata-only snapshot to, and query, a separately installed `braid` executable |
 
 For API/CLI logical retries, `--request-id ID` returns the saved result for the same operation/body. The initial revision precondition is checked only on first execution. Reusing an ID with a different logical request fails. An imported document's revision and continuity commands' explicit revision/head preconditions remain part of their logical content.
 
@@ -164,11 +205,11 @@ If a command races with an editor save, the command's event remains durable whil
 
 The prototype keeps `tasks.yaml`, `types.yaml`, SQLite and endpoint metadata together under `--data-dir`. It defaults to `$XDG_DATA_HOME/heimdall`, otherwise `~/.local/share/heimdall`. The full XDG config/state split and `config.toml` are future work. On Windows, access control follows the chosen directory's ACL; Unix file mode bits are not a substitute for Windows ACL hardening.
 
-The current binary upgrades database markers 1–20 to **21**, publishing a consistent `backups/pre-schema-21-*.db` before migration. Schema-20 binaries refuse marker 21. Database backups preserve recorded state and receipts; external working files require separate preservation. Follow [backup, upgrade and restore](docs/guides/CONTINUITY-SETUP.md#backup-upgrade-and-restore) for fresh-directory recovery or rollback.
+The current binary upgrades database markers 1–21 to **22**, publishing a consistent `backups/pre-schema-22-*.db` before migration. Schema-21 binaries refuse marker 22. Database backups preserve recorded state and receipts; external working files require separate preservation. Follow [backup, upgrade and restore](docs/guides/CONTINUITY-SETUP.md#backup-upgrade-and-restore) for fresh-directory recovery or rollback.
 
 ## Develop
 
-Go language baseline 1.25, tested toolchain 1.27.1. Direct libraries are the pinned official Go MCP SDK v1.7.0, YAML parser and pure-Go SQLite driver. Retained dependency notices are in [docs/licenses](docs/licenses/INDEX.txt).
+Go language baseline 1.25, tested toolchain 1.27.1. Direct libraries are the pinned official Go MCP SDK v1.7.0, YAML parser and pure-Go SQLite driver; Skald v0.1.1 capture packages are pinned as a module dependency. Retained dependency notices are in [docs/licenses](docs/licenses/INDEX.txt).
 
 ```sh
 go test ./...
@@ -209,7 +250,7 @@ Set `HEIMDALL_BIN` to an explicit executable and `HEIMDALL_TEST_TMP` to a scratc
 
 TUI development uses Go and tcell v2. Run `go test ./internal/tui` and `node scripts/tui-smoke.cjs`; Linux runs the compiled interface in a real PTY. Browser-extension test dependencies live separately under `scripts/browser-test/`; the task interface has no frontend build.
 
-CI runs Go tests/vet/build, extension checks and compiled core/native/continuity/resume/workspace/progress/MCP/evidence/TUI checks on Windows and Ubuntu. Linux additionally runs artifact and real-PTY checks. See [verification notes](docs/VERIFICATION.md) for local and historical acceptance.
+The CI workflow runs Go tests/vet/build, extension checks and compiled core/native/continuity/resume/workspace/progress/MCP/evidence/TUI checks on Windows and Ubuntu. Linux additionally runs artifact, isolated Chromium browser and real-PTY checks. This describes the configured workflow, not the result for any particular commit; see [verification notes](docs/VERIFICATION.md) for dated published runs and local and historical acceptance.
 
 On Windows, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools/go`, or the already-installed sibling Braid toolchain. This is a development convenience, not a runtime dependency or import from Braid.
 
@@ -227,14 +268,14 @@ On Windows, `scripts/dev.ps1` can use `HEIMDALL_GO`, Go on PATH, a local `.tools
 |---|---|---|
 | P0 | W07 clock repair, r4 adoption, evaluator environment, YAML check materialization, browser deltas and daily-profile pairing | 20 |
 | S2a (R5/A01/A02) | Delivered: scoped computer-use intents, action grant, reports and fresh reconciliation | 21 |
-| S1 | Pinned Skald L0 capture; Heimdall hooks/sensors, lifecycle and purgeable description evidence; S1b spike | 22 |
-| S2b (R6/W08) | Startup readiness, interruption/reboot recovery, optional login restore | no reserved bump |
-| S3 (C14–C16) | Braid assignment and continuity retrieval, typed checkpoint MCP records, optional intent extraction | 23 |
+| S1 | Delivered: pinned Skald v0.1.1 capture, direct hooks/transcript consumer, surfaces, lifecycle, sensor health, capture popup, artifact occurrences, TUI context | 22 |
+| S2b (R6/W08) | In progress: `doctor --startup` and optional user unit delivered; interruption/reboot recovery and optional login restore remain | no reserved bump |
+| S3 (C14–C16) | Foundation started (`heimdall braid publish\|query`); Braid assignment and scoped continuity retrieval, typed checkpoint MCP records, optional intent extraction remain | 23 |
 | S4 | Planner, notifier, configuration/preferences and TUI views | 24 |
 | S5 (C21) | Mail, Codex/Desktop adapters, packaging and fresh-install replay | 25 |
 
 Delivery order: **P0 → S2a → S1 → S2b → S3 → S4 → S5**. S-numbers are
-stable labels, not numeric execution order. S2a (A01/A02) is delivered; S1 now includes browser surface observations at schema 22; browser focus spans and `state --active` are implemented, while other sensors, compositor attention, lifecycle/UI and later slices remain pending. See [S2a implementation](docs/S2A-IMPLEMENTATION.md).
+stable labels, not numeric execution order. S2a (A01/A02) and S1 are delivered at schema 22; S2b startup readiness is in progress, and the S3 Braid foundation has started ahead of it. P0's daily-profile pairing and ordinary-day volume gates remain open. See [S2a implementation](docs/S2A-IMPLEMENTATION.md), [S1 implementation](docs/S1-IMPLEMENTATION.md) and the [implementation roadmap](docs/HEIMDALL-IMPLEMENTATION-ROADMAP.md).
 
 **Agent execution is out of scope for Heimdall.** Agents run in Claude Code,
 Codex and herdr; desktop input runs through WCU under its MCP host's approval.
@@ -245,3 +286,21 @@ be added. Checkpoint handoff/resume is built; wake conditions and deduplicated
 attention belong to the S4 notifier.
 
 Historical C/T/P/W/R identifiers and their dispositions are preserved in [the backlog](docs/BACKLOG.md).
+
+
+## Compatibility and validation details
+
+**Works with:** Claude Code as a conversation source. Heimdall reads its local transcripts and, on request, adds SessionStart/SessionEnd hooks that preserve existing hooks. A live check against local Claude Code sessions is recorded in the [conversation capture notes](docs/S1-IMPLEMENTATION.md#s12-direct-consumer-2026-09-10). Agents in any MCP host that launches stdio servers can use the [MCP adapter](docs/guides/MCP-SETUP.md). It is tested with the official Go MCP SDK client but has not been registered and run end to end inside Claude Code or another host.
+
+- **Works today (Linux):** event log with deterministic replay; checkpoints and readable resume; scoped MCP access (six tools) with explicit write and action grants; evidence checks that propose completion for review; a terminal dashboard; Neovim and Herdr integration; Hyprland workspace observation, snapshots and reviewed recovery that reports uncertainty explicitly; a browser extension with independently verified actions; browser, desktop and Herdr agent observation; and Claude Code conversation capture.
+- **In progress:** startup readiness checks (`doctor --startup`) and an optional systemd user unit. Recovery after interruption, reboot or power loss is not yet demonstrated.
+- **Early:** `heimdall braid publish` / `braid query` send a metadata-only snapshot to a separately installed Braid and query it. Scoped retrieval, assignment proposals and retrieval through MCP are planned.
+- **Planned:** planner, notifications, configuration/preferences, mail, Codex and Claude Desktop adapters, and packaging. The source API accepts Codex transcript roots, but no live Codex check is recorded.
+- **Limits:** desktop adapters are Linux/Hyprland only. Windows has historical acceptance and a CI job, and macOS is untested. Installing the browser native host in an everyday browser profile and measuring an ordinary day's event volume are still open. Heimdall does not run agents; they run in their own tools. These are development milestones, not a v1 release.
+- **About the numbers:** the test figure counts `func Test…` declarations (subtests excluded), not passing results. Published CI passes are recorded in [verification](docs/VERIFICATION.md) only for earlier commits; this README does not claim a CI result for the current commit.
+
+Full detail: [STATUS.md](docs/STATUS.md).
+
+## License
+
+[Apache License 2.0](LICENSE).
